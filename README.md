@@ -19,6 +19,7 @@ This application provides a framework for different conversion libraries/softwar
   - [Beta notes](#beta)	 
   - [GUI](#gui)
   - [CLI](#cli)
+  - [Arguments](#arguments)
   - [Settings](#settings)
   - [Currently supported file formats](#currently-supported-file-formats)
   - [Documentation and logging](#documentation-and-logging)
@@ -109,7 +110,7 @@ Since the program is still in beta, there are some limitations to the software. 
 - Merging files
   	- Merging large amounts of files has some bugs and results may vary.
 - Compressed files
-  	- Zip is the most tested format, seems stable, but it is best to double check
+  	- Zip is the only tested format, but .tar .gz .7z and .rar is also supported in the current version. It seems stable, but it is best to double check results.
 - PDF to image
   	- Documentation may say that conversion failed even though it was done successfully. Please double check results.
 
@@ -124,17 +125,30 @@ $ .\file-converter-prog2900.exe
 ```
 
 **Options**
-```
-$ .\example -i "C:\Users\user\Downloads
-$ .\example -input "C:\Users\user\Downloads
 
+### Arguments
+Note: All paths must be absolute or relative to executable.
+```
+Set custom input folder. Default: input
+$ .\example -i "C:\Users\user\Downloads
+$ .\example --input "C:\Users\user\Downloads
+
+Set custom output folder. Default: output
 $ .\example -o "C:\Users\user\Downloads
-$ .\example -output "C:\Users\user\Downloads
+$ .\example --output "C:\Users\user\Downloads
+
+Set custom settings file. Default: Settings.xml
+$ .\example -s "C:\Users\user\custom_settings.xml"
+$ .\example --settings "C:\Users\user\custom_settings.xml"
+
+Accept all queries in CLI.
+$ .\example -y
+$ .\example --yes 
 ```
 
 
 ### Settings
-Settings can be manually set in the ```settings.xml``` file.
+Settings can be manually set in the ```Settings.xml``` file.
 
 #### Setting run time arguments
 ```xml  
