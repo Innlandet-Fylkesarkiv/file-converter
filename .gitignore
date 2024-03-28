@@ -11,3 +11,6 @@
 /logs/*
 /testNoZip
 /pdftest
+/GUI/ChangeConverterSettings/ChangeConverterSettings/logs
+/GUI/ChangeConverterSettings/ChangeConverterSettings/obj/Debug/net8.0
+/GUI/ChangeConverterSettings/.vs
