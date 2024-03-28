@@ -101,13 +101,15 @@ Since the program is still in beta, there are some limitations to the software. 
 - Landscape oriented PDF or PDF/A -> PDF/A or other PDF version
   	- There is a bug where iText7 doesn't recognize that a document is landscape oriented when converting from PDF->PDF/A. This results in the content of the file being cropped to portrait.
 - Multi-threading
-	- The current version of the program gets varied results if multi-threading is enabled (```<MaxThreads>``` is over 1). For consistent results, use ```<MaxThreads>1</MaxThreads>```
+	- The current version of the program gets varied results if multi-threading is enabled (```<MaxThreads>``` is over 1). For most consistent results, use ```<MaxThreads>1</MaxThreads>```
 - Parsing siegfried data from incomplete run
   	- The current version of the program cannot successfully recover siegfried data from an incomplete run
 - Timeout
   	- Timeout for conversion is not yet implemented
 - Merging files
   	- Merging large amounts of files has some bugs and results may vary.
+- Compressed files
+  	- Zip is the most tested format, seems stable, but it is best to double check
 
 
 ### GUI
