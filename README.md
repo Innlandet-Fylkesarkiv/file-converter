@@ -110,7 +110,8 @@ Since the program is still in beta, there are some limitations to the software. 
   	- Merging large amounts of files has some bugs and results may vary.
 - Compressed files
   	- Zip is the most tested format, seems stable, but it is best to double check
-
+- PDF to image
+  	- Documentation may say that conversion failed even though it was done successfully. Please double check results.
 
 ### GUI
 Common usage GUI
