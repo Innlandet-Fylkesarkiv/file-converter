@@ -36,6 +36,9 @@ public class FileInfo
 	public bool OutputNotSet { get; set; } = false;				// True if file didn't have a specified format
 	public string NewFileName { get; set; } = "";				// The new name of the file
 	public bool Display { get; set; } = true;					// True if file should be displayed in the file list at the end
+	public bool IsPartOfSplit { get; set; } = false;			// True if file is part of a split file
+	public Guid Parent { get; set; }							// The unique identifier of the parent file
+	public bool IsDeleted { get; set; } = false;				// True if file is deleted
 
 
 	/// <summary>
@@ -56,6 +59,7 @@ public class FileInfo
 		OriginalFormatName = f.OriginalFormatName;
 		OriginalMime = f.OriginalMime;
 		OriginalSize = f.OriginalSize;
+		Parent = f.Id;
 	}
 
 	/// <summary>

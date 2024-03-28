@@ -289,6 +289,10 @@ class Settings
 
 	public static string? GetTargetPronom(FileInfo f)
 	{
+		if (f.IsPartOfSplit)
+		{
+			f = FileManager.Instance.GetFile(f.Parent) ?? f;
+		}
         //Get the parent directory of the file
         var parentDir = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.parsedOptions.Output, f.FilePath));
         //If the file is in a folder that has a folder override, check if the file is at the correct output format for that folder

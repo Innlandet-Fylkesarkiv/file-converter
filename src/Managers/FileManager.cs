@@ -185,8 +185,7 @@ public class FileManager
                 var lastDot = file.FilePath.LastIndexOf('.');
 				if(lastDot == -1)
 				{
-					Logger.Instance.SetUpRunTimeLogMessage("CheckForNamingConflicts: Error when renaming files: No extension found", true, filename: file.FilePath);
-					continue;
+					lastDot = file.FilePath.Length;
 				}
                 //Add a number to the file name
                 var newName = string.Format("{0}_{1}{2}", file.FilePath.Substring(0, lastDot), fileGroup.IndexOf(file), Path.GetExtension(file.FilePath));
@@ -251,6 +250,34 @@ public class FileManager
         return int.MaxValue;
     }
 
+	public void TestDuplicateFilenames()
+	{
+		var dict = new Dictionary<string, List<FileInfo>>();
+		foreach (var file in Files.Values)
+		{
+			var key = Path.GetFileName(file.FilePath);
+            if (dict.ContainsKey(key))
+			{
+				dict[key].Add(file);
+            }
+            else
+			{
+				dict[key] = new List<FileInfo> { file };
+            }
+        }
+		foreach (var entry in dict)
+		{
+			if(entry.Value.Count > 1)
+			{
+				foreach (var file in entry.Value)
+				{
+					Console.WriteLine("{0,50} | {1,80}", entry.Key, file.FilePath);
+				}
+				Console.WriteLine();
+			}
+		}
+	}
+
 	public void DisplayFileList()
 	{
 
@@ -264,14 +291,18 @@ public class FileManager
 		{
 			
 			//Skip files that should be merged or should not be displayed
-			if (Settings.ShouldMerge(file) || !file.Display)
+			if (Settings.ShouldMerge(file))
+			{
+				continue;
+			} else if (!file.Display)
 			{
 				continue;
 			}
 
-            string currentPronom = (file.NewPronom != "") ? file.NewPronom : file.OriginalPronom;
+            string currentPronom = file.NewPronom != "" ? file.NewPronom : file.OriginalPronom;
 			string? targetPronom = Settings.GetTargetPronom(file);
 			bool supported = false;
+			
 			
             //Check if the conversion is supported by any of the converters
             if (targetPronom != null) { 
@@ -393,13 +424,13 @@ public class FileManager
 		}
 		
 		//Sum total from all entries in fileCount where key. is not "Not set" or "Not supported"
-		int total = formatList.Where(x => x.TargetPronom != notSetString && !x.TargetPronom.Contains(notSupportedString)).Sum(x => x.Count);
+		int total = formatList.Where(x => x.TargetPronom != notSetString && !x.TargetFormatName.Contains(notSupportedString)).Sum(x => x.Count);
 		//Sum total from all entries in fileCount where the input pronom is the same as the output pronom
         int totalFinished = formatList.Where(x => x.CurrentPronom == x.TargetPronom).Sum(x => x.Count);
         //Print totals to user
         Console.ForegroundColor = GlobalVariables.INFO_COL;
         Console.WriteLine("\nNumber of files: {0,-10}", Files.Count);
-		Console.WriteLine("Number of files with output specified: {0,-10}", total);
+		Console.WriteLine("Number of files with supported output specified: {0,-10}", total);
 		Console.WriteLine("Number of files not at target pronom: {0,-10}", total-totalFinished);
 		//Get a list of all directories that will be merged
 		List<(string,string)> dirsToBeMerged = new List<(string, string)>();

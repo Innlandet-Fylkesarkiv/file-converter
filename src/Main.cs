@@ -31,7 +31,6 @@ public static class GlobalVariables
 	public const ConsoleColor WARNING_COL = ConsoleColor.Yellow;
 	public const ConsoleColor SUCCESS_COL = ConsoleColor.Green;
 	public static readonly PrintSortBy SortBy = PrintSortBy.Count;
-	public static readonly object IOlock = new object();
 	
 	public static void Reset()
 	{
@@ -51,12 +50,15 @@ public class Options
 	public string Output { get; set; } = "";
 	[Option('s', "settings", Required = false, HelpText = "Specify settings file", Default = "Settings.xml")]
 	public string Settings { get; set; } = "";
+
+	[Option('y', "yes", Required = false, HelpText = "Accept all queries", Default = false)]
+	public bool AcceptAll { get; set; } = false;
 }
 class Program
 { 
 	static void Main(string[] args)
 	{
-        bool debug = true;
+        bool debug = false;
 		string settingsPath = "";
         Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
         {
@@ -147,7 +149,7 @@ class Program
 				Console.WriteLine("Timeout in minutes: {0}", GlobalVariables.timeout);
 				Console.ForegroundColor = oldColor;
 				Console.Write("Do you want to proceed with these settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
-				string ?r = Console.ReadLine();
+				string ?r = GlobalVariables.parsedOptions.AcceptAll ? "Y" : Console.ReadLine();
 				r = r?.ToUpper() ?? " ";
 				input = r;
 				if (input == "R")
@@ -172,6 +174,7 @@ class Program
 
 			try
 			{
+				//fileManager.TestDuplicateFilenames();
 				fileManager.CheckForNamingConflicts();
                 Console.WriteLine("Converting files...");
                 cm.ConvertFiles();

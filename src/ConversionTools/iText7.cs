@@ -4,15 +4,9 @@ using iText.Pdfa;
 using iText.Html2pdf;
 using iText.Kernel.Pdf.Xobject;
 using iText.Kernel.Pdf.Canvas;
-using System.Runtime.CompilerServices;
-using System.Xml.Schema;
-using System.Drawing;
-using System.Net.Http.Headers;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Diagnostics;
-using System.IO;
 using iText.Commons.Actions;
+using iText.Kernel.Geom;
+using Path = System.IO.Path;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -287,7 +281,7 @@ public class iText7 : Converter
 				    PdfDocumentInfo info = pdfDocument.GetDocumentInfo();
 				    using(var htmlSource = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None))
 				    {
-					    HtmlConverter.ConvertToPdf(htmlSource, pdfDocument);
+					    HtmlConverter.ConvertToPdf(htmlSource, pdfDocument); //TODO: System.UriFormatException: 'Invalid URI: The URI is empty'
 					    document.Close();
 				    }
 				    pdfDocument.Close();
@@ -328,64 +322,142 @@ public class iText7 : Converter
             int count = 0;
             bool converted = false;
             PdfOutputIntent outputIntent;
+
+            RemoveInterpolation(filename);
+            RemoveInterpolateFlag(filename, tmpFilename);
             lock (pdfalock)
             {
-                using (FileStream iccFileStream = new FileStream("src/ConversionTools/sRGB2014.icc", FileMode.Open))
+                do
                 {
-                    outputIntent = new PdfOutputIntent("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
-                }
-            }
-            do
-            {
-                using (PdfWriter writer = new PdfWriter(tmpFilename)) // Create PdfWriter instance
-                using (PdfADocument pdfADocument = new PdfADocument(writer, conformanceLevel, outputIntent)) //TODO: iText.Kernel.Exceptions.PdfException: 'Cannot operate with the flushed PdfStream.' ----- MERGE OUTPUT PDFA
-                                                                                                             // Associate PdfADocument with PdfWriter
-                using (PdfReader reader = new PdfReader(filename))
-                {
-                    PdfDocument pdfDocument = new PdfDocument(reader);
-                    
-			        pdfADocument.SetTagged();
-
-                    for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
+                    using (FileStream iccFileStream = new FileStream("src/ConversionTools/sRGB2014.icc", FileMode.Open))
                     {
-                        PdfPage sourcePage = pdfDocument.GetPage(pageNum);
-                        var ps = sourcePage.GetPageSize();
-                        var landscape = ps.GetWidth() > ps.GetHeight();
-                        if (landscape)
-                        {
-                            //Console.WriteLine("Landscape");
+                        outputIntent = new PdfOutputIntent("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
+                    
+                    using (PdfWriter writer = new PdfWriter(tmpFilename)){ // Create PdfWriter instance
+                        using (PdfADocument pdfADocument = new PdfADocument(writer, conformanceLevel, outputIntent))
+                        { //TODO: iText.Kernel.Exceptions.PdfException: 'Cannot operate with the flushed PdfStream.'
+                          // Associate PdfADocument with PdfWriter
+                            using (PdfReader reader = new PdfReader(filename))
+                            {
+                                PdfDocument pdfDocument = new PdfDocument(reader);
+
+                                pdfADocument.SetTagged();
+                                
+
+                                for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
+                                {
+                                    PdfPage sourcePage = pdfDocument.GetPage(pageNum);
+                                    var ps = sourcePage.GetPageSize();
+                                    var landscape = ps.GetWidth() > ps.GetHeight();
+                                    if (landscape)
+                                    {
+                                        //Console.WriteLine("Landscape");
+                                    }
+
+                                    PdfPage page = pdfADocument.AddNewPage(new PageSize(sourcePage.GetPageSize()));
+                                    PdfFormXObject pageCopy = sourcePage.CopyAsFormXObject(pdfADocument);
+
+                                    PdfCanvas canvas = new PdfCanvas(page);
+                                    canvas.AddXObject(pageCopy);
+                                    }
+                                }
+                            }
                         }
+                    }       //TODO: iText.Pdfa.Exceptions.PdfAConformanceException: 'The value of interpolate key shall not be true'
+                            //TODO: iText.Pdfa.Exceptions.PdfAConformanceException: 'For any spot color used in a DeviceN or NChannel colorspace, an entry in the Colorants dictionary shall be present.'
+                            //"output\\OfficeTestData\\matte\\Innføringslekse kap 3+4.pdf"
 
-                        PdfPage page = pdfADocument.AddNewPage(new iText.Kernel.Geom.PageSize(sourcePage.GetPageSize()));
-                        PdfFormXObject pageCopy = sourcePage.CopyAsFormXObject(pdfADocument);
-
-                        PdfCanvas canvas = new PdfCanvas(page);
-                        canvas.AddXObject(pageCopy);
+                    converted = CheckConversionStatus(tmpFilename, pronom);
+                    if (!converted)
+                    {
+                        CheckConversionStatus(tmpFilename, pronom);
                     }
-                }       //TODO: iText.Pdfa.Exceptions.PdfAConformanceException: 'The value of interpolate key shall not be true'
-                //TODO: iText.Pdfa.Exceptions.PdfAConformanceException: 'For any spot color used in a DeviceN or NChannel colorspace, an entry in the Colorants dictionary shall be present.'
-                //"output\\OfficeTestData\\matte\\Innføringslekse kap 3+4.pdf"
-
-                converted = CheckConversionStatus(tmpFilename, pronom);
-            if (!converted)
-            {
-                CheckConversionStatus(tmpFilename, pronom);
-            }
-            } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
-            if (!converted)
-            {
-                file.Failed = true;
-            } else
-            {
-                File.Delete(filename);
-                File.Move(tmpFilename, filename);
-                replaceFileInList(filename, file);
+                } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
+                if (!converted)
+                {
+                    file.Failed = true;
+                }
+                else
+                {
+                    File.Delete(filename);
+                    File.Move(tmpFilename, filename);
+                    replaceFileInList(filename, file);
+                }
             }
         }
         catch (Exception e)
         {
             Logger.Instance.SetUpRunTimeLogMessage("Error converting PDF to PDF-A. File is not converted: " + e.Message, true, filename: file.FilePath);
         }
+    }
+
+    void RemoveInterpolation(string filename)
+    {
+        using (PdfReader reader = new PdfReader(filename))
+        {
+            PdfDocument pdfDocument = new PdfDocument(reader);
+            for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
+            {
+                PdfPage page = pdfDocument.GetPage(pageNum);
+                RemoveInterpolationFromResources(page.GetPdfObject());
+            }
+
+            // Save the modified document
+            pdfDocument.Close();
+        }
+    }
+
+    void RemoveInterpolationFromResources(PdfObject resource)
+    {
+        if (resource is PdfDictionary resources)
+        {
+            PdfDictionary xobjs = resources.GetAsDictionary(PdfName.XObject);
+
+            if (xobjs != null)
+            {
+                foreach (PdfName name in xobjs.KeySet())
+                {
+                    PdfStream xobjStream = xobjs.GetAsStream(name);
+
+                    if (PdfName.Form.Equals(xobjStream.GetAsName(PdfName.Subtype)))
+                    {
+                        // XObject forms have their own nested resources
+                        PdfDictionary nestedResources = xobjStream.GetAsDictionary(PdfName.Resources);
+                        RemoveInterpolationFromResources(nestedResources);
+                    }
+                    else
+                    {
+                        // Remove the interpolate flag
+                        xobjStream.Remove(PdfName.Interpolate);
+                    }
+                }
+            }
+        }
+    }
+
+    void RemoveInterpolateFlag(string inputPdfPath, string outputPdfPath)
+    {
+        using (PdfReader reader = new PdfReader(inputPdfPath))
+        using (PdfWriter writer = new PdfWriter(outputPdfPath))
+        using (PdfDocument inputPdf = new PdfDocument(reader))
+        using (PdfDocument outputPdf = new PdfDocument(writer))
+        {
+            for (int pageNum = 1; pageNum <= inputPdf.GetNumberOfPages(); pageNum++)
+            {
+                PdfPage inputPage = inputPdf.GetPage(pageNum);
+                var rect = inputPage.GetPageSize();
+                PageSize pageSize = new PageSize(rect.GetWidth(), rect.GetHeight());
+                PdfPage outputPage = outputPdf.AddNewPage(pageSize);
+
+                // Remove interpolate flag from resources of output page
+                outputPage.GetPdfObject().Remove(PdfName.Interpolate);
+
+                // Copy content from input page to output page
+                inputPage.CopyTo(outputPdf);
+            }
+        }
+        File.Delete(inputPdfPath);
+        File.Move(outputPdfPath, inputPdfPath);
     }
 
     /// <summary>

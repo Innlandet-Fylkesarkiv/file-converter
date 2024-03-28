@@ -17,13 +17,14 @@ using Ghostscript.NET;
 /// </summary>
 public class GhostscriptConverter : Converter
 {
+	private static readonly object lockobject = new object();
 	public GhostscriptConverter()
 	{
 		Name = "Ghostscript";
 		SetNameAndVersion();
 		SupportedConversions = getListOfSupportedConvesions();
 		SupportedOperatingSystems = getSupportedOS();
-	  
+		
 	}
 
     public override void GetVersion()
@@ -162,21 +163,23 @@ public class GhostscriptConverter : Converter
 			{
 				extension = keyValuePairs.First(kv => kv.Key.Contains(pronom)).Value.Item2;
 				sDevice = keyValuePairs.First(kv => kv.Key.Contains(pronom)).Value.Item1;
-
-				if (extension == ".pdf")
+				lock (lockobject)
 				{
-					string pdfVersion = pdfVersionMap[pronom].ToString();
-					convertToPDF(file, outputFileName, sDevice, extension, pdfVersion, pronom);
-				}
-				else if (extension == ".png" || extension == ".jpg" || extension == ".tiff" || extension == ".bmp")
-				{
-					if(OperatingSystem.IsWindows())
+					if (extension == ".pdf")
 					{
-                        convertToImagesWindows(file, outputFileName, sDevice, extension, pronom);
-                    }
-					else 
+						string pdfVersion = pdfVersionMap[pronom].ToString();
+						convertToPDF(file, outputFileName, sDevice, extension, pdfVersion, pronom);
+					}
+					else if (extension == ".png" || extension == ".jpg" || extension == ".tiff" || extension == ".bmp")
 					{
-						convertToImagesLinux(file, outputFileName, sDevice, extension, pronom);
+						if (OperatingSystem.IsWindows())
+						{
+							convertToImagesWindows(file, outputFileName, sDevice, extension, pronom);
+						}
+						else
+						{
+							convertToImagesLinux(file, outputFileName, sDevice, extension, pronom);
+						}
 					}
 				}
 			}
@@ -245,8 +248,10 @@ public class GhostscriptConverter : Converter
 								}
 
 								var newFile = new FileInfo(pageOutputFileName, originalFileInfo);
+								newFile.IsPartOfSplit = true;
 								newFile.AddConversionTool(NameAndVersion);
-								files.Add(newFile);
+                                newFile.UpdateSelf(new FileInfo(Siegfried.Instance.IdentifyFile(newFile.FilePath, true)));
+                                files.Add(newFile);
 							}
 						}
 					}
@@ -266,6 +271,9 @@ public class GhostscriptConverter : Converter
 			{
 				deleteOriginalFileFromOutputDirectory(file.FilePath);
 				originalFileInfo.Display = false;
+				originalFileInfo.IsDeleted = true;
+				originalFileInfo.UpdateSelf(files.First());	//TODO: Ask County Archive how they want the original file to be documented if it is split into different files
+				originalFileInfo.IsConverted = true;
 			}
 			file.Failed = !converted;
         }
@@ -313,6 +321,11 @@ public class GhostscriptConverter : Converter
             bool converted = true;
 			List<FileInfo> files;
             var originalFileInfo = FileManager.Instance.GetFile(file.Id);
+			if (originalFileInfo == null)
+			{
+                file.Failed = true;
+                return;
+            }
 
 			do
 			{
@@ -345,12 +358,14 @@ public class GhostscriptConverter : Converter
 					process?.WaitForExit();
 				}
 
-				var filesInFolder = Directory.GetFiles(folderPath);
-				foreach (var fileInFolder in filesInFolder)
+				var newFilePaths = Directory.GetFiles(folderPath);
+				foreach (var filePath in newFilePaths)
 				{
-					var newFile = new FileInfo(fileInFolder, originalFileInfo);
+					var newFile = new FileInfo(filePath, originalFileInfo);
+					newFile.IsPartOfSplit = true;
+					newFile.UpdateSelf(new FileInfo(Siegfried.Instance.IdentifyFile(newFile.FilePath,true)));
+					newFile.AddConversionTool(NameAndVersion);
 					files.Add(newFile);
-                    //Only checking as long as a file hasn't been converted, rest will be checked at the end of conversion
                     converted = converted && CheckConversionStatus(newFile.FilePath, pronom);
                 }
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
@@ -401,11 +416,10 @@ public class GhostscriptConverter : Converter
             startInfo.RedirectStandardOutput = true;
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = true;
-            using (Process? exeProcess = Process.Start(startInfo))	//TODO: System.ComponentModel.Win32Exception: 'An error occurred trying to start process 'C:\Users\larsm\source\repos\file-converter\bin\Debug\net8.0\GhostscriptBinaryFiles\gs10.02.1\bin\gsdll64.dll' with working directory 'C:\Users\larsm\source\repos\file-converter'. The specified executable is not a valid application for this OS platform.'
-
-            {
-                exeProcess?.WaitForExit();
-            }
+			using (Process? exeProcess = Process.Start(startInfo))
+			{
+				exeProcess?.WaitForExit();
+			}
 
             int count = 1;
             bool converted = false;
@@ -417,7 +431,7 @@ public class GhostscriptConverter : Converter
                 {
                     convertToPDF(file, outputFileName, sDevice, extension, pdfVersion, pronom);
                 }
-            } while (!converted && count < 4);
+            } while (!converted && count < GlobalVariables.MAX_RETRIES);
             if (!converted)
             {
                 file.Failed = true;

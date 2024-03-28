@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
-
+using System.DirectoryServices.AccountManagement;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 public class Logger
 {
@@ -220,7 +221,7 @@ public class Logger
                     OriginalPronom = file.OriginalPronom,
                     OriginalChecksum = file.OriginalChecksum,
                     OriginalSize = file.OriginalSize,
-                    TargetPronom = file.TargetPronom
+                    TargetPronom = Settings.GetTargetPronom(file)
                 };
 				JsonNotSupportedFiles.Add(jsonData);
 			}
@@ -290,8 +291,12 @@ public class Logger
 		if(JsonRoot.requester == null || JsonRoot.requester == "")
 		{
 			string requester = Environment.UserName;
+			if (OperatingSystem.IsWindows())
+			{
+				requester = UserPrincipal.Current.DisplayName;
+            }	
 			Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as requester in the documentation? (Y/N)", requester);
-			var response = Console.ReadLine();
+			var response = GlobalVariables.parsedOptions.AcceptAll ? "Y" :Console.ReadLine();
 			if (response.ToUpper() == "Y")
 			{
                 JsonRoot.requester = requester;
@@ -309,8 +314,12 @@ public class Logger
 		if(JsonRoot.converter == null || JsonRoot.converter == "")
 		{
             string converter = Environment.UserName;
-            Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as converter in the documentation? (Y(N)", converter);
-            var response = Console.ReadLine();
+            if (OperatingSystem.IsWindows())
+            {
+                converter = UserPrincipal.Current.DisplayName;
+            }
+            Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as converter in the documentation? (Y/N)", converter);
+            var response = GlobalVariables.parsedOptions.AcceptAll ? "Y" : Console.ReadLine();
             if (response.ToUpper() == "Y")
             {
                 JsonRoot.converter = converter;
