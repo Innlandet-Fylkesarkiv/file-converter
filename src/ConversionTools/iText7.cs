@@ -361,6 +361,7 @@ public class iText7 : Converter
                                     canvas.AddXObject(pageCopy);
                                     }
                                 }
+                                Console.Write("");
                             }
                         }
                     }       //TODO: iText.Pdfa.Exceptions.PdfAConformanceException: 'The value of interpolate key shall not be true'
@@ -368,10 +369,6 @@ public class iText7 : Converter
                             //"output\\OfficeTestData\\matte\\Innføringslekse kap 3+4.pdf"
 
                     converted = CheckConversionStatus(tmpFilename, pronom);
-                    if (!converted)
-                    {
-                        CheckConversionStatus(tmpFilename, pronom);
-                    }
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 if (!converted)
                 {
