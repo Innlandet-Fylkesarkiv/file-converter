@@ -31,6 +31,7 @@ public static class GlobalVariables
 	public const ConsoleColor WARNING_COL = ConsoleColor.Yellow;
 	public const ConsoleColor SUCCESS_COL = ConsoleColor.Green;
 	public static readonly PrintSortBy SortBy = PrintSortBy.Count;
+	public static bool debug = false;
 	
 	public static void Reset()
 	{
@@ -58,7 +59,6 @@ class Program
 { 
 	static void Main(string[] args)
 	{
-        bool debug = false;
 		string settingsPath = "";
         Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
         {
@@ -67,7 +67,7 @@ class Program
 
         if (GlobalVariables.parsedOptions.Settings == "Settings.xml")
         {
-            settingsPath = debug ? "Settings_Testing.xml" : "Settings.xml";
+            settingsPath = GlobalVariables.debug ? "Settings_Testing.xml" : "Settings.xml";
         }
 
 		//Only maximize and center the console window if the OS is Windows
@@ -98,7 +98,8 @@ class Program
 
 		FileManager fileManager = FileManager.Instance;
 		Siegfried sf = Siegfried.Instance;
-		
+		Stopwatch sw = new Stopwatch();
+		sw.Start();
 		//TODO: Check for malicous input files
 		try
 		{
@@ -148,24 +149,31 @@ class Program
 				Console.WriteLine("MaxThreads: {0}", GlobalVariables.maxThreads);
 				Console.WriteLine("Timeout in minutes: {0}", GlobalVariables.timeout);
 				Console.ForegroundColor = oldColor;
-				Console.Write("Do you want to proceed with these settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
-				string ?r = GlobalVariables.parsedOptions.AcceptAll ? "Y" : Console.ReadLine();
-				r = r?.ToUpper() ?? " ";
-				input = r;
-				if (input == "R")
+				if (!GlobalVariables.parsedOptions.AcceptAll)
 				{
-					Console.WriteLine("Change settings file and hit enter when finished (Remember to save file)");
-					Console.ReadLine();
-					settings.ReadSettings(settingsPath);
-					settings.SetUpFolderOverride(settingsPath);
+					Console.Write("Do you want to proceed with these settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
+					string? r = Console.ReadLine();
+					r = r?.ToUpper() ?? " ";
+					input = r;
+					if (input == "R")
+					{
+						Console.WriteLine("Change settings file and hit enter when finished (Remember to save file)");
+						Console.ReadLine();
+						settings.ReadSettings(settingsPath);
+						settings.SetUpFolderOverride(settingsPath);
+					}
+					if (input == "G")
+					{
+						//TODO: Start GUI
+						Console.WriteLine("Not implemented yet...");
+						settings.ReadSettings(settingsPath);
+						settings.SetUpFolderOverride(settingsPath);
+					}
 				}
-				if (input == "G")
+                else
 				{
-					//TODO: Start GUI
-					Console.WriteLine("Not implemented yet...");
-					settings.ReadSettings(settingsPath);
-					settings.SetUpFolderOverride(settingsPath);
-				}
+                    input = "Y";
+                }
 			} while (input != "Y" && input != "N");
 			if (input == "N")
 			{
@@ -203,10 +211,15 @@ class Program
 			{
 				Console.WriteLine("No errors happened during runtime. See documentation.json file in output dir.");
 			}
-			if (debug)
+			if (GlobalVariables.debug)
 			{
 				Console.Beep();
 			}
+		}
+		sw.Stop();
+		if (GlobalVariables.debug)
+		{
+			Console.WriteLine("Time elapsed: {0}", sw.Elapsed);
 		}
 	}
 }
