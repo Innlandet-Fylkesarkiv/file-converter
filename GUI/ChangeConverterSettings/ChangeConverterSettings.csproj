@@ -22,11 +22,11 @@
 
 
   <ItemGroup>
-    <Compile Include="..\..\..\src\HelperClasses\PronomHelper.cs" Link="PronomHelper.cs" />
+    <Compile Include="..\..\src\HelperClasses\PronomHelper.cs" Link="PronomHelper.cs" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <Content Include="..\..\..\Settings.xml" Link="Settings.xml" />
+    <Content Include="..\..\Settings.xml" Link="Settings.xml" />
   </ItemGroup>
 </Project>

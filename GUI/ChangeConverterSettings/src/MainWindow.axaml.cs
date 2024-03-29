@@ -12,6 +12,7 @@ using Avalonia.Layout;
 using Avalonia.Input;
 using Tmds.DBus.Protocol;
 using System.Diagnostics;
+using Avalonia.Platform.Storage;
 
 namespace ChangeConverterSettings
 {
@@ -33,7 +34,7 @@ namespace ChangeConverterSettings
         public static string? timeout = null;
         public static string defaultText = "Default";
         public static List<string> supportedHashes = new List<string> { "MD5", "SHA256" };
-        public static string defaultSettingsPath = "../../../settings.xml";
+        public static string defaultSettingsPath = "../../settings.xml";
     }
 
     /// <summary>
@@ -62,7 +63,9 @@ namespace ChangeConverterSettings
             settings.ReadAllSettings(GlobalVariables.defaultSettingsPath);
             WriteSettingsToScreen();
             Console.WriteLine(GlobalVariables.FileSettings);
+            //InitializeComponents();
         }
+
         /// <summary>
         /// Initializes the main window
         /// </summary>
@@ -70,6 +73,7 @@ namespace ChangeConverterSettings
         {
             AvaloniaXamlLoader.Load(this);
         }
+
         /// <summary>
         /// When the user presses the save button, the current values are written to the settings file
         /// </summary>

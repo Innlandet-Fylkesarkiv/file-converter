@@ -14,7 +14,7 @@ public static class CreateControl
     /// Creates a TextBlock
     /// </summary>
     /// <param name="text"> The textcontent of the TextBlock </param>
-    /// <returns></returns>
+    /// <returns> The Textblock that was created </returns>
     public static TextBlock CreateTextBlock(string text)
     {
         return new TextBlock
