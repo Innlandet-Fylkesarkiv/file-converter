@@ -567,9 +567,10 @@ public class iText7 : Converter
                 group.Add(file);
                 groupSize += file.OriginalSize;
                 if (groupSize > GlobalVariables.maxFileSize)
-                { 
-                    
-                    tasks.Add(Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)));
+                {
+
+                    //tasks.Add(Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)));
+                    Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)).Wait(); //DEBUG
                     group.Clear();
                     groupSize = 0;
                     groupCount++;
@@ -578,10 +579,11 @@ public class iText7 : Converter
             if(group.Count > 0)
             {
                 string outputFileName = $@"{filename}_{groupCount}.pdf";
-                tasks.Add(Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)));
+                //tasks.Add(Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)));
+                Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)).Wait(); //DEBUG
             }
             //Wait for all files 
-            tasks.ForEach(t => t.Wait());
+            //tasks.ForEach(t => t.Wait()); removed for DEBUG
         }
         catch (Exception e)
         {
