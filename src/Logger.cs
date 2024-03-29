@@ -294,23 +294,26 @@ public class Logger
 			if (OperatingSystem.IsWindows())
 			{
 				requester = UserPrincipal.Current.DisplayName;
-            }	
-			Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as requester in the documentation? (Y/N)", requester);
-			var response = GlobalVariables.parsedOptions.AcceptAll ? "Y" :Console.ReadLine();
-			if (response.ToUpper() == "Y")
+            }
+			if (!GlobalVariables.parsedOptions.AcceptAll)
+			{
+				Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as requester in the documentation? (Y/N)", requester);
+				var response = GlobalVariables.parsedOptions.AcceptAll ? "Y" : Console.ReadLine();
+				if (response.ToUpper() == "Y")
+				{
+					JsonRoot.requester = requester;
+				}
+				else
+				{
+					Console.WriteLine("Who is requesting the converting?");
+					JsonRoot.requester = Console.ReadLine();
+				}
+			} else
 			{
                 JsonRoot.requester = requester;
             }
-            else
-			{
-                Console.WriteLine("Who is requesting the converting?");
-                JsonRoot.requester = Console.ReadLine();
-            }
 		}
-		else
-		{
-			//Console.WriteLine("The requester " + JsonRoot.requester +" was found in the settings file.");
-		}
+
 		if(JsonRoot.converter == null || JsonRoot.converter == "")
 		{
             string converter = Environment.UserName;
@@ -318,21 +321,23 @@ public class Logger
             {
                 converter = UserPrincipal.Current.DisplayName;
             }
-            Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as converter in the documentation? (Y/N)", converter);
-            var response = GlobalVariables.parsedOptions.AcceptAll ? "Y" : Console.ReadLine();
-            if (response.ToUpper() == "Y")
-            {
-                JsonRoot.converter = converter;
-            }
-            else
-            {
-                Console.WriteLine("Who is requesting the converting?");
-                JsonRoot.converter = Console.ReadLine();
-            }
+			if (!GlobalVariables.parsedOptions.AcceptAll)
+			{
+				Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as converter in the documentation? (Y/N)", converter);
+				var response = Console.ReadLine();
+				if (response.ToUpper() == "Y")
+				{
+					JsonRoot.converter = converter;
+				}
+				else
+				{
+					Console.WriteLine("Who is requesting the converting?");
+					JsonRoot.converter = Console.ReadLine();
+				}
+			} else
+			{
+				JsonRoot.converter = converter;
+			}
         }
-		else
-		{
-			//Console.WriteLine("The converter " + JsonRoot.converter + " was found in the settings file.");
-		}
 	}
 }

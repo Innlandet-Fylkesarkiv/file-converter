@@ -361,6 +361,7 @@ public class iText7 : Converter
                                     canvas.AddXObject(pageCopy);
                                     }
                                 }
+                                Console.Write("");
                             }
                         }
                     }       //TODO: iText.Pdfa.Exceptions.PdfAConformanceException: 'The value of interpolate key shall not be true'
@@ -368,10 +369,6 @@ public class iText7 : Converter
                             //"output\\OfficeTestData\\matte\\Innføringslekse kap 3+4.pdf"
 
                     converted = CheckConversionStatus(tmpFilename, pronom);
-                    if (!converted)
-                    {
-                        CheckConversionStatus(tmpFilename, pronom);
-                    }
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 if (!converted)
                 {
@@ -570,9 +567,10 @@ public class iText7 : Converter
                 group.Add(file);
                 groupSize += file.OriginalSize;
                 if (groupSize > GlobalVariables.maxFileSize)
-                { 
-                    
-                    tasks.Add(Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)));
+                {
+
+                    //tasks.Add(Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)));
+                    Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)).Wait(); //DEBUG
                     group.Clear();
                     groupSize = 0;
                     groupCount++;
@@ -581,10 +579,11 @@ public class iText7 : Converter
             if(group.Count > 0)
             {
                 string outputFileName = $@"{filename}_{groupCount}.pdf";
-                tasks.Add(Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)));
+                //tasks.Add(Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)));
+                Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)).Wait(); //DEBUG
             }
             //Wait for all files 
-            tasks.ForEach(t => t.Wait());
+            //tasks.ForEach(t => t.Wait()); removed for DEBUG
         }
         catch (Exception e)
         {
