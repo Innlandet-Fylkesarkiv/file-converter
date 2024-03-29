@@ -98,20 +98,21 @@ dotnet build
 Common usage (code block)
 
 ### Beta
-Since the program is still in beta, there are some limitations to the software. This section will be updated throughout the development process.
+Since the program is still in beta, there are some limitations or bugs in the software. This section will be updated throughout the development process as we fix or find problems.
+Program is mostly tested in Windows, so Linux specific issues may not appear in list. 
 - Landscape oriented PDF or PDF/A -> PDF/A or other PDF version
   	- There is a bug where iText7 doesn't recognize that a document is landscape oriented when converting from PDF->PDF/A. This results in the content of the file being cropped to portrait.
-- Multi-threading
+- (Multi-threading)
 	- The current version of the program gets varied results if multi-threading is enabled (```<MaxThreads>``` is over 1). For most consistent results, use ```<MaxThreads>1</MaxThreads>```
 - Parsing siegfried data from incomplete run
   	- The current version of the program cannot successfully recover siegfried data from an incomplete run
 - Timeout
   	- Timeout for conversion is not yet implemented
-- Merging files
+- (Merging files)
   	- Merging large amounts of files has some bugs and results may vary.
-- Compressed files
+- (Compressed files)
   	- Zip is the only tested format, but .tar .gz .7z and .rar is also supported in the current version. It seems stable, but it is best to double check results.
-- PDF to image
+- (PDF to image)
   	- Documentation may say that conversion failed even though it was done successfully. Please double check results.
 
 ### GUI
@@ -159,6 +160,7 @@ Settings can be manually set in the ```Settings.xml``` file.
 	<OutputFolder></OutputFolder>                <!-- Specify output folder, default is "output" -->
 	<MaxThreads></MaxThreads>	                   <!-- Write a number, deafult is cores*2 -->
 	<Timeout></Timeout>			                     <!-- Timeout in minutes, default is 30min -->
+	<MaxFileSize></MaxFileSize>		<!-- Max total input bytes per file for merged files, default is 1GB. Note: output file size may differ from total of input files -->
 ```
 
 The first part of the XML file concerns arguments needed to run the program. The second part allows you to set up two things:
