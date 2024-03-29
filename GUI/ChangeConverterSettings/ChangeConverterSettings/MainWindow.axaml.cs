@@ -15,6 +15,9 @@ using System.Diagnostics;
 
 namespace ChangeConverterSettings
 {
+    /// <summary>
+    /// Class that contains main global variables
+    /// </summary>
     public static class GlobalVariables
     {
         public static string? Input = null;
@@ -32,6 +35,9 @@ namespace ChangeConverterSettings
         public static List<string> supportedHashes = new List<string> { "MD5", "SHA256" };
         public static string defaultSettingsPath = "../../../settings.xml";
     }
+    /// <summary>
+    /// Class that contains info about the width of the columns
+    /// </summary>
     public static class WidthInfo
     {
         public static int longestName = 0;
@@ -39,6 +45,9 @@ namespace ChangeConverterSettings
         public static int longestOutput = 0;
         public static int longestOutputType = 0;
     }
+    /// <summary>
+    /// Class that contains all the components that are created
+    /// </summary>
     public static class ComponentLists
     {
         public static List<TextBlock> formatNames = new List<TextBlock>();
@@ -47,10 +56,14 @@ namespace ChangeConverterSettings
         public static List<TextBox> outputNameTextBoxes = new List<TextBox>();
         public static List<Button> updateButtons = new List<Button>();
         public static List<StackPanel> stackPanels = new List<StackPanel>();
+        // Map with info about what Format/ClassName has what output PRONOM code
         public static Dictionary<string, string> outputTracker = new Dictionary<string, string>();
     }
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// Constructor for the main window
+        /// </summary>
         public MainWindow()
         {
             Directory.SetCurrentDirectory("../../../");
@@ -60,10 +73,18 @@ namespace ChangeConverterSettings
             WriteSettingsToScreen();
             Console.WriteLine(GlobalVariables.FileSettings);
         }
+        /// <summary>
+        /// Initializes the main window
+        /// </summary>
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
         }
+        /// <summary>
+        /// When the user presses the save button, the current values are written to the settings file
+        /// </summary>
+        /// <param name="sender"> the save button being pressed </param>
+        /// <param name="args"> arguments (unused but neccesary to be able to call it) </param>
         public void SaveButton(object sender, RoutedEventArgs args)
         {
             CreateElements createElements = new CreateElements(this);
@@ -91,7 +112,7 @@ namespace ChangeConverterSettings
             if (timeoutTextBox != null)
                 GlobalVariables.timeout = timeoutTextBox.Text;
 
-
+            // Goes through all FileTypes and sets the default types and class defaults for every format
             foreach (var settingsData in GlobalVariables.FileSettings)
             {
                 for (int i = 0; i < ComponentLists.formatDropDowns.Count; i++)
@@ -124,25 +145,24 @@ namespace ChangeConverterSettings
                     ComponentLists.formatDropDowns[i].SelectedIndex = prevSelecIndex;
                 }
             }
-
-            Debug.WriteLine("Requester: " + GlobalVariables.requester);
-            Debug.WriteLine("Converter: " + GlobalVariables.converter);
-            Debug.WriteLine("Input: " + GlobalVariables.Input);
-            Debug.WriteLine("Output: " + GlobalVariables.Output);
-            Debug.WriteLine("MaxThreads: " + GlobalVariables.maxThreads);
-            Debug.WriteLine("Checksum: " + GlobalVariables.checksumHash);
-            Debug.WriteLine("Timeout: " + GlobalVariables.timeout);
-
+            
             WriteSettingsToFile();
         }
 
+        /// <summary>
+        /// Writes the current settings to the settings file
+        /// </summary>
         void WriteSettingsToFile()
         {
             Settings settings = Settings.Instance;
             settings.WriteSettings(GlobalVariables.defaultSettingsPath);
         }
+        /// <summary>
+        /// Reads the settings from the settings file and writes them to the screen
+        /// </summary>
         private void WriteSettingsToScreen()
         {
+            // Fills the standard TextBoxes with values from the settings file
             TextBox? requesterTextBox = this.FindControl<TextBox>("Requester");
             if (requesterTextBox != null)
                 requesterTextBox.Text = GlobalVariables.requester;
@@ -158,6 +178,11 @@ namespace ChangeConverterSettings
             TextBox? threadsTextBox = this.FindControl<TextBox>("MaxThreads");
             if (threadsTextBox != null)
                 threadsTextBox.Text = GlobalVariables.maxThreads.ToString();
+            TextBox? timeoutTextBox = this.FindControl<TextBox>("Timeout");
+            if (timeoutTextBox != null)
+                timeoutTextBox.Text = GlobalVariables.timeout;
+
+            // Fills the checksum ComboBox with values from the settings file
             ComboBox? checksumComboBox = this.FindControl<ComboBox>("Checksum");
             if (checksumComboBox != null)
             {
@@ -168,13 +193,10 @@ namespace ChangeConverterSettings
                 checksumComboBox.SelectedItem = GlobalVariables.checksumHash;
             }
 
-            TextBox? timeoutTextBox = this.FindControl<TextBox>("Timeout");
-            if (timeoutTextBox != null)
-                timeoutTextBox.Text = GlobalVariables.timeout;
-
-
+            // Sorts the settings list by format name
             GlobalVariables.FileSettings.Sort((x, y) => x.FormatName.CompareTo(y.FormatName));
 
+            // Goes through the settings list and creates the elements on the screen
             for (int i = 0; i < GlobalVariables.FileSettings.Count; i++)
             {
                 ComboBox? formatDropDown = this.FindControl<ComboBox>("formatDropDown" + (i + 1).ToString());
@@ -187,10 +209,6 @@ namespace ChangeConverterSettings
                     }
                 }
             }
-
-            UpdateWidths updateWidths = new UpdateWidths(this);
-            updateWidths.UpdateColumnHeaderWidths();
-            updateWidths.UpdateControlWidths();
         }
     }
 }

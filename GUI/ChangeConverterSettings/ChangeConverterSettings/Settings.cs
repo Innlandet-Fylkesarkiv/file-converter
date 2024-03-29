@@ -10,18 +10,24 @@ public class SettingsData
 {
     // List of input pronom codes
     public List<string> PronomsList { get; set; } = new List<string>();
-    // Default file type to convert to
-    public string DefaultType { get; set; } = "";
     // Whether to merge images or not
     public bool Merge { get; set; } = false;
-    public string FormatName { get; set; } = "";
     public string ClassName { get; set; } = "";
+    // Default type of the FileClass
+    // Name of the FileTypes
+    public string FormatName { get; set; } = "";
+    // Name of the FileClass
     public string ClassDefault { get; set; } = "";
+    // Default type of the FileTypes
+    public string DefaultType { get; set; } = "";
 }
 class Settings
 {
     private static Settings? instance;
     private static readonly object lockObject = new object();
+    /// <summary>
+    /// Makes sure that only one instance of the settings is created
+    /// </summary>
     public static Settings Instance
     {
         get
@@ -39,6 +45,7 @@ class Settings
             return instance;
         }
     }
+
     /// <summary>
     /// Reads settings from file
     /// </summary>
@@ -169,6 +176,7 @@ class Settings
             logger.SetUpRunTimeLogMessage(ex.Message, true);
         }
     }
+
     /// <summary>
     /// Sets up the FolderOverride Dictionary
     /// </summary>
@@ -285,6 +293,10 @@ class Settings
         return subfolders;
     }
 
+    /// <summary>
+    /// Sets up and writes the xml file with the settings
+    /// </summary>
+    /// <param name="path"></param>
     public void WriteSettings(string path)
     {
         // Create an XML document
@@ -307,8 +319,12 @@ class Settings
             .OrderBy(x => x.ClassName)  // Sort by ClassName first
             .ThenBy(x => x.FormatName)  // Then sort by FormatName for items with the same ClassName
             .ToList();
-        string lastClassName = "";
-        XmlElement fileClass = null;
+
+        string lastClassName = ""; // to keep track of the last class name when writing FileTypes
+        XmlElement fileClass = null; // used to add to the previous fileClass if this setting has the same class name
+
+        // Goes through all settings in Filesettings, creates a FileTypes Node and
+        // either adds it to a new FileClass or to the previous FileClass if this setting has the same class name as the previous one
         foreach (SettingsData setting in GlobalVariables.FileSettings)
         {      
             if (setting.ClassName != lastClassName)
@@ -336,12 +352,18 @@ class Settings
             }
             
         }
-
-
         
         // Save the XML document to a file
         xmlDoc.Save(path);
     }
+
+    /// <summary>
+    /// Adds a new XML element to the parent element
+    /// </summary>
+    /// <param name="xmlDoc"> The xml document </param>
+    /// <param name="parentElement"> the parent of this element </param>
+    /// <param name="elementName"> the name of this element </param>
+    /// <param name="value"> the value of this element</param>
     private void AddXmlElement(XmlDocument xmlDoc, XmlElement parentElement, string elementName, string? value)
     {
         XmlElement element = xmlDoc.CreateElement(elementName);

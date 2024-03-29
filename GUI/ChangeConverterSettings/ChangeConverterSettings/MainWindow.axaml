@@ -7,51 +7,69 @@
         Title="ChangeConverterSettings">
 	
 	<ScrollViewer HorizontalScrollBarVisibility="Visible">
-		
-		<StackPanel Margin="20" Name="MainStackPanel">
-			<StackPanel>
-				<Grid>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="*"/>
-						<!-- Left side content -->
-						<ColumnDefinition Width="Auto"/>
-						<!-- Spacer -->
-						<ColumnDefinition Width="Auto"/>
-						<!-- Save button -->
-					</Grid.ColumnDefinitions>
+		<TabControl Margin="5">
+			<TabItem Header="Main Settings">
+				<StackPanel Margin="20" Name="MainStackPanel">
+					<StackPanel>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<!-- Left side content -->
+								<ColumnDefinition Width="*"/>
+								<!-- Spacer -->
+								<ColumnDefinition Width="Auto"/>
+								<!-- Save button -->
+								<ColumnDefinition Width="Auto"/>
+							</Grid.ColumnDefinitions>
 
-					<!-- Left side content -->
-					<StackPanel Grid.Column="0">
-						<TextBlock Margin="0,10,0,0" DockPanel.Dock="Left">Requester</TextBlock>
+							<!-- Left side content -->
+							<StackPanel Grid.Column="0">
+								<TextBlock Margin="0,10,0,0" DockPanel.Dock="Left">Requester</TextBlock>
+							</StackPanel>
+
+							<!-- Spacer -->
+							<StackPanel Grid.Column="1"/>
+
+							<!-- Save button -->
+							<Button Name="Save" Grid.Column="2" Margin="0,0,10,0" Click="SaveButton">Save</Button>
+						</Grid>
+
+						<TextBox  Margin="0,10,0,0" Name="Requester" HorizontalAlignment="Left"></TextBox>
+						<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">Converter</TextBlock>
+						<TextBox  Margin="0,10,0,0" Name="Converter" HorizontalAlignment="Left"></TextBox>
+						<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">InputFolder</TextBlock>
+						<TextBox  Margin="0,10,0,0" Name="Input" HorizontalAlignment="Left"></TextBox>
+						<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">OutputFolder</TextBlock>
+						<TextBox  Margin="0,10,0,0" Name="Output" HorizontalAlignment="Left"></TextBox>
+						<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">MaxThreads</TextBlock>
+						<TextBox  Margin="0,10,0,0" Name="MaxThreads" HorizontalAlignment="Left"></TextBox>
+						<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">Checksum</TextBlock>
+						<ComboBox Margin="0,10,0,0" Name="Checksum" HorizontalAlignment="Left"></ComboBox>
+						<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">Timeout (in minutes)</TextBlock>
+						<TextBox  Margin="0,10,0,0" Name="Timeout" HorizontalAlignment="Left"></TextBox>
 					</StackPanel>
-
-					<!-- Spacer -->
-					<StackPanel Grid.Column="1"/>
-
-					<!-- Right-aligned Save button -->
-					<Button Name="Save" Grid.Column="2" Margin="0,0,10,0" Click="SaveButton">Save</Button>
+					<Grid Name="MainGrid">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+						</Grid.ColumnDefinitions>
+						<TextBlock Grid.Row="0" Grid.Column="0" Margin="0,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="FormatColumn">Formats </TextBlock>
+						<TextBlock Grid.Row="0" Grid.Column="1" Margin="15,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="pronomColumn">Pronom </TextBlock>
+						<TextBlock Grid.Row="0" Grid.Column="2" Margin="15,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="outputColumn">Output Pronom </TextBlock>
+						<TextBlock Grid.Row="0" Grid.Column="3" Margin="15,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="outputNameColumn">Output Name </TextBlock>
+						<TextBlock Grid.Row="0" Grid.Column="4" Margin="15,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="updateButtons">Update Buttons </TextBlock>
+					</Grid>
+				</StackPanel>
+			</TabItem>
+			<TabItem Header="Folder Override">
+				<Grid>
+					<Button Name="Save2" Grid.Row="0" Grid.Column="2" Margin="0,0,10,0" Click="SaveButton">Save</Button>
 				</Grid>
-				
-				<TextBox  Margin="0,10,0,0" Name="Requester" HorizontalAlignment="Left"></TextBox>
-				<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">Converter</TextBlock>
-				<TextBox  Margin="0,10,0,0" Name="Converter" HorizontalAlignment="Left"></TextBox>
-				<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">InputFolder</TextBlock>
-				<TextBox  Margin="0,10,0,0" Name="Input" HorizontalAlignment="Left"></TextBox>
-				<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">OutputFolder</TextBlock>
-				<TextBox  Margin="0,10,0,0" Name="Output" HorizontalAlignment="Left"></TextBox>
-				<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">MaxThreads</TextBlock>
-				<TextBox  Margin="0,10,0,0" Name="MaxThreads" HorizontalAlignment="Left"></TextBox>
-				<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">Checksum</TextBlock>
-				<ComboBox Margin="0,10,0,0" Name="Checksum" HorizontalAlignment="Left"></ComboBox>
-				<TextBlock  Margin="0,10,0,0" HorizontalAlignment="Left">Timeout (in minutes)</TextBlock>
-				<TextBox  Margin="0,10,0,0" Name="Timeout" HorizontalAlignment="Left"></TextBox>
-			</StackPanel>
-			<StackPanel Orientation="Horizontal">
-				<TextBlock Margin="0,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="FormatColumn">Formats</TextBlock>
-				<TextBlock Margin="20,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="pronomColumn">Pronom </TextBlock>
-				<TextBlock Margin="20,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="outputColumn">Output Pronom </TextBlock>
-				<TextBlock Margin="20,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="outputNameColumn">Output Name </TextBlock>
-			</StackPanel>
-		</StackPanel>
+			</TabItem>
+
+		</TabControl> 
+		
 	</ScrollViewer>
 </Window>

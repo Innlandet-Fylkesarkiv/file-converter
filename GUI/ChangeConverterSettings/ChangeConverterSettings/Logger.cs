@@ -12,15 +12,13 @@ public class Logger
 {
     private static Logger? instance;
     private static readonly object lockObject = new object();
-    string logPath;         // Path to log file
-    string docPath;         // Path to documentation file
-                            // Configure JSON serializer options for pretty-printing
-    JsonSerializerOptions options = new JsonSerializerOptions
-    {
-        WriteIndented = true,
-    };
-    
+    private string logPath;         // Path to log file    
 
+    /// <summary>
+    /// Constructor for the logger. 
+    /// Creates a log file if it does not exist and names it after the current date and time.
+    /// Fills the log file with the headers.
+    /// </summary>
     private Logger()
     {
         string path = "./logs/";
@@ -38,8 +36,11 @@ public class Logger
         {
             outputFile.WriteAsync("Type: | (Error) Message | Pronom Code | Mime Type | Filename\n");
         }
-        docPath = "";
     }
+
+    /// <summary>
+    /// Makes sure that only one instance of the logger is created
+    /// </summary>
     public static Logger Instance
     {
         get
@@ -94,6 +95,4 @@ public class Logger
         string formattedMessage = errorM + " | " + message + " | " + pronom + " | " + mime + " | " + filename + "\n";
         WriteLog(formattedMessage, logPath);
     }
-
-    
 }

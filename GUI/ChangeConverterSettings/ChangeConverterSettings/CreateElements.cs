@@ -11,46 +11,51 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using Avalonia.Media;
 using Avalonia.VisualTree;
-
-
+using Avalonia.Platform;
+using System.Windows;
+using Avalonia.Controls.Primitives;
+using Avalonia.LogicalTree;
+using System.Globalization;
 public class CreateElements
 {
     private readonly MainWindow mainWindow;
+
+    /// <summary>
+    /// Constructor for the CreateElements class. Sets the main window to the one passed in
+    /// </summary>
+    /// <param name="_mainWindow"> the mainwindow </param>
     public CreateElements(MainWindow _mainWindow)
     {
         mainWindow = _mainWindow;
     }
+
+    /// <summary>
+    /// Constructor for the CreateElements class. Creates and adds all the elements to a row in the main grid.
+    /// </summary>
+    /// <param name="index"> the row number </param>
+    /// <param name="mainPanel"> the main StackPanel </param>
+    /// <param name="_mainWindow"> The main window </param>
     public CreateElements(int index, StackPanel mainPanel, MainWindow _mainWindow)
     {
         mainWindow = _mainWindow;
-        StackPanel? stackPanel = null;
-        foreach (StackPanel stackpanel in ComponentLists.stackPanels)
-        {
-            var classnameBlock = (TextBlock)stackpanel.Children[0];
-            string classname = classnameBlock.Text;
-            if (classname == GlobalVariables.FileSettings[index].ClassName)
-            {
-                stackPanel = stackpanel;
-            }
-        }
-        
-        if (stackPanel == null)
-        {
-            stackPanel = CreateAndAddHorizontalStackPanel(mainPanel);
-            ComponentLists.stackPanels.Add(stackPanel);
-        }
-        CreateAndAddElements(index, stackPanel);
+        CreateAndAddElements(index);
     }
 
-
-    public void CreateAndAddElements(int index, Panel panel)
+    /// <summary>
+    /// Creates all the elements for a row and adds them to the panel
+    /// </summary>
+    /// <param name="index"></param>
+    public void CreateAndAddElements(int index)
     {
-        if (panel == null)
-        {
-            Logger.Instance.SetUpRunTimeLogMessage("Panel is null", true);
+        Grid? mainGrid = mainWindow.Find<Grid>("MainGrid");
+        if (mainGrid == null) {
+            Logger.Instance.SetUpRunTimeLogMessage("MainGrid is null", true);
             return;
         }
-
+        int newRow = FindLastRow(mainGrid) + 1;
+        RowDefinition newRowDefinition = new RowDefinition();
+        newRowDefinition.Height = GridLength.Auto;
+        mainGrid.RowDefinitions.Add(newRowDefinition);
         var fileSettings = GlobalVariables.FileSettings[index];
 
         var className = fileSettings.ClassName;
@@ -59,28 +64,43 @@ public class CreateElements
 
         if (existingClassName == null)
         {
+            // Column1: FileClass name
             var formatTextBlock = CreateTextBlock(className);
-            panel.Children.Add(formatTextBlock);
+            Grid.SetRow(formatTextBlock, newRow);
+            Grid.SetColumn(formatTextBlock, 0);
+            mainGrid.Children.Add(formatTextBlock);
             ComponentLists.formatNames.Add(formatTextBlock);
 
+            // Column2: FileTypes name
             formatDropDown = CreateComboBox(index);
-            panel.Children.Add(formatDropDown);
+            Grid.SetRow(formatDropDown, newRow);
+            Grid.SetColumn(formatDropDown, 1);
+            mainGrid.Children.Add(formatDropDown);
             ComponentLists.formatDropDowns.Add(formatDropDown);
             formatDropDown.Items.Add(GlobalVariables.defaultText);
             ComponentLists.outputTracker.Add(fileSettings.ClassName, fileSettings.ClassDefault);
             formatDropDown.SelectionChanged += (sender, e) => FormatDropDown_SelectionChanged(sender, e);
 
-            var defaultTypeTextBox = CreateTextBox(fileSettings.DefaultType, index);
-            panel.Children.Add(defaultTypeTextBox);
+            // Column3: Output Pronom Code
+            var defaultTypeTextBox = CreateTextBox(fileSettings.DefaultType, index, false);
+            Grid.SetRow(defaultTypeTextBox, newRow);
+            Grid.SetColumn(defaultTypeTextBox, 2);
+            mainGrid.Children.Add(defaultTypeTextBox);
             ComponentLists.outputPronomCodeTextBoxes.Add(defaultTypeTextBox);
 
-            var outputTypeTextBox = CreateReadOnlyTextBox(PronomHelper.PronomToFullName(fileSettings.DefaultType), index);
-            panel.Children.Add(outputTypeTextBox);
+            // Column4: Name of Output Pronom Code
+            var outputTypeTextBox = CreateTextBox(PronomHelper.PronomToFullName(fileSettings.DefaultType), index, true);
+            Grid.SetRow(outputTypeTextBox, newRow);
+            Grid.SetColumn(outputTypeTextBox, 3);
+            mainGrid.Children.Add(outputTypeTextBox);
             ComponentLists.outputNameTextBoxes.Add(outputTypeTextBox);
 
+            // Column5: Update Button
             var updateButton = CreateButton("Update", index);
             updateButton.Click += (sender, e) => UpdateButton_Click(sender);
-            panel.Children.Add(updateButton);
+            Grid.SetRow(updateButton, newRow);
+            Grid.SetColumn(updateButton, 4);
+            mainGrid.Children.Add(updateButton);
             ComponentLists.updateButtons.Add(updateButton);
         }
         else
@@ -92,32 +112,77 @@ public class CreateElements
         ComponentLists.outputTracker.Add(fileSettings.FormatName, fileSettings.DefaultType);
         formatDropDown.SelectedIndex = 0;
 
-        FindWidestElements();
-
     }
+    /// <summary>
+    /// Finds the last row in the grid
+    /// </summary>
+    /// <param name="grid"> main grid </param>
+    /// <returns> the last row </returns>
+    private int FindLastRow(Grid grid)
+    {
+        int lastRow = -1; 
+
+        foreach (var child in grid.Children)
+        {
+            if (child is Control control)
+            {
+                int row = Grid.GetRow(control);
+                if (row > lastRow)
+                {
+                    lastRow = row;
+                }
+            }
+        }
+        return lastRow;
+    } 
+
+    /// <summary>
+    /// Updates the entire outputracker and recalculates the widths
+    /// </summary>
     public void UpdateState()
     {
-        foreach (StackPanel stackpanel in ComponentLists.stackPanels)
+        Grid? mainGrid = mainWindow.FindControl<Grid>("MainGrid");
+        foreach (RowDefinition row in mainGrid.RowDefinitions)
         {
-            ComboBox comboBox = (ComboBox)stackpanel.Children[1];
-            string item = comboBox.SelectedItem.ToString();
-            UpdateOutputTracker(stackpanel, item);
+            int rowIndex = mainGrid.RowDefinitions.IndexOf(row);
+
+            // Access the child elements of the row (assuming ComboBox is the second child)
+            ComboBox comboBox = null;
+            if (mainGrid.Children.Count > rowIndex * mainGrid.ColumnDefinitions.Count + 1) // Ensure index is within bounds
+            {
+                comboBox = mainGrid.Children[rowIndex * mainGrid.ColumnDefinitions.Count + 1] as ComboBox;
+            }
+
+            if (comboBox != null)
+            {
+                string item = comboBox.SelectedItem?.ToString();
+                if (item != null)
+                {
+                    UpdateOutputTracker(mainGrid, item, rowIndex);
+                }
+            }
         }
-        UpdateWidthsManual();
     }
-    private static void UpdateOutputTracker(StackPanel stackPanel, string item)
-    {     
-        var className = ((TextBlock)stackPanel.Children[0]).Text;
-        var comboBox = (ComboBox)stackPanel.Children[1];
-        var textBox = (TextBox)stackPanel.Children[2];
-        var readOnlyTextBox = (TextBox)stackPanel.Children[3];
+
+    /// <summary>
+    /// Updates the output tracker for a row
+    /// </summary>
+    /// <param name="grid"> the main grid </param>
+    /// <param name="item"> the current item in the combobox </param>
+    /// <param name="rowIndex"> the index of the row being updated </param>
+    private static void UpdateOutputTracker(Grid grid, string item, int rowIndex)
+    {
+        var textBlock = (TextBlock)grid.Children[rowIndex * grid.ColumnDefinitions.Count]; 
+        var comboBox = (ComboBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 1]; 
+        var textBox = (TextBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 2]; 
+        var readOnlyTextBox = (TextBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 3];
 
         string newType = textBox.Text.Trim();
 
         string oldType;
         if (item == GlobalVariables.defaultText)
         {
-            item = className;
+            item = textBlock.Text;
         }
         if (ComponentLists.outputTracker.ContainsKey(item))
         {
@@ -130,23 +195,38 @@ public class CreateElements
             readOnlyTextBox.Text = PronomHelper.PronomToFullName(newType);
         }
     }
+
+    /// <summary>
+    /// When the selection of the ComboBox is changed, the output tracker is updated and the widths are recalculated
+    /// </summary>
+    /// <param name="sender"> The ComboBox being changed </param>
+    /// <param name="e"> provides data about whats being changed, such as what it was before the change </param>
+
     private void FormatDropDown_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         string previousSelection = "";
-        // Access the previous selection
         if (e.RemovedItems.Count > 0)
         {
             previousSelection = e.RemovedItems[0].ToString();
         }
 
         var comboBox = (ComboBox)sender;
-        var parent = (StackPanel)comboBox.Parent;
-        var className = ((TextBlock)parent.Children[0]).Text;
-        var textBox = (TextBox)parent.Children[2];
-        var readOnlyTextBox = (TextBox)parent.Children[3];
+        var parent = (Grid)comboBox.Parent;
+
+        // Calculate indices based on the row index
+        int rowIndex = Grid.GetRow(comboBox);
+        int classNameColumnIndex = 0;
+        int comboBoxColumnIndex = 1;
+        int textBoxColumnIndex = 2;
+        int readOnlyTextBoxColumnIndex = 3;
+
+        // Access child elements using calculated indices
+        var className = ((TextBlock)parent.Children[rowIndex * parent.ColumnDefinitions.Count + classNameColumnIndex]).Text;
+        var textBox = (TextBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + textBoxColumnIndex];
+        var readOnlyTextBox = (TextBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + readOnlyTextBoxColumnIndex];
         var item = comboBox.SelectedItem.ToString();
 
-        UpdateOutputTracker(parent, previousSelection);
+        UpdateOutputTracker(parent, previousSelection, rowIndex);
 
         string type;
         if (item == GlobalVariables.defaultText)
@@ -160,231 +240,104 @@ public class CreateElements
 
         textBox.Text = type;
         readOnlyTextBox.Text = PronomHelper.PronomToFullName(type);
-        UpdateWidthsManual();
     }
 
-
+    /// <summary>
+    /// When the update button is pressed, the output tracker is updated
+    /// </summary>
+    /// <param name="sender"> The Button being pressed </param>
     private void UpdateButton_Click(object sender)
     {
         var button = (Button)sender;
-        var parent = (StackPanel)button.Parent;
-        var className = ((TextBlock)parent.Children[0]).Text;
-        var comboBox = (ComboBox)parent.Children[1];
-        var textBox = (TextBox)parent.Children[2];
-        var readOnlyTextBox = (TextBox)parent.Children[3];
+        var parent = (Grid)button.Parent;
+
+        // Calculate indices based on the row index
+        int rowIndex = Grid.GetRow(button);
+        int classNameColumnIndex = 0;
+        int comboBoxColumnIndex = 1;
+        int textBoxColumnIndex = 2;
+        int readOnlyTextBoxColumnIndex = 3;
+
+        // Access child elements using calculated indices
+        var className = ((TextBlock)parent.Children[rowIndex * parent.ColumnDefinitions.Count + classNameColumnIndex]).Text;
+        var comboBox = (ComboBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + comboBoxColumnIndex];
+        var textBox = (TextBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + textBoxColumnIndex];
+        var readOnlyTextBox = (TextBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + readOnlyTextBoxColumnIndex];
         var item = comboBox.SelectedItem.ToString();
 
-
-        UpdateOutputTracker(parent, item);
-
-        UpdateWidthsManual();
-        
-    }
-    private void UpdateWidthsManual()
-    {
-        UpdateWidths updateWidths = new UpdateWidths(mainWindow);
-        FindWidestElements();
-        updateWidths.UpdateColumnHeaderWidths();
-        updateWidths.UpdateControlWidths();
-    }
-    public static StackPanel CreateAndAddHorizontalStackPanel(StackPanel mainStackPanel)
-    {
-        if (mainStackPanel == null)
-        {
-            Logger.Instance.SetUpRunTimeLogMessage("MainStackPanel is null", true);
-            return null;
-        }
-
-        var horizontalStackPanel = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(0, 10, 0, 0)
-        };
-
-        mainStackPanel.Children.Add(horizontalStackPanel);
-        return horizontalStackPanel;
+        UpdateOutputTracker(parent, item, rowIndex);
     }
 
+    /// <summary>
+    /// Creates a TextBlock
+    /// </summary>
+    /// <param name="text"> The textcontent of the TextBlock </param>
+    /// <returns></returns>
     private static TextBlock CreateTextBlock(string text)
     {
         return new TextBlock
         {
             Text = text,
-            HorizontalAlignment = HorizontalAlignment.Left,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(10, 10, 0, 0)
         };
     }
 
+    /// <summary>
+    /// creates a ComboBox
+    /// </summary>
+    /// <param name="index"> just to name it </param>
+    /// <returns> The ComboBox with its values </returns>
     private static ComboBox CreateComboBox(int index)
     {
         var comboBox = new ComboBox
         {
             Name = "formatDropDown" + (index + 1),
-            HorizontalAlignment = HorizontalAlignment.Left,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(10, 10, 0, 0)
         };
         return comboBox;
     }
 
-    private static TextBox CreateTextBox(string text, int index)
+    /// <summary>
+    /// Creates a TextBox
+    /// </summary>
+    /// <param name="text"> The textcontent of the textbox </param>
+    /// <param name="index"> Just there to name it </param>
+    /// <param name="readOnly"> true to make it readonly </param>
+    /// <returns> The TextBox with its values </returns>
+    private static TextBox CreateTextBox(string text, int index, bool readOnly)
     {
         return new TextBox
         {
             Text = text,
+            IsReadOnly = readOnly,
             Name = "OutputTypeTextBox" + (index + 1),
-            HorizontalAlignment = HorizontalAlignment.Left,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(10, 10, 0, 0)
+            Margin = new Thickness(10, 10, 0, 0),
+            Width = Double.NaN,
         };
     }
 
-    private static TextBox CreateReadOnlyTextBox(string text, int index)
-    {
-        return new TextBox
-        {
-            Text = text,
-            IsReadOnly = true,
-            Name = "OutputTypeTextBox" + (index + 1),
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(10, 10, 0, 0)
-        };
-    }
-
+    /// <summary>
+    /// Creates a button
+    /// </summary>
+    /// <param name="text"> The text of the button </param>
+    /// <param name="index"> Index to name the button. Example: index = 1 -> Name = Button2 </param>
+    /// <returns> The Button with its values </returns>
     private static Button CreateButton(string text, int index)
     {
         return new Button
         {
             Content = text,
             Name = "Button" + (index + 1),
-            HorizontalAlignment = HorizontalAlignment.Left,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(10, 10, 0, 0)
         };
-    }
-    private static double CalculateTextWidth(Control element)
-    {
-        string text = element switch
-        {
-            TextBox { Text: var textBoxText } when textBoxText != null => textBoxText,
-            TextBlock { Text: var textBlockText } when textBlockText != null => textBlockText,
-            _ => throw new ArgumentException("Unsupported element type or null text", nameof(element))
-        };
-
-        var fontFamily = GetFontFamily(element);
-        var fontSize = GetFontSize(element);
-        var fontStyle = GetFontStyle(element);
-        var fontWeight = GetFontWeight(element);
-        var fontStretch = GetFontStretch(element);
-
-        var formattedText = new FormattedText(
-            text,
-            System.Globalization.CultureInfo.CurrentCulture,
-            FlowDirection.LeftToRight,
-            new Typeface(fontFamily, fontStyle, fontWeight, fontStretch),
-            fontSize,
-            Brushes.Black // You can specify the brush for the text color here
-        );
-        formattedText.MaxTextWidth = double.PositiveInfinity;
-
-        // Calculate the width required for the content
-        double contentWidth = formattedText.Width;
-
-        // Add padding or margin as needed
-        double padding = 20; // Adjust this value as needed
-        return contentWidth + padding;
-    }
-
-    private static FontFamily GetFontFamily(Control element) =>
-        element switch
-        {
-            TextBox textBox => textBox.FontFamily,
-            TextBlock textBlock => textBlock.FontFamily,
-            _ => throw new ArgumentException("Unsupported element type", nameof(element))
-        };
-
-    private static double GetFontSize(Control element) =>
-        element switch
-        {
-            TextBox textBox => textBox.FontSize,
-            TextBlock textBlock => textBlock.FontSize,
-            _ => 12 // Default font size
-        };
-    private static FontStyle GetFontStyle(Control element) =>
-    element switch
-    {
-        TextBox textBox => textBox.FontStyle,
-        TextBlock textBlock => textBlock.FontStyle,
-        _ => FontStyle.Normal // Default font style
-    };
-
-    private static FontWeight GetFontWeight(Control element) =>
-        element switch
-        {
-            TextBox textBox => textBox.FontWeight,
-            TextBlock textBlock => textBlock.FontWeight,
-            _ => FontWeight.Normal // Default font weight
-        };
-
-    private static FontStretch GetFontStretch(Control element) =>
-        element switch
-        {
-            TextBox textBox => textBox.FontStretch,
-            TextBlock textBlock => textBlock.FontStretch,
-            _ => FontStretch.Normal // Default font stretch
-        };
-
-    public static double GetMaxComboBoxWidth(List<ComboBox> comboBoxes)
-    {
-        double maxWidth = 0;
-
-        foreach (var comboBox in comboBoxes)
-        {
-            comboBox.Measure(Size.Infinity);
-            double width = comboBox.DesiredSize.Width;
-
-            maxWidth = Math.Max(maxWidth, width);
-        }
-
-        return maxWidth;
-    }
-
-    private static void FindWidestElements()
-    {
-        foreach (var textBlock in ComponentLists.formatNames)
-        {
-            double width = CalculateTextWidth(textBlock);
-            if (width > WidthInfo.longestName)
-            {
-                WidthInfo.longestName = (int)width;
-            }
-        }
-
-
-        double maxComboBoxWidth = GetMaxComboBoxWidth(ComponentLists.formatDropDowns);
-        WidthInfo.longestFormat = (int)maxComboBoxWidth;
-
-        foreach (var textBox in ComponentLists.outputPronomCodeTextBoxes)
-        {
-            double width = CalculateTextWidth(textBox);
-            if (width > WidthInfo.longestOutput)
-            {
-                WidthInfo.longestOutput = (int)width;
-            }
-        }
-
-        foreach (var textBox in ComponentLists.outputNameTextBoxes)
-        {
-            double width = CalculateTextWidth(textBox);
-            if ( width > WidthInfo.longestOutputType)
-            {
-                WidthInfo.longestOutputType = (int)width;
-            }
-        }
     }
 }
 
