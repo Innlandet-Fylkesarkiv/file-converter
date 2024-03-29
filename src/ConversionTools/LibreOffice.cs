@@ -49,7 +49,7 @@ public class LibreOfficeConverter : Converter
 		using (Process process = new Process())
 		{
 			process.StartInfo.FileName = "soffice";
-			process.StartInfo.Arguments = "--version";
+			process.StartInfo.Arguments = "--headless --version";
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
 			process.StartInfo.UseShellExecute = false;
@@ -377,13 +377,13 @@ public class LibreOfficeConverter : Converter
 				if (currPronom != pronom && PDFPronoms.Contains(pronom))
 				{
 					var converter = new iText7();
-					converter.convertFromPDFToPDF(file, pronom);
-					// Add iText7 to the list of conversion tools
-					var FileInfoMap = ConversionManager.Instance.FileInfoMap;
-					if (!FileInfoMap[file.Id].ConversionTools.Contains(converter.NameAndVersion))
-					{
-						FileInfoMap[file.Id].ConversionTools.Add(converter.NameAndVersion);
-					}
+                    // Add iText7 to the list of conversion tools
+                    var FileInfoMap = ConversionManager.Instance.FileInfoMap;
+                    if (FileInfoMap.ContainsKey(file.Id) && !FileInfoMap[file.Id].ConversionTools.Contains(converter.NameAndVersion))
+                    {
+                        FileInfoMap[file.Id].ConversionTools.Add(converter.NameAndVersion);
+                    }
+                    converter.convertFromPDFToPDF(file, pronom);
 				}
 				converted = CheckConversionStatus(newFileName, pronom);
 			} while (!converted && ++count < GlobalVariables.MAX_RETRIES);
