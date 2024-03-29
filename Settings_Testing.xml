@@ -3,7 +3,7 @@
   <Converter>Larsern</Converter>
   <InputFolder>testfiles</InputFolder>
   <OutputFolder>output</OutputFolder>
-  <MaxThreads>1</MaxThreads>
+  <MaxThreads></MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
   <Timeout></Timeout>
   <MaxFileSize>200000000</MaxFileSize> <!--200MB-->
