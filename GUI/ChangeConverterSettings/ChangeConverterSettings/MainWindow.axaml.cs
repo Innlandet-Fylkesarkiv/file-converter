@@ -35,16 +35,7 @@ namespace ChangeConverterSettings
         public static List<string> supportedHashes = new List<string> { "MD5", "SHA256" };
         public static string defaultSettingsPath = "../../../settings.xml";
     }
-    /// <summary>
-    /// Class that contains info about the width of the columns
-    /// </summary>
-    public static class WidthInfo
-    {
-        public static int longestName = 0;
-        public static int longestFormat = 0;
-        public static int longestOutput = 0;
-        public static int longestOutputType = 0;
-    }
+
     /// <summary>
     /// Class that contains all the components that are created
     /// </summary>
@@ -54,11 +45,10 @@ namespace ChangeConverterSettings
         public static List<ComboBox> formatDropDowns = new List<ComboBox>();
         public static List<TextBox> outputPronomCodeTextBoxes = new List<TextBox>();
         public static List<TextBox> outputNameTextBoxes = new List<TextBox>();
-        public static List<Button> updateButtons = new List<Button>();
-        public static List<StackPanel> stackPanels = new List<StackPanel>();
         // Map with info about what Format/ClassName has what output PRONOM code
         public static Dictionary<string, string> outputTracker = new Dictionary<string, string>();
     }
+
     public partial class MainWindow : Window
     {
         /// <summary>
@@ -69,7 +59,7 @@ namespace ChangeConverterSettings
             Directory.SetCurrentDirectory("../../../");
             InitializeComponent();
             Settings settings = Settings.Instance;
-            settings.ReadSettings(GlobalVariables.defaultSettingsPath);
+            settings.ReadAllSettings(GlobalVariables.defaultSettingsPath);
             WriteSettingsToScreen();
             Console.WriteLine(GlobalVariables.FileSettings);
         }
@@ -145,18 +135,11 @@ namespace ChangeConverterSettings
                     ComponentLists.formatDropDowns[i].SelectedIndex = prevSelecIndex;
                 }
             }
-            
-            WriteSettingsToFile();
-        }
 
-        /// <summary>
-        /// Writes the current settings to the settings file
-        /// </summary>
-        void WriteSettingsToFile()
-        {
             Settings settings = Settings.Instance;
             settings.WriteSettings(GlobalVariables.defaultSettingsPath);
         }
+
         /// <summary>
         /// Reads the settings from the settings file and writes them to the screen
         /// </summary>

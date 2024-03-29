@@ -47,10 +47,20 @@ class Settings
     }
 
     /// <summary>
+    /// Run all the methods to read the settings from the settings file
+    /// </summary>
+    /// <param name="pathToSettings"> both full-path and dynamic-path from the working directory works </param>
+    public void ReadAllSettings(string pathToSettings)
+    {
+        ReadSettings(pathToSettings);
+        SetUpFolderOverride(pathToSettings);
+    }
+
+    /// <summary>
     /// Reads settings from file
     /// </summary>
     /// <param name="pathToSettings"> the path to the settings file from working directory </param>
-    public void ReadSettings(string pathToSettings)
+    private void ReadSettings(string pathToSettings)
     {
         Logger logger = Logger.Instance;
         try
@@ -181,7 +191,7 @@ class Settings
     /// Sets up the FolderOverride Dictionary
     /// </summary>
     /// <param name="pathToSettings"> relative path to settings file from working directory </param>
-    public void SetUpFolderOverride(string pathToSettings)
+    private void SetUpFolderOverride(string pathToSettings)
     {
         Logger logger = Logger.Instance;
         try

@@ -16,6 +16,7 @@ using System.Windows;
 using Avalonia.Controls.Primitives;
 using Avalonia.LogicalTree;
 using System.Globalization;
+using Avalonia.Input;
 public class CreateElements
 {
     private readonly MainWindow mainWindow;
@@ -65,14 +66,14 @@ public class CreateElements
         if (existingClassName == null)
         {
             // Column1: FileClass name
-            var formatTextBlock = CreateTextBlock(className);
+            var formatTextBlock = CreateControl.CreateTextBlock(className);
             Grid.SetRow(formatTextBlock, newRow);
             Grid.SetColumn(formatTextBlock, 0);
             mainGrid.Children.Add(formatTextBlock);
             ComponentLists.formatNames.Add(formatTextBlock);
 
             // Column2: FileTypes name
-            formatDropDown = CreateComboBox(index);
+            formatDropDown = CreateControl.CreateComboBox(index);
             Grid.SetRow(formatDropDown, newRow);
             Grid.SetColumn(formatDropDown, 1);
             mainGrid.Children.Add(formatDropDown);
@@ -82,26 +83,19 @@ public class CreateElements
             formatDropDown.SelectionChanged += (sender, e) => FormatDropDown_SelectionChanged(sender, e);
 
             // Column3: Output Pronom Code
-            var defaultTypeTextBox = CreateTextBox(fileSettings.DefaultType, index, false);
+            var defaultTypeTextBox = CreateControl.CreateTextBox(fileSettings.DefaultType, index, false);
             Grid.SetRow(defaultTypeTextBox, newRow);
             Grid.SetColumn(defaultTypeTextBox, 2);
             mainGrid.Children.Add(defaultTypeTextBox);
             ComponentLists.outputPronomCodeTextBoxes.Add(defaultTypeTextBox);
+            defaultTypeTextBox.TextChanged += (sender, e) => Text_Changed(sender, e);
 
             // Column4: Name of Output Pronom Code
-            var outputTypeTextBox = CreateTextBox(PronomHelper.PronomToFullName(fileSettings.DefaultType), index, true);
+            var outputTypeTextBox = CreateControl.CreateTextBox(PronomHelper.PronomToFullName(fileSettings.DefaultType), index, true);
             Grid.SetRow(outputTypeTextBox, newRow);
             Grid.SetColumn(outputTypeTextBox, 3);
             mainGrid.Children.Add(outputTypeTextBox);
             ComponentLists.outputNameTextBoxes.Add(outputTypeTextBox);
-
-            // Column5: Update Button
-            var updateButton = CreateButton("Update", index);
-            updateButton.Click += (sender, e) => UpdateButton_Click(sender);
-            Grid.SetRow(updateButton, newRow);
-            Grid.SetColumn(updateButton, 4);
-            mainGrid.Children.Add(updateButton);
-            ComponentLists.updateButtons.Add(updateButton);
         }
         else
         {
@@ -242,102 +236,25 @@ public class CreateElements
         readOnlyTextBox.Text = PronomHelper.PronomToFullName(type);
     }
 
-    /// <summary>
-    /// When the update button is pressed, the output tracker is updated
-    /// </summary>
-    /// <param name="sender"> The Button being pressed </param>
-    private void UpdateButton_Click(object sender)
+    private void Text_Changed(object sender, TextChangedEventArgs e)
     {
-        var button = (Button)sender;
-        var parent = (Grid)button.Parent;
-
-        // Calculate indices based on the row index
-        int rowIndex = Grid.GetRow(button);
-        int classNameColumnIndex = 0;
-        int comboBoxColumnIndex = 1;
-        int textBoxColumnIndex = 2;
-        int readOnlyTextBoxColumnIndex = 3;
-
-        // Access child elements using calculated indices
-        var className = ((TextBlock)parent.Children[rowIndex * parent.ColumnDefinitions.Count + classNameColumnIndex]).Text;
-        var comboBox = (ComboBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + comboBoxColumnIndex];
-        var textBox = (TextBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + textBoxColumnIndex];
-        var readOnlyTextBox = (TextBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + readOnlyTextBoxColumnIndex];
-        var item = comboBox.SelectedItem.ToString();
-
-        UpdateOutputTracker(parent, item, rowIndex);
-    }
-
-    /// <summary>
-    /// Creates a TextBlock
-    /// </summary>
-    /// <param name="text"> The textcontent of the TextBlock </param>
-    /// <returns></returns>
-    private static TextBlock CreateTextBlock(string text)
-    {
-        return new TextBlock
+        string? newText = "";
+        if (sender is TextBox textBox)
         {
-            Text = text,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(10, 10, 0, 0)
-        };
-    }
-
-    /// <summary>
-    /// creates a ComboBox
-    /// </summary>
-    /// <param name="index"> just to name it </param>
-    /// <returns> The ComboBox with its values </returns>
-    private static ComboBox CreateComboBox(int index)
-    {
-        var comboBox = new ComboBox
+            newText = textBox.Text;
+        }
+        Grid? mainGrid = mainWindow.FindControl<Grid>("MainGrid");
+        if (mainGrid == null)
         {
-            Name = "formatDropDown" + (index + 1),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(10, 10, 0, 0)
-        };
-        return comboBox;
-    }
+            Logger.Instance.SetUpRunTimeLogMessage("MainGrid is null", true);
+            return;
+        }
 
-    /// <summary>
-    /// Creates a TextBox
-    /// </summary>
-    /// <param name="text"> The textcontent of the textbox </param>
-    /// <param name="index"> Just there to name it </param>
-    /// <param name="readOnly"> true to make it readonly </param>
-    /// <returns> The TextBox with its values </returns>
-    private static TextBox CreateTextBox(string text, int index, bool readOnly)
-    {
-        return new TextBox
-        {
-            Text = text,
-            IsReadOnly = readOnly,
-            Name = "OutputTypeTextBox" + (index + 1),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(10, 10, 0, 0),
-            Width = Double.NaN,
-        };
-    }
-
-    /// <summary>
-    /// Creates a button
-    /// </summary>
-    /// <param name="text"> The text of the button </param>
-    /// <param name="index"> Index to name the button. Example: index = 1 -> Name = Button2 </param>
-    /// <returns> The Button with its values </returns>
-    private static Button CreateButton(string text, int index)
-    {
-        return new Button
-        {
-            Content = text,
-            Name = "Button" + (index + 1),
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(10, 10, 0, 0)
-        };
+        int index = mainGrid.Children.IndexOf((TextBox)sender) + 1;
+        TextBox? readOnlyTextBox = (TextBox)mainGrid.Children[index];
+        if (!String.IsNullOrEmpty(newText) && readOnlyTextBox != null)
+            readOnlyTextBox.Text = PronomHelper.PronomToFullName(newText);
+         
     }
 }
 
