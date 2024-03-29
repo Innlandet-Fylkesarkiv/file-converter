@@ -67,7 +67,8 @@ public class Siegfried
 	public string ?ScanDate = null;
 	public string OutputFolder = "siegfried/JSONoutput";
 	private string ExecutablePath = OperatingSystem.IsLinux() ? "sf" : "src/siegfried/sf.exe";
-	private string HomeFolder = "src/siegfried";
+	private string HomeFolder = "src/siegfried/";
+	private string PronomSignatureFile = "default.sig";		 //"pronom64k.sig";
     private static readonly object lockObject = new object();
 	private List<List<string>> CompressedFolders;
 	public ConcurrentBag<FileInfo> Files = new ConcurrentBag<FileInfo>();
@@ -104,8 +105,8 @@ public class Siegfried
 				Console.WriteLine("Cannot find Siegfried executable");
 				throw new FileNotFoundException("Cannot find Siegfried executable");
 			}
-			found = Path.Exists(HomeFolder + "/pronom64k.sig");
-			logger.SetUpRunTimeLogMessage("SF Pronom signature file " + (found ? "" : "not") + "found", !found);
+			found = Path.Exists(HomeFolder + PronomSignatureFile);
+			logger.SetUpRunTimeLogMessage($"SF Pronom signature file '{PronomSignatureFile}' " + (found ? "" : "not ") + "found", !found);
 			if (!found)
 			{
 				Console.WriteLine("Cannot find Pronom signature file");
@@ -225,12 +226,12 @@ public class Siegfried
 		string options;
 		if (hash)
 		{
-			options = $"-home {HomeFolder} -json -hash " + HashEnumToString(GlobalVariables.checksumHash) + " -sig pronom64k.sig ";
+			options = $"-home {HomeFolder} -json -hash " + HashEnumToString(GlobalVariables.checksumHash) + $" -sig {PronomSignatureFile} ";
 		} else
 		{
-			options = $"-home {HomeFolder} -json -sig pronom64k.sig ";
+			options = $"-home {HomeFolder} -json -sig {PronomSignatureFile} ";
 		}
-        string fileName = OperatingSystem.IsLinux() ? "sf" : @"siegfried/sf.exe";
+
         // Define the process start info
         ProcessStartInfo psi = new ProcessStartInfo
 		{
@@ -297,7 +298,7 @@ public class Siegfried
 			tempPaths[i] = "\"" + paths[i] + "\"";
 		}
 		string wrappedPaths = String.Join(" ",tempPaths);
-		string options = $"-home {HomeFolder} -multi 64 -json -coe -hash " +  HashEnumToString(GlobalVariables.checksumHash) + " -sig pronom64k.sig ";
+		string options = $"-home {HomeFolder} -multi 64 -json -coe -hash " +  HashEnumToString(GlobalVariables.checksumHash) + $" -sig {PronomSignatureFile} ";
 
 		string outputFile = Path.Combine(OutputFolder, Guid.NewGuid().ToString(), ".json");
 		string? parentDir = Directory.GetParent(outputFile)?.FullName;
@@ -819,104 +820,4 @@ public class Siegfried
 			Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + e.Message, true);
 		}
 	}
-	/*
-    public string PronomToFullName(string pronom)
-    {
-        string output;
-        switch (pronom)
-        {
-            #region PDF
-            case "fmt/14": output = "Acrobat PDF 1.0"; break;
-            case "fmt/15": output = "Acrobat PDF 1.1"; break;
-            case "fmt/16": output = "Acrobat PDF 1.2"; break;
-            case "fmt/17": output = "Acrobat PDF 1.3"; break;
-            case "fmt/18": output = "Acrobat PDF 1.4"; break;
-            case "fmt/19": output = "Acrobat PDF 1.5"; break;
-            case "fmt/20": output = "Acrobat PDF 1.6"; break;
-            case "fmt/276": output = "Acrobat PDF 1.7"; break;
-            case "fmt/1129": output = "Acrobat PDF 2.0"; break;
-            case "fmt/95": output = "Acrobat PDF/A - 1A"; break;
-            case "fmt/354": output = "Acrobat PDF/A - 1B"; break;
-            case "fmt/476": output = "Acrobat PDF/A - 2A"; break;
-            case "fmt/477": output = "Acrobat PDF/A - 2B"; break;
-            case "fmt/478": output = "Acrobat PDF/A - 2U"; break;
-            case "fmt/479": output = "Acrobat PDF/A - 3A"; break;
-            case "fmt/480": output = "Acrobat PDF/A - 3B"; break;
-            case "fmt/481": output = "Acrobat PDF/A - 3U"; break;
-            case "fmt/1910": output = "Acrobat PDF/A - 4"; break;
-            case "fmt/1911": output = "Acrobat PDF/A - 4E"; break;
-            case "fmt/1912": output = "Acrobat PDF/A - 4F"; break;
-            //TODO: PDF/X?
-            #endregion
-            #region Word
-            case "fmt/37": output = "Microsoft Word 1.0"; break;
-            case "fmt/38": output = "Microsoft Word 2.0"; break;
-            case "fmt/39": output = "Microsoft Word 6.0/95"; break;
-            case "fmt/40": output = "Microsoft Word 97-2003"; break;
-            case "fmt/412": output = "Microsoft Word 2007 onwards"; break;
-            case "fmt/523": output = "Microsoft Word Macro enabled 2007 onwards"; break;
-            #endregion
-            #region Excel
-            case "fmt/55": output = "Microsoft Excel 2.x"; break;
-            case "fmt/56": output = "Microsoft Excel 3.0"; break;
-            case "fmt/57": output = "Microsoft Excel 4.0"; break;
-            case "fmt/59": output = "Microsoft Excel 5.0/95"; break;
-            case "fmt/61": output = "Microsoft Excel 97"; break;
-            case "fmt/62": output = "Microsoft Excel 2000-2003"; break;
-            case "fmt/214": output = "Microsoft Excel 2007 onwards"; break;
-            case "fmt/445": output = "Microsoft Excel Macro enabled 2007"; break;
-			#endregion
-			#region PowerPoint
-
-			#endregion
-			#region PNG
-			case "fmt/11": output = "PNG 1.0"; break;
-			case "fmt/12": output = "PNG 1.1"; break;
-			case "fmt/13": output = "PNG 1.2"; break;
-			#endregion
-			#region JPG
-			case "fmt/41": output = "RAW JPEG"; break;
-			case "fmt/42": output = "JPEG 1.00"; break;
-            case "fmt/43": output = "JPEG 1.01"; break;
-            case "fmt/44": output = "JPEG 1.02"; break;
-			//TODO: Hva er Exchangeable Image File Format?
-			#endregion
-			#region GIF
-			case "fmt/3": output = "GIF 87a"; break;
-			case "fmt/4": output = "GIF 89a"; break;
-			#endregion
-			#region TIF
-			case "fmt/": output = "TIFF 6.0"; break;
-            #endregion
-            #region Open Document Standard
-
-            #endregion
-            #region RTF
-
-            #endregion
-            #region Email
-
-            #endregion
-            #region HTML
-            case "fmt/96":	output = "HTML 1.0"; break;
-            case "fmt/97":	output = "HTML 2.0"; break;
-            case "fmt/98":	output = "HTML 3.2"; break;
-            case "fmt/99":	output = "HTML 4.0"; break;
-            case "fmt/100":	output = "HTML 4.01"; break;
-			case "fmt/471":	output = "HTML 5.0"; break;
-			case "fmt/102": output = "Extenxible HTML 1.0"; break;
-			case "fmt/103": output = "Extenxible HTML 1.1"; break;
-            #endregion
-            #region PostScript
-            case "x-fmt/91":	output = "PostScript 1.0"; break;
-            case "x-fmt/406":	output = "PostScript 2.0"; break;
-            case "x-fmt/407":	output = "PostScript 2.1"; break;
-            case "x-fmt/408":	output = "PostScript 3.0"; break;
-            case "fmt/501":		output = "PostScript 3.1"; break;
-            #endregion
-            case "fmt/494": output = "Microsoft Office Encrypted Document"; break;
-            default: output = pronom; break;
-        }
-        return output;
-    }*/
 }
