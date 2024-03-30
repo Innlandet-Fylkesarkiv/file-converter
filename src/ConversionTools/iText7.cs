@@ -151,10 +151,12 @@ public class iText7 : Converter
         {
             supportedConversions.Add(imagePronom, PDFPronoms);
         }
+        
         foreach (string htmlPronom in HTMLPronoms)
         {
             supportedConversions.Add(htmlPronom, PDFPronoms);
         }
+
         foreach (string pdfPronom in PDFPronoms)
         {
             supportedConversions.Add(pdfPronom, PDFPronoms);
