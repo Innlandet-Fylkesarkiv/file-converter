@@ -41,7 +41,7 @@ public class LibreOfficeConverter : Converter
         //TODO: Actually fetch version
 
         Version = "7.6.4";
-        
+        /*
 		string output = "";
 		string error = "";
 			
@@ -68,6 +68,7 @@ public class LibreOfficeConverter : Converter
 		{
 			Console.WriteLine("Version: {0}", output);
 		}
+		*/
     }
 
 	/// <summary>
