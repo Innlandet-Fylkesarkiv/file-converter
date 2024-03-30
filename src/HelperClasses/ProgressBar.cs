@@ -15,10 +15,10 @@ public class ProgressBar : IDisposable, IProgress<double>
 
 	private double currentProgress = 0;
 	private int currentDone = 0;
+	private TimeSpan elapsed = TimeSpan.FromSeconds(0);
 	private string currentText = string.Empty;
 	private bool disposed = false;
 	private int animationIndex = 0;
-	private string title = "";
 	private int totalJobs = 0;
 	public ProgressBar(int totalItems)
 	{
@@ -34,12 +34,13 @@ public class ProgressBar : IDisposable, IProgress<double>
 	}
 
 	public void Report(double value) { }
-	public void Report(double value, int currentJob = 0)
+	public void Report(double value, int currentJob, TimeSpan ts)
 	{
 		// Make sure value is in [0..1] range
 		value = Math.Max(0, Math.Min(1, value));
 		Interlocked.Exchange(ref currentProgress, value); // atomic operation
 		Interlocked.Exchange(ref currentDone, currentJob); // atomic operation
+		elapsed = ts;
 	}
 
 	private void TimerHandler(object state)
@@ -55,8 +56,21 @@ public class ProgressBar : IDisposable, IProgress<double>
 			percent,
 			animation[animationIndex++ % animation.Length],
 			currentDone, totalJobs);
+			string elapsedTime = elapsed.ToString(@"hh\:mm\:ss");
+			bool showEstimatedTime = currentDone < totalJobs && percent >= 10;
+			string estimatedTimeLeft;
+			string displayText;
 
-			string displayText = $"{progressBar}";
+			if (showEstimatedTime)
+			{ 
+				estimatedTimeLeft = TimeSpan.FromSeconds((elapsed.TotalSeconds / currentDone) * (totalJobs - currentDone)).ToString(@"hh\:mm\:ss");
+				displayText = $"{progressBar} | Elapsed: {elapsedTime} | Estimated remaining time: {estimatedTimeLeft}";
+			}
+            else
+			{
+                displayText = $"{progressBar} | Elapsed: {elapsedTime}";
+            }
+			
 			UpdateText(displayText);
 			ResetTimer();
 		}
