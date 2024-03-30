@@ -41,14 +41,14 @@ public class LibreOfficeConverter : Converter
         //TODO: Actually fetch version
 
         Version = "7.6.4";
-        /*
+        
 		string output = "";
 		string error = "";
-		
+			
 		
 		using (Process process = new Process())
 		{
-			process.StartInfo.FileName = "soffice";
+			process.StartInfo.FileName = GetSofficePath(true);
 			process.StartInfo.Arguments = "--headless --version";
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
@@ -62,17 +62,18 @@ public class LibreOfficeConverter : Converter
 		}
 		if (error != "")
 		{
-			Console.WriteLine("Error getting LibreOffice version: " + error);
+			Logger.Instance.SetUpRunTimeLogMessage("Error getting LibreOffice version: " + error, true);
 		}
-
-		version = output.Split(' ')[1];
-		*/
+		else
+		{
+			Console.WriteLine("Version: {0}", output);
+		}
     }
 
 	/// <summary>
 	/// Gets the supported operating system for the converter
 	/// </summary>
-	/// <returns>Returns a list of string switht eh suported operating systems</returns>
+	/// <returns>Returns a list of string with the suported operating systems</returns>
 	public override List<string> getSupportedOS()
 	{
 		var supportedOS = new List<string>();

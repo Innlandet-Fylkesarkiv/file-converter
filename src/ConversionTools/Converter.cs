@@ -48,15 +48,6 @@ public class Converter
 	/// <param name="fileinfo"></param>
 	public void ConvertFile(FileToConvert fileinfo)
 	{
-		/*
-		if(fileinfo.FilePath.First() != '"')
-		{
-			fileinfo.FilePath = "\"" + fileinfo.FilePath;
-		}
-		if(fileinfo.FilePath.Last() != '"')
-		{
-			fileinfo.FilePath += "\"";
-		}*/
 		ConvertFile(fileinfo, fileinfo.Route.First());
 	}
 

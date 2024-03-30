@@ -193,7 +193,7 @@ public class iText7 : Converter
            
 			if (HTMLPronoms.Contains(file.CurrentPronom))
 			{
-				convertFromHTMLToPDF(file, pdfVersion ?? PdfVersion.PDF_1_2, conformanceLevel != null, pronom, conformanceLevel);
+				convertFromHTMLToPDF(file, pdfVersion ?? PdfVersion.PDF_2_0, pronom, conformanceLevel);
 			}
 			else if (PDFPronoms.Contains(file.CurrentPronom))
 			{
@@ -261,7 +261,7 @@ public class iText7 : Converter
 	/// </summary>
 	/// <param name="filePath">Name of the file to be converted</param>
 	/// <param name="pdfVersion">Specific pdf version to be converted to</param>
-	void convertFromHTMLToPDF(FileToConvert file, PdfVersion pdfVersion, bool pdfA, string pronom, PdfAConformanceLevel? conformanceLevel = null)
+	void convertFromHTMLToPDF(FileToConvert file, PdfVersion pdfVersion, string pronom, PdfAConformanceLevel? conformanceLevel = null)
 	{
 		string dir = Path.GetDirectoryName(file.FilePath)?.ToString() ?? "";
 		string filePathWithoutExtension = Path.Combine(dir, Path.GetFileNameWithoutExtension(file.FilePath));
@@ -291,7 +291,7 @@ public class iText7 : Converter
 
                 if (conformanceLevel != null)
                 {
-                    convertFromPDFToPDFA(new FileToConvert(output,file.Id), conformanceLevel, filename);
+                    convertFromPDFToPDFA(new FileToConvert(output,file.Id), conformanceLevel, pronom);
                 }
                 converted = CheckConversionStatus(output, pronom, file);
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
@@ -332,42 +332,32 @@ public class iText7 : Converter
                     using (FileStream iccFileStream = new FileStream("src/ConversionTools/sRGB2014.icc", FileMode.Open))
                     {
                         outputIntent = new PdfOutputIntent("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
-                    
-                    using (PdfWriter writer = new PdfWriter(tmpFilename)){ // Create PdfWriter instance
-                        using (PdfADocument pdfADocument = new PdfADocument(writer, conformanceLevel, outputIntent))
-                        { //TODO: iText.Kernel.Exceptions.PdfException: 'Cannot operate with the flushed PdfStream.'
-                          // Associate PdfADocument with PdfWriter
-                            using (PdfReader reader = new PdfReader(filename))
-                            {
-                                PdfDocument pdfDocument = new PdfDocument(reader);
 
-                                pdfADocument.SetTagged();
+                        using (PdfWriter writer = new PdfWriter(tmpFilename)) // Create PdfWriter instance
+                        using (PdfADocument pdfADocument = new PdfADocument(writer, conformanceLevel, outputIntent))    // Associate PdfADocument with PdfWriter
+                        using (PdfReader reader = new PdfReader(filename))
+                        {
+                            PdfDocument pdfDocument = new PdfDocument(reader);
+                            pdfADocument.SetTagged();
                                 
-
-                                for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
+                            for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
+                            {
+                                PdfPage sourcePage = pdfDocument.GetPage(pageNum);
+                                var ps = sourcePage.GetPageSize();
+                                var landscape = ps.GetWidth() > ps.GetHeight();
+                                if (landscape)
                                 {
-                                    PdfPage sourcePage = pdfDocument.GetPage(pageNum);
-                                    var ps = sourcePage.GetPageSize();
-                                    var landscape = ps.GetWidth() > ps.GetHeight();
-                                    if (landscape)
-                                    {
-                                        //Console.WriteLine("Landscape");
-                                    }
-
-                                    PdfPage page = pdfADocument.AddNewPage(new PageSize(sourcePage.GetPageSize()));
-                                    PdfFormXObject pageCopy = sourcePage.CopyAsFormXObject(pdfADocument);
-
-                                    PdfCanvas canvas = new PdfCanvas(page);
-                                    canvas.AddXObject(pageCopy);
-                                    }
+                                    //Console.WriteLine("Landscape");
                                 }
-                                Console.Write("");
+
+                                PdfPage page = pdfADocument.AddNewPage(new PageSize(sourcePage.GetPageSize()));
+                                PdfFormXObject pageCopy = sourcePage.CopyAsFormXObject(pdfADocument);
+
+                                PdfCanvas canvas = new PdfCanvas(page);
+                                canvas.AddXObject(pageCopy);
                             }
                         }
-                    }       //TODO: iText.Pdfa.Exceptions.PdfAConformanceException: 'The value of interpolate key shall not be true'
-                            //TODO: iText.Pdfa.Exceptions.PdfAConformanceException: 'For any spot color used in a DeviceN or NChannel colorspace, an entry in the Colorants dictionary shall be present.'
-                            //"output\\OfficeTestData\\matte\\Innføringslekse kap 3+4.pdf"
-
+                    }
                     converted = CheckConversionStatus(tmpFilename, pronom);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 if (!converted)
