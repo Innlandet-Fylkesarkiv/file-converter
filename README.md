@@ -114,6 +114,8 @@ Program is mostly tested in Windows, so Linux specific issues may not appear in 
   	- Zip is the only tested format, but .tar .gz .7z and .rar is also supported in the current version. It seems stable, but it is best to double check results.
 - (PDF to image)
   	- Documentation may say that conversion failed even though it was done successfully. Please double check results.
+- HTML -> PDF
+  	- This conversion does not work, even though the program may think it did based on the output file's pronom. Output file will be empty
 
 ### GUI
 Common usage GUI
