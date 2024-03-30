@@ -323,8 +323,8 @@ public class iText7 : Converter
             bool converted = false;
             PdfOutputIntent outputIntent;
 
-            RemoveInterpolation(filename);
-            RemoveInterpolateFlag(filename, tmpFilename);
+            //RemoveInterpolation(filename);
+            //RemoveInterpolateFlag(filename, tmpFilename);
             lock (pdfalock)
             {
                 do
@@ -344,11 +344,7 @@ public class iText7 : Converter
                             {
                                 PdfPage sourcePage = pdfDocument.GetPage(pageNum);
                                 var ps = sourcePage.GetPageSize();
-                                var landscape = ps.GetWidth() > ps.GetHeight();
-                                if (landscape)
-                                {
-                                    //Console.WriteLine("Landscape");
-                                }
+
 
                                 PdfPage page = pdfADocument.AddNewPage(new PageSize(sourcePage.GetPageSize()));
                                 PdfFormXObject pageCopy = sourcePage.CopyAsFormXObject(pdfADocument);
