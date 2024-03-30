@@ -180,7 +180,7 @@ class Settings
 		Logger logger = Logger.Instance;
 		try
 		{
-			string outputFolder = GlobalVariables.parsedOptions.Output;
+			string inputFolder = GlobalVariables.parsedOptions.Input;
             // Load the XML document from a file
             XmlDocument xmlDoc = new XmlDocument();
 			xmlDoc.Load(pathToSettings);
@@ -220,7 +220,7 @@ class Settings
                     }
                     else
                     {
-						if (Directory.Exists(outputFolder + "/" + folderPath)) 
+						if (Directory.Exists(inputFolder + "/" + folderPath)) 
 						{ 
 							GlobalVariables.FolderOverride[folderPath] = settings;
 							List<string> subfolders = GetSubfolderPaths(folderPath);
