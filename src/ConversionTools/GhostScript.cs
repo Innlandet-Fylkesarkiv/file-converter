@@ -2,6 +2,7 @@
 using Ghostscript.NET.Rasterizer;
 using System.Drawing.Imaging;
 using Ghostscript.NET;
+using System.Text.RegularExpressions;
 
 //TODO: Put all images in a folder with original name and delete original file
 
@@ -30,11 +31,56 @@ public class GhostscriptConverter : Converter
     public override void GetVersion()
     {
 		//TODO: Actually fetch version
-		Version = "1.23.1";
+		Version = "";
+
+        string output = "";
+        string error = "";
+
+
+        using (Process process = new Process())
+        {
+            process.StartInfo.FileName = System.OperatingSystem.IsWindows() ? gsWindowsExecutable : "/bin/bash gs";
+            process.StartInfo.Arguments = "-h";
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+            process.Start();
+
+            output = process.StandardOutput.ReadToEnd();
+            error = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+        }
+        if (error != "")
+        {
+            Logger.Instance.SetUpRunTimeLogMessage("Error getting GhostScript version: " + error, true);
+        }
+        else
+        {
+            // Define a regular expression pattern to match the version number
+            string pattern = @"\d+\.\d+\.\d+";
+
+            // Create a Regex object
+            Regex regex = new Regex(pattern);
+
+            // Match the pattern against the input string
+            Match match = regex.Match(output);
+
+            // Check if a match was found
+            if (match.Success)
+            {
+                // Extract the matched version number
+                Version = match.Value;
+            } else
+			{
+				Version = "Version not found";
+			}
+        }
     }
 
-    public string gsExecutable = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GhostscriptBinaryFiles", "gs10.02.1", "bin", "gswin64c.exe");
-    public string gsLibrary = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GhostscriptBinaryFiles", "gs10.02.1", "bin", "gsdll64.dll");
+    public string gsWindowsExecutable = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GhostscriptBinaryFiles", "gs10.02.1", "bin", "gswin64c.exe");
+
+    public string gsWindowsLibrary = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GhostscriptBinaryFiles", "gs10.02.1", "bin", "gsdll64.dll");
 
    
 
@@ -77,12 +123,13 @@ public class GhostscriptConverter : Converter
 	public override void ConvertFile(FileToConvert file, string pronom)
 	{
 		string outputFileName = Path.GetFileNameWithoutExtension(file.FilePath);
-		string extension = GetExtension(pronom);
-		string sDevice = GetDevice(pronom);
+		string? extension = GetExtension(pronom);
+		string? sDevice = GetDevice(pronom);
 
 		if(extension == null || sDevice == null)
 		{
-			Logger.Instance.SetUpRunTimeLogMessage(pronom + " is not supported by GhostScript. File is not converted.", true, file.FilePath);
+			Logger.Instance.SetUpRunTimeLogMessage(pronom + " is not supported by GhostScript. File is not converted.", true,filename: file.FilePath);
+			return;
 		}
 
 		try
@@ -95,7 +142,7 @@ public class GhostscriptConverter : Converter
 					convertToPDF(file, outputFileName, sDevice, extension, pdfVersion, pronom);
 				}
             }
-            else if (extension == ".png" || extension == ".jpg" || extension == ".tiff" || extension == ".bmp")
+            else
             {
 				lock (lockobject)
 				{
@@ -126,9 +173,9 @@ public class GhostscriptConverter : Converter
 	void convertToImagesWindows(FileToConvert file, string outputFileName, string sDevice, string extension, string pronom)
 	{
 		Logger log = Logger.Instance;
-		if (!System.OperatingSystem.IsWindowsVersionAtLeast(6,1) ) 
+		if (!System.OperatingSystem.IsWindowsVersionAtLeast(6,1)) 
 		{
-			log.SetUpRunTimeLogMessage("GhostScript is not supported on this version of Windows (6.1). File is not converted.", true, filename: file.FilePath);
+			log.SetUpRunTimeLogMessage("GhostScript is not supported on this version of Windows (minimum 6.1 required). File is not converted.", true, filename: file.FilePath);
 			return; 
 		}
 		try
@@ -159,7 +206,7 @@ public class GhostscriptConverter : Converter
 
                 using (var rasterizer = new GhostscriptRasterizer())
 				{
-					GhostscriptVersionInfo versionInfo = new GhostscriptVersionInfo(new Version(), gsLibrary, string.Empty, GhostscriptLicense.GPL);
+					GhostscriptVersionInfo versionInfo = new GhostscriptVersionInfo(new Version(), gsWindowsLibrary, string.Empty, GhostscriptLicense.GPL);
 					using (var stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read))
 					{
 						rasterizer.Open(stream, versionInfo, false);
@@ -321,7 +368,7 @@ public class GhostscriptConverter : Converter
         string? outputFolder = Path.GetDirectoryName(file.FilePath);
 
         string outputFilePath = Path.Combine(outputFolder, outputFileName + extension);
-        string arguments = "-dCompatibilityLevel=" + pdfVersion + " -sDEVICE=pdfwrite -o " + outputFilePath + " " + file.FilePath;
+        string arguments = "-dCompatibilityLevel=" + pdfVersion + $" -sDEVICE={sDevice} -o " + outputFilePath + " " + file.FilePath;
         string command;
 
         try
@@ -333,7 +380,7 @@ public class GhostscriptConverter : Converter
                 ProcessStartInfo startInfo = new ProcessStartInfo();
 				if (OperatingSystem.IsWindows())
 				{
-					startInfo.FileName = gsExecutable;
+					startInfo.FileName = gsWindowsExecutable;
 					command = arguments;
 				}
 				else
