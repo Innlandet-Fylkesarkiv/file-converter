@@ -120,6 +120,10 @@ The program is mostly tested in Windows, so Linux specific issues may not appear
   	- UPDATE: Bug seems to be fixed
 - HTML -> PDF
   	- This conversion does not work, even though the program may think it did based on the output file's pronom. Output file will be empty
+- GUI (FolderOverride)
+  	- You can set a folder override in the gui and it will be written to file, but the GUI wont remeber it so if you open it again and save without adding the previous folders, then those would not be saved.
+  	- No toggle for merge images yet
+  	- too little help for the user to undertand what to write where
   
 ### GUI
 Common usage GUI
