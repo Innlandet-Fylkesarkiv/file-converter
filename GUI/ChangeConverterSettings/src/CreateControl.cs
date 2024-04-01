@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia.Controls.Shapes;
 
 
 public static class CreateControl
@@ -76,9 +77,41 @@ public static class CreateControl
         {
             Content = text,
             Name = "Button" + (index + 1),
+            Background = Avalonia.Media.Brushes.Green,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(10, 10, 0, 0)
+        };
+    }
+
+    /// <summary>
+    /// Creates a white separator
+    /// </summary>
+    /// <returns> a rectangle used as a separator </returns>
+    public static Rectangle CreateSeparator()
+    {
+        return new Rectangle
+        {
+            Fill = Avalonia.Media.Brushes.Black,
+            Height = 1,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Margin = new Thickness(10, 10, 0, 0)
+        };
+    }
+    
+    /// <summary>
+    /// Creats a grid for the folder override
+    /// </summary>
+    /// <param name="index"> just to name them </param>
+    /// <returns> The Grid </returns>
+    public static Grid CreateFolderOverrideGrids(int index)
+    {
+        return new Grid
+        {
+            Name = "FolderOverrideGrid" + index,
+            Background = Avalonia.Media.Brushes.Gray,
+            ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto,Auto,Auto"),
         };
     }
 }

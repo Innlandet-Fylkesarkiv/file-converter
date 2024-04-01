@@ -45,7 +45,7 @@ public class CreateElements
     /// <summary>
     /// Creates all the elements for a row and adds them to the panel
     /// </summary>
-    /// <param name="index"></param>
+    /// <param name="index"> the index in filesettings and to name controls </param>
     public void CreateAndAddElements(int index)
     {
         Grid? mainGrid = mainWindow.Find<Grid>("MainGrid");
@@ -236,6 +236,11 @@ public class CreateElements
         readOnlyTextBox.Text = PronomHelper.PronomToFullName(type);
     }
 
+    /// <summary>
+    /// When the text is changed, the name of the Pronom code is updated
+    /// </summary>
+    /// <param name="sender"> the textbox being typed in </param>
+    /// <param name="e"> Event arguments containing information about the text change </param>
     private void Text_Changed(object sender, TextChangedEventArgs e)
     {
         string? newText = "";

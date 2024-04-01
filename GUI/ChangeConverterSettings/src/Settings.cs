@@ -362,7 +362,19 @@ class Settings
             }
             
         }
-        
+        if(GlobalVariables.FolderOverride.Count > 0)
+        {
+            XmlElement folderOverride = xmlDoc.CreateElement("FolderOverride");
+            root.AppendChild(folderOverride);
+            foreach (KeyValuePair<string, SettingsData> entry in GlobalVariables.FolderOverride)
+            {
+                AddXmlElement(xmlDoc, folderOverride, "FolderPath", entry.Key);
+                string pronomsListAsString = string.Join(", ", entry.Value.PronomsList);
+                AddXmlElement(xmlDoc, folderOverride, "Pronoms", pronomsListAsString);
+                AddXmlElement(xmlDoc, folderOverride, "ConvertTo", entry.Value.DefaultType);
+                AddXmlElement(xmlDoc, folderOverride, "MergeImages", entry.Value.Merge ? "YES" : "NO");
+            }
+        }
         // Save the XML document to a file
         xmlDoc.Save(path);
     }

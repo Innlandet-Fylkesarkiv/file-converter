@@ -13,6 +13,8 @@ using Avalonia.Input;
 using Tmds.DBus.Protocol;
 using System.Diagnostics;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
+using System.Linq;
 
 namespace ChangeConverterSettings
 {
@@ -63,7 +65,8 @@ namespace ChangeConverterSettings
             settings.ReadAllSettings(GlobalVariables.defaultSettingsPath);
             WriteSettingsToScreen();
             Console.WriteLine(GlobalVariables.FileSettings);
-            //InitializeComponents();
+            FolderOverride folderOverride = new FolderOverride(this);
+            folderOverride.SetUpInnerGrid();
         }
 
         /// <summary>
@@ -74,12 +77,21 @@ namespace ChangeConverterSettings
             AvaloniaXamlLoader.Load(this);
         }
 
+
+
         /// <summary>
         /// When the user presses the save button, the current values are written to the settings file
         /// </summary>
         /// <param name="sender"> the save button being pressed </param>
         /// <param name="args"> arguments (unused but neccesary to be able to call it) </param>
         public void SaveButton(object sender, RoutedEventArgs args)
+        {
+            FolderOverride folderOverride = new FolderOverride(this);
+            folderOverride.SaveFolderOverride();
+            SaveMainSettings();
+        }
+
+        private void SaveMainSettings()
         {
             CreateElements createElements = new CreateElements(this);
             createElements.UpdateState();
