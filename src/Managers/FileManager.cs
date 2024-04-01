@@ -444,13 +444,23 @@ public class FileManager
 		//Print out the directories that will be or have been merged
 		if (dirsToBeMerged.Count > 0)
 		{
+			int maxLength = 0;
+			foreach(var dir in dirsToBeMerged)
+			{
+				if(dir.Item1.Length > maxLength)
+				{
+					maxLength = dir.Item1.Length;
+				}
+			}
 			//Print plan for merge
 			if (!ConversionFinished)
 			{
 				Console.WriteLine("Some folders will be merged (output pronom):");
 				foreach (var dir in dirsToBeMerged)
 				{
-					Console.WriteLine("\t{0} ({1})", dir.Item1,dir.Item2);
+					var relPath = Path.Combine(GlobalVariables.parsedOptions.Output, dir.Item1);
+					var totalFiles = Directory.Exists(relPath) ? Directory.GetFiles(relPath).Count() : -1;
+					Console.WriteLine("\t{0,-"+maxLength+"} | {1} files ({2})", dir.Item1, totalFiles, dir.Item2);
 				}
 			}
             else	//Check result of merge

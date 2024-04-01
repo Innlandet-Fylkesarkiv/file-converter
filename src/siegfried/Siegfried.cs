@@ -194,7 +194,7 @@ public class Siegfried
 			//Parallel.ForEach(paths, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, (path, state, index) =>
 			for(int i = 0; i < paths.Length; i++)
 			{
-				progressBar.Report((i+1) / (double)paths.Length,i+1);
+				//progressBar.Report((i+1) / (double)paths.Length,i+1);
 				var parsedData = ParseJSONOutput(paths[i], true);
 				if (parsedData == null)
 					return; //TODO: Check error and possibly continue

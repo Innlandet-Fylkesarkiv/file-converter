@@ -494,15 +494,16 @@ public class ConversionManager
 	void AwaitConversion(ConcurrentDictionary<Guid, CountdownEvent> countdownEvents, int total)
 	{
 		total = countdownEvents.Count;
+		var startTime = DateTime.Now;
 		using (ProgressBar pb = new ProgressBar(total))
 		{
 			int numFinished = 0;
 			while (numFinished < total)
 			{
 				numFinished = countdownEvents.Values.Count(c => c.IsSet);
-
-				pb.Report((float)(numFinished) / (float)total, numFinished);
-				Thread.Sleep(200);
+				var elapsed = DateTime.Now - startTime;
+				pb.Report((float)(numFinished) / (float)total, numFinished,elapsed);
+				//Thread.Sleep(200);
 			}
 		}
 	}

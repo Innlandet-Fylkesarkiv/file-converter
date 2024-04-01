@@ -44,12 +44,12 @@ public class LibreOfficeConverter : Converter
         /*
 		string output = "";
 		string error = "";
-		
+			
 		
 		using (Process process = new Process())
 		{
-			process.StartInfo.FileName = "soffice";
-			process.StartInfo.Arguments = "--version";
+			process.StartInfo.FileName = GetSofficePath(true);
+			process.StartInfo.Arguments = "--headless --version";
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
 			process.StartInfo.UseShellExecute = false;
@@ -62,17 +62,19 @@ public class LibreOfficeConverter : Converter
 		}
 		if (error != "")
 		{
-			Console.WriteLine("Error getting LibreOffice version: " + error);
+			Logger.Instance.SetUpRunTimeLogMessage("Error getting LibreOffice version: " + error, true);
 		}
-
-		version = output.Split(' ')[1];
+		else
+		{
+			Console.WriteLine("Version: {0}", output);
+		}
 		*/
     }
 
 	/// <summary>
 	/// Gets the supported operating system for the converter
 	/// </summary>
-	/// <returns>Returns a list of string switht eh suported operating systems</returns>
+	/// <returns>Returns a list of string with the suported operating systems</returns>
 	public override List<string> getSupportedOS()
 	{
 		var supportedOS = new List<string>();
@@ -377,13 +379,13 @@ public class LibreOfficeConverter : Converter
 				if (currPronom != pronom && PDFPronoms.Contains(pronom))
 				{
 					var converter = new iText7();
-					converter.convertFromPDFToPDF(file, pronom);
-					// Add iText7 to the list of conversion tools
-					var FileInfoMap = ConversionManager.Instance.FileInfoMap;
-					if (!FileInfoMap[file.Id].ConversionTools.Contains(converter.NameAndVersion))
-					{
-						FileInfoMap[file.Id].ConversionTools.Add(converter.NameAndVersion);
-					}
+                    // Add iText7 to the list of conversion tools
+                    var FileInfoMap = ConversionManager.Instance.FileInfoMap;
+                    if (FileInfoMap.ContainsKey(file.Id) && !FileInfoMap[file.Id].ConversionTools.Contains(converter.NameAndVersion))
+                    {
+                        FileInfoMap[file.Id].ConversionTools.Add(converter.NameAndVersion);
+                    }
+                    converter.convertFromPDFToPDF(file, pronom);
 				}
 				converted = CheckConversionStatus(newFileName, pronom);
 			} while (!converted && ++count < GlobalVariables.MAX_RETRIES);

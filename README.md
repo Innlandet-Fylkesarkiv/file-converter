@@ -99,22 +99,28 @@ Common usage (code block)
 
 ### Beta
 Since the program is still in beta, there are some limitations or bugs in the software. This section will be updated throughout the development process as we fix or find problems.
-Program is mostly tested in Windows, so Linux specific issues may not appear in list. 
-- Landscape oriented PDF or PDF/A -> PDF/A or other PDF version
+The program is mostly tested in Windows, so Linux specific issues may not appear in list. 
+- (Landscape oriented PDF or PDF/A -> PDF/A or other PDF version)
   	- There is a bug where iText7 doesn't recognize that a document is landscape oriented when converting from PDF->PDF/A. This results in the content of the file being cropped to portrait.
+  	- UPDATE: May be resolved, more testing required.
 - (Multi-threading)
 	- The current version of the program gets varied results if multi-threading is enabled (```<MaxThreads>``` is over 1). For most consistent results, use ```<MaxThreads>1</MaxThreads>```
+	- UPDATE: Recent testing shows it seems to be back to being stable.
 - Parsing siegfried data from incomplete run
   	- The current version of the program cannot successfully recover siegfried data from an incomplete run
 - Timeout
   	- Timeout for conversion is not yet implemented
 - (Merging files)
   	- Merging large amounts of files has some bugs and results may vary.
+  	- UPDATE: May be resolved in newest version.
 - (Compressed files)
   	- Zip is the only tested format, but .tar .gz .7z and .rar is also supported in the current version. It seems stable, but it is best to double check results.
 - (PDF to image)
   	- Documentation may say that conversion failed even though it was done successfully. Please double check results.
-
+  	- UPDATE: Bug seems to be fixed
+- HTML -> PDF
+  	- This conversion does not work, even though the program may think it did based on the output file's pronom. Output file will be empty
+  
 ### GUI
 Common usage GUI
 

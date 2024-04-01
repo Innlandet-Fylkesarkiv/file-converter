@@ -31,7 +31,7 @@ public static class GlobalVariables
 	public const ConsoleColor WARNING_COL = ConsoleColor.Yellow;
 	public const ConsoleColor SUCCESS_COL = ConsoleColor.Green;
 	public static readonly PrintSortBy SortBy = PrintSortBy.Count;
-	public static bool debug = false;
+	public static bool debug = true;
 	
 	public static void Reset()
 	{
@@ -59,6 +59,11 @@ class Program
 { 
 	static void Main(string[] args)
 	{
+		PrintHelper.OldCol = Console.ForegroundColor;
+		if (GlobalVariables.debug)
+		{
+			Console.WriteLine("Running in debug mode...");
+		}
 		string settingsPath = "";
         Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
         {
@@ -82,8 +87,7 @@ class Program
 			}
 			if (!File.Exists(settingsPath))
 			{
-				Console.ForegroundColor = GlobalVariables.ERROR_COL;
-				Console.WriteLine("Could not find settings file. Please make sure that the settings file is in the root directory of the program.");
+				PrintHelper.PrintLn("Could not find settings file. Please make sure that the settings file is in the root directory of the program.", GlobalVariables.ERROR_COL);
 				return;
 			}
 		}
@@ -125,8 +129,7 @@ class Program
 			}
 		} catch (Exception e)
 		{
-            Console.ForegroundColor = GlobalVariables.ERROR_COL;
-            Console.WriteLine("[FATAL] Could not identify files: " + e.Message);
+			PrintHelper.PrintLn("[FATAL] Could not identify files: " + e.Message, GlobalVariables.ERROR_COL);
 			logger.SetUpRunTimeLogMessage("Main: Error when copying/unpacking/identifying files: " + e.Message, true);
 			return;
 		}
@@ -142,13 +145,9 @@ class Program
                 logger.AskAboutReqAndConv();
 				//settings.AskAboutEmptyDefaults();
                 fileManager.DisplayFileList();
-				var oldColor = Console.ForegroundColor;
-				Console.ForegroundColor = GlobalVariables.INFO_COL;
-				Console.WriteLine("Requester: {0}",Logger.JsonRoot.requester);
-				Console.WriteLine("Converter: {0}",Logger.JsonRoot.converter);
-				Console.WriteLine("MaxThreads: {0}", GlobalVariables.maxThreads);
-				Console.WriteLine("Timeout in minutes: {0}", GlobalVariables.timeout);
-				Console.ForegroundColor = oldColor;
+				PrintHelper.PrintLn("Requester: {0}\nConverter: {1}\nMaxThreads: {2}\nTimeout in minutes: {3}", 
+					GlobalVariables.INFO_COL, Logger.JsonRoot.requester, Logger.JsonRoot.converter, GlobalVariables.maxThreads, GlobalVariables.timeout);
+
 				if (!GlobalVariables.parsedOptions.AcceptAll)
 				{
 					Console.Write("Do you want to proceed with these settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
@@ -206,7 +205,7 @@ class Program
 
 			if(Logger.Instance.errorHappened)
 			{
-                Console.WriteLine("One or more errors happened during runtime, please check the log file for more information.");
+				PrintHelper.PrintLn("One or more errors happened during runtime, please check the log file for more information.", GlobalVariables.ERROR_COL);
             } else
 			{
 				Console.WriteLine("No errors happened during runtime. See documentation.json file in output dir.");
