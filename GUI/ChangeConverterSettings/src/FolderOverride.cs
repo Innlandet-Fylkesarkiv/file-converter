@@ -73,11 +73,13 @@ public class FolderOverride
 
         TextBox inputPRONOMs = CreateControl.CreateTextBox("", index, false);
         inputPRONOMs.Name = "InputPRONOMs" + index;
+        inputPRONOMs.Watermark = "Input PRONOM codes in a list format \n e.g \"fmt/1, fmt/2\"";
         Grid.SetColumn(inputPRONOMs, 1);
         innerGrid.Children.Add(inputPRONOMs);
 
         TextBox outputPRONOMs = CreateControl.CreateTextBox("", index, false);
         outputPRONOMs.Name = "OutputPRONOMs" + index;
+        outputPRONOMs.Watermark = "PRONOM code of they should be converted to";
         Grid.SetColumn(outputPRONOMs, 2);
         innerGrid.Children.Add(outputPRONOMs);
 

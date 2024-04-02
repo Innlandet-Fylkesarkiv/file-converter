@@ -64,6 +64,7 @@ namespace ChangeConverterSettings
             Settings settings = Settings.Instance;
             settings.ReadAllSettings(GlobalVariables.defaultSettingsPath);
             WriteSettingsToScreen();
+            WriteFolderOverrideToScreen();
             Console.WriteLine(GlobalVariables.FileSettings);
             FolderOverride folderOverride = new FolderOverride(this);
             folderOverride.SetUpInnerGrid();
@@ -207,6 +208,38 @@ namespace ChangeConverterSettings
                         CreateElements creator = new CreateElements(i, stackPanelMain, this);
                     }
                 }
+            }
+        }
+
+        private void WriteFolderOverrideToScreen()
+        {
+            Grid? mainGrid = this.FindControl<Grid>("FolderOverrideGrid");
+            if (mainGrid == null)
+            {
+                return;
+            }
+            foreach (var folder in GlobalVariables.FolderOverride)
+            {
+                mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                Grid innerGrid = CreateControl.CreateFolderOverrideGrids(mainGrid.Children.Count / 2 + 1);
+                Grid.SetRow(innerGrid, mainGrid.Children.Count / 2 + 1);
+                mainGrid.Children.Add(innerGrid);
+
+                TextBlock folderName = CreateControl.CreateTextBlock(folder.Key);
+                Grid.SetColumn(folderName, 0);
+                innerGrid.Children.Add(folderName);
+
+                TextBox inputPRONOMs = CreateControl.CreateTextBox(string.Join(", ", folder.Value.PronomsList), mainGrid.Children.Count / 2 + 1, false);
+                inputPRONOMs.Name = "InputPRONOMs" + (mainGrid.Children.Count / 2 + 1);
+                inputPRONOMs.Watermark = "Input PRONOM codes in a list format \n e.g \"fmt/1, fmt/2\"";
+                Grid.SetColumn(inputPRONOMs, 1);
+                innerGrid.Children.Add(inputPRONOMs);
+
+                TextBox outputPRONOMs = CreateControl.CreateTextBox(folder.Value.DefaultType, mainGrid.Children.Count / 2 + 1, false);
+                outputPRONOMs.Name = "OutputPRONOMs" + (mainGrid.Children.Count / 2 + 1);
+                outputPRONOMs.Watermark = "PRONOM code of they should be converted to";
+                Grid.SetColumn(outputPRONOMs, 2);
+                innerGrid.Children.Add(outputPRONOMs);
             }
         }
     }

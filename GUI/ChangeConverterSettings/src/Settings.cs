@@ -236,10 +236,10 @@ class Settings
                     }
                     else
                     {
-                        if (Directory.Exists(outputFolder + "/" + folderPath))
+                        if (Directory.Exists(outputFolder + "/" + folderPath) || Directory.Exists(folderPath))
                         {
                             GlobalVariables.FolderOverride[folderPath] = settings;
-
+                            /*
                             List<string> subfolders = GetSubfolderPaths(folderPath);
                             if (subfolders.Count > 0)
                             {
@@ -251,7 +251,7 @@ class Settings
                                         GlobalVariables.FolderOverride[subfolder] = settings;
                                     }
                                 }
-                            }
+                            }*/
                         }
                     }
                 }
