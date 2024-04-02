@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// Parent class for all converters
 /// </summary>
 public class Converter
@@ -157,4 +157,13 @@ public class Converter
         }
 		return null;
 	}
+
+    /// <summary>
+    /// Get the correct place where the process should be run depending on operating system
+    /// </summary>
+    /// <returns> String - Name of where the process should be run</returns>
+    public static string GetPlatformExecutionFile()
+    {
+        return Environment.OSVersion.Platform == PlatformID.Unix ? "bash" : "cmd.exe";
+    }
 }
