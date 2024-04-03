@@ -70,6 +70,7 @@ class Program
             GlobalVariables.parsedOptions = options;
         });
 
+		
         if (GlobalVariables.parsedOptions.Settings == "Settings.xml")
         {
             settingsPath = GlobalVariables.debug ? "Settings_Testing.xml" : "Settings.xml";
