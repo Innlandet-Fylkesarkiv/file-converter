@@ -9,6 +9,7 @@ public class FileToConvert
 	public List<string> Route { get; set; }         //From Dictionary
 	public bool IsModified { get; set; } = false;   //True if file has been worked on
 	public bool Failed { get; set; } = false;       //True if the file has failed conversion without throwing an exception
+	public bool addedDuringRun { get; set; } = false; //True if the file has been added while the conversion was running
 	public CancellationToken ct { get; set; }        //CancellationToken for the conversion
 	public Guid Id { get; set; }   //Unique identifier for the file
 
@@ -33,9 +34,10 @@ public class FileToConvert
 
 public class ConversionManager
 {
-	ConcurrentDictionary<KeyValuePair<string, string>, List<string>> ConversionMap = new ConcurrentDictionary<KeyValuePair<string, string>, List<string>>();
+	public ConcurrentDictionary<KeyValuePair<string, string>, List<string>> ConversionMap = new ConcurrentDictionary<KeyValuePair<string, string>, List<string>>();
 	public ConcurrentDictionary<Guid, FileInfo> FileInfoMap = new ConcurrentDictionary<Guid, FileInfo>();
-	public Dictionary<string, string> WorkingSetMap = new Dictionary<string, string>();
+    public ConcurrentDictionary<Guid, FileToConvert> WorkingSet = new ConcurrentDictionary<Guid, FileToConvert>();
+    public Dictionary<string, string> WorkingSetMap = new Dictionary<string, string>();
 	private static ConversionManager? instance;
 	private static readonly object lockObject = new object();
 
@@ -280,7 +282,7 @@ public class ConversionManager
 	{
 		int maxThreads = GlobalVariables.maxThreads;
 		Dictionary<string, List<FileInfo>> mergingFiles = new Dictionary<string, List<FileInfo>>();
-		ConcurrentDictionary<Guid, FileToConvert> WorkingSet = new ConcurrentDictionary<Guid, FileToConvert>();
+		//ConcurrentDictionary<Guid, FileToConvert> WorkingSet = new ConcurrentDictionary<Guid, FileToConvert>();
 
 		//Initialize working set
 		SetupWorkingSet(WorkingSet, mergingFiles);  //Initialize working set
@@ -409,22 +411,29 @@ public class ConversionManager
 		ws.Values.ForEach(file =>
 		{
 			//If the file was not modified or failed the conversion, remove it from the WorkingSet
-			if (!file.IsModified || file.Failed)
+			if ((!file.IsModified || file.Failed) && !file.addedDuringRun)
 			{
 				filesToRemove.Add(file.Id);
 				return;
 			}
 			//Reset the IsModified flag
 			file.IsModified = false;
+			
+			if (!file.addedDuringRun)
+			{
+                //Update the current pronom to the pronom it was converted to
+                //This assumes that the Converter has correctly identified if the file was converted correctly or not
+                file.CurrentPronom = file.Route.First();
 
-			//Update the current pronom to the pronom it was converted to
-			//This assumes that the Converter has correctly identified if the file was converted correctly or not
-			file.CurrentPronom = file.Route.First();
-			//Remove the first step in the route
-			file.Route.RemoveAt(0);
+                //Remove the first step in the route, if it was added during run removing
+                //first route would delete the file before it gets converted
+                file.Route.RemoveAt(0);
+            }
+            
+			file.addedDuringRun = false;
 
-			// Remove if there are no more steps in route
-			if (file.Route.Count == 0)
+            // Remove if there are no more steps in route
+            if (file.Route.Count == 0)
 			{
 				filesToRemove.Add(file.Id);
 			}
@@ -464,11 +473,14 @@ public class ConversionManager
                 {
                     FileInfoMap[f.Id].ConversionTools.Add(c.NameAndVersion);
                 }
-                //Send file to converter
-                c.ConvertFile(f);
-                f.IsModified = true;
-                
-			}
+				//Send file to converter
+				Task.Run(async () =>
+				{
+					await c.ConvertFile(f);
+                    f.IsModified = true;
+                    countdownEvent.Signal();
+                });  
+            }
 			catch (Exception e)
 			{
 				//Set success to false and log the error message if an exception was thrown
@@ -476,8 +488,6 @@ public class ConversionManager
 			}
 			finally
 			{
-				//Signal the CountdownEvent to indicate that the conversion is done (either succeeded or failed)
-				countdownEvent.Signal();
 			}
 		});
 		if (!queued)

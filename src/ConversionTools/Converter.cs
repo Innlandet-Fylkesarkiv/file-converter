@@ -46,9 +46,9 @@ public class Converter
 	/// Wrapper for the ConvertFile method that also handles the timeout
 	/// </summary>
 	/// <param name="fileinfo"></param>
-	public void ConvertFile(FileToConvert fileinfo)
+	async public Task ConvertFile(FileToConvert fileinfo)
 	{
-		ConvertFile(fileinfo, fileinfo.Route.First());
+		await ConvertFile(fileinfo, fileinfo.Route.First());
 	}
 
 	/// <summary>
@@ -56,7 +56,7 @@ public class Converter
 	/// </summary>
 	/// <param name="fileinfo">The file to be converted</param>
 	/// <param name="pronom">The file format to convert to</param>
-	public virtual void ConvertFile(FileToConvert fileinfo, string pronom)
+	async public virtual Task ConvertFile(FileToConvert fileinfo, string pronom)
 	{ }
 	
 	/// <summary>

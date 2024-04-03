@@ -178,7 +178,7 @@ public class iText7 : Converter
     /// </summary>
     /// <param name="fileinfo">The file to be converted</param>
     /// <param name="pronom">The file format to convert to</param>
-    public override void ConvertFile(FileToConvert file, string pronom)
+    async public override Task ConvertFile(FileToConvert file, string pronom)
     {
 		try
 		{

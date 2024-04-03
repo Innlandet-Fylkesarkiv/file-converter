@@ -36,7 +36,7 @@ public class EmailConverter : Converter
     /// </summary>
     /// <param name="filePath">The file to be converted</param>
     /// <param name="pronom">The file format to convert to</param>
-    public override void ConvertFile(FileToConvert file, string pronom)
+    async public override Task ConvertFile(FileToConvert file, string pronom)
     {
         string inputFolder = GlobalVariables.parsedOptions.Input;   
         string outputFolder = GlobalVariables.parsedOptions.Output; 
@@ -45,10 +45,7 @@ public class EmailConverter : Converter
         string outputDir = Directory.GetParent(file.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";
         string inputDirectory = Directory.GetParent(file.FilePath)?.ToString() ?? "";
         string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(file.FilePath));
-        lock (locker)
-        {
-            RunConversion(inputFilePath, outputDir, file, pronom);
-        }
+        await RunConversion(inputFilePath, outputDir, file, pronom);
     }
 
     /// <summary>
@@ -58,7 +55,7 @@ public class EmailConverter : Converter
     /// <param name="destinationDir">Full path to the output directory</param>
     /// <param name="file">The file to convert</param>
     /// <param name="pronom">The target pronom for the conversion</param>
-    void RunConversion(string inputFilePath, string destinationDir, FileToConvert file, string pronom)
+    async Task RunConversion(string inputFilePath, string destinationDir, FileToConvert file, string pronom)
     {
         string workingDirectory = Directory.GetCurrentDirectory();
         string commandToExecute = "";
@@ -130,6 +127,12 @@ public class EmailConverter : Converter
                 }
                 else
                 {
+                    string newFolderName = Path.GetFileNameWithoutExtension (inputFilePath) + "-attachments";
+                    string folderWithAttachments = Path.Combine(Path.GetDirectoryName(inputFilePath), newFolderName);
+                    if (Directory.Exists(folderWithAttachments))
+                    {
+                        await addAttachementFilesToWorkingSet(inputFilePath, folderWithAttachments);
+                    } 
                     // Delete copy in ouputfolder if converted successfully
                     deleteOriginalFileFromOutputDirectory(inputFilePath);
                 }
@@ -225,6 +228,44 @@ public class EmailConverter : Converter
         supportedOS.Add(PlatformID.Win32NT.ToString());
         supportedOS.Add(PlatformID.Unix.ToString());
         return supportedOS;
+    }
+
+    /// <summary>
+    /// Adds the attachement files to the current working set for conversion
+    /// </summary>
+    /// <param name="inputFilePath"></param>
+    /// <returns></returns>
+    public async Task addAttachementFilesToWorkingSet(string inputFilePath, string folderWithAttachments)
+    {
+        List<FileInfo>? attachementFiles = await Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments);
+        foreach (FileInfo newFile in attachementFiles)
+        {
+            Guid id = Guid.NewGuid();
+            newFile.Id = id;
+            var newFileToConvert = new FileToConvert(newFile);
+            newFileToConvert.TargetPronom = Settings.GetTargetPronom(newFile);
+
+            //Use current and target pronom to create a key for the conversion map
+            var key = new KeyValuePair<string, string>(newFileToConvert.CurrentPronom, newFileToConvert.TargetPronom);
+            //If the conversion map contains the key, set the route to the value of the key
+            if (ConversionManager.Instance.ConversionMap.ContainsKey(key))
+            {
+                newFileToConvert.Route = new List<string>(ConversionManager.Instance.ConversionMap[key]);
+            }
+            //If the conversion map does not contain the key, set the route to the target pronom
+            else if (newFileToConvert.CurrentPronom != newFileToConvert.TargetPronom)
+            {
+                newFileToConvert.Route.Add(newFileToConvert.TargetPronom);
+            }
+            else
+            {
+                continue;
+            }
+            newFile.Route = newFileToConvert.Route;
+            newFileToConvert.addedDuringRun = true;
+            ConversionManager.Instance.WorkingSet.TryAdd(id, newFileToConvert);
+            ConversionManager.Instance.FileInfoMap.TryAdd(id, newFile);
+        }
     }
 
     // Lists with the pronoms for correctly identifying the formats

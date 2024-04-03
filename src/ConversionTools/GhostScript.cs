@@ -120,7 +120,7 @@ public class GhostscriptConverter : Converter
 	/// </summary>
 	/// <param name="filePath">The file to be converted</param>
 	/// <param name="pronom">The file format to convert to</param>
-	public override void ConvertFile(FileToConvert file, string pronom)
+	async public override Task ConvertFile(FileToConvert file, string pronom)
 	{
 		string outputFileName = Path.GetFileNameWithoutExtension(file.FilePath);
 		string? extension = GetExtension(pronom);
