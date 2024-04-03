@@ -12,12 +12,16 @@ using System.Threading.Tasks;
 /// MSG TO EML on WINDOWS:        https://www.rebex.net/mail-converter/
 /// EML TO PDF WINDOWS and LINUX: https://github.com/nickrussler/email-to-pdf-converter
 /// OLM to EML>                   https://github.com/PeterWarrington/olm-convert
+/// 
+/// EMLTO PDF converter requires Java installed on the pc aswell as https://github.com/wkhtmltopdf/wkhtmltopdf
+/// needs to be in the systems PATH
+/// 
+/// MSG TO EML on linux has simple installation steps found in the link above.
 /// </summary>
 public class EmailConverter : Converter
 {
   
     Logger log = Logger.Instance;                          // Logger for errors
-    private static readonly object locker = new object();  // locker for conversion 
     OperatingSystem currentOS;
     /// <summary>
     /// Constructor setting important properties for the class.
@@ -41,10 +45,12 @@ public class EmailConverter : Converter
         string inputFolder = GlobalVariables.parsedOptions.Input;   
         string outputFolder = GlobalVariables.parsedOptions.Output; 
 
-        // Get the full path to the input directory and output directory
+        // Get the full path to the input directory and output directory 
         string outputDir = Directory.GetParent(file.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";
         string inputDirectory = Directory.GetParent(file.FilePath)?.ToString() ?? "";
         string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(file.FilePath));
+
+        // Run conversion with correct paths
         await RunConversion(inputFilePath, outputDir, file, pronom);
     }
 
@@ -60,7 +66,7 @@ public class EmailConverter : Converter
         string workingDirectory = Directory.GetCurrentDirectory();
         string commandToExecute = "";
         string targetFormat = "";
-        // Sets the tarfetFormat and command to execute based on the current pronom
+        // Sets the targetFormat and command to execute based on the current pronom
         switch (file.CurrentPronom)      
         {
             // EML pronoms set targetFormat to pdf and get correct command
@@ -127,10 +133,12 @@ public class EmailConverter : Converter
                 }
                 else
                 {
+                    // Conversion was succesfull get new path and check for attachments
                     string newFolderName = Path.GetFileNameWithoutExtension (inputFilePath) + "-attachments";
                     string folderWithAttachments = Path.Combine(Path.GetDirectoryName(inputFilePath), newFolderName);
                     if (Directory.Exists(folderWithAttachments))
                     {
+                        // Attachements found, add them to the working set for further conversion
                         await addAttachementFilesToWorkingSet(inputFilePath, folderWithAttachments);
                     } 
                     // Delete copy in ouputfolder if converted successfully
@@ -148,7 +156,8 @@ public class EmailConverter : Converter
 
 
     /// <summary>
-    /// Reference list stating supported conversions containing key value pairs with string input pronom and string output pronom
+    /// Reference list stating supported conversions containing 
+    /// key value pairs with string input pronom and string output pronom
     /// </summary>
     /// <returns>List of all supported conversions</returns>
     public override Dictionary<string, List<string>> getListOfSupportedConvesions()
@@ -184,6 +193,8 @@ public class EmailConverter : Converter
     /// <returns>Returns the string with the correct command</returns>
     string GetEmlToPdfCommand(string inputFilePath, string workingDirectory)
     {
+        Version = "2.6.0";
+        
         // Get correct path to email converter relative to the workign directory
         string relativeJarPathWindows = ".\\src\\ConversionTools\\emailconverter-2.6.0-all.jar";
         string relativeJarPathLinux = "./src/ConversionTools/emailconverter-2.6.0-all.jar";

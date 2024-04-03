@@ -36,46 +36,41 @@ public class LibreOfficeConverter : Converter
 		currentOS = Environment.OSVersion;
 	}
 
-	public override void GetVersion()
-	{
+    public override void GetVersion()
+    {
         //TODO: Actually fetch version
 
-        Version = "7.6.4";
-        /*
-		string output = "";
-		string error = "";
-			
-		
-		using (Process process = new Process())
-		{
-			process.StartInfo.FileName = GetSofficePath(true);
-			process.StartInfo.Arguments = "--headless --version";
-			process.StartInfo.RedirectStandardOutput = true;
-			process.StartInfo.RedirectStandardError = true;
-			process.StartInfo.UseShellExecute = false;
-			process.StartInfo.CreateNoWindow = true;
-			process.Start();
+        Version = "Unable to fetch version"; // Default version in case retrieval fails
 
-			output = process.StandardOutput.ReadToEnd();
-			error = process.StandardOutput.ReadToEnd();
-			process.WaitForExit();
-		}
-		if (error != "")
-		{
-			Logger.Instance.SetUpRunTimeLogMessage("Error getting LibreOffice version: " + error, true);
-		}
-		else
-		{
-			Console.WriteLine("Version: {0}", output);
-		}
-		*/
+        try
+		{ 
+            string sofficePath = Environment.OSVersion.Platform == PlatformID.Unix ? "/usr/lib/libreoffice/program/soffice" : "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
+            if (!string.IsNullOrEmpty(sofficePath))
+            {
+                FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(sofficePath);
+                if (fileVersionInfo != null)
+                {
+                    Version = fileVersionInfo.ProductVersion;
+                }
+            }
+            else
+            {
+                Logger.Instance.SetUpRunTimeLogMessage("LibreOffice path is empty or invalid", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Instance.SetUpRunTimeLogMessage("Error getting LibreOffice version: " + ex.Message, true);
+        }
+
+        Console.WriteLine("Version: {0}", Version);
     }
 
-	/// <summary>
-	/// Gets the supported operating system for the converter
-	/// </summary>
-	/// <returns>Returns a list of string with the suported operating systems</returns>
-	public override List<string> getSupportedOS()
+    /// <summary>
+    /// Gets the supported operating system for the converter
+    /// </summary>
+    /// <returns>Returns a list of string with the suported operating systems</returns>
+    public override List<string> getSupportedOS()
 	{
 		var supportedOS = new List<string>();
 		supportedOS.Add(PlatformID.Win32NT.ToString());
