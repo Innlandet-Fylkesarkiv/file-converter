@@ -253,12 +253,12 @@
 
    
   </FileClass>
-	<FolderOverride>
+  <FolderOverride>
 		<FolderPath>apekatter\noeKult</FolderPath>
-		<!-- Path relative to input folder example: documents/word -->
-		<Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398</Pronoms>
-		<ConvertTo>fmt/14</ConvertTo>
-		<MergeImages>Yes</MergeImages>
-		<!-- Yes, No -->
-	</FolderOverride>
+	<!-- Path relative to input folder example: documents/word -->
+	<Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398</Pronoms>
+	<ConvertTo>fmt/14</ConvertTo>
+	<MergeImages>Yes</MergeImages>
+	<!-- Yes, No -->
+  </FolderOverride>
 </root>
