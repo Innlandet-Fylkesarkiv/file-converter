@@ -456,16 +456,6 @@ public class LibreOfficeConverter : Converter
 		return false;
 	}
 
-
-	/// <summary>
-	/// Get the correct place where the process should be run depending on operating system
-	/// </summary>
-	/// <returns> String - Name of where the process should be run</returns>
-	static string GetPlatformExecutionFile()
-	{
-		return Environment.OSVersion.Platform == PlatformID.Unix ? "bash" : "cmd.exe";
-	}
-
 	/// <summary>
 	/// Gets the path to the soffice executable unless it is added to the systems PATH
 	/// then it just returns "soffice" which the name of the executable

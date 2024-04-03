@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Avalonia.Interactivity;
 using ChangeConverterSettings;
+using System.Reflection;
 
 
 public class FolderOverride
@@ -206,6 +207,55 @@ public class FolderOverride
                     value.DefaultType = outputPRONOMs;
                 }
             }
+        }
+    }
+    /// <summary>
+    /// Reads the folder override from settings and writes it to the screen
+    /// </summary>
+    public void WriteFolderOverrideToScreen()
+    {
+        Grid? mainGrid = mainWindow.FindControl<Grid>("FolderOverrideGrid");
+        if (mainGrid == null)
+        {
+            return;
+        }
+        foreach (var folder in GlobalVariables.FolderOverride)
+        {
+            int index = mainGrid.Children.Count / 2 + 1;
+            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            Grid innerGrid = CreateControl.CreateFolderOverrideGrids(index);
+            Grid.SetRow(innerGrid, index);
+            mainGrid.Children.Add(innerGrid);
+
+            TextBlock folderName = CreateControl.CreateTextBlock(folder.Key);
+            Grid.SetColumn(folderName, 0);
+            innerGrid.Children.Add(folderName);
+
+            TextBox inputPRONOMs = CreateControl.CreateTextBox(string.Join(", ", folder.Value.PronomsList), index, false);
+            inputPRONOMs.Name = "InputPRONOMs" + index;
+            inputPRONOMs.Watermark = "Input PRONOM codes in a list format \n e.g \"fmt/1, fmt/2\"";
+            Grid.SetColumn(inputPRONOMs, 1);
+            innerGrid.Children.Add(inputPRONOMs);
+
+            TextBox outputPRONOMs = CreateControl.CreateTextBox(folder.Value.DefaultType, index, false);
+            outputPRONOMs.Name = "OutputPRONOMs" + index;
+            outputPRONOMs.Watermark = "PRONOM code of they should be converted to";
+            Grid.SetColumn(outputPRONOMs, 2);
+            innerGrid.Children.Add(outputPRONOMs);
+
+            Button folderButton = CreateControl.CreateButton("Select Folders", index);
+            Grid.SetColumn(folderButton, 3);
+            folderButton.Click += (sender, e) => FolderButton_Click(folderButton, e);
+            innerGrid.Children.Add(folderButton);
+
+            Button removeButton = CreateControl.CreateButton("Remove Override", index);
+            removeButton.Click += (sender, e) => RemoveButton_Click(removeButton, e);
+            Grid.SetColumn(removeButton, 4);
+            innerGrid.Children.Add(removeButton);
+
+            Avalonia.Controls.Shapes.Rectangle separator = CreateControl.CreateSeparator();
+            Grid.SetRow(separator, index);
+            mainGrid.Children.Add(separator);
         }
     }
 }

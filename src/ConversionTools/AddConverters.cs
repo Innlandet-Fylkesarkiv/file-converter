@@ -11,6 +11,7 @@ class AddConverters
         converters.Add(new iText7());
         converters.Add(new GhostscriptConverter());
         converters.Add(new LibreOfficeConverter());
+        converters.Add(new EmailConverter());
         //Remove converters that are not supported on the current operating system
         var currentOS = Environment.OSVersion.Platform.ToString();
         converters.RemoveAll(c => c.SupportedOperatingSystems == null ||

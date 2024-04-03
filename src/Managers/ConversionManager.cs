@@ -108,27 +108,45 @@ public class ConversionManager
 		"x-fmt/264", "fmt/411", "fmt/613"
 	];
 
-	/// <summary>
-	/// initializes the map for how to reach each format
-	/// </summary>
-	private void initMap()
-	{
-		/*
-		LibreOfficeConverter converter = new LibreOfficeConverter();
-		List<string> supportedConversionsLibreOffice = new List<string>(converter.SupportedConversions?.Keys);
-		string pdfA = "fmt/477";
-		string pdfPronom = OperatingSystem.IsLinux() ? "fmt/20" : "fmt/276";
-		foreach(FileInfo file in FileManager.Instance.Files.Values)
-		{
-			if (Settings.GetTargetPronom(file) == pdfA && supportedConversionsLibreOffice.Contains(file.OriginalPronom))
-			{
-				ConversionMap.TryAdd(new KeyValuePair<string, string>(file.OriginalPronom, pdfA), [pdfPronom, pdfA]);
-			}
-		}
-		*/
-	}
+    /// <summary>
+    /// initializes the map for how to reach each format
+    /// </summary>
+    private void initMap()
+    {
+        LibreOfficeConverter converter = new LibreOfficeConverter();
+        EmailConverter emailConverter = new EmailConverter();
+        List<string> supportedConversionsLibreOffice = new List<string>(converter.SupportedConversions?.Keys);
+        List<string> supportedConversionsEmail = new List<string>(emailConverter.SupportedConversions?.Keys);
+        string pdfA2B = "fmt/477";
+        string pdfPronom = OperatingSystem.IsLinux() ? "fmt/20" : "fmt/276";
+        string pdfPronomForEmail = "fmt/18";
+        string emlConversionPronom = "fmt/950";
 
-	private void initFileMap()
+
+        foreach (FileInfo file in FileManager.Instance.Files.Values)
+        {
+            // MSG to PDFA-2B via eml and PDF 1.4
+            if (Settings.GetTargetPronom(file) == pdfA2B && emailConverter.MSGPronoms.Contains(file.OriginalPronom)
+                                                                    && supportedConversionsEmail.Contains(file.OriginalPronom))
+            {
+                ConversionMap.TryAdd(new KeyValuePair<string, string>(file.OriginalPronom, pdfA2B), [emlConversionPronom, pdfPronomForEmail, pdfA2B]);
+            }
+            // MSG to PDF 1.4 via eml
+            if (Settings.GetTargetPronom(file) == pdfPronomForEmail && emailConverter.MSGPronoms.Contains(file.OriginalPronom)
+                                                                    && supportedConversionsEmail.Contains(file.OriginalPronom))
+            {
+                ConversionMap.TryAdd(new KeyValuePair<string, string>(file.OriginalPronom, pdfPronomForEmail), [emlConversionPronom, pdfPronomForEmail]);
+            }
+            //EML to PDFA-2B via PDF 1.4
+            if (Settings.GetTargetPronom(file) == pdfA2B && emailConverter.EMLPronoms.Contains(file.OriginalPronom)
+                                                                    && supportedConversionsEmail.Contains(file.OriginalPronom))
+            {
+                ConversionMap.TryAdd(new KeyValuePair<string, string>(file.OriginalPronom, pdfA2B), [pdfPronomForEmail, pdfA2B]);
+            }
+        }
+    }
+
+    private void initFileMap()
 	{
 		foreach (FileInfo file in FileManager.Instance.Files.Values)
 		{
