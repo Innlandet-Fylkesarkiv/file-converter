@@ -3,7 +3,7 @@
   <Converter>Larsern</Converter>
   <InputFolder>input</InputFolder>
   <OutputFolder>output</OutputFolder>
-  <MaxThreads>1</MaxThreads>
+  <MaxThreads></MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
   <Timeout>
   </Timeout>

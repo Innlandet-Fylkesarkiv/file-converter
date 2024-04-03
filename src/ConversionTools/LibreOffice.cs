@@ -89,7 +89,7 @@ public class LibreOfficeConverter : Converter
 	/// </summary>
 	/// <param name="filePath">The file to be converted</param>
 	/// <param name="pronom">The file format to convert to</param>
-	public override void ConvertFile(FileToConvert file, string pronom)
+	async public override Task ConvertFile(FileToConvert file, string pronom)
 	{
 		// Get correct folders and properties required for conversion
 		string inputFolder = GlobalVariables.parsedOptions.Input;

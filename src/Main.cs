@@ -73,7 +73,7 @@ class Program
 		
         if (GlobalVariables.parsedOptions.Settings == "Settings.xml")
         {
-            settingsPath = GlobalVariables.debug ? "Settings_Testing.xml" : "Settings.xml";
+            settingsPath = GlobalVariables.debug ? "Settings.xml" : "Settings.xml";
         }
 
 		//Only maximize and center the console window if the OS is Windows
