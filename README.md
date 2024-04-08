@@ -1,5 +1,5 @@
 # file-converter (W.I.P.)
->NOTE: This README is currently being updated, information found here might not reflect the current application.
+> :memo: NOTE: This README is currently being updated, information found here might not reflect the current application.
 
 ![Static Badge](https://img.shields.io/badge/.net-8.0-blue)
 ![dotnet-badge](https://github.com/larsmhaugland/file-converter/actions/workflows/dotnet.yml/badge.svg?event=push)
@@ -52,20 +52,40 @@ Then open it in your .NET IDE of choice (We are using Microsoft Visual Studios) 
 dotnet build
 ```
 
->NOTE: Cloning **with** the Git submodules is required for the application to work.
+> :memo: NOTE: Cloning **with** the Git submodules is required for the application to work.
 >If you did not clone the repository recursively or do not see the git submodules in your local repository we would suggest:
 > ```sh
 >   git submodule init
 >   git submodule update
 >```
 
-### Dependencies
-> NOTE: For dependencies for specific Linux distributions please see [Installation for Linux](#installation-for-linux)
-
+### Dependencies 
 |OS| Dependencies | Needed for? |
 |---|---|---|
 |Linux| [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download) | Needed to run program. |
 | Windows | [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download) | Needed to run program. |
+| Windows and Linux| [Java JDK (only JRE also works)](https://www.oracle.com/java/technologies/downloads/)| Needed for converting emails. |
+| Windows| [LibreOffice, download the 7.6.6 version.] (https://www.libreoffice.org/download/download-libreoffice/?type=win-x86_64&version=7.6.6&lang=nb)| Required for converting office documents (Word, PowerPoint, Excel and OpenOffice). |
+| Linux| Libreoffice should already be present on the system. This can be checked with "Soffice --version". Otherwise, download from link above.||
+| Windows and Linux| [wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)| Needed for converting emails. |
+| Linux | [Siegfried](https://github.com/richardlehane/siegfried) | To identify files. |
+> :memo: NOTE: If you are on Linux see [Installation for Linux](#installation-for-linux) for more info on Siegfried installation
+
+<br>
+
+#### Further download instructions for LibreOffice
+Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. 
+
+Open settings -> home -> about (scroll down on the left) -> advanced system settings (on the right) -> environment variables.<br>
+Another option is to use Windows key + R on the keyboard, then type in "sysdm.cpl" and hit enter. Thereafter, press advanced and then environment variables.
+
+The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```. The "program" folder must be added to PATH, so the PATH entry should be ```"C:\Program Files\LibreOffice\program"```.
+To add this to the PATH locate the "PATH" variabel and highlight it, then press "edit" and finally "New" and copy the path to the program folder and press "ok". It should be enough to add it to the users environment variables, but it can be added as a system wide environment variable. 
+
+wkhtmltopdf must also be manually added to PATH. For windows, it can be done as described above, just swap ```"C:\Program Files\LibreOffice\program"``` with ```"C:\Program Files\wkhtmltopdf\bin"```. 
+
+For Linux the default installation directory is ... One alternative for adding it as an environment variable is to open the file ```.bashrc``` using the command ```nano ~/.bashrc``` (vi can also be used instead of nano). Then navigate to the bottom of the file with the arrow keys and add this line at the end ```export PATH="$PATH:DefaultPathHere"```, remember to save the file and exit. To apply the changes immediately run the command ```source ~/.bashrc``` or log in and out. To verify, run the command ```echo $PATH``` and the path added should be at the end of the output from the command.
+<br><br>
 
 #### External libraries/software used
 **Libraries**
@@ -79,12 +99,15 @@ dotnet build
 - [GhostScript](https://www.ghostscript.com/index.html) under the GNU Affero General Public License v3.0.
 - [LibreOffice](https://www.libreoffice.org/) under the Mozilla Public License 2.0.
 - [Siegfried](https://www.itforarchivists.com/siegfried/) under the Apache License 2.0.
-> NOTE: If you are on Linux see [Installation for Linux](#installation-for-linux) for more info on Siegfried installation
 
 ### Installation for Windows
 ### Installation for Linux
+The application can be used for Linux by downloading from source code. (see [Install](#install))
 
-**Downloading dependencies for Linux distributions**
+#### Installing Siegfried on Linux
+If you are using a Debian, Arch or Red Hat based distro the application will guide you through Siegfried installation if it isn't already installed. 
+
+Please see the dependencies needed for installation below:
 | Distro | Dependency |
 |---|---|
 | Ubuntu/Debian | curl |
@@ -92,9 +115,6 @@ dotnet build
 | Fedora/Red Hat | brew [^2] |
 
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
-
-**Installing Siegfried on Linux**
-
 
 ## Usage
 Common usage (code block)
@@ -140,7 +160,7 @@ $ .\file-converter-prog2900.exe
 **Options**
 
 ### Arguments
-Note: All paths must be absolute or relative to executable.
+:memo: Note: All paths must be absolute or relative to executable.
 ```
 Set custom input folder. Default: input
 $ .\example -i "C:\Users\user\Downloads
@@ -205,38 +225,37 @@ The first part of the XML file concerns arguments needed to run the program. The
 ```
 
 ### Currently supported file formats
-The following table shows supported file formats one can convert *from.*
-| File format| External converter | Linux | Windows |
+The following table shows supported file formats:
+| File type | File Format | From | To |
 |-------------|-----------|--------------------|-------|
-| JPG | iText7 | Yes | Yes|
-| PNG | iText7 | Yes | Yes|
-| TIFF | iText7 | Yes | Yes|
-| BMP | iText7 | Yes | Yes|
-| HTML | iText7 | Yes | Yes |
-| PDF | itext7 | Yes | Yes |
-| PostScript | GhostScript | Yes | Yes |
-| DOC | LibreOffice | Yes | Yes |
-| DOCX | LibreOffice | Yes | Yes |
-| XLS | LibreOffice | Yes | Yes |
-| XLSX | LibreOffice | Yes | Yes |
-| PPT | LibreOffice | Yes | Yes |
-| PPTX | LibreOffice | Yes | Yes |
-
-The following table shows supported file formats one can convert *to.*
-| File format| External converter | Linux | Windows |
-|-------------|-----------|--------------------|-------|
-| JPG | GhostScript | Yes | Yes|
-| PNG | GhostScript | Yes | Yes|
-| TIFF | GhostScript | Yes | Yes|
-| BMP | GhostScript | Yes | Yes|
-| PDF | itext7 | Yes | Yes |
-| PDF-A | itext7 | Yes | Yes |
-| DOC | LibreOffice | Yes | Yes |
-| DOCX | LibreOffice | Yes | Yes |
-| XLS | LibreOffice | Yes | Yes |
-| XLSX | LibreOffice | Yes | Yes |
-| PPT | LibreOffice | Yes | Yes |
-| PPTX | LibreOffice | Yes | Yes |
+| **Image** | GIF | ✔ |  |
+| | JPG | ✔|✔ |
+| | PNG | ✔| ✔|
+| | TIFF | ✔|✔ |
+| | BMP | ✔|✔ |
+| **Text-based** | PDF |✔ |✔ |
+| | PDF-A |✔ |✔ |
+| | HTML |✔ | |
+| | PostScript | ✔| |
+| | RTF |✔ | |
+| **Excel** | CSV | ✔ | ✔|
+|| XLS |✔|✔|
+|| XLSM|✔|✔|
+||XLSX|✔|✔|
+|**Open Office**|ODP|✔|✔|
+||ODS|✔|✔|
+||ODT|✔|✔|
+|**PowerPoint**|PPT|✔|✔|
+||PPTM|✔|✔|
+||PPTX|✔|✔|
+|**Word**|DOC|✔|✔|
+||DOCM|✔|✔|
+||DOCX|✔|✔|
+||DOT|✔|✔|
+||DOTM|✔|✔|
+||DOTX|✔|✔|
+|**E-mail**|EML|✔||
+||MSG|✔||
 
 ### Documentation and logging
 The ```.txt```log files use the following convention and is automatically generated each time the program is run:
@@ -287,7 +306,7 @@ All source code for external converters is based on the same parent ```Converter
 All fields shown in the code block above must be included in the subclass for the new external converter to work properly. If you are adding a library-based converter we would suggest having a look at ```iText7.cs``` for examples on how to structure the subclass.
 For external converters where you want to parse arguments and use an executable in CLI we would suggest looking at ```GhostScript.cs```.
 
->NOTE: If you are adding an **executable** file that you want to use it needs to be included in the ```.csproj``` file as such to be loaded properly at runtime:
+> :memo: NOTE: If you are adding an **executable** file that you want to use it needs to be included in the ```.csproj``` file as such to be loaded properly at runtime:
 >```xml
 ><ItemGroup>
 >	<None Update="PathToExecutableFile">
