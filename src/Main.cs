@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using Ghostscript.NET;
 using iText.Kernel.Pdf;
 using iText.Layout.Splitting;
 using Newtonsoft.Json;
@@ -76,11 +77,33 @@ class Program
             settingsPath = GlobalVariables.debug ? "Settings.xml" : "Settings.xml";
         }
 
-		//Check if input and output folders exist
-		if (!Directory.Exists(GlobalVariables.parsedOptions.Input))
+        if (!OperatingSystem.IsLinux())
+        {
+            //Look for settings file in parent directories as long as settings file is not found and we are not in the root directory
+            while (!File.Exists(settingsPath) && Directory.GetCurrentDirectory() != Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()))
+            {
+                Directory.SetCurrentDirectory("..");
+            }
+            if (!File.Exists(settingsPath))
+            {
+                PrintHelper.PrintLn("Could not find settings file. Please make sure that the settings file is in the root directory of the program.", GlobalVariables.ERROR_COL);
+                goto END;
+            }
+        }
+        else
+        {
+            LinuxSetup.Setup();
+        }
+
+        Settings settings = Settings.Instance;
+        Console.WriteLine("Reading settings from '{0}'...", settingsPath);
+        settings.ReadSettings(settingsPath);
+
+        //Check if input and output folders exist
+        if (!Directory.Exists(GlobalVariables.parsedOptions.Input))
 		{
-			Console.WriteLine("Input folder '{0}' not found!",GlobalVariables.parsedOptions.Input);
-			return;
+			PrintHelper.PrintLn("Input folder '{0}' not found!",GlobalVariables.ERROR_COL, GlobalVariables.parsedOptions.Input);
+			goto END;
 		}
 		if (!Directory.Exists(GlobalVariables.parsedOptions.Output))
 		{
@@ -90,27 +113,8 @@ class Program
 
 		//Only maximize and center the console window if the OS is Windows
 		Console.Title = "FileConverter";
-		//MaximizeAndCenterConsoleWindow();
-		if (!OperatingSystem.IsLinux())
-		{
-			//Look for settings file in parent directories as long as settings file is not found and we are not in the root directory
-			while (!File.Exists(settingsPath) && Directory.GetCurrentDirectory() != Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()))
-			{
-				Directory.SetCurrentDirectory("..");
-			}
-			if (!File.Exists(settingsPath))
-			{
-				PrintHelper.PrintLn("Could not find settings file. Please make sure that the settings file is in the root directory of the program.", GlobalVariables.ERROR_COL);
-				return;
-			}
-		}
-		else
-		{
-			LinuxSetup.Setup();
-		}
-		Settings settings = Settings.Instance;
-		Console.WriteLine("Reading settings from '{0}'...",settingsPath);
-		settings.ReadSettings(settingsPath);
+		
+		
 		Logger logger = Logger.Instance;
 
 		FileManager fileManager = FileManager.Instance;
@@ -144,7 +148,7 @@ class Program
 		{
 			PrintHelper.PrintLn("[FATAL] Could not identify files: " + e.Message, GlobalVariables.ERROR_COL);
 			logger.SetUpRunTimeLogMessage("Main: Error when copying/unpacking/identifying files: " + e.Message, true);
-			return;
+			goto END;
 		}
 		ConversionManager cm = ConversionManager.Instance;
 		//Set up folder override after files have been copied over
@@ -176,8 +180,7 @@ class Program
 					}
 					if (input == "G")
 					{
-						//TODO: Start GUI
-						Console.WriteLine("Not implemented yet...");
+						awaitGUI().Wait();
 						settings.ReadSettings(settingsPath);
 						settings.SetUpFolderOverride(settingsPath);
 					}
@@ -189,7 +192,7 @@ class Program
 			} while (input != "Y" && input != "N");
 			if (input == "N")
 			{
-				return;
+				goto END;
 			}
 
 			try
@@ -230,6 +233,67 @@ class Program
                 Console.WriteLine("Time elapsed: {0}", sw.Elapsed);
             }
 		}
-		Console.ReadLine();	//Keep console open
+		END:
+		Console.WriteLine("Press any key to exit...");
+		Console.ReadKey();	//Keep console open
 	}
+
+	static string getGUIPath()
+	{
+		string filename = "ChangeConverterSettings.exe";
+		string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), filename, SearchOption.AllDirectories);
+		if (files.Length > 0)
+		{
+            return files[0];
+        }
+		return "";
+	}
+	async static Task awaitGUI()
+	{
+		ProcessStartInfo startInfo = new ProcessStartInfo();
+		startInfo.FileName = getGUIPath();
+		if (startInfo.FileName == "")
+		{
+            Console.WriteLine("Could not find GUI executable");
+            return;
+        }
+		var process = Process.Start(startInfo);
+		Console.WriteLine("Press any key in terminal or close window to continue");
+
+        // Discard any existing input in the console buffer
+        while (Console.KeyAvailable)
+        {
+            Console.ReadKey(intercept: true); // Read and discard each character
+        }
+
+        // Monitor user input and process status
+        while (true)
+        {
+            // Check if the process has exited
+            if (process.HasExited)
+            {
+                // Exit the loop and return from the method
+                break;
+            }
+
+            // Check if a key is available (user typed a character)
+            if (Console.KeyAvailable)
+            {
+                // Read the key without blocking
+                ConsoleKeyInfo key = Console.ReadKey(intercept: true);
+				Console.WriteLine("Key pressed: " + key.KeyChar);
+                
+                if (key.Key != ConsoleKey.Escape)
+				{
+                    // Exit the loop and return from the method
+                    process.Kill();
+					process.WaitForExit();
+                    break;
+                }
+            }
+
+            // Delay for a short duration (e.g., 100 milliseconds)
+            await Task.Delay(100);
+        }
+    }
 }

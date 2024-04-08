@@ -7,6 +7,7 @@ using iText.Kernel.Pdf.Canvas;
 using iText.Commons.Actions;
 using iText.Kernel.Geom;
 using Path = System.IO.Path;
+using iText.Layout.Element;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -212,6 +213,23 @@ public class iText7 : Converter
 		}
     }
 
+    string GetICCFilePath()
+    {
+        string fileName = "sRGB2014.icc";
+        string path = "";
+        string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), fileName, SearchOption.AllDirectories);
+        if (files.Length > 0)
+        {
+            path = files[0];
+        }
+        else
+        {
+            Logger.Instance.SetUpRunTimeLogMessage("ICC file not found: " + fileName, true);
+        }
+        return path;
+    }
+
+
 	/// <summary>
 	/// Convert from any image file to pdf version 1.0-2.0
 	/// </summary>
@@ -331,7 +349,7 @@ public class iText7 : Converter
             {
                 do
                 {
-                    using (FileStream iccFileStream = new FileStream("src/ConversionTools/sRGB2014.icc", FileMode.Open))
+                    using (FileStream iccFileStream = new FileStream(GetICCFilePath(), FileMode.Open))
                     {
                         outputIntent = new PdfOutputIntent("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
 
@@ -376,22 +394,6 @@ public class iText7 : Converter
         }
     }
 
-    void RemoveInterpolation(string filename)
-    {
-        using (PdfReader reader = new PdfReader(filename))
-        {
-            PdfDocument pdfDocument = new PdfDocument(reader);
-            for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
-            {
-                PdfPage page = pdfDocument.GetPage(pageNum);
-                RemoveInterpolationFromResources(page.GetPdfObject());
-            }
-
-            // Save the modified document
-            pdfDocument.Close();
-        }
-    }
-
     void RemoveInterpolationFromResources(PdfObject resource)
     {
         if (resource is PdfDictionary resources)
@@ -418,31 +420,6 @@ public class iText7 : Converter
                 }
             }
         }
-    }
-
-    void RemoveInterpolateFlag(string inputPdfPath, string outputPdfPath)
-    {
-        using (PdfReader reader = new PdfReader(inputPdfPath))
-        using (PdfWriter writer = new PdfWriter(outputPdfPath))
-        using (PdfDocument inputPdf = new PdfDocument(reader))
-        using (PdfDocument outputPdf = new PdfDocument(writer))
-        {
-            for (int pageNum = 1; pageNum <= inputPdf.GetNumberOfPages(); pageNum++)
-            {
-                PdfPage inputPage = inputPdf.GetPage(pageNum);
-                var rect = inputPage.GetPageSize();
-                PageSize pageSize = new PageSize(rect.GetWidth(), rect.GetHeight());
-                PdfPage outputPage = outputPdf.AddNewPage(pageSize);
-
-                // Remove interpolate flag from resources of output page
-                outputPage.GetPdfObject().Remove(PdfName.Interpolate);
-
-                // Copy content from input page to output page
-                inputPage.CopyTo(outputPdf);
-            }
-        }
-        File.Delete(inputPdfPath);
-        File.Move(outputPdfPath, inputPdfPath);
     }
 
     /// <summary>

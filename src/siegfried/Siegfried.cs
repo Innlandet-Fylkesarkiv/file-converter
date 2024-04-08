@@ -66,8 +66,8 @@ public class Siegfried
 	public string ?Version = null;
 	public string ?ScanDate = null;
 	public string OutputFolder = "siegfried/JSONoutput";
-	private string ExecutablePath = OperatingSystem.IsLinux() ? "sf" : "src/siegfried/sf.exe";
-	private string HomeFolder = "src/siegfried/";
+	private string ExecutableName = OperatingSystem.IsLinux() ? "sf" : "sf.exe";
+	private string HomeFolder = "siegfried/";
 	private string PronomSignatureFile = "default.sig";		 //"pronom64k.sig";
     private static readonly object lockObject = new object();
 	private List<List<string>> CompressedFolders;
@@ -98,8 +98,9 @@ public class Siegfried
 		//Look for Siegfried files
 		if (OperatingSystem.IsWindows())
 		{
-			var found = Path.Exists(ExecutablePath);
-			logger.SetUpRunTimeLogMessage("SF Siegfried executable " + (found ? "" : "not") + "found", !found);
+			GetExecutable();
+			var found = Path.Exists(ExecutableName);
+			logger.SetUpRunTimeLogMessage("SF Siegfried executable " + (found ? "" : "not ") + "found", !found);
 			if (!found)
 			{
 				Console.WriteLine("Cannot find Siegfried executable");
@@ -141,6 +142,16 @@ public class Siegfried
         }
 	}
 
+	void GetExecutable()
+	{
+		string filename = "sf.exe";
+		string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), filename, SearchOption.AllDirectories);
+		if (files.Length > 0)
+		{
+			ExecutableName = files[0];
+			HomeFolder = Path.GetDirectoryName(ExecutableName) + "/";
+		}
+    }
 	public void AskReadFiles()
 	{
         //Check if json files exist
@@ -235,7 +246,7 @@ public class Siegfried
         // Define the process start info
         ProcessStartInfo psi = new ProcessStartInfo
 		{
-			FileName = $"{ExecutablePath}", // or any other command you want to run
+			FileName = $"{ExecutableName}", // or any other command you want to run
 			Arguments = options + wrappedPath,
 			RedirectStandardInput = false,
 			RedirectStandardOutput = true,
@@ -324,7 +335,7 @@ public class Siegfried
 		
         ProcessStartInfo psi = new ProcessStartInfo
 		{
-			FileName = $"{ExecutablePath}", // or any other command you want to run
+			FileName = $"{ExecutableName}", // or any other command you want to run
 			Arguments = options + wrappedPaths,
 			RedirectStandardInput = false,
 			RedirectStandardOutput = true,

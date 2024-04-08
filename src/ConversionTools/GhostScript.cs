@@ -3,6 +3,7 @@ using Ghostscript.NET.Rasterizer;
 using System.Drawing.Imaging;
 using Ghostscript.NET;
 using System.Text.RegularExpressions;
+using Org.BouncyCastle.Asn1;
 
 //TODO: Put all images in a folder with original name and delete original file
 
@@ -22,6 +23,7 @@ public class GhostscriptConverter : Converter
 	public GhostscriptConverter()
 	{
 		Name = "Ghostscript";
+		GetExecutablePath();
 		SetNameAndVersion();
 		SupportedConversions = getListOfSupportedConvesions();
 		SupportedOperatingSystems = getSupportedOS();
@@ -77,6 +79,31 @@ public class GhostscriptConverter : Converter
 			}
         }
     }
+
+	void GetExecutablePath()
+	{
+		string fileName = "gswin64c.exe";
+		var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, fileName, SearchOption.AllDirectories);
+		if (files.Length > 0)
+		{
+            gsWindowsExecutable = files[0];
+        }
+        else
+		{
+            Logger.Instance.SetUpRunTimeLogMessage("Ghostscript executable not found", true);
+        }
+
+		fileName = "gsdll64.dll";
+		files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, fileName, SearchOption.AllDirectories);
+		if (files.Length > 0)
+		{
+            gsWindowsLibrary = files[0];
+        }
+        else
+		{
+            Logger.Instance.SetUpRunTimeLogMessage("Ghostscript library not found", true);
+        }
+	}
 
     public string gsWindowsExecutable = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GhostscriptBinaryFiles", "gs10.02.1", "bin", "gswin64c.exe");
 
