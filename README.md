@@ -66,6 +66,19 @@ dotnet build
 |---|---|---|
 |Linux| [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download) | Needed to run program. |
 | Windows | [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download) | Needed to run program. |
+| Windows and Linux| [Java JDK (only JRE also works)](https://www.oracle.com/java/technologies/downloads/)| Needed for converting emails. |
+| Windows| [LibreOffice, download the 7.6.6 version.] (https://www.libreoffice.org/download/download-libreoffice/?type=win-x86_64&version=7.6.6&lang=nb)| Required for converting office documents (Word, PowerPoint, Excel and OpenOffice). |
+| Linux| Libreoffice should already be present on the system. This can be checked with "Soffice --version". Otherwise, download from link above.||
+| Windows and Linux| [wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)| Needed for converting emails. |
+
+#### Further download instructions
+Libreoffice must be manually added to PATH on Windows for the program to convert office files. 
+```
+Open settings -> home -> about (scroll down on the left) -> advanced system settings (on the right) -> environment variables.
+Another option is to use Windows key + R on the keyboard, then type in "sysdm.cpl" and hit enter. Thereafter, press advanced and then environment variables
+The deafult installation path to Libreoffice is "C:\Program Files\LibreOffice" the "program" folder must be added to PATH, so the PATH entry should be "C:\Program Files\LibreOffice\program". To add this to the PATH locate the "PATH" variabel and highlight it, then press "edit" and finally "New" and copy the path to the program folder and press "ok". It should be enough to add it to the users environment variables, but you can also add it as a system wide environment variable. 
+```
+wkhtmltopdf must also be manually added to PATH. This can be done the exact way described above, just swap "C:\Program Files\LibreOffice\program" with "C:\Program Files\wkhtmltopdf\bin". 
 
 #### External libraries/software used
 **Libraries**
