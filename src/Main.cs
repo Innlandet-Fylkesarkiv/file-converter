@@ -31,7 +31,7 @@ public static class GlobalVariables
 	public const ConsoleColor WARNING_COL = ConsoleColor.Yellow;
 	public const ConsoleColor SUCCESS_COL = ConsoleColor.Green;
 	public static readonly PrintSortBy SortBy = PrintSortBy.Count;
-	public static bool debug = true;
+	public static bool debug = false;
 	
 	public static void Reset()
 	{
@@ -74,6 +74,18 @@ class Program
         if (GlobalVariables.parsedOptions.Settings == "Settings.xml")
         {
             settingsPath = GlobalVariables.debug ? "Settings.xml" : "Settings.xml";
+        }
+
+		//Check if input and output folders exist
+		if (!Directory.Exists(GlobalVariables.parsedOptions.Input))
+		{
+			Console.WriteLine("Input folder '{0}' not found!",GlobalVariables.parsedOptions.Input);
+			return;
+		}
+		if (!Directory.Exists(GlobalVariables.parsedOptions.Output))
+		{
+            Console.WriteLine("Output folder '{0}' not found! Creating...",GlobalVariables.parsedOptions.Output);
+			Directory.CreateDirectory(GlobalVariables.parsedOptions.Output);
         }
 
 		//Only maximize and center the console window if the OS is Windows
@@ -211,15 +223,13 @@ class Program
 			{
 				Console.WriteLine("No errors happened during runtime. See documentation.json file in output dir.");
 			}
-			if (GlobalVariables.debug)
+            sw.Stop();
+            if (GlobalVariables.debug)
 			{
 				Console.Beep();
-			}
+                Console.WriteLine("Time elapsed: {0}", sw.Elapsed);
+            }
 		}
-		sw.Stop();
-		if (GlobalVariables.debug)
-		{
-			Console.WriteLine("Time elapsed: {0}", sw.Elapsed);
-		}
+		Console.ReadLine();	//Keep console open
 	}
 }
