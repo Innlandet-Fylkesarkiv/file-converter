@@ -73,11 +73,11 @@ dotnet build
 
 #### Further download instructions
 Libreoffice must be manually added to PATH on Windows for the program to convert office files. 
-```
+
 Open settings -> home -> about (scroll down on the left) -> advanced system settings (on the right) -> environment variables.
-Another option is to use Windows key + R on the keyboard, then type in "sysdm.cpl" and hit enter. Thereafter, press advanced and then environment variables
+Another option is to use Windows key + R on the keyboard, then type in "sysdm.cpl" and hit enter. Thereafter, press advanced and then environment variables.
 The deafult installation path to Libreoffice is "C:\Program Files\LibreOffice" the "program" folder must be added to PATH, so the PATH entry should be "C:\Program Files\LibreOffice\program". To add this to the PATH locate the "PATH" variabel and highlight it, then press "edit" and finally "New" and copy the path to the program folder and press "ok". It should be enough to add it to the users environment variables, but you can also add it as a system wide environment variable. 
-```
+
 wkhtmltopdf must also be manually added to PATH. This can be done the exact way described above, just swap "C:\Program Files\LibreOffice\program" with "C:\Program Files\wkhtmltopdf\bin". 
 
 #### External libraries/software used
