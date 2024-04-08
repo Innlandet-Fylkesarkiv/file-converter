@@ -389,12 +389,19 @@ Questions regarding README:
 ## Acknowledgments
 Acknowledge all externals. Acknowledge supervisor + archive.
 
+
 ## Contributing
+> ❗TODO:Explain how one can contribute.
 
 ### Contributors
-This project exists thanks to these wonderful people:
-
+This project exists thanks to these wonderful people:<br>
 <a href="https://github.com/larsmhaugland/file-converter/graphs/contributors)https://github.com/larsmhaugland/file-converter/graphs/contributors"><img src="https://contrib.rocks/image?repo=larsmhaugland/file-converter"/></a>
+
+**Bachelor students from NTNU:**
+- Aleksander Solhaug
+- Philip Alexander Sundt
+- Lars Martin Haugland
+- Aurora Skomsvold
 
 ## Licensing
 as listed on https://spdx.org/licenses/ 
