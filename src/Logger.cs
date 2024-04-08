@@ -17,17 +17,10 @@ public class Logger
 
 	public static class JsonRoot
 	{
-		public static string? requester { get; set; } // the person requesting the converting
-		public static string? converter { get; set; } // the person that converts
+		public static string requester { get; set; } = ""; // the person requesting the converting
+		public static string converter { get; set; } = ""; // the person that converts
 		public static string? hashing { get; set; } // the hashing algorithm used
 	}
-	/*
-	JsonRoot root = new JsonRoot
-	{
-		requester = "requester",
-		converter = "converter"
-	};
-	*/
 
 	public class JsonData
 	{
