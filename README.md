@@ -79,6 +79,7 @@ dotnet build
 - [GhostScript](https://www.ghostscript.com/index.html) under the GNU Affero General Public License v3.0.
 - [LibreOffice](https://www.libreoffice.org/) under the Mozilla Public License 2.0.
 - [Siegfried](https://www.itforarchivists.com/siegfried/) under the Apache License 2.0.
+> NOTE: If you are on Linux see [Installation for Linux](#installation-for-linux) for more info on Siegfried installation
 
 ### Installation for Windows
 ### Installation for Linux
@@ -90,9 +91,10 @@ dotnet build
 | Arch Linux | curl <br> brew |
 | Fedora/Red Hat | brew [^2] |
 
-> NOTE: Fedora/Red hat has not been tested yet! We're working on it
-
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
+
+**Installing Siegfried on Linux**
+
 
 ## Usage
 Common usage (code block)
@@ -212,7 +214,7 @@ The following table shows supported file formats one can convert *from.*
 | BMP | iText7 | Yes | Yes|
 | HTML | iText7 | Yes | Yes |
 | PDF | itext7 | Yes | Yes |
-| PostScript | GhostScript | No | Yes |
+| PostScript | GhostScript | Yes | Yes |
 | DOC | LibreOffice | Yes | Yes |
 | DOCX | LibreOffice | Yes | Yes |
 | XLS | LibreOffice | Yes | Yes |
@@ -223,10 +225,10 @@ The following table shows supported file formats one can convert *from.*
 The following table shows supported file formats one can convert *to.*
 | File format| External converter | Linux | Windows |
 |-------------|-----------|--------------------|-------|
-| JPG | GhostScript | No | Yes|
-| PNG | GhostScript | No | Yes|
-| TIFF | GhostScript | No | Yes|
-| BMP | GhostScript | No | Yes|
+| JPG | GhostScript | Yes | Yes|
+| PNG | GhostScript | Yes | Yes|
+| TIFF | GhostScript | Yes | Yes|
+| BMP | GhostScript | Yes | Yes|
 | PDF | itext7 | Yes | Yes |
 | PDF-A | itext7 | Yes | Yes |
 | DOC | LibreOffice | Yes | Yes |
