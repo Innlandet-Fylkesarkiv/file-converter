@@ -153,7 +153,7 @@ public class Converter
             }
 		} catch (Exception e)
 		{
-            Logger.Instance.SetUpRunTimeLogMessage("GetPronom: " + e.Message, true);
+            Logger.Instance.SetUpRunTimeLogMessage("Converter GetPronom: " + e.Message, true);
         }
 		return null;
 	}
