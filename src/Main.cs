@@ -155,11 +155,12 @@ class Program
         settings.SetUpFolderOverride(settingsPath);
 
         if (fileManager.Files.Count > 0)
-		{			
-			char input = GlobalVariables.parsedOptions.AcceptAll ? 'Y' : 'X';
+		{
+			char input = ' ';
 			string validInput = "YyNnRrGg";
 			do
 			{
+                input = GlobalVariables.parsedOptions.AcceptAll ? 'Y' : 'X';
                 logger.AskAboutReqAndConv();
 				//settings.AskAboutEmptyDefaults();
                 fileManager.DisplayFileList();
