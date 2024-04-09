@@ -156,7 +156,8 @@ class Program
 
         if (fileManager.Files.Count > 0)
 		{			
-			string input;
+			char input = GlobalVariables.parsedOptions.AcceptAll ? 'Y' : 'X';
+			string validInput = "YyNnRrGg";
 			do
 			{
                 logger.AskAboutReqAndConv();
@@ -165,35 +166,34 @@ class Program
 				PrintHelper.PrintLn("Requester: {0}\nConverter: {1}\nMaxThreads: {2}\nTimeout in minutes: {3}", 
 					GlobalVariables.INFO_COL, Logger.JsonRoot.requester, Logger.JsonRoot.converter, GlobalVariables.maxThreads, GlobalVariables.timeout);
 
-				if (!GlobalVariables.parsedOptions.AcceptAll)
+				while (!validInput.Contains(input))
 				{
 					Console.Write("Do you want to proceed with these settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
-					string? r = Console.ReadLine();
-					r = r?.ToUpper() ?? " ";
-					input = r;
-					if (input == "R")
-					{
-						Console.WriteLine("Change settings file and hit enter when finished (Remember to save file)");
-						Console.ReadLine();
-						settings.ReadSettings(settingsPath);
-						settings.SetUpFolderOverride(settingsPath);
-					}
-					if (input == "G")
-					{
-						awaitGUI().Wait();
-						settings.ReadSettings(settingsPath);
-						settings.SetUpFolderOverride(settingsPath);
-					}
+					var r = Console.ReadKey();
+					input = r.KeyChar;
+					input = char.ToUpper(input);
 				}
-                else
+				Console.WriteLine();
+				switch (input)
 				{
-                    input = "Y";
+					case 'Y':
+                        break;
+					case 'N':
+						goto END;
+					case 'R':
+                        Console.WriteLine("Change settings file and hit enter when finished (Remember to save file)");
+                        Console.ReadLine();
+                        settings.ReadSettings(settingsPath);
+                        settings.SetUpFolderOverride(settingsPath);
+						break;
+					case 'G':
+                        awaitGUI().Wait();
+                        settings.ReadSettings(settingsPath);
+                        settings.SetUpFolderOverride(settingsPath);
+						break;
+					default: break;
                 }
-			} while (input != "Y" && input != "N");
-			if (input == "N")
-			{
-				goto END;
-			}
+            } while (input != 'Y' && input != 'N');
 
 			try
 			{
