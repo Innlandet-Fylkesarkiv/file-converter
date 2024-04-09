@@ -119,7 +119,7 @@ public class LibreOfficeConverter : Converter
 		}
 		else
 		{
-			log.SetUpRunTimeLogMessage("Operating system not supported for office conversion", true, file.FilePath);
+			log.SetUpRunTimeLogMessage("LibreOffice Operating system not supported for office conversion", true, file.FilePath);
 		}
 	}
 
@@ -393,7 +393,7 @@ public class LibreOfficeConverter : Converter
 		}
 		catch (Exception e)
 		{
-			Logger.Instance.SetUpRunTimeLogMessage("Error converting file to PDF. File is not converted: " + e.Message, true, filename: sourceDoc);
+			Logger.Instance.SetUpRunTimeLogMessage("LibreOffice Error converting file to PDF. File is not converted: " + e.Message, true, filename: sourceDoc);
 		}
 	}
 
@@ -499,7 +499,6 @@ public class LibreOfficeConverter : Converter
 			case "fmt/291":
 				extensionNameForConversion = "odt";
 				break;
-			//case "fmt/473":		This is the code for Office Owner File
 			case "fmt/1827":
 			case "fmt/412":
 				extensionNameForConversion = "docx";
