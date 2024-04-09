@@ -31,7 +31,7 @@ This application provides a framework for different conversion libraries/softwar
 - [Licensing](#licensing)
 
 
-## Background 
+# Background 
 This project is part of a collaboration with [Innlandet County Archive](https://www.visarkiv.no/) and is a Bachelor's thesis project for a [Bachelor's in Programming](https://www.ntnu.edu/studies/bprog) at the [Norwegian University of Technology and Science (NTNU)](https://www.ntnu.edu/).
 
 In Norway, the act of archiving is regulated by the Archives Act, which states that public bodies have a duty to register and preserve documents that are created as part of their activity [^1]. As society is becoming more digitized so is information, and the documents that were previously physical and stored physically are now digital and stored digitally. Innlandet County Archive is an inter-municipal archive cooperation, that registers and preserves documents from 48 municipalities. However, not all file types they receive are suitable for archiving as they run a risk of becoming obsolete. (For further reading see: [Obsolescence: File Formats and Software](https://dpworkshop.org/dpm-eng/oldmedia/obsolescence1.html)) Innlandet County Archive wished to streamline its conversion process into one application that could deal with a vast array of file formats. Furthermore, archiving is based on the principles of accessibility, accountability and integrity, which is why this application also provides documentation of all changes made to files.
@@ -40,7 +40,7 @@ Much like programmers and software developers, archivists believe in an open sou
 
 [^1]: Kultur- og likestillingsdepartementet. *Lov om arkiv [arkivlova].* URL: https://lovdata.no/dokument/NL/lov/1992-12-04-126?q=arkivloven (visited on 17th Jan. 2024).
 
-## Install
+# Install
 To download the application source code simply run:
  ```sh
   git clone --recursive https://github.com/larsmhaugland/file-converter.git
@@ -59,7 +59,7 @@ dotnet build
 >   git submodule update
 >```
 
-### Dependencies 
+## Dependencies 
 |OS| Dependencies | Needed for? |
 |---|---|---|
 |Linux| [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download) | Needed to run program. |
@@ -73,7 +73,7 @@ dotnet build
 
 <br>
 
-#### Further download instructions for LibreOffice
+### Further download instructions for LibreOffice
 Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. 
 
 Open settings -> home -> about (scroll down on the left) -> advanced system settings (on the right) -> environment variables.<br>
@@ -87,7 +87,7 @@ wkhtmltopdf must also be manually added to PATH. For windows, it can be done as 
 For Linux the default installation directory is ... One alternative for adding it as an environment variable is to open the file ```.bashrc``` using the command ```nano ~/.bashrc``` (vi can also be used instead of nano). Then navigate to the bottom of the file with the arrow keys and add this line at the end ```export PATH="$PATH:DefaultPathHere"```, remember to save the file and exit. To apply the changes immediately run the command ```source ~/.bashrc``` or log in and out. To verify, run the command ```echo $PATH``` and the path added should be at the end of the output from the command.
 <br><br>
 
-#### External libraries/software used
+### External libraries/software used
 **Libraries**
 - [iText7](https://github.com/itext/itext-dotnet) under the GNU Affero General Public License v3.0.
 - [BouncyCastle.NetCore](https://github.com/chrishaly/bc-csharp) under the MIT License.
@@ -100,11 +100,11 @@ For Linux the default installation directory is ... One alternative for adding i
 - [LibreOffice](https://www.libreoffice.org/) under the Mozilla Public License 2.0.
 - [Siegfried](https://www.itforarchivists.com/siegfried/) under the Apache License 2.0.
 
-### Installation for Windows
-### Installation for Linux
+## Installation for Windows
+## Installation for Linux
 The application can be used for Linux by downloading from source code. (see [Install](#install))
 
-#### Installing Siegfried on Linux
+### Installing Siegfried on Linux
 If you are using a Debian, Arch or Red Hat based distro the application will guide you through Siegfried installation if it isn't already installed. 
 
 Please see the dependencies needed for installation below:
@@ -116,10 +116,10 @@ Please see the dependencies needed for installation below:
 
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
 
-## Usage
+# Usage
 Common usage (code block)
 
-### Beta
+## Beta
 Since the program is still in beta, there are some limitations or bugs in the software. This section will be updated throughout the development process as we fix or find problems.
 The program is mostly tested in Windows, so Linux specific issues may not appear in list. 
 - (Landscape oriented PDF or PDF/A -> PDF/A or other PDF version)
@@ -147,10 +147,10 @@ The program is mostly tested in Windows, so Linux specific issues may not appear
   	- No toggle for merge images yet
   	- too little help for the user to undertand what to write where
   
-### GUI
+## GUI
 Common usage GUI
 
-### CLI
+## CLI
 Cover options and common usage
 ```
 $ cd C:\PathToFolder\bin\Debug\net8.0
@@ -159,7 +159,7 @@ $ .\file-converter-prog2900.exe
 
 **Options**
 
-### Arguments
+## Arguments
 :memo: Note: All paths must be absolute or relative to executable.
 ```
 Set custom input folder. Default: input
@@ -180,10 +180,10 @@ $ .\example --yes
 ```
 
 
-### Settings
+## Settings
 Settings can be manually set in the ```Settings.xml``` file.
 
-#### Setting run time arguments
+### Setting run time arguments
 ```xml  
     <Requester></Requester>                    <!-- Name of person requesting the conversion -->
     <Converter></Converter>                    <!-- Name of person doing the conversion -->
@@ -199,7 +199,7 @@ The first part of the XML file concerns arguments needed to run the program. The
 1. Global settings stating that file format ```x``` should be converted to file format ```y```.
 2. Folder settings stating that file format ```x``` should be converted to file format ```y``` in the specific folder ```folder```.
 
-#### Global settings
+### Global settings
 ```xml
 <FileClass>
 	<ClassName>pdf</ClassName>
@@ -214,7 +214,7 @@ The first part of the XML file concerns arguments needed to run the program. The
 </FileClass>
 ```
 
-#### Folder settings
+### Folder settings
 ```xml
 	<FolderOverride>
 		<FolderPath>apekatter</FolderPath>      <!-- Path after input folder example: /documents -->
@@ -224,7 +224,7 @@ The first part of the XML file concerns arguments needed to run the program. The
 	</FolderOverride>
 ```
 
-### Currently supported file formats
+## Currently supported file formats
 The following table shows supported file formats:
 | File type | File Format | From | To |
 |-------------|-----------|--------------------|-------|
@@ -257,7 +257,7 @@ The following table shows supported file formats:
 |**E-mail**|EML|✔||
 ||MSG|✔||
 
-### Documentation and logging
+## Documentation and logging
 The ```.txt```log files use the following convention and is automatically generated each time the program is run:
 ```
 Type	| (Error) Message | Format | Filetype | Filename
@@ -287,7 +287,7 @@ Additionally, a ```documentation.json``` file is created which lists all files a
     }]}
 ```
 
-### Adding a new converter
+## Adding a new converter
 All source code for external converters is based on the same parent ```Converter``` class, located in ```\ConversionTools\Converter.cs```.
 
 **Converter class**
@@ -350,7 +350,7 @@ To add the converter to the list of converters, add the line ```converters.Add(n
         return converters;
     }
 ```
-### Adding a new conversion path (Multistep conversion)
+## Adding a new conversion path (Multistep conversion)
 Multistep conversion means that one can combine the functionality of several converters to convert a file to a file type that would not have been possible if you were using only one of the converters. For example, LibreOffice can convert Word documents to PDF and iText7 can convert PDF documents to PDF-A. Multistep conversion means that the functionalities can be combined so that a Word document can be converted to a PDF-A document. 
 
 To add a new multistep conversion you need to add a route in the ```initMap``` function in ```ConversionManager.cs``` following this convention:
@@ -366,7 +366,7 @@ foreach (string pronom in ListOfPronoms)
 ```
 ```pronom``` is the pronom you want to convert from, while ```otherpronom``` is the pronom you want to convert to. ```ConversionMap``` works as a route so any ```helppronom``` is a stepping stone in that route from ```pronom``` to ```otherpronom```. You can add as many stepping stones as you want but they have to be added in the correct order from left to right.
 
-## Use cases
+# Use cases
 Here are the use cases, please reflect and write something down for each use case about how understandable the README/source code was and how manageable it was to do the task.
 
 Use case tasks:
@@ -386,14 +386,14 @@ Questions regarding README:
 + Were there any sections you found vague/unhelpful?
 + Are there some sections you would have liked that weren't here?
 
-## Acknowledgments
+# Acknowledgments
 Acknowledge all externals. Acknowledge supervisor + archive.
 
 
-## Contributing
+# Contributing
 > ❗TODO:Explain how one can contribute.
 
-### Contributors
+## Contributors
 This project exists thanks to these wonderful people:<br>
 <a href="https://github.com/larsmhaugland/file-converter/graphs/contributors)https://github.com/larsmhaugland/file-converter/graphs/contributors"><img src="https://contrib.rocks/image?repo=larsmhaugland/file-converter"/></a>
 
@@ -403,5 +403,5 @@ This project exists thanks to these wonderful people:<br>
 - Lars Martin Haugland
 - Aurora Skomsvold
 
-## Licensing
+# Licensing
 as listed on https://spdx.org/licenses/ 
