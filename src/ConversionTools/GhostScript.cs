@@ -105,9 +105,9 @@ public class GhostscriptConverter : Converter
         }
 	}
 
-    public string gsWindowsExecutable = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GhostscriptBinaryFiles", "gs10.02.1", "bin", "gswin64c.exe");
+	public string gsWindowsExecutable = "";
 
-    public string gsWindowsLibrary = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GhostscriptBinaryFiles", "gs10.02.1", "bin", "gsdll64.dll");
+    public string gsWindowsLibrary = "";
 
    
 
