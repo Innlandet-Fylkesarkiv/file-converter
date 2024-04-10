@@ -3,7 +3,7 @@
 # file-converter (W.I.P.)
 > **:memo: NOTE: This README is currently being updated, information found here might not reflect the current application.**
 
-<img src="https://github.com/larsmhaugland/file-converter/assets/117298604/c7717ea8-9978-48b0-85c8-dbdd42518668">
+<img src="https://github.com/larsmhaugland/file-converter/assets/117298604/e3965308-bfe4-4850-86c9-06dae7b493b3">
 
 
 ![Static Badge](https://img.shields.io/badge/.net-8.0-blue)
