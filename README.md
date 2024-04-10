@@ -1,7 +1,8 @@
-<div align="center" markdown="1">
+> [!NOTE]
+>  **This README is currently being updated, information found here might not reflect the current application.**
+<div align="center">
 	
 # file-converter (W.I.P.) 
-> **:memo: NOTE: This README is currently being updated, information found here might not reflect the current application.**
 
 <img src="https://github.com/larsmhaugland/file-converter/assets/117298604/e3965308-bfe4-4850-86c9-06dae7b493b3">
 
