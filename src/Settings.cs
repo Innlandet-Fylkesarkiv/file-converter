@@ -8,6 +8,8 @@ public class SettingsData
     public string DefaultType { get; set; } = "";
 	// Whether to merge images or not
 	public bool Merge { get; set; } = false;
+	// Does not convert the filetype when set to true
+	public bool DoNotConvert { get; set; } = false;
 }
 class Settings
 {
@@ -131,7 +133,8 @@ class Settings
 						string? extension = fileTypeNode.SelectSingleNode("Filename")?.InnerText;
 						string? pronoms = fileTypeNode.SelectSingleNode("Pronoms")?.InnerText;
 						string? innerDefault = fileTypeNode.SelectSingleNode("Default")?.InnerText;
-						if (String.IsNullOrEmpty(innerDefault))
+                        string? doNotConvert = fileTypeNode.SelectSingleNode("DoNotConvert")?.InnerText.ToUpper().Trim();
+                        if (String.IsNullOrEmpty(innerDefault))
 						{
                             innerDefault = defaultType;
 						} else
@@ -149,13 +152,21 @@ class Settings
 						SettingsData settings = new SettingsData
 						{
 							PronomsList = pronomsList,
-							DefaultType = innerDefault
+							DefaultType = innerDefault,
+							DoNotConvert = doNotConvert == "YES",
 						};
 						if (settings.PronomsList.Count > 0)
 						{
 							foreach (string pronom in settings.PronomsList)
 							{
-								GlobalVariables.FileSettings[pronom] = settings.DefaultType;
+								if (settings.DoNotConvert)
+								{
+									GlobalVariables.FileSettings[pronom] = pronom;
+                                }
+                                else
+								{
+									GlobalVariables.FileSettings[pronom] = settings.DefaultType;
+                                }
 							}
 						}
 						else

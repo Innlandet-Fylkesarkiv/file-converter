@@ -48,8 +48,9 @@ namespace ChangeConverterSettings
         public static List<ComboBox> formatDropDowns = new List<ComboBox>();
         public static List<TextBox> outputPronomCodeTextBoxes = new List<TextBox>();
         public static List<TextBox> outputNameTextBoxes = new List<TextBox>();
+        public static List<CheckBox> doNotConvertCheckBoxes = new List<CheckBox>();
         // Map with info about what Format/ClassName has what output PRONOM code
-        public static Dictionary<string, string> outputTracker = new Dictionary<string, string>();
+        public static Dictionary<string, (string,bool)> outputTracker = new Dictionary<string, (string,bool)>();
     }
 
     public partial class MainWindow : Window
@@ -59,7 +60,7 @@ namespace ChangeConverterSettings
         /// </summary>
         public MainWindow()
         {
-            while(!Directory.GetCurrentDirectory().EndsWith("ChangeConverterSettings"))
+            while (!Directory.GetCurrentDirectory().EndsWith("ChangeConverterSettings") && Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()) != Directory.GetCurrentDirectory())
                 Directory.SetCurrentDirectory("../");
             var dir = Directory.GetCurrentDirectory();
             InitializeComponent();
@@ -79,8 +80,6 @@ namespace ChangeConverterSettings
         {
             AvaloniaXamlLoader.Load(this);
         }
-
-
 
         /// <summary>
         /// When the user presses the save button, the current values are written to the settings file
@@ -133,18 +132,22 @@ namespace ChangeConverterSettings
                         formatDropDown.SelectedIndex = j;
                         string? name = formatDropDown.SelectedItem.ToString();
                         string? text;
+                        bool doNotConvert;
                         if (name != GlobalVariables.defaultText)
                         {
-                            text = ComponentLists.outputTracker[name];
+                            (text, doNotConvert) = ComponentLists.outputTracker[name];
                         }
                         else
                         {
-                            text = ComponentLists.outputTracker[settingsData.ClassName];
+                            (text, doNotConvert) = ComponentLists.outputTracker[settingsData.ClassName];
                         }
                         if (name != null && text != null)
                         {
                             if (settingsData.FormatName == name)
+                            {
+                                settingsData.DoNotConvert = doNotConvert;
                                 settingsData.DefaultType = text;
+                            }       
                             else if (name == GlobalVariables.defaultText && settingsData.ClassName == ComponentLists.formatNames[i].Text)
                                 settingsData.ClassDefault = text;
                         }
