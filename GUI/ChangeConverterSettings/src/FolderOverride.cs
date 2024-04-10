@@ -10,6 +10,8 @@ using System.IO;
 using Avalonia.Interactivity;
 using ChangeConverterSettings;
 using System.Reflection;
+using Avalonia.Layout;
+using Avalonia.Media;
 
 
 public class FolderOverride
@@ -26,6 +28,7 @@ public class FolderOverride
     /// <param name="caller"> the button calling this function </param>
     public async void SelectFolder(Button caller)
     {
+        Console.WriteLine(GlobalVariables.FolderOverride);
         List<String> Folders = await HelperFunctions.SelectFolderInExplorer(mainWindow);
         if (Folders.Count == 0)
         {
@@ -75,29 +78,34 @@ public class FolderOverride
         TextBox inputPRONOMs = CreateControl.CreateTextBox("", index, false);
         inputPRONOMs.Name = "InputPRONOMs" + index;
         inputPRONOMs.Watermark = "Input PRONOM codes in a list format \n e.g \"fmt/1, fmt/2\"";
-        Grid.SetColumn(inputPRONOMs, 1);
+        Grid.SetColumn(inputPRONOMs, innerGrid.Children.Count);
         innerGrid.Children.Add(inputPRONOMs);
 
         TextBox outputPRONOMs = CreateControl.CreateTextBox("", index, false);
         outputPRONOMs.Name = "OutputPRONOMs" + index;
         outputPRONOMs.Watermark = "PRONOM code of they should be converted to";
-        Grid.SetColumn(outputPRONOMs, 2);
+        Grid.SetColumn(outputPRONOMs, innerGrid.Children.Count);
         innerGrid.Children.Add(outputPRONOMs);
 
+        CheckBox mergeFiles = CreateControl.CreateCheckBox("Merge Files");
+        Grid.SetColumn(mergeFiles, innerGrid.Children.Count);
+        innerGrid.Children.Add(mergeFiles);
+
         Button folderButton = CreateControl.CreateButton("Select Folders", index);
-        Grid.SetColumn(folderButton, 3);
+        Grid.SetColumn(folderButton, innerGrid.Children.Count);
         folderButton.Click += (sender, e) => FolderButton_Click(folderButton, e);
         innerGrid.Children.Add(folderButton);
 
         Button removeButton = CreateControl.CreateButton("Remove Override", index);
         removeButton.Click += (sender, e) => RemoveButton_Click(removeButton, e);
-        Grid.SetColumn(removeButton, 4);
+        Grid.SetColumn(removeButton, innerGrid.Children.Count);
         innerGrid.Children.Add(removeButton);
 
         Avalonia.Controls.Shapes.Rectangle separator = CreateControl.CreateSeparator();
         Grid.SetRow(separator, index);
         mainGrid.Children.Add(separator);
     }
+
 
     /// <summary>
     /// When the folder button is clicked, it opens a folder picker dialog
@@ -142,17 +150,20 @@ public class FolderOverride
         {
             if (child is TextBlock textBlock)
             {
-                if (GlobalVariables.FolderOverride.ContainsKey(textBlock.Text))
+                if (string.IsNullOrEmpty(textBlock.Text))
                 {
-                    GlobalVariables.FolderOverride.Remove(textBlock.Text);
+                    continue;
                 }
+                GlobalVariables.FolderOverride.Remove(textBlock.Text);
             }
         }
+
         // remove the inner grid and the separator
         if (mainGrid.Children[index + 1] is Avalonia.Controls.Shapes.Rectangle separator)
         {
             mainGrid.Children.Remove(separator);
             mainGrid.Children.Remove(innerGrid);
+            mainGrid.RowDefinitions.RemoveAt(index/2);
         }
     }
 
@@ -206,11 +217,16 @@ public class FolderOverride
                 {
                     value.DefaultType = outputPRONOMs;
                 }
+                if (innerGrid.Children.OfType<CheckBox>().FirstOrDefault()?.IsChecked == true)
+                {
+                    value.Merge = true;
+                }
             }
         }
     }
     /// <summary>
-    /// Reads the folder override from settings and writes it to the screen
+    /// Reads the folder override from settings and writes the content to the screen
+    /// as multiple segments
     /// </summary>
     public void WriteFolderOverrideToScreen()
     {
@@ -228,29 +244,34 @@ public class FolderOverride
             mainGrid.Children.Add(innerGrid);
 
             TextBlock folderName = CreateControl.CreateTextBlock(folder.Key);
-            Grid.SetColumn(folderName, 0);
+            Grid.SetColumn(folderName, innerGrid.Children.Count);
             innerGrid.Children.Add(folderName);
 
             TextBox inputPRONOMs = CreateControl.CreateTextBox(string.Join(", ", folder.Value.PronomsList), index, false);
             inputPRONOMs.Name = "InputPRONOMs" + index;
             inputPRONOMs.Watermark = "Input PRONOM codes in a list format \n e.g \"fmt/1, fmt/2\"";
-            Grid.SetColumn(inputPRONOMs, 1);
+            Grid.SetColumn(inputPRONOMs, innerGrid.Children.Count);
             innerGrid.Children.Add(inputPRONOMs);
 
             TextBox outputPRONOMs = CreateControl.CreateTextBox(folder.Value.DefaultType, index, false);
             outputPRONOMs.Name = "OutputPRONOMs" + index;
             outputPRONOMs.Watermark = "PRONOM code of they should be converted to";
-            Grid.SetColumn(outputPRONOMs, 2);
+            Grid.SetColumn(outputPRONOMs, innerGrid.Children.Count);
             innerGrid.Children.Add(outputPRONOMs);
 
+            CheckBox mergeFiles = CreateControl.CreateCheckBox("Merge Files");
+            mergeFiles.IsChecked = folder.Value.Merge;
+            Grid.SetColumn(mergeFiles, innerGrid.Children.Count);
+            innerGrid.Children.Add(mergeFiles);
+
             Button folderButton = CreateControl.CreateButton("Select Folders", index);
-            Grid.SetColumn(folderButton, 3);
+            Grid.SetColumn(folderButton, innerGrid.Children.Count);
             folderButton.Click += (sender, e) => FolderButton_Click(folderButton, e);
             innerGrid.Children.Add(folderButton);
 
             Button removeButton = CreateControl.CreateButton("Remove Override", index);
             removeButton.Click += (sender, e) => RemoveButton_Click(removeButton, e);
-            Grid.SetColumn(removeButton, 4);
+            Grid.SetColumn(removeButton, innerGrid.Children.Count);
             innerGrid.Children.Add(removeButton);
 
             Avalonia.Controls.Shapes.Rectangle separator = CreateControl.CreateSeparator();

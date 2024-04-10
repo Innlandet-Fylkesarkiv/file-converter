@@ -262,6 +262,7 @@ class Settings
             logger.SetUpRunTimeLogMessage(ex.Message, true);
         }
     }
+
     /// <summary>
     /// Recursively retrieves all subfolders of a given parent folder.
     /// </summary>
