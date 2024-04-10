@@ -279,7 +279,6 @@ class Program
 			{
 				// Read the key without blocking
 				ConsoleKeyInfo key = Console.ReadKey(intercept: true);
-				Console.WriteLine("Key pressed: " + key.KeyChar);
 
 				if (key.Key != ConsoleKey.Escape)
 				{
