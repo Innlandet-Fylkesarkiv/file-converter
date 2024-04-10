@@ -8,25 +8,45 @@ public class Converter
     public string? NameAndVersion { get; set; } // Name and version of the converter
 
     public bool DependeciesExists { get; set; }    // Whether the required dependencies for the converter are available on the system
-    public Dictionary<string, List<string>>? SupportedConversions { get; set; }
-    public List<string> SupportedOperatingSystems { get; set; } = new List<string>();
+    public Dictionary<string, List<string>>? SupportedConversions { get; set; }     // Supported conversions for the converter
+    public List<string> SupportedOperatingSystems { get; set; } = new List<string>();   // Supported operating systems for the converter
 
+    /// <summary>
+    /// Converter constructor
+    /// </summary>
     public Converter()
     { }
 
+    /// <summary>
+    /// Get the supported operating systems for the converter
+    /// </summary>
+    /// <returns> A list of supported OS </returns>
     public virtual List<string> getSupportedOS()
     {
         return new List<string>();
     }
+
+    /// <summary>
+    /// Get a list of supported conversions for the converter
+    /// </summary>
+    /// <returns> A dictionary with string originalPRONOM and a list of PRONOMS it can be converted to </returns>
     public virtual Dictionary<string, List<string>>? getListOfSupportedConvesions()
     {
         return new Dictionary<string, List<string>>();
     }
+
+    /// <summary>
+    /// Set the name and version of the converter
+    /// </summary>
     public virtual void SetNameAndVersion()
     {
         GetVersion();
         NameAndVersion = Name + " " + Version;
     }
+
+    /// <summary>
+    /// Get the version of the converter
+    /// </summary>
     public virtual void GetVersion() { }
 
     /// <summary>
@@ -88,6 +108,11 @@ public class Converter
         }
     }
 
+    /// <summary>
+    /// Replaces a file in the list of files to convert
+    /// </summary>
+    /// <param name="newPath"> The new path of the file </param>
+    /// <param name="f"> The specific file </param>
     public virtual void replaceFileInList(string newPath, FileToConvert f)
     {
         f.FilePath = newPath;
@@ -133,6 +158,12 @@ public class Converter
         return false;
     }
 
+    /// <summary>
+    /// Check the status of the conversion
+    /// </summary>
+    /// <param name="filePath"> Full path of the file </param>
+    /// <param name="pronom"> The specific PRONOM code of the file </param>
+    /// <returns> True or false depending on if conversion is done </returns>
     public bool CheckConversionStatus(string filePath, string pronom)
     {
         try
@@ -147,6 +178,11 @@ public class Converter
         return false;
     }
 
+    /// <summary>
+    /// Get the pronom code of a file
+    /// </summary>
+    /// <param name="filepath"> Full path of the file </param>
+    /// <returns> String containing PRONOM code or null </returns>
     public string? GetPronom(string filepath)
     {
         try
@@ -167,7 +203,7 @@ public class Converter
     /// <summary>
     /// Get the correct place where the process should be run depending on operating system
     /// </summary>
-    /// <returns> String - Name of where the process should be run</returns>
+    /// <returns> String - Name of where the process should be run </returns>
     public static string GetPlatformExecutionFile()
     {
         return Environment.OSVersion.Platform == PlatformID.Unix ? "bash" : "cmd.exe";
@@ -176,8 +212,8 @@ public class Converter
     /// <summary>
     /// Checks if the folder with the soffice.exe executable exists in the PATH.
     /// </summary>
-    /// <param name="executableName">Name of the executable to have its folder in the PATH</param>
-    /// <returns>Bool indicating if the directory containing the executable was found </returns>
+    /// <param name="executableName"> Name of the executable to have its folder in the PATH </param>
+    /// <returns> Bool indicating if the directory containing the executable was found </returns>
     public static bool checkPathVariableWindows(string executableName)
     {
 
@@ -195,11 +231,12 @@ public class Converter
 
         return false;
     }
+
     /// <summary>
     /// Same function as for windows, but with small changes to facilitate for linux users
     /// </summary>
-    /// <param name="executableName">Name of the executable to have its folder in the PATH</param>
-    /// <returns></returns>
+    /// <param name="executableName"> Name of the executable to have its folder in the PATH </param>
+    /// <returns> Bool indicating if the directory containing the executable was found </returns>
     public static bool checkPathVariableLinux(string executableName)
     {
         string pathVariable = Environment.GetEnvironmentVariable("PATH") ?? "";

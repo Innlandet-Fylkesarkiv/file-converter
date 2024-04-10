@@ -20,6 +20,10 @@ class LinuxSetup
         {new List<string> { "\"-c \\\" \" + \"gs -version\" + \" \\\"\"", "GPL Ghostscript",  "LinuxSpecifics\\ghostscript.txt"}, "GhostScript"},
         {new List<string>{"\"-c \\\" \" + \"libreoffice --version\" + \" \\\"\"", "LibreOffice", "LinuxSpecifics\\libreoffice.txt"}, "LibreOffice" }
     };
+
+    /// <summary>
+    /// Main set-up function for Linux
+    /// </summary>
     public static void Setup()
     {
         Console.WriteLine("Running on Linux");
@@ -33,9 +37,8 @@ class LinuxSetup
     /// <summary>
     /// Runs a process with the given filename and arguments
     /// </summary>
-    /// <param name="filename"></param>
-    /// <param name="arguments"></param>
-    /// <param name="configure"></param>
+    /// <param name="configure"> The start info of the process </param>
+    /// <returns>Either output from process or empty string</returns>
     private static string RunProcess( Action<ProcessStartInfo> configure) 
     {
         ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -169,6 +172,10 @@ class LinuxSetup
         }
     }
 
+    /// <summary>
+    /// Get the linux distro
+    /// </summary>
+    /// <returns> A string with the distro name</returns>
    private static string GetLinuxDistro() {
         string distro = "";
         //Check which distro the user is running
