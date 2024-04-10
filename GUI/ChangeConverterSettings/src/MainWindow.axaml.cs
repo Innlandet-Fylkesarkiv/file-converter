@@ -1,3 +1,5 @@
+#define DEBUG
+
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System;
@@ -15,6 +17,7 @@ using System.Diagnostics;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using System.Linq;
+
 
 namespace ChangeConverterSettings
 {
@@ -36,7 +39,7 @@ namespace ChangeConverterSettings
         public static string? timeout = null;
         public static string defaultText = "Default";
         public static List<string> supportedHashes = new List<string> { "MD5", "SHA256" };
-        public static string defaultSettingsPath = "../../settings.xml";
+        public static string defaultSettingsPath = "../settings.xml";
     }
 
     /// <summary>
@@ -60,9 +63,17 @@ namespace ChangeConverterSettings
         /// </summary>
         public MainWindow()
         {
-            while (!Directory.GetCurrentDirectory().EndsWith("ChangeConverterSettings") && Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()) != Directory.GetCurrentDirectory())
+            string dir;
+            #if DEBUG
+                dir = "ChangeConverterSettings";
+                GlobalVariables.defaultSettingsPath = "../../settings.xml";
+            #else
+                dir = "GUI";
+            #endif
+
+            while (!Directory.GetCurrentDirectory().EndsWith(dir) && Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()) != Directory.GetCurrentDirectory())
                 Directory.SetCurrentDirectory("../");
-            var dir = Directory.GetCurrentDirectory();
+            dir = Directory.GetCurrentDirectory();
             InitializeComponent();
             Settings settings = Settings.Instance;
             settings.ReadAllSettings(GlobalVariables.defaultSettingsPath);
