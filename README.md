@@ -160,7 +160,8 @@ If you are not using on of these distros please see the [Siegfried GitHub](https
 # 🚀 Usage 
 Common usage (code block)
 
-![usage](https://github.com/larsmhaugland/file-converter/assets/117298604/e6078098-f956-494f-bb6b-c7c53c08640e)
+
+![commonusage](https://github.com/larsmhaugland/file-converter/assets/117298604/9ea3901e-dfe3-4282-bd56-1d6f67a126a1)
 
 
 ## Beta
