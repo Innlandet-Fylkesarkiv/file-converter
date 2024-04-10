@@ -117,9 +117,14 @@ The application has been tested on the following Linux images:
 - Arch (kernel: Linux 6.7.7-arch1-1)
 
 Running it on other distributions or other versions should be possible as long as it supports [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download).
+> :memo: NOTE: Although running ***our*** application on other distributions should be fine it may reduce the amount of supported external libraries and software.
 
 ### Installing Siegfried on Linux
-If you are using a Debian, Arch or Red Hat based distro the application will guide you through Siegfried installation if it isn't already installed. 
+|<img width="750" alt="Screenshot of guided installation of Siegfried on Linux" src="https://github.com/larsmhaugland/file-converter/assets/117298604/b89dd844-73af-43d9-a056-b6cd417733a1">|
+|:--:| 
+|*Screenshot of guided installation of Siegfried on Linux*|
+
+If you are using a *Debian*, *Arch* or *Red Hat* based distro the application will guide you through Siegfried installation if it isn't already installed. 
 
 Please see the dependencies needed for installation below:
 | Distro | Dependency |
@@ -141,27 +146,14 @@ The program is mostly tested in Windows, so Linux specific issues may not appear
 - (Landscape oriented PDF or PDF/A -> PDF/A or other PDF version)
   	- There is a bug where iText7 doesn't recognize that a document is landscape oriented when converting from PDF->PDF/A. This results in the content of the file being cropped to portrait.
   	- UPDATE: May be resolved, more testing required.
-- (Multi-threading)
-	- The current version of the program gets varied results if multi-threading is enabled (```<MaxThreads>``` is over 1). For most consistent results, use ```<MaxThreads>1</MaxThreads>```
-	- UPDATE: Recent testing shows it seems to be back to being stable.
 - Parsing siegfried data from incomplete run
   	- The current version of the program cannot successfully recover siegfried data from an incomplete run
 - Timeout
   	- Timeout for conversion is not yet implemented
-- (Merging files)
-  	- Merging large amounts of files has some bugs and results may vary.
-  	- UPDATE: May be resolved in newest version.
 - (Compressed files)
   	- Zip is the only tested format, but .tar .gz .7z and .rar is also supported in the current version. It seems stable, but it is best to double check results.
-- (PDF to image)
-  	- Documentation may say that conversion failed even though it was done successfully. Please double check results.
-  	- UPDATE: Bug seems to be fixed
 - HTML -> PDF
-  	- This conversion does not work, even though the program may think it did based on the output file's pronom. Output file will be empty
-- GUI (FolderOverride)
-  	- You can set a folder override in the gui and it will be written to file, but the GUI wont remeber it so if you open it again and save without adding the previous folders, then those would not be saved.
-  	- No toggle for merge images yet
-  	- too little help for the user to undertand what to write where
+  	- This conversion does not work, even though the program may think it did based on the output file's pronom. Output file will be empty.
   
 ## GUI
 Common usage GUI
@@ -173,24 +165,32 @@ $ cd C:\PathToFolder\bin\Debug\net8.0
 $ .\file-converter-prog2900.exe 
 ```
 
-**Options**
-
 ## Arguments
-:memo: Note: All paths must be absolute or relative to executable.
+> :memo: Note: All paths must be absolute or relative to executable.
+
+### Set custom input folder 
+Default: *input*
 ```
-Set custom input folder. Default: input
 $ .\example -i "C:\Users\user\Downloads
 $ .\example --input "C:\Users\user\Downloads
+```
 
-Set custom output folder. Default: output
+### Set custom output folder
+Default: *output*
+```
 $ .\example -o "C:\Users\user\Downloads
 $ .\example --output "C:\Users\user\Downloads
+```
 
-Set custom settings file. Default: Settings.xml
+### Set custom settings file 
+<br>Default: *Settings.xml*
+```
 $ .\example -s "C:\Users\user\custom_settings.xml"
 $ .\example --settings "C:\Users\user\custom_settings.xml"
+```
 
-Accept all queries in CLI.
+### Accept all queries in CLI
+```
 $ .\example -y
 $ .\example --yes 
 ```
