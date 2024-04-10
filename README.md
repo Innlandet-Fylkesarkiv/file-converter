@@ -250,7 +250,8 @@ The first part of the XML file concerns arguments needed to run the program. The
 ```
 
 ## Currently supported file formats 
-<img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/4cdfac37-120b-49b0-8aed-f2d85ee2c0ce">
+<img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/92f26f2b-2ad4-4179-ac6f-07fb4f7dc1ba">
+
 
 
 ## Documentation and logging 
