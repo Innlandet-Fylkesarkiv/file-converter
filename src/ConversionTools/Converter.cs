@@ -3,11 +3,13 @@
 /// </summary>
 public class Converter
 {
-	public string? Name { get; set; } // Name of the converter
-	public string? Version { get; set; } // Version of the converter
-	public string? NameAndVersion { get; set; } // Name and version of the converter
-	public Dictionary<string, List<string>>? SupportedConversions { get; set; }
+	public string Name { get; set; } // Name of the converter
+	public string Version { get; set; } // Version of the converter
+	public string NameAndVersion { get; set; } // Name and version of the converter
+	public Dictionary<string, List<string>> SupportedConversions { get; set; }
 	public List<string> SupportedOperatingSystems { get; set; } = new List<string>();
+	public Dictionary<string, List<string>> BlockingConversions { get; set; } = new Dictionary<string, List<string>>();
+	SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
 	public Converter()
 	{ }
@@ -16,10 +18,15 @@ public class Converter
 	{
 		return new List<string>();
 	}
-	public virtual Dictionary<string, List<string>>? getListOfSupportedConvesions()
+	public virtual Dictionary<string, List<string>> getListOfSupportedConvesions()
 	{
 		return new Dictionary<string, List<string>>();
 	}
+	public virtual Dictionary<string, List<string>> getListOfBlockingConversions()
+	{
+        return new Dictionary<string, List<string>>();
+    }
+
 	public virtual void SetNameAndVersion() 
 	{
 		GetVersion();
@@ -45,11 +52,67 @@ public class Converter
 	/// <summary>
 	/// Wrapper for the ConvertFile method that also handles the timeout
 	/// </summary>
-	/// <param name="fileinfo"></param>
-	async public Task ConvertFile(FileToConvert fileinfo)
+	/// <param name="file"></param>
+	async public Task ConvertFile(FileToConvert file)
 	{
-		await ConvertFile(fileinfo, fileinfo.Route.First());
+        var timeout = TimeSpan.FromMinutes(GlobalVariables.timeout);
+        try
+		{
+			if (ConversionContainsLock(file))
+			{
+                await semaphore.WaitAsync();
+			}
+			await ConvertFileWithTimeout(file, timeout);
+		} catch (TimeoutException e)
+		{
+			Logger.Instance.SetUpRunTimeLogMessage("ConvertFile: Conversion timed out", true, filename: file.FilePath);
+		}
+		finally
+		{
+            if (ConversionContainsLock(file))
+			{
+                semaphore.Release();
+            }
+        }
+		return;
 	}
+
+    // Method to call another method with a timeout
+    private async Task ConvertFileWithTimeout(FileToConvert file, TimeSpan timeout)
+    {
+        var cancellationTokenSource = new CancellationTokenSource();
+        var task = Task.Run(() => ConvertFile(file, file.Route.First()), cancellationTokenSource.Token);
+
+        // Wait for either the task to complete or the timeout to elapse
+        var completedTask = await Task.WhenAny(task, Task.Delay(timeout));
+
+        if (completedTask == task)
+        {
+            // Method completed within the timeout duration
+            cancellationTokenSource.Cancel();
+        }
+        else
+        {
+            cancellationTokenSource.Cancel();
+            // Timeout occurred
+            throw new TimeoutException("Method execution timed out.");
+        }
+    }
+
+    /// <summary>
+    /// Check if a conversion leads to a locked section
+    /// </summary>
+    /// <param name="file">Conversion that should be checked</param>
+    /// <returns>True if it contains a locked section</returns>
+    bool ConversionContainsLock(FileToConvert file)
+	{
+		if (BlockingConversions.ContainsKey(file.Route.First()))
+		{
+			return BlockingConversions[file.CurrentPronom].Contains(file.Route.First());
+		}
+		return false;
+	}
+
 
 	/// <summary>
 	/// Convert a file to a new format

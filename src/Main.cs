@@ -24,8 +24,8 @@ public static class GlobalVariables
 	public static Dictionary<string, SettingsData> FolderOverride = new Dictionary<string, SettingsData>(); // the key is a foldername
 	public static HashAlgorithms checksumHash = HashAlgorithms.SHA256;
 	public static int maxThreads = Environment.ProcessorCount*2;
-	public static int timeout = 30;
-    public static double maxFileSize = 1000000000;      //1GB
+	public static int timeout = 5;
+    public static double maxFileSize = 1 * 1024 * 1024 * 1024;      //1GB
     public const int MAX_RETRIES = 3; //Maximum number of attempts in case of a failed conversion
 	public const ConsoleColor INFO_COL = ConsoleColor.Cyan;
 	public const ConsoleColor ERROR_COL = ConsoleColor.Red;
@@ -41,7 +41,7 @@ public static class GlobalVariables
 		//Set to default values (will be overwritten in Settings.cs if specified by user)
 		checksumHash = HashAlgorithms.SHA256;
 		maxThreads = Environment.ProcessorCount * 2;
-		timeout = 30;
+		timeout = 5;
 	}
 }
 public class Options
@@ -119,8 +119,6 @@ class Program
 
 		FileManager fileManager = FileManager.Instance;
 		Siegfried sf = Siegfried.Instance;
-		Stopwatch sw = new Stopwatch();
-		sw.Start();
 		//TODO: Check for malicous input files
 		try
 		{
@@ -154,91 +152,92 @@ class Program
 		//Set up folder override after files have been copied over
         settings.SetUpFolderOverride(settingsPath);
 
-        if (fileManager.Files.Count > 0)
+		if (fileManager.Files.Count < 1)
 		{
-			char input = ' ';
-			string validInput = "YyNnRrGg";
-			do
-			{
-                input = GlobalVariables.parsedOptions.AcceptAll ? 'Y' : 'X';
-                logger.AskAboutReqAndConv();
-				//settings.AskAboutEmptyDefaults();
-                fileManager.DisplayFileList();
-				PrintHelper.PrintLn("Requester: {0}\nConverter: {1}\nMaxThreads: {2}\nTimeout in minutes: {3}", 
-					GlobalVariables.INFO_COL, Logger.JsonRoot.requester, Logger.JsonRoot.converter, GlobalVariables.maxThreads, GlobalVariables.timeout);
+			PrintHelper.PrintLn("No files to convert", GlobalVariables.ERROR_COL);
+            goto END;
+        }
 
-				while (!validInput.Contains(input))
-				{
-					Console.Write("Do you want to proceed with these settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
-					var r = Console.ReadKey();
-					input = r.KeyChar;
-					input = char.ToUpper(input);
-				}
-				Console.WriteLine();
-				switch (input)
-				{
-					case 'Y':
-                        break;
-					case 'N':
-						goto END;
-					case 'R':
-                        Console.WriteLine("Change settings file and hit enter when finished (Remember to save file)");
-                        Console.ReadLine();
-                        settings.ReadSettings(settingsPath);
-                        settings.SetUpFolderOverride(settingsPath);
-						break;
-					case 'G':
-                        awaitGUI().Wait();
-                        settings.ReadSettings(settingsPath);
-                        settings.SetUpFolderOverride(settingsPath);
-						break;
-					default: break;
-                }
-            } while (input != 'Y' && input != 'N');
+		char input = ' ';
+		string validInput = "YyNnRrGg";
+		do
+		{
+            input = GlobalVariables.parsedOptions.AcceptAll ? 'Y' : 'X';
+            logger.AskAboutReqAndConv();
+            fileManager.DisplayFileList();
+			PrintHelper.PrintLn("Requester: {0}\nConverter: {1}\nMaxThreads: {2}\nTimeout in minutes: {3}", 
+				GlobalVariables.INFO_COL, Logger.JsonRoot.requester, Logger.JsonRoot.converter, GlobalVariables.maxThreads, GlobalVariables.timeout);
 
-			try
+            Console.Write("Do you want to proceed with these settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
+            while (!validInput.Contains(input))
 			{
-				//fileManager.TestDuplicateFilenames();
-				fileManager.CheckForNamingConflicts();
-                Console.WriteLine("Converting files...");
-                cm.ConvertFiles();
-				//Delete siegfrieds json files
-				sf.ClearOutputFolder();
-			} catch (Exception e)
-			{
-				Console.WriteLine("Error while converting " + e.Message);
-				logger.SetUpRunTimeLogMessage("Main: Error when converting files: " + e.Message, true);
+				var r = Console.ReadKey();
+				input = r.KeyChar;
+				input = char.ToUpper(input);
 			}
-			finally
+			Console.WriteLine();
+			switch (input)
 			{
-				Console.WriteLine("Conversion finished:");
-				fileManager.ConversionFinished = true;
-				fileManager.DisplayFileList();
-				Console.WriteLine("Documenting conversion...");
-				fileManager.DocumentFiles();
-			}
-			Console.WriteLine("Compressing folders...");
-			sf.CompressFolders();
-
-			if(Logger.Instance.errorHappened)
-			{
-				PrintHelper.PrintLn("One or more errors happened during runtime, please check the log file for more information.", GlobalVariables.ERROR_COL);
-            } else
-			{
-				Console.WriteLine("No errors happened during runtime. See documentation.json file in output dir.");
-			}
-            sw.Stop();
-            if (GlobalVariables.debug)
-			{
-				Console.Beep();
-                Console.WriteLine("Time elapsed: {0}", sw.Elapsed);
+				case 'Y':	//Proceed with conversion
+                    break;
+				case 'N':	//Exit program
+					goto END;
+				case 'R':	//Change settings and reload manually
+                    Console.WriteLine("Change settings file and hit enter when finished (Remember to save file)");
+                    Console.ReadLine();
+                    settings.ReadSettings(settingsPath);
+                    settings.SetUpFolderOverride(settingsPath);
+					break;
+				case 'G':	//Change settings and reload in GUI
+                    awaitGUI().Wait();
+                    settings.ReadSettings(settingsPath);
+                    settings.SetUpFolderOverride(settingsPath);
+					break;
+				default: break;
             }
+        } while (input != 'Y' && input != 'N');
+
+		try
+		{
+			fileManager.CheckForNamingConflicts();
+            Console.WriteLine("Converting files...");
+            cm.ConvertFiles();
+			//Delete siegfrieds json files
+			sf.ClearOutputFolder();
+		} catch (Exception e)
+		{
+			Console.WriteLine("Error while converting " + e.Message);
+			logger.SetUpRunTimeLogMessage("Main: Error when converting files: " + e.Message, true);
 		}
+		finally
+		{
+			Console.WriteLine("Conversion finished:");
+			fileManager.ConversionFinished = true;
+			fileManager.DisplayFileList();
+			Console.WriteLine("Documenting conversion...");
+			fileManager.DocumentFiles();
+		}
+		Console.WriteLine("Compressing folders...");
+		sf.CompressFolders();
+
+		if (Logger.Instance.errorHappened)
+		{
+			PrintHelper.PrintLn("One or more errors happened during runtime, please check the log file for more information.", GlobalVariables.ERROR_COL);
+		}
+		else
+		{
+			PrintHelper.PrintLn("No errors happened during runtime. See documentation.json file in output dir.",GlobalVariables.SUCCESS_COL);
+		}
+
 		END:
 		Console.WriteLine("Press any key to exit...");
 		Console.ReadKey();	//Keep console open
 	}
 
+	/// <summary>
+	/// Method to get the path of the GUI executable
+	/// </summary>
+	/// <returns>Path to GUI executable</returns>
 	static string getGUIPath()
 	{
 		string filename = "ChangeConverterSettings.exe";
@@ -249,6 +248,11 @@ class Program
         }
 		return "";
 	}
+
+	/// <summary>
+	/// Method to start and await the GUI process
+	/// </summary>
+	/// <returns>Task</returns>
 	async static Task awaitGUI()
 	{
 		ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -268,31 +272,23 @@ class Program
         }
 
         // Monitor user input and process status
-        while (true)
+        while (!process.HasExited)
         {
-            // Check if the process has exited
-            if (process.HasExited)
-            {
-                // Exit the loop and return from the method
-                break;
-            }
-
-            // Check if a key is available (user typed a character)
-            if (Console.KeyAvailable)
-            {
-                // Read the key without blocking
-                ConsoleKeyInfo key = Console.ReadKey(intercept: true);
+			// Check if a key is available (user typed a character)
+			if (Console.KeyAvailable)
+			{
+				// Read the key without blocking
+				ConsoleKeyInfo key = Console.ReadKey(intercept: true);
 				Console.WriteLine("Key pressed: " + key.KeyChar);
-                
-                if (key.Key != ConsoleKey.Escape)
-				{
-                    // Exit the loop and return from the method
-                    process.Kill();
-					process.WaitForExit();
-                    break;
-                }
-            }
 
+				if (key.Key != ConsoleKey.Escape)
+				{
+					// Exit the loop and return from the method
+					process.Kill();
+					process.WaitForExit();
+					break;
+				}
+			}
             // Delay for a short duration (e.g., 100 milliseconds)
             await Task.Delay(100);
         }

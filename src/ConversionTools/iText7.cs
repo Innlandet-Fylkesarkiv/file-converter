@@ -26,7 +26,6 @@ public class iText7 : Converter
 {
 
 	private static readonly object pdfalock = new object();
-    private static readonly object imagelock = new object();
 
     public iText7()
 	{
@@ -34,6 +33,7 @@ public class iText7 : Converter
         SetNameAndVersion();
 		SupportedConversions = getListOfSupportedConvesions();
         SupportedOperatingSystems = getSupportedOS();
+        BlockingConversions = getListOfBlockingConversions();
 
         //Acknowledge AGPL usage warning
         EventManager.AcknowledgeAgplUsageDisableWarningMessage();
@@ -110,6 +110,16 @@ public class iText7 : Converter
         "fmt/1129"      // PDF 2.0
     ];
 
+    List<string> PDFAPronoms = [
+         "fmt/95",       // PDF/A 1A
+        "fmt/354",      // PDF/A 1B
+        "fmt/476",      // PDF/A 2A
+        "fmt/477",      // PDF/A 2B
+        "fmt/478",      // PDF/A 2U
+        "fmt/479",      // PDF/A 3A
+        "fmt/480",      // PDF/A 3B
+    ];
+
     Dictionary<String, PdfVersion> PronomToPdfVersion = new Dictionary<string, PdfVersion>()
     {
         {"fmt/14", PdfVersion.PDF_1_0},
@@ -165,6 +175,18 @@ public class iText7 : Converter
 
         return supportedConversions;
     }
+
+    public override Dictionary<string, List<string>> getListOfBlockingConversions()
+    {
+        var blockingConversions = new Dictionary<string, List<string>>();
+        foreach(string pronom in ImagePronoms.Concat(HTMLPronoms.Concat(PDFPronoms)))
+        {
+            blockingConversions.Add(pronom, PDFAPronoms);
+        }
+        return blockingConversions;
+    }
+
+
 
     public override List<string> getSupportedOS()
     {
@@ -343,8 +365,7 @@ public class iText7 : Converter
             bool converted = false;
             PdfOutputIntent outputIntent;
 
-            //RemoveInterpolation(filename);
-            //RemoveInterpolateFlag(filename, tmpFilename);
+            RemoveInterpolation(filename);
             lock (pdfalock)
             {
                 do
@@ -391,6 +412,22 @@ public class iText7 : Converter
         catch (Exception e)
         {
             Logger.Instance.SetUpRunTimeLogMessage("Error converting PDF to PDF-A. File is not converted: " + e.Message, true, filename: file.FilePath);
+        }
+    }
+
+    void RemoveInterpolation(string filename)
+    {
+        using (PdfReader reader = new PdfReader(filename))
+        {
+            PdfDocument pdfDocument = new PdfDocument(reader);
+            for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
+            {
+                PdfPage page = pdfDocument.GetPage(pageNum);
+                RemoveInterpolationFromResources(page.GetPdfObject());
+            }
+
+            // Save the modified document
+            pdfDocument.Close();
         }
     }
 
@@ -533,9 +570,7 @@ public class iText7 : Converter
                 groupSize += file.OriginalSize;
                 if (groupSize > GlobalVariables.maxFileSize)
                 {
-
-                    //tasks.Add(Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)));
-                    Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)).Wait(); //DEBUG
+                    Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)).Wait(); 
                     group.Clear();
                     groupSize = 0;
                     groupCount++;
@@ -544,11 +579,8 @@ public class iText7 : Converter
             if(group.Count > 0)
             {
                 string outputFileName = $@"{filename}_{groupCount}.pdf";
-                //tasks.Add(Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)));
-                Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)).Wait(); //DEBUG
+                Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom)).Wait();
             }
-            //Wait for all files 
-            //tasks.ForEach(t => t.Wait()); removed for DEBUG
         }
         catch (Exception e)
         {

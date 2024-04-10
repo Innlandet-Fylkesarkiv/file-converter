@@ -32,16 +32,14 @@ public class LibreOfficeConverter : Converter
 		Name = "Libreoffice";
 		SetNameAndVersion();
 		SupportedConversions = getListOfSupportedConvesions();
+		BlockingConversions = getListOfBlockingConversions();
 		SupportedOperatingSystems = getSupportedOS();
 		currentOS = Environment.OSVersion;
 	}
 
     public override void GetVersion()
     {
-        //TODO: Actually fetch version
-
         Version = "Unable to fetch version"; // Default version in case retrieval fails
-
         try
 		{ 
             string sofficePath = Environment.OSVersion.Platform == PlatformID.Unix ? "/usr/lib/libreoffice/program/soffice" : "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
@@ -62,8 +60,6 @@ public class LibreOfficeConverter : Converter
         {
             Logger.Instance.SetUpRunTimeLogMessage("Error getting LibreOffice version: " + ex.Message, true);
         }
-
-        Console.WriteLine("Version: {0}", Version);
     }
 
     /// <summary>
@@ -315,14 +311,19 @@ public class LibreOfficeConverter : Converter
 		return supportedConversions;
 	}
 
-	/// <summary>
-	/// Converts and office file to PDF
-	/// </summary>
-	/// <param name="sourceDoc"></param>
-	/// <param name="destinationPdf"></param>
-	/// <param name="pronom"></param>
-	/// <param name="sofficePath"></param>
-	void RunOfficeToPdfConversion(string sourceDoc, string destinationPdf, string pronom, 
+    public override Dictionary<string, List<string>> getListOfBlockingConversions()
+    {
+        return SupportedConversions;
+    }
+
+    /// <summary>
+    /// Converts and office file to PDF
+    /// </summary>
+    /// <param name="sourceDoc"></param>
+    /// <param name="destinationPdf"></param>
+    /// <param name="pronom"></param>
+    /// <param name="sofficePath"></param>
+    void RunOfficeToPdfConversion(string sourceDoc, string destinationPdf, string pronom, 
 									  bool sofficePath, string targetFormat, FileToConvert file)
 	{
 		try

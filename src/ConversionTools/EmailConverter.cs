@@ -20,8 +20,6 @@ using System.Threading.Tasks;
 /// </summary>
 public class EmailConverter : Converter
 {
-  
-    Logger log = Logger.Instance;                          // Logger for errors
     OperatingSystem currentOS;
     /// <summary>
     /// Constructor setting important properties for the class.
@@ -31,6 +29,7 @@ public class EmailConverter : Converter
         Name = "EmailConverter";
         Version = "";
         SupportedConversions = getListOfSupportedConvesions();
+        BlockingConversions = getListOfBlockingConversions();
         SupportedOperatingSystems = getSupportedOS();
         currentOS = Environment.OSVersion;
     }
@@ -182,6 +181,11 @@ public class EmailConverter : Converter
             supportedConversions[msgPronom].AddRange(EMLPronoms);
         }
         return supportedConversions;
+    }
+
+    public override Dictionary<string, List<string>> getListOfBlockingConversions()
+    {
+        return new Dictionary<string, List<string>>();
     }
 
 

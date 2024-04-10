@@ -155,15 +155,16 @@ public class Siegfried
 	public void AskReadFiles()
 	{
         //Check if json files exist
-        if (Directory.Exists(OutputFolder))
+        if (Directory.Exists(OutputFolder) && Directory.GetFiles(OutputFolder,"*.*",SearchOption.AllDirectories).Count() > 0)
         {
-            string? input;
+            char input;
             do
             {
                 Console.Write("Siegfried data found, do you want to parse it? (Y/N): ");
-                input = Console.ReadLine().ToLower(); //TODO: Why does this give a warning?
-            } while (input != "y" && input != "n");
-            if (input == "y")
+                input = char.ToUpper(Console.ReadKey().KeyChar);
+            } while (input != 'Y' && input != 'N');
+			Console.WriteLine();
+            if (input == 'Y')
             {
                 ReadFromFiles();
             }
@@ -202,10 +203,8 @@ public class Siegfried
 		var paths = Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories);
 		using (ProgressBar progressBar = new ProgressBar(paths.Length))
 		{
-			//Parallel.ForEach(paths, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, (path, state, index) =>
 			for(int i = 0; i < paths.Length; i++)
 			{
-				//progressBar.Report((i+1) / (double)paths.Length,i+1);
 				var parsedData = ParseJSONOutput(paths[i], true);
 				if (parsedData == null)
 					return; //TODO: Check error and possibly continue
@@ -220,7 +219,7 @@ public class Siegfried
 				{
 					instance.Files.Add(new FileInfo(f));
 				}
-			}//);
+			}
 		}
 	}
 

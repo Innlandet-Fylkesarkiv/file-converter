@@ -192,7 +192,6 @@ public class ConversionManager
 		{
 			ConversionMap.TryRemove(key, out _);
 		}
-
 	}
 
 	/// <summary>
@@ -255,8 +254,6 @@ public class ConversionManager
 		Dictionary<Guid, FileInfo> fDict = f.ToDictionary(x => x.Id, x => x);
 
 		//Update FileInfoMap with new data
-		//Parallel.ForEach(files, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, file =>
-		//DEBUG ONLY        Console.WriteLine("{0,40} | {1,10} | {2,10} | {3,10}", "File Path", "Actual", "Target", "Original");
 		files.ForEach(file =>
 		{
 			if (fDict.ContainsKey(file.Id))
@@ -268,10 +265,6 @@ public class ConversionManager
 			{
 				Console.BackgroundColor = Console.BackgroundColor;
 			}
-			if (!file.IsConverted && !file.NotSupported && !file.OutputNotSet)
-			{
-				//DEBUG ONLY    Console.WriteLine("{0,40} | {1,10} | {2,10} | {3,10}",Path.GetFileName(file.FilePath),file.NewPronom,Settings.GetTargetPronom(file), file.OriginalPronom);
-			}
 		});
 	}
 
@@ -282,7 +275,6 @@ public class ConversionManager
 	{
 		int maxThreads = GlobalVariables.maxThreads;
 		Dictionary<string, List<FileInfo>> mergingFiles = new Dictionary<string, List<FileInfo>>();
-		//ConcurrentDictionary<Guid, FileToConvert> WorkingSet = new ConcurrentDictionary<Guid, FileToConvert>();
 
 		//Initialize working set
 		SetupWorkingSet(WorkingSet, mergingFiles);  //Initialize working set
@@ -316,10 +308,7 @@ public class ConversionManager
 					SendToConverter(file, converter, countdownEvents);
 					return;
 				}
-				//Console.WriteLine("{2,10} | {1,10} | {0}", file.FilePath, file.CurrentPronom, file.TargetPronom); //DEBUG ONLY
 			});
-			//DEBUG ONLY
-			//Console.WriteLine("TotalQueued:{0} | CountdownEvents:{1} | WorkingSetCount:{2}", totalQueued, countdownEvents.Count, WorkingSet.Count);
 
 			//Wait for all threads to finish
 			AwaitConversion(countdownEvents, totalQueued);
@@ -392,10 +381,6 @@ public class ConversionManager
 					Logger.Instance.SetUpRunTimeLogMessage("CM ConvertFiles: Could not add file to working set: " + file.FilePath, true);
 				}
 			} 
-			/*else
-			{
-				Console.Write("");		//DEBUG ONLY
-			}*/
 		}
 	}
 
@@ -531,7 +516,7 @@ public class ConversionManager
 				numFinished = countdownEvents.Values.Count(c => c.IsSet);
 				var elapsed = DateTime.Now - startTime;
 				pb.Report((float)(numFinished) / (float)total, numFinished,elapsed);
-				//Thread.Sleep(200);
+				Thread.Sleep(1000);
 			}
 		}
 	}
