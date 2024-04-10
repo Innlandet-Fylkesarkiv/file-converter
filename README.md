@@ -97,6 +97,7 @@ For Linux the default installation directory is ```...``` One alternative for ad
 - [iText7 Bouncycastle Adapter](https://www.nuget.org/packages/itext7.bouncy-castle-adapter/8.0.2) under the GNU Affero General Public License v3.0.
 - [CommandLineParser](https://www.nuget.org/packages/CommandLineParser/) under the MIT License.
 - [SharpCompress](https://github.com/adamhathcock/sharpcompress) under the MIT License.
+- [Avalonia](https://avaloniaui.net/) under the MIT License.
 
 **Software**
 - [GhostScript](https://www.ghostscript.com/index.html) under the GNU Affero General Public License v3.0.
