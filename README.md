@@ -1,5 +1,10 @@
+<div align="center">
+	
 # file-converter (W.I.P.)
 > **:memo: NOTE: This README is currently being updated, information found here might not reflect the current application.**
+
+<img src="https://github.com/larsmhaugland/file-converter/assets/117298604/c7717ea8-9978-48b0-85c8-dbdd42518668">
+
 
 ![Static Badge](https://img.shields.io/badge/.net-8.0-blue)
 ![dotnet-badge](https://github.com/larsmhaugland/file-converter/actions/workflows/dotnet.yml/badge.svg?event=push)
@@ -9,6 +14,7 @@
 A module-based .NET application that converts files and generates documentation for archiving.
 
 This application provides a framework for different conversion libraries/software to work together. It aims to promote a comprehensive open-source solution for file conversion, as opposed to the many paid options, which allows for multi-step conversion between different external libraries. 
+</div>
 
 # 🗒️Table of Contents 
 - [Background](#-background)
