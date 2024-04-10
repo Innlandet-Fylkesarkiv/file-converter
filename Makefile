@@ -44,6 +44,7 @@ build:
 	echo D | xcopy /Y /S /EXCLUDE:exclude.txt "src\siegfried\*.*" "release\siegfried"
 	echo D | xcopy /Y "Settings.xml" "release"
 	echo D | xcopy /Y "README.md" "release"
+	echo D | xcopy /Y "LICENSE" "release"
 
 zip_release:
 	tar -czf "$(RELEASE_ARCHIVE)" "$(RELEASE_DIR)"
