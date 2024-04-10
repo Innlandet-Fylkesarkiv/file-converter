@@ -1,6 +1,6 @@
-<div align="center">
+<div align="center" markdown="1">
 	
-# file-converter (W.I.P.)
+# file-converter (W.I.P.) 
 > **:memo: NOTE: This README is currently being updated, information found here might not reflect the current application.**
 
 <img src="https://github.com/larsmhaugland/file-converter/assets/117298604/e3965308-bfe4-4850-86c9-06dae7b493b3">
@@ -56,14 +56,21 @@ To download the application source code simply run:
 
 If you want to build it in your own IDE:
 Then open it in your .NET IDE of choice (We are using Microsoft Visual Studios) and build it. 
-<br>##NB## You need to build #BOTH# "file-converter-prog2900.csproj" and "GUI/ChangeConverterSettings/ChangeConverterSettings.csproj"
+
+> [!WARNING]
+> You need to build **both** ```file-converter-prog2900.csproj``` and ```GUI/ChangeConverterSettings/ChangeConverterSettings.csproj```.
+
 
 <br>Alternatively, you can build it using "mingw32 make" ([see tutorial here for setup](https://nerdyelectronics.com/install-mingw-on-windows-for-make/)) from the command line using:
 ```sh
-make build # Builds both main program and GUI and copies necessary dependencies (exept for LibreOffice and EmailConverter) to a "release" folder in the root of the repository 
+make build
+# Builds both main program and GUI
+# and copies necessary dependencies (exept for LibreOffice and EmailConverter)
+# to a "release" folder in the root of the repository 
 ```
 
-> :memo: NOTE: Cloning **with** the Git submodules is required for the application to work.
+> [!NOTE]
+> Cloning **with** the Git submodules is required for the application to work.
 >If you did not clone the repository recursively or do not see the git submodules in your local repository we would suggest:
 > ```sh
 >   git submodule init
@@ -79,7 +86,8 @@ make build # Builds both main program and GUI and copies necessary dependencies 
 | Linux| Libreoffice should already be present on the system. This can be checked with "Soffice --version". Otherwise, download from link above.||
 | Windows and Linux| [wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)| Needed for converting emails. |
 | Linux | [Siegfried](https://github.com/richardlehane/siegfried) | To identify files and keep track of the conversion process. |
-> :memo: NOTE: If you are on Linux see [Installation for Linux](#installation-for-linux) for more info on Siegfried installation.
+> [!NOTE]
+> If you are on Linux see [Installation for Linux](#installation-for-linux) for more info on Siegfried installation.
 
 <br>
 
@@ -126,7 +134,8 @@ The application has been tested on the following Linux images:
 - Arch (kernel: Linux 6.7.7-arch1-1)
 
 Running it on other distributions or other versions should be possible as long as it supports [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download).
-> :memo: NOTE: Although running ***our*** application on other distributions should be fine it may reduce the amount of supported external libraries and software.
+> [!IMPORTANT]
+> Although running ***our*** application on other distributions should be fine it may reduce the amount of supported external libraries and software.
 
 ### Installing Siegfried on Linux
 |<img width="750" alt="Screenshot of guided installation of Siegfried on Linux" src="https://github.com/larsmhaugland/file-converter/assets/117298604/b89dd844-73af-43d9-a056-b6cd417733a1">|
@@ -175,7 +184,8 @@ $ .\file-converter-prog2900.exe
 ```
 
 ## Arguments
-> :memo: Note: All paths must be absolute or relative to executable.
+> [!NOTE]
+> All paths must be absolute or relative to executable.
 
 ### Set custom input folder 
 Default: *input*
