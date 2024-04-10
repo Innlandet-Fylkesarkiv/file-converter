@@ -59,7 +59,9 @@ namespace ChangeConverterSettings
         /// </summary>
         public MainWindow()
         {
-            Directory.SetCurrentDirectory("../../../");
+            while(!Directory.GetCurrentDirectory().EndsWith("ChangeConverterSettings"))
+                Directory.SetCurrentDirectory("../");
+            var dir = Directory.GetCurrentDirectory();
             InitializeComponent();
             Settings settings = Settings.Instance;
             settings.ReadAllSettings(GlobalVariables.defaultSettingsPath);
@@ -113,7 +115,7 @@ namespace ChangeConverterSettings
             if (threadsTextBox != null && int.TryParse(threadsTextBox.Text, out _))
                 GlobalVariables.maxThreads = int.Parse(threadsTextBox.Text);
             ComboBox? checksumComboBox = this.FindControl<ComboBox>("Checksum");
-            if (checksumComboBox != null)
+            if (checksumComboBox != null && checksumComboBox.SelectedItem != null)
                 GlobalVariables.checksumHash = checksumComboBox.SelectedItem.ToString();
             TextBox? timeoutTextBox = this.FindControl<TextBox>("Timeout");
             if (timeoutTextBox != null)
@@ -210,7 +212,5 @@ namespace ChangeConverterSettings
                 }
             }
         }
-
-        
     }
 }
