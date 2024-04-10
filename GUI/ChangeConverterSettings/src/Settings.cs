@@ -20,6 +20,8 @@ public class SettingsData
     public string ClassDefault { get; set; } = "";
     // Default type of the FileTypes
     public string DefaultType { get; set; } = "";
+    // do not convert when set to true
+    public bool DoNotConvert { get; set; } = false;
 }
 class Settings
 {
@@ -144,6 +146,7 @@ class Settings
                         string? extension = fileTypeNode.SelectSingleNode("Filename")?.InnerText;
                         string? pronoms = fileTypeNode.SelectSingleNode("Pronoms")?.InnerText;
                         string? innerDefault = fileTypeNode.SelectSingleNode("Default")?.InnerText;
+                        string? doNotConvert = fileTypeNode.SelectSingleNode("DoNotConvert")?.InnerText.ToUpper().Trim();
                         //string outerdefault = defaultType;
                         if (String.IsNullOrEmpty(innerDefault))
                         {
@@ -167,7 +170,8 @@ class Settings
                             DefaultType = innerDefault,
                             FormatName = extension,
                             ClassName = className ?? "unknown",
-                            ClassDefault = defaultType
+                            ClassDefault = defaultType,
+                            DoNotConvert = doNotConvert == "YES",
                         };
                         if (settings.PronomsList.Count > 0)
                         {
@@ -355,6 +359,7 @@ class Settings
                 AddXmlElement(xmlDoc, fileTypes, "Pronoms", pronomsListAsString);
 
                 XmlElement defaultElement = xmlDoc.CreateElement("Default");
+                AddXmlElement(xmlDoc, fileTypes, "DoNotConvert", setting.DoNotConvert ? "YES" : "NO");
                 if (setting.DefaultType != setting.ClassDefault)
                 {
                     defaultElement.InnerText = setting.DefaultType;

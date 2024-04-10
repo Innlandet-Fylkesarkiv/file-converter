@@ -53,11 +53,13 @@
 							<ColumnDefinition Width="Auto"/>
 							<ColumnDefinition Width="Auto"/>
 							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
 						</Grid.ColumnDefinitions>
 						<TextBlock Grid.Row="0" Grid.Column="0" Margin="0,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="FormatColumn">Formats </TextBlock>
 						<TextBlock Grid.Row="0" Grid.Column="1" Margin="15,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="pronomColumn">Pronom </TextBlock>
 						<TextBlock Grid.Row="0" Grid.Column="2" Margin="15,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="outputColumn">Output PRONOM </TextBlock>
 						<TextBlock Grid.Row="0" Grid.Column="3" Margin="15,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="outputNameColumn">Output Name </TextBlock>
+						<TextBlock Grid.Row="0" Grid.Column="4" Margin="15,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="doNotConvertColumn"></TextBlock>
 					</Grid>
 				</StackPanel>
 			</TabItem>

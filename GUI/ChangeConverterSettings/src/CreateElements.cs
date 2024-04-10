@@ -62,6 +62,7 @@ public class CreateElements
         var className = fileSettings.ClassName;
         var existingClassName = ComponentLists.formatNames.FirstOrDefault(tb => ((TextBlock)tb).Text == className);
         ComboBox formatDropDown;
+        bool isChecked = false;
 
         if (existingClassName == null)
         {
@@ -79,7 +80,7 @@ public class CreateElements
             mainGrid.Children.Add(formatDropDown);
             ComponentLists.formatDropDowns.Add(formatDropDown);
             formatDropDown.Items.Add(GlobalVariables.defaultText);
-            ComponentLists.outputTracker.Add(fileSettings.ClassName, fileSettings.ClassDefault);
+            ComponentLists.outputTracker.Add(fileSettings.ClassName, (fileSettings.ClassDefault,isChecked));
             formatDropDown.SelectionChanged += (sender, e) => FormatDropDown_SelectionChanged(sender, e);
 
             // Column3: Output Pronom Code
@@ -96,14 +97,24 @@ public class CreateElements
             Grid.SetColumn(outputTypeTextBox, 3);
             mainGrid.Children.Add(outputTypeTextBox);
             ComponentLists.outputNameTextBoxes.Add(outputTypeTextBox);
+
+            // Column5: DoNotConvert CheckBox
+            var doNotConvertCheckBox = CreateControl.CreateCheckBox("Do Not Convert");
+            Grid.SetRow(doNotConvertCheckBox, newRow);
+            Grid.SetColumn(doNotConvertCheckBox, 4);
+            doNotConvertCheckBox.IsCheckedChanged += (sender, e) => DoNotConvertCheckBox_Checked(sender, e);  
+            mainGrid.Children.Add(doNotConvertCheckBox);
+            ComponentLists.doNotConvertCheckBoxes.Add(doNotConvertCheckBox);
+            doNotConvertCheckBox.IsChecked = fileSettings.DoNotConvert;
         }
         else
         {
             formatDropDown = (ComboBox)ComponentLists.formatDropDowns[ComponentLists.formatNames.IndexOf(existingClassName)];
         }
 
+        isChecked = fileSettings.DoNotConvert;
         formatDropDown.Items.Add(fileSettings.FormatName);
-        ComponentLists.outputTracker.Add(fileSettings.FormatName, fileSettings.DefaultType);
+        ComponentLists.outputTracker.Add(fileSettings.FormatName, (fileSettings.DefaultType, isChecked));
         formatDropDown.SelectedIndex = 0;
 
     }
@@ -131,17 +142,22 @@ public class CreateElements
     } 
 
     /// <summary>
-    /// Updates the entire outputracker and recalculates the widths
+    /// Updates the entire outputracker
     /// </summary>
     public void UpdateState()
     {
         Grid? mainGrid = mainWindow.FindControl<Grid>("MainGrid");
+        if (mainGrid == null)
+        {
+            Logger.Instance.SetUpRunTimeLogMessage("MainGrid is null", true);
+            return;
+        }
         foreach (RowDefinition row in mainGrid.RowDefinitions)
         {
             int rowIndex = mainGrid.RowDefinitions.IndexOf(row);
 
             // Access the child elements of the row (assuming ComboBox is the second child)
-            ComboBox comboBox = null;
+            ComboBox? comboBox = null;
             if (mainGrid.Children.Count > rowIndex * mainGrid.ColumnDefinitions.Count + 1) // Ensure index is within bounds
             {
                 comboBox = mainGrid.Children[rowIndex * mainGrid.ColumnDefinitions.Count + 1] as ComboBox;
@@ -149,7 +165,7 @@ public class CreateElements
 
             if (comboBox != null)
             {
-                string item = comboBox.SelectedItem?.ToString();
+                string? item = comboBox.SelectedItem?.ToString();
                 if (item != null)
                 {
                     UpdateOutputTracker(mainGrid, item, rowIndex);
@@ -166,29 +182,76 @@ public class CreateElements
     /// <param name="rowIndex"> the index of the row being updated </param>
     private static void UpdateOutputTracker(Grid grid, string item, int rowIndex)
     {
-        var textBlock = (TextBlock)grid.Children[rowIndex * grid.ColumnDefinitions.Count]; 
-        var comboBox = (ComboBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 1]; 
-        var textBox = (TextBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 2]; 
+        var textBlock = (TextBlock)grid.Children[rowIndex * grid.ColumnDefinitions.Count];
+        var comboBox = (ComboBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 1];
+        var textBox = (TextBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 2];
         var readOnlyTextBox = (TextBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 3];
+        var doNotConvertCheckBox = (CheckBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 4];
 
         string newType = textBox.Text.Trim();
+        bool isChecked = (bool)doNotConvertCheckBox.IsChecked;
+        var newPair = (newType, isChecked);
 
-        string oldType;
         if (item == GlobalVariables.defaultText)
         {
             item = textBlock.Text;
         }
         if (ComponentLists.outputTracker.ContainsKey(item))
         {
-            oldType = ComponentLists.outputTracker[item];
-
-            if (newType != oldType)
+            var oldPair = ComponentLists.outputTracker[item];
+            if (newPair != oldPair)
             {
-                ComponentLists.outputTracker[item] = newType;
+                ComponentLists.outputTracker[item] = (newType, (bool)doNotConvertCheckBox.IsChecked);
             }
             readOnlyTextBox.Text = PronomHelper.PronomToFullName(newType);
         }
     }
+
+    /// <summary>
+    /// When the checkbox is checked, the DoNotConvert property is updated
+    /// </summary>
+    /// <param name="sender"> the checkbox being checked </param>
+    /// <param name="e"> mandatory event, unused </param>
+    private static void DoNotConvertCheckBox_Checked(object sender, RoutedEventArgs e)
+    {
+        CheckBox? checkBox = (CheckBox)sender;
+        Grid? mainGrid = (Grid)checkBox.Parent;
+        int rowIndex = Grid.GetRow(checkBox);
+        var textBlock = (TextBlock)mainGrid.Children[rowIndex * mainGrid.ColumnDefinitions.Count];
+        var comboBox = (ComboBox)mainGrid.Children[rowIndex * mainGrid.ColumnDefinitions.Count + 1];
+        var textBox = (TextBox)mainGrid.Children[rowIndex * mainGrid.ColumnDefinitions.Count + 2];
+        int index = -1;
+
+        textBox.IsEnabled = !textBox.IsEnabled;
+        var selected = comboBox.SelectedItem;
+        if (selected == null)
+        {
+            return;
+        }
+        if (selected.ToString() == "Default")
+        {
+
+            index = GlobalVariables.FileSettings.FindIndex(x => x.ClassName == textBlock.Text);
+            for (int i = 0; i < comboBox.Items.Count; i++)
+            {
+                if (comboBox.Items[i].ToString() != GlobalVariables.defaultText)
+                {
+                    GlobalVariables.FileSettings[index+i-1].DoNotConvert = (bool)checkBox.IsChecked;
+                }
+            }
+        }
+        else
+        {
+            index = GlobalVariables.FileSettings.FindIndex(x => x.FormatName == comboBox.SelectedItem.ToString());
+
+            GlobalVariables.FileSettings[index].DoNotConvert = !GlobalVariables.FileSettings[index].DoNotConvert;
+        }
+            
+
+ 
+    }
+
+
 
     /// <summary>
     /// When the selection of the ComboBox is changed, the output tracker is updated and the widths are recalculated
@@ -213,27 +276,31 @@ public class CreateElements
         int comboBoxColumnIndex = 1;
         int textBoxColumnIndex = 2;
         int readOnlyTextBoxColumnIndex = 3;
+        int doNotConvertCheckBoxColumnIndex = 4;
 
         // Access child elements using calculated indices
         var className = ((TextBlock)parent.Children[rowIndex * parent.ColumnDefinitions.Count + classNameColumnIndex]).Text;
         var textBox = (TextBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + textBoxColumnIndex];
         var readOnlyTextBox = (TextBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + readOnlyTextBoxColumnIndex];
+        var doNotConvertCheckBox = (CheckBox)parent.Children[rowIndex * parent.ColumnDefinitions.Count + doNotConvertCheckBoxColumnIndex];
         var item = comboBox.SelectedItem.ToString();
 
         UpdateOutputTracker(parent, previousSelection, rowIndex);
 
         string type;
+        bool isChecked = false;
         if (item == GlobalVariables.defaultText)
         {
-            type = ComponentLists.outputTracker[className];
+            (type,isChecked) = ComponentLists.outputTracker[className];
         }
         else
         {
-            type = ComponentLists.outputTracker[item];
+            (type, isChecked) = ComponentLists.outputTracker[item];
         }
 
         textBox.Text = type;
         readOnlyTextBox.Text = PronomHelper.PronomToFullName(type);
+        doNotConvertCheckBox.IsChecked = isChecked;
     }
 
     /// <summary>
