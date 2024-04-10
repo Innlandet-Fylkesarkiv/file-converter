@@ -34,7 +34,9 @@ public class LibreOfficeConverter : Converter
 		SupportedConversions = getListOfSupportedConvesions();
 		SupportedOperatingSystems = getSupportedOS();
 		currentOS = Environment.OSVersion;
-	}
+        DependeciesExists = currentOS.Platform == PlatformID.Unix ? checkPathVariableLinux("soffice")
+                                                                : checkPathVariableWindows("soffice.exe");
+    }
 
     public override void GetVersion()
     {
@@ -62,8 +64,6 @@ public class LibreOfficeConverter : Converter
         {
             Logger.Instance.SetUpRunTimeLogMessage("Error getting LibreOffice version: " + ex.Message, true);
         }
-
-        Console.WriteLine("Version: {0}", Version);
     }
 
     /// <summary>
@@ -75,7 +75,6 @@ public class LibreOfficeConverter : Converter
 		var supportedOS = new List<string>();
 		supportedOS.Add(PlatformID.Win32NT.ToString());
 		supportedOS.Add(PlatformID.Unix.ToString());
-		//Add more supported OS here
 		return supportedOS;
 	}
 
@@ -95,8 +94,8 @@ public class LibreOfficeConverter : Converter
 		string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(file.FilePath));
 		string executableName = currentOS.Platform == PlatformID.Unix ? "soffice" : "soffice.exe";
 
-		bool sofficePathWindows = checkSofficePathWindows(executableName);
-		bool sofficePathLinux = checkSofficePathLinux(executableName);
+		bool sofficePathWindows = checkPathVariableWindows(executableName);
+		bool sofficePathLinux = checkPathVariableLinux(executableName);
 
 		string targetFormat = GetConversionExtension(pronom);
 
@@ -395,60 +394,6 @@ public class LibreOfficeConverter : Converter
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("LibreOffice Error converting file to PDF. File is not converted: " + e.Message, true, filename: sourceDoc);
 		}
-	}
-
-	/// <summary>
-	/// Checks if the folder with the soffice.exe executable exists in the PATH.
-	/// </summary>
-	/// <param name="executableName">Name of the executable to have its folder in the PATH</param>
-	/// <returns>Bool indicating if the directory containing the executable was found </returns>
-	static bool checkSofficePathWindows(string executableName)
-	{
-
-		string pathVariable = Environment.GetEnvironmentVariable("PATH") ?? ""; // Get the environment variables as a string
-		string[] paths = pathVariable.Split(Path.PathSeparator);          // Split them into individual entries
-
-		foreach (string path in paths)                                    // Go through and check if found  
-		{
-			string fullPath = Path.Combine(path, executableName);
-			if (File.Exists(fullPath))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-	/// <summary>
-	/// Same function as for windows, but with small changes to facilitate for linux users
-	/// </summary>
-	/// <param name="executableName">Name of the executable to have its folder in the PATH</param>
-	/// <returns></returns>
-	static bool checkSofficePathLinux(string executableName)
-	{
-		string pathVariable = Environment.GetEnvironmentVariable("PATH") ?? "";
-		char pathSeparator = Path.PathSeparator;
-
-		// Use : as the separator on Linux
-		if (Environment.OSVersion.Platform == PlatformID.Unix)
-		{
-			pathSeparator = ':';
-		}
-
-		string[] paths = pathVariable.Split(pathSeparator);
-
-		foreach (string path in paths)
-		{
-			string fullPath = Path.Combine(path, executableName);
-
-			// Linux is case-sensitive, so check for case-insensitive existence
-			if (Directory.Exists(fullPath))
-			{
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/// <summary>

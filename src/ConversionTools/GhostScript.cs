@@ -27,8 +27,8 @@ public class GhostscriptConverter : Converter
 		SetNameAndVersion();
 		SupportedConversions = getListOfSupportedConvesions();
 		SupportedOperatingSystems = getSupportedOS();
-		
-	}
+        DependeciesExists = Environment.OSVersion.Platform == PlatformID.Win32NT ? File.Exists(gsWindowsExecutable) : checkPathVariableLinux("gs");
+    }
 
     public override void GetVersion()
     {

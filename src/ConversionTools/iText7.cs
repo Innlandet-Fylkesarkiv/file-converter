@@ -34,7 +34,7 @@ public class iText7 : Converter
         SetNameAndVersion();
 		SupportedConversions = getListOfSupportedConvesions();
         SupportedOperatingSystems = getSupportedOS();
-
+        DependeciesExists = true;   // Bundled with program 
         //Acknowledge AGPL usage warning
         EventManager.AcknowledgeAgplUsageDisableWarningMessage();
     }
