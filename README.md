@@ -240,37 +240,8 @@ The first part of the XML file concerns arguments needed to run the program. The
 ```
 
 ## Currently supported file formats 
-The following table shows supported file formats:
-| File type | File Format | From | To |
-|-------------|-----------|--------------------|-------|
-| **Image** | GIF | ✔ |  |
-| | JPG | ✔|✔ |
-| | PNG | ✔| ✔|
-| | TIFF | ✔|✔ |
-| | BMP | ✔|✔ |
-| **Text-based** | PDF |✔ |✔ |
-| | PDF-A |✔ |✔ |
-| | HTML |✔ | |
-| | PostScript | ✔| |
-| | RTF |✔ | |
-| **Excel** | CSV | ✔ | ✔|
-|| XLS |✔|✔|
-|| XLSM|✔|✔|
-||XLSX|✔|✔|
-|**Open Office**|ODP|✔|✔|
-||ODS|✔|✔|
-||ODT|✔|✔|
-|**PowerPoint**|PPT|✔|✔|
-||PPTM|✔|✔|
-||PPTX|✔|✔|
-|**Word**|DOC|✔|✔|
-||DOCM|✔|✔|
-||DOCX|✔|✔|
-||DOT|✔|✔|
-||DOTM|✔|✔|
-||DOTX|✔|✔|
-|**E-mail**|EML|✔||
-||MSG|✔||
+<img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/4cdfac37-120b-49b0-8aed-f2d85ee2c0ce">
+
 
 ## Documentation and logging 
 The ```.txt```log files use the following convention and is automatically generated each time the program is run:
