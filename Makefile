@@ -43,6 +43,7 @@ build:
 	echo D | xcopy /Y /S /EXCLUDE:exclude.txt "GhostscriptBinaryFiles\gs10.02.1\*.*" "release\ConversionTools"
 	echo D | xcopy /Y /S /EXCLUDE:exclude.txt "src\siegfried\*.*" "release\siegfried"
 	echo D | xcopy /Y "Settings.xml" "release"
+	echo D | xcopy /Y "README.md" "release"
 
 zip_release:
 	tar -czf "$(RELEASE_ARCHIVE)" "$(RELEASE_DIR)"
