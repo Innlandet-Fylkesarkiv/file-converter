@@ -26,7 +26,7 @@ This application provides a framework for different conversion libraries/softwar
   - [Settings](#settings)
   - [Currently supported file formats](#currently-supported-file-formats)
   - [Documentation and logging](#documentation-and-logging)
-  - [Adding a new converter](#adding-a-new-converter)
+  - [Adding a new converter or conversion path](#adding-a-new-converter-or-conversion-path)
   - [Adding a new conversion path (Multistep conversion)](#adding-a-new-conversion-path-multistep-conversion)
 - [Use cases](#use-cases)
 - [Acknowledgments](#acknowledgments-)
@@ -304,7 +304,8 @@ Additionally, a ```documentation.json``` file is created which lists all files a
     }]}
 ```
 
-## Adding a new converter
+## Adding a new converter or conversion path
+Adding new external converters or conversion paths is described in detail in the [Adding a new converter]() guide.
 All source code for external converters is based on the same parent ```Converter``` class, located in ```\ConversionTools\Converter.cs```.
 
 **Converter class**
