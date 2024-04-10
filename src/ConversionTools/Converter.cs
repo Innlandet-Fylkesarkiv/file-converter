@@ -48,7 +48,7 @@ public class Converter
     /// Wrapper for the ConvertFile method that also handles the timeout
     /// </summary>
     /// <param name="fileinfo"></param>
-    async public Task ConvertFile(FileToConvert fileinfo)
+    async public virtual Task ConvertFile(FileToConvert fileinfo)
     {
         await ConvertFile(fileinfo, fileinfo.Route.First());
     }
