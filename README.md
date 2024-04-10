@@ -3,6 +3,7 @@
 
 ![Static Badge](https://img.shields.io/badge/.net-8.0-blue)
 ![dotnet-badge](https://github.com/larsmhaugland/file-converter/actions/workflows/dotnet.yml/badge.svg?event=push)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
 A module-based .NET application that converts files and generates documentation for archiving.
@@ -13,8 +14,10 @@ This application provides a framework for different conversion libraries/softwar
 - [Background](#background)
 - [Install](#install)
   - [Dependencies](#dependencies)
+  	- [External libraries and software](#external-libraries-and-software)
   - [Installation for Windows](#installation-for-windows)
   - [Installation for Linux](#installation-for-linux)
+  	-  [Installing Siegfried on Linux](#installing-siegfried-on-linux)
 - [Usage](#usage)
   - [Beta notes](#beta)	 
   - [GUI](#gui)
@@ -62,32 +65,33 @@ dotnet build
 ## Dependencies 
 |OS| Dependencies | Needed for? |
 |---|---|---|
-|Linux| [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download) | Needed to run program. |
-| Windows | [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download) | Needed to run program. |
-| Windows and Linux| [Java JDK (only JRE also works)](https://www.oracle.com/java/technologies/downloads/)| Needed for converting emails. |
+|Windows and Linux| [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download) | Needed to build and run the program. |
+| Windows and Linux| [Java JDK (only JRE also works)](https://www.oracle.com/java/technologies/downloads/)| Dependency for using the e-mail converter. |
 | Windows| [LibreOffice, download the 7.6.6 version.] (https://www.libreoffice.org/download/download-libreoffice/?type=win-x86_64&version=7.6.6&lang=nb)| Required for converting office documents (Word, PowerPoint, Excel and OpenOffice). |
 | Linux| Libreoffice should already be present on the system. This can be checked with "Soffice --version". Otherwise, download from link above.||
 | Windows and Linux| [wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)| Needed for converting emails. |
-| Linux | [Siegfried](https://github.com/richardlehane/siegfried) | To identify files. |
-> :memo: NOTE: If you are on Linux see [Installation for Linux](#installation-for-linux) for more info on Siegfried installation
+| Linux | [Siegfried](https://github.com/richardlehane/siegfried) | To identify files and keep track of the conversion process. |
+> :memo: NOTE: If you are on Linux see [Installation for Linux](#installation-for-linux) for more info on Siegfried installation.
 
 <br>
 
 ### Further download instructions for LibreOffice
+**WINDOWS**<br>
 Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. 
 
-Open settings -> home -> about (scroll down on the left) -> advanced system settings (on the right) -> environment variables.<br>
-Another option is to use Windows key + R on the keyboard, then type in "sysdm.cpl" and hit enter. Thereafter, press advanced and then environment variables.
+Open *Settings* -> *Home* -> *About* (scroll down on the left) -> *Advanced system settings* (on the right) -> *Environment variables.*<br>
+Alternatively use the ```Windows key + R``` on the keyboard, then type in ```"sysdm.cpl"``` and hit enter. Thereafter, press *Advanced* and then *Environment variables.*
 
-The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```. The "program" folder must be added to PATH, so the PATH entry should be ```"C:\Program Files\LibreOffice\program"```.
-To add this to the PATH locate the "PATH" variabel and highlight it, then press "edit" and finally "New" and copy the path to the program folder and press "ok". It should be enough to add it to the users environment variables, but it can be added as a system wide environment variable. 
-
-wkhtmltopdf must also be manually added to PATH. For windows, it can be done as described above, just swap ```"C:\Program Files\LibreOffice\program"``` with ```"C:\Program Files\wkhtmltopdf\bin"```. 
-
-For Linux the default installation directory is ... One alternative for adding it as an environment variable is to open the file ```.bashrc``` using the command ```nano ~/.bashrc``` (vi can also be used instead of nano). Then navigate to the bottom of the file with the arrow keys and add this line at the end ```export PATH="$PATH:DefaultPathHere"```, remember to save the file and exit. To apply the changes immediately run the command ```source ~/.bashrc``` or log in and out. To verify, run the command ```echo $PATH``` and the path added should be at the end of the output from the command.
+The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```. The "program" folder must be added to ```PATH```, meaning the entry should be ```"C:\Program Files\LibreOffice\program"```.
+To add this locate the ```PATH``` variable and highlight it. Press *Edit* -> *New* -> copy the path to the program folder -> press *Ok*. This adds it to the users environment variables, but it can also be added as a system wide environment variable. 
+<br><br>
+[wkhtmltopdf](https://wkhtmltopdf.org/downloads.html) must also be manually added to ```PATH```. For windows, it can be done as described above, just swap ```"C:\Program Files\LibreOffice\program"``` with ```"C:\Program Files\wkhtmltopdf\bin"```. 
+<br><br>
+**LINUX**<br>
+For Linux the default installation directory is ```...``` One alternative for adding it as an environment variable is to open the file ```.bashrc``` using the command ```nano ~/.bashrc```. Navigate to the bottom of the file with the arrow keys and add this line at the end ```export PATH="$PATH:DefaultPathHere"```. Remember to save the file and exit. To apply the changes immediately run the command ```source ~/.bashrc```. Alternatively, log in and out. To verify, run the command ```echo $PATH``` and the path added should be at the end of the output from the command.
 <br><br>
 
-### External libraries/software used
+### External libraries and software
 **Libraries**
 - [iText7](https://github.com/itext/itext-dotnet) under the GNU Affero General Public License v3.0.
 - [BouncyCastle.NetCore](https://github.com/chrishaly/bc-csharp) under the MIT License.
@@ -98,11 +102,21 @@ For Linux the default installation directory is ... One alternative for adding i
 **Software**
 - [GhostScript](https://www.ghostscript.com/index.html) under the GNU Affero General Public License v3.0.
 - [LibreOffice](https://www.libreoffice.org/) under the Mozilla Public License 2.0.
+- [wkhtmltopdf](https://wkhtmltopdf.org/) under the GNU Lesser General Public License v3.0.
+- [email-outlook-message-perl](https://github.com/mvz/email-outlook-message-perl) under the GNU Affero General Public License v3.0.
 - [Siegfried](https://www.itforarchivists.com/siegfried/) under the Apache License 2.0.
 
 ## Installation for Windows
 ## Installation for Linux
 The application can be used for Linux by downloading from source code. (see [Install](#install))
+
+The application has been tested on the following Linux images:
+- Debian "bookworm" 12
+- Ubuntu Jammy Jellyfish 22.04 LTS
+- Fedora Workstation 39
+- Arch (kernel: Linux 6.7.7-arch1-1)
+
+Running it on other distributions or other versions should be possible as long as it supports [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download).
 
 ### Installing Siegfried on Linux
 If you are using a Debian, Arch or Red Hat based distro the application will guide you through Siegfried installation if it isn't already installed. 
@@ -111,8 +125,10 @@ Please see the dependencies needed for installation below:
 | Distro | Dependency |
 |---|---|
 | Ubuntu/Debian | curl |
-| Arch Linux | curl <br> brew |
+| Arch Linux | curl <br> brew [^2] |
 | Fedora/Red Hat | brew [^2] |
+
+If you are not using on of these distros please see the [Siegfried GitHub](https://github.com/richardlehane/siegfried) for information on downloading Siegfried.
 
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
 
