@@ -160,6 +160,9 @@ If you are not using on of these distros please see the [Siegfried GitHub](https
 # 🚀 Usage 
 Common usage (code block)
 
+![usage](https://github.com/larsmhaugland/file-converter/assets/117298604/e6078098-f956-494f-bb6b-c7c53c08640e)
+
+
 ## Beta
 Since the program is still in beta, there are some limitations or bugs in the software. This section will be updated throughout the development process as we fix or find problems.
 The program is mostly tested in Windows, so Linux specific issues may not appear in list. 
