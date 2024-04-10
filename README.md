@@ -20,6 +20,7 @@ This application provides a framework for different conversion libraries/softwar
 # 🗒️Table of Contents 
 - [Background](#-background)
 - [Install](#-install)
+  - [Install from source](#install-from-source)
   - [Dependencies](#-dependencies)
   	- [External libraries and software](#external-libraries-and-software)
   - [Installation for Windows](#-installation-for-windows)
@@ -50,25 +51,21 @@ Much like programmers and software developers, archivists believe in an open sou
 [^1]: Kultur- og likestillingsdepartementet. *Lov om arkiv [arkivlova].* URL: https://lovdata.no/dokument/NL/lov/1992-12-04-126?q=arkivloven (visited on 17th Jan. 2024).
 
 # ⏬ Install
-To download the application source code simply run:
+
+## Install from source
+To download the application source code run:
  ```sh
   git clone --recursive https://github.com/larsmhaugland/file-converter.git
 ```
 
-If you want to build it in your own IDE:
-Then open it in your .NET IDE of choice (We are using Microsoft Visual Studios) and build it. 
-
-> [!WARNING]
-> You need to build **both** ```file-converter-prog2900.csproj``` and ```GUI/ChangeConverterSettings/ChangeConverterSettings.csproj```.
-
-
-<br>Alternatively, you can build it using "mingw32 make" ([see tutorial here for setup](https://nerdyelectronics.com/install-mingw-on-windows-for-make/)) from the command line using:
+Build it using ```mingw32 make``` ([see tutorial here for setup](https://nerdyelectronics.com/install-mingw-on-windows-for-make/)) from the command line using:
 ```sh
 make build
-# Builds both main program and GUI
-# and copies necessary dependencies (exept for LibreOffice and EmailConverter)
-# to a "release" folder in the root of the repository 
 ```
+
+> [!WARNING]
+> If you want to build using ```dotnet build``` or an IDE you need to build **both** ```file-converter-prog2900.csproj``` and ```GUI/ChangeConverterSettings/ChangeConverterSettings.csproj```.
+
 
 > [!NOTE]
 > Cloning **with** the Git submodules is required for the application to work.
@@ -81,19 +78,19 @@ make build
 ## 👪 Dependencies
 |OS| Dependencies | Needed for? |
 |---|---|---|
-|Windows and Linux| [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download) | Needed to build and run the program. |
-| Windows and Linux| [Java JDK (only JRE also works)](https://www.oracle.com/java/technologies/downloads/)| Dependency for using the e-mail converter. |
-| Windows| [LibreOffice, download the 7.6.6 version.] (https://www.libreoffice.org/download/download-libreoffice/?type=win-x86_64&version=7.6.6&lang=nb)| Required for converting office documents (Word, PowerPoint, Excel and OpenOffice). |
-| Linux| Libreoffice should already be present on the system. This can be checked with "Soffice --version". Otherwise, download from link above.||
-| Windows and Linux| [wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)| Needed for converting emails. |
-| Linux | [Siegfried](https://github.com/richardlehane/siegfried) | To identify files and keep track of the conversion process. |
+|Windows and Linux| **[dotnet version 8.0](https://dotnet.microsoft.com/en-us/download)** | Needed to build and run the program. |
+| Windows and Linux| **[Java JDK](https://www.oracle.com/java/technologies/downloads/)** (Only JRE also works)| Dependency for using the e-mail converter. |
+| Windows| **[LibreOffice](https://www.libreoffice.org/download/download-libreoffice/?type=win-x86_64&version=7.6.6&lang=nb)** ( download version 7.6.6)| Required for converting office documents (Word, PowerPoint, Excel and OpenOffice). |
+| Linux| Libreoffice should be already present on Linux. This can be checked with ```Soffice --version```. Otherwise, download from the link above.||
+| Windows and Linux| **[wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)** | Needed for converting emails. |
+| Linux | **[Siegfried](https://github.com/richardlehane/siegfried)** | To identify files and keep track of the conversion process. |
 > [!NOTE]
-> If you are on Linux see [Installation for Linux](#installation-for-linux) for more info on Siegfried installation.
+> If you are on Linux see [Installation for Linux](#-installation-for-linux) for more info on Siegfried installation.
 
 <br>
 
 ### Further download instructions for LibreOffice 
-**WINDOWS**<br>
+#### WINDOWS
 Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. 
 
 Open *Settings* -> *Home* -> *About* (scroll down on the left) -> *Advanced system settings* (on the right) -> *Environment variables.*<br>
@@ -102,14 +99,13 @@ Alternatively use the ```Windows key + R``` on the keyboard, then type in ```"sy
 The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```. The "program" folder must be added to ```PATH```, meaning the entry should be ```"C:\Program Files\LibreOffice\program"```.
 To add this locate the ```PATH``` variable and highlight it. Press *Edit* -> *New* -> copy the path to the program folder -> press *Ok*. This adds it to the users environment variables, but it can also be added as a system wide environment variable. 
 <br><br>
-[wkhtmltopdf](https://wkhtmltopdf.org/downloads.html) must also be manually added to ```PATH```. For windows, it can be done as described above, just swap ```"C:\Program Files\LibreOffice\program"``` with ```"C:\Program Files\wkhtmltopdf\bin"```. 
-<br><br>
-**LINUX**<br>
+**[wkhtmltopdf](https://wkhtmltopdf.org/downloads.html)** must also be manually added to ```PATH```. For windows, it can be done as described above, just swap ```"C:\Program Files\LibreOffice\program"``` with ```"C:\Program Files\wkhtmltopdf\bin"```. 
+
+#### LINUX
 For Linux the default installation directory is ```...``` One alternative for adding it as an environment variable is to open the file ```.bashrc``` using the command ```nano ~/.bashrc```. Navigate to the bottom of the file with the arrow keys and add this line at the end ```export PATH="$PATH:DefaultPathHere"```. Remember to save the file and exit. To apply the changes immediately run the command ```source ~/.bashrc```. Alternatively, log in and out. To verify, run the command ```echo $PATH``` and the path added should be at the end of the output from the command.
-<br><br>
 
 ### External libraries and software
-**Libraries**
+#### Libraries
 - **[iText7](https://github.com/itext/itext-dotnet)** under the GNU Affero General Public License v3.0.
 - **[BouncyCastle.NetCore](https://github.com/chrishaly/bc-csharp)** under the MIT License.
 - **[iText7 Bouncycastle Adapter](https://www.nuget.org/packages/itext7.bouncy-castle-adapter/8.0.2)** under the GNU Affero General Public License v3.0.
@@ -117,7 +113,7 @@ For Linux the default installation directory is ```...``` One alternative for ad
 - **[SharpCompress](https://github.com/adamhathcock/sharpcompress)** under the MIT License.
 - **[Avalonia](https://avaloniaui.net/)** under the MIT License.
 
-**Software**
+#### Software
 - **[GhostScript](https://www.ghostscript.com/index.html)** under the GNU Affero General Public License v3.0.
 - **[LibreOffice](https://www.libreoffice.org/)** under the Mozilla Public License 2.0.
 - **[wkhtmltopdf](https://wkhtmltopdf.org/)** under the GNU Lesser General Public License v3.0.
@@ -125,8 +121,10 @@ For Linux the default installation directory is ```...``` One alternative for ad
 - **[Siegfried](https://www.itforarchivists.com/siegfried/)** under the Apache License 2.0.
 
 ## 🪟 Installation for Windows 
+Download a pre-built binary from the [Releases](https://github.com/larsmhaugland/file-converter/releases) page and unzip to a location in your system.
+
 ## 🐧 Installation for Linux 
-The application can be used for Linux by downloading from source code. (see [Install](#install))
+The application can be used for Linux by downloading from source code. (see [Install](#-install))
 
 The application has been tested on the following Linux images:
 - Debian "bookworm" 12
@@ -134,23 +132,26 @@ The application has been tested on the following Linux images:
 - Fedora Workstation 39
 - Arch (kernel: Linux 6.7.7-arch1-1)
 
-Running it on other distributions or other versions should be possible as long as it supports [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download).
+Running it on other distributions or other versions should be possible *as long as* it supports [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download).
 > [!IMPORTANT]
 > Although running ***our*** application on other distributions should be fine it may reduce the amount of supported external libraries and software.
 
 ### Installing Siegfried on Linux
-|<img width="750" alt="Screenshot of guided installation of Siegfried on Linux" src="https://github.com/larsmhaugland/file-converter/assets/117298604/b89dd844-73af-43d9-a056-b6cd417733a1">|
-|:--:| 
-|*Screenshot of guided installation of Siegfried on Linux*|
+If you are using a **Debian**, **Arch** or **Red Hat** based distro the application will guide you through Siegfried installation if it isn't already installed. 
 
-If you are using a *Debian*, *Arch* or *Red Hat* based distro the application will guide you through Siegfried installation if it isn't already installed. 
+<div align="center">
+	<img width="750" alt="Screenshot of guided installation of Siegfried on Linux" src="https://github.com/larsmhaugland/file-converter/assets/117298604/b89dd844-73af-43d9-a056-b6cd417733a1">
 
-Please see the dependencies needed for installation below:
+*Screenshot of guided installation of Siegfried on Linux*
+
+**Please see the dependencies needed for installation below:**
 | Distro | Dependency |
 |---|---|
 | Ubuntu/Debian | curl |
 | Arch Linux | curl <br> brew [^2] |
 | Fedora/Red Hat | brew [^2] |
+
+</div>
 
 If you are not using on of these distros please see the [Siegfried GitHub](https://github.com/richardlehane/siegfried) for information on downloading Siegfried.
 
