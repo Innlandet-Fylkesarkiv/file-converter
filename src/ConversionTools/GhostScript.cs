@@ -26,8 +26,8 @@ public class GhostscriptConverter : Converter
 		GetExecutablePath();
 		SetNameAndVersion();
 		SupportedConversions = getListOfSupportedConvesions();
-		SupportedOperatingSystems = getSupportedOS();
-		
+        BlockingConversions = getListOfBlockingConversions();
+        SupportedOperatingSystems = getSupportedOS();		
 	}
 
     public override void GetVersion()
@@ -133,7 +133,12 @@ public class GhostscriptConverter : Converter
 		return supportedConversions;
 	}
 
-	public override List<string> getSupportedOS()
+    public override Dictionary<string, List<string>> getListOfBlockingConversions()
+    {
+        return SupportedConversions;
+    }
+
+    public override List<string> getSupportedOS()
 	{
 		var supportedOS = new List<string>();
 		supportedOS.Add(PlatformID.Win32NT.ToString());
@@ -426,8 +431,7 @@ public class GhostscriptConverter : Converter
 					exeProcess?.WaitForExit();
 				}
 
-                // Set the new filename and check if the document was converted correctly
-                file.FilePath = outputFilePath;
+               
                 string? currPronom = GetPronom(outputFilePath);
                 if (currPronom == null)
                 {
@@ -437,6 +441,8 @@ public class GhostscriptConverter : Converter
                 if (currPronom != pronom && 
 						(PDFPronoms.Contains(pronom) || PDFAPronoms.Contains(pronom) ))
                 {
+                    // Set the new filename
+					replaceFileInList(outputFilePath, file);
                     var converter = new iText7();
                     // Add iText7 to the list of conversion tools
                     var FileInfoMap = ConversionManager.Instance.FileInfoMap;
@@ -448,10 +454,7 @@ public class GhostscriptConverter : Converter
                 }
                 converted = CheckConversionStatus(outputFilePath, pronom);
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
-            if (!converted)
-            {
-                file.Failed = true;
-            }
+			file.Failed = !CheckConversionStatus(outputFilePath, pronom, file);
         }
         catch (Exception e)
         {
