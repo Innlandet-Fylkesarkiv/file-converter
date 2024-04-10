@@ -240,7 +240,7 @@ class Program
 	/// <returns>Path to GUI executable</returns>
 	static string getGUIPath()
 	{
-		string filename = "ChangeConverterSettings.exe";
+		string filename = OperatingSystem.IsLinux() ? "ChangeConverterSettings.exe": "ChangeConverterSettings.exe";
 		string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), filename, SearchOption.AllDirectories);
 		if (files.Length > 0)
 		{
@@ -256,7 +256,7 @@ class Program
 	async static Task awaitGUI()
 	{
 		ProcessStartInfo startInfo = new ProcessStartInfo();
-		startInfo.FileName = getGUIPath();
+		startInfo.FileName = OperatingSystem.IsLinux() ? "dotnet " + getGUIPath() : getGUIPath();
 		if (startInfo.FileName == "")
 		{
             Console.WriteLine("Could not find GUI executable");
