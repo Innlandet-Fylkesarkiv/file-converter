@@ -10,15 +10,15 @@ A module-based .NET application that converts files and generates documentation 
 
 This application provides a framework for different conversion libraries/software to work together. It aims to promote a comprehensive open-source solution for file conversion, as opposed to the many paid options, which allows for multi-step conversion between different external libraries. 
 
-# Table of Contents
-- [Background](#background)
-- [Install](#install)
-  - [Dependencies](#dependencies)
+# Table of Contents 
+- [Background](#background-)
+- [Install](#install-)
+  - [Dependencies](#dependencies-)
   	- [External libraries and software](#external-libraries-and-software)
-  - [Installation for Windows](#installation-for-windows)
-  - [Installation for Linux](#installation-for-linux)
+  - [Installation for Windows](#installation-for-windows-)
+  - [Installation for Linux](#installation-for-linux-)
   	-  [Installing Siegfried on Linux](#installing-siegfried-on-linux)
-- [Usage](#usage)
+- [Usage](#usage-)
   - [Beta notes](#beta)	 
   - [GUI](#gui)
   - [CLI](#cli)
@@ -29,12 +29,12 @@ This application provides a framework for different conversion libraries/softwar
   - [Adding a new converter](#adding-a-new-converter)
   - [Adding a new conversion path (Multistep conversion)](#adding-a-new-conversion-path-multistep-conversion)
 - [Use cases](#use-cases)
-- [Acknowledgments](#acknowledgments)
-- [Contributing](#contributing)
-- [Licensing](#licensing)
+- [Acknowledgments](#acknowledgments-)
+- [Contributing](#contributing-)
+- [Licensing](#licensing-)
 
 
-# Background 
+# Background 📖
 This project is part of a collaboration with [Innlandet County Archive](https://www.visarkiv.no/) and is a Bachelor's thesis project for a [Bachelor's in Programming](https://www.ntnu.edu/studies/bprog) at the [Norwegian University of Technology and Science (NTNU)](https://www.ntnu.edu/).
 
 In Norway, the act of archiving is regulated by the Archives Act, which states that public bodies have a duty to register and preserve documents that are created as part of their activity [^1]. As society is becoming more digitized so is information, and the documents that were previously physical and stored physically are now digital and stored digitally. Innlandet County Archive is an inter-municipal archive cooperation, that registers and preserves documents from 48 municipalities. However, not all file types they receive are suitable for archiving as they run a risk of becoming obsolete. (For further reading see: [Obsolescence: File Formats and Software](https://dpworkshop.org/dpm-eng/oldmedia/obsolescence1.html)) Innlandet County Archive wished to streamline its conversion process into one application that could deal with a vast array of file formats. Furthermore, archiving is based on the principles of accessibility, accountability and integrity, which is why this application also provides documentation of all changes made to files.
@@ -43,7 +43,7 @@ Much like programmers and software developers, archivists believe in an open sou
 
 [^1]: Kultur- og likestillingsdepartementet. *Lov om arkiv [arkivlova].* URL: https://lovdata.no/dokument/NL/lov/1992-12-04-126?q=arkivloven (visited on 17th Jan. 2024).
 
-# Install
+# Install ⏬
 To download the application source code simply run:
  ```sh
   git clone --recursive https://github.com/larsmhaugland/file-converter.git
@@ -62,7 +62,7 @@ dotnet build
 >   git submodule update
 >```
 
-## Dependencies 
+## Dependencies 👪
 |OS| Dependencies | Needed for? |
 |---|---|---|
 |Windows and Linux| [dotnet version 8.0](https://dotnet.microsoft.com/en-us/download) | Needed to build and run the program. |
@@ -75,7 +75,7 @@ dotnet build
 
 <br>
 
-### Further download instructions for LibreOffice
+### Further download instructions for LibreOffice 
 **WINDOWS**<br>
 Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. 
 
@@ -106,8 +106,8 @@ For Linux the default installation directory is ```...``` One alternative for ad
 - [email-outlook-message-perl](https://github.com/mvz/email-outlook-message-perl) under the GNU Affero General Public License v3.0.
 - [Siegfried](https://www.itforarchivists.com/siegfried/) under the Apache License 2.0.
 
-## Installation for Windows
-## Installation for Linux
+## Installation for Windows 🪟
+## Installation for Linux 🐧
 The application can be used for Linux by downloading from source code. (see [Install](#install))
 
 The application has been tested on the following Linux images:
@@ -137,7 +137,7 @@ If you are not using on of these distros please see the [Siegfried GitHub](https
 
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
 
-# Usage
+# Usage 🔆
 Common usage (code block)
 
 ## Beta
@@ -240,7 +240,7 @@ The first part of the XML file concerns arguments needed to run the program. The
 	</FolderOverride>
 ```
 
-## Currently supported file formats
+## Currently supported file formats 
 The following table shows supported file formats:
 | File type | File Format | From | To |
 |-------------|-----------|--------------------|-------|
@@ -273,7 +273,7 @@ The following table shows supported file formats:
 |**E-mail**|EML|✔||
 ||MSG|✔||
 
-## Documentation and logging
+## Documentation and logging 
 The ```.txt```log files use the following convention and is automatically generated each time the program is run:
 ```
 Type	| (Error) Message | Format | Filetype | Filename
@@ -403,11 +403,15 @@ Questions regarding README:
 + Were there any sections you found vague/unhelpful?
 + Are there some sections you would have liked that weren't here?
 
-# Acknowledgments
-Acknowledge all externals. Acknowledge supervisor + archive.
+# Acknowledgments 🌟
+Our application makes use of several **external libraries and software** under their respective licenses, for further information see [External libraries and software](#external-libraries-and-software).
+<br><br>
+We would like to thank the **[Innlandet County Archive](https://www.visarkiv.no/)** for giving us such an interesting task for our bachelor thesis. You have provided clear guidelines and invaluable feedback to us in the beta phase of our application.
+<br><br>
+Our bachelor thesis would also not have been possible without our **[supervisor Giorgio Trumpy](https://www.ntnu.no/ansatte/giorgio.trumpy)**. Thank you for keeping us on track, taking initiative in connecting us with archivists and librarians and for delivering meaningful and constructive feedback.
 
 
-# Contributing
+# Contributing 🌍
 > ❗TODO:Explain how one can contribute.
 
 ## Contributors
@@ -420,5 +424,5 @@ This project exists thanks to these wonderful people:<br>
 - Lars Martin Haugland
 - Aurora Skomsvold
 
-# Licensing
-as listed on https://spdx.org/licenses/ 
+# Licensing 📄
+This project is licensed under the GNU Affero General Public License v3.0. as listed on https://spdx.org/licenses/ 
