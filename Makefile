@@ -1,6 +1,8 @@
 # Project details
 MAINPROJ = file-converter-prog2900.csproj
 GUIPROJ = GUI\ChangeConverterSettings\ChangeConverterSettings.csproj
+MAINPROJ_SLN = file-converter-prog2900.sln
+GUIPROJ_SLN = GUI\ChangeConverterSettings.sln
 OUTPUT_DIR = release
 OUTPUT_GUI = ../../release/GUI
 
@@ -33,6 +35,8 @@ sign2:
 	signtool sign /f "Cert.pfx" /fd SHA1 /p prog2900 /t http://timestamp.digicert.com /v "release\GUI\ChangeConverterSettings.exe"
 
 build:
+	dotnet restore $(MAINPROJ_SLN)
+	dotnet restore $(GUIPROJ_SLN)
 	msbuild $(MAINPROJ) /p:Configuration=Release /p:OutputPath=$(OUTPUT_DIR)
 	msbuild $(GUIPROJ) /p:Configuration=Release /p:OutputPath=$(OUTPUT_GUI)
 	echo D | xcopy /Y /S /EXCLUDE:exclude.txt "src\ConversionTools\*.*" "release\ConversionTools"
