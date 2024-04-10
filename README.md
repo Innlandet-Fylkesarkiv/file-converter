@@ -54,10 +54,13 @@ To download the application source code simply run:
   git clone --recursive https://github.com/larsmhaugland/file-converter.git
 ```
 
+If you want to build it in your own IDE:
 Then open it in your .NET IDE of choice (We are using Microsoft Visual Studios) and build it. 
-<br>Alternatively, you can build it from the command line using:
+<br>##NB## You need to build #BOTH# "file-converter-prog2900.csproj" and "GUI/ChangeConverterSettings/ChangeConverterSettings.csproj"
+
+<br>Alternatively, you can build it using "mingw32 make" ([see tutorial here for setup](https://nerdyelectronics.com/install-mingw-on-windows-for-make/)) from the command line using:
 ```sh
-dotnet build
+make build # Builds both main program and GUI and copies necessary dependencies (exept for LibreOffice and EmailConverter) to a "release" folder in the root of the repository 
 ```
 
 > :memo: NOTE: Cloning **with** the Git submodules is required for the application to work.
@@ -247,7 +250,8 @@ The first part of the XML file concerns arguments needed to run the program. The
 ```
 
 ## Currently supported file formats 
-<img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/4cdfac37-120b-49b0-8aed-f2d85ee2c0ce">
+<img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/92f26f2b-2ad4-4179-ac6f-07fb4f7dc1ba">
+
 
 
 ## Documentation and logging 
