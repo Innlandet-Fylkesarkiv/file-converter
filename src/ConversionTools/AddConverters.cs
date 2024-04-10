@@ -15,7 +15,8 @@ class AddConverters
         //Remove converters that are not supported on the current operating system
         var currentOS = Environment.OSVersion.Platform.ToString();
         converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
-                                  !c.SupportedOperatingSystems.Contains(currentOS));
+                                  !c.SupportedOperatingSystems.Contains(currentOS) ||
+                                  !c.DependeciesExists);
         return converters;
     }
     private static AddConverters? instance;

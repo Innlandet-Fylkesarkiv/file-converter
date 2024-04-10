@@ -114,5 +114,16 @@ public static class CreateControl
             ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto,Auto,Auto"),
         };
     }
+
+    public static CheckBox CreateCheckBox(string text)
+    {
+        return new CheckBox
+        {
+            Content = text,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(10, 10, 0, 0)
+        };
+    }
 }
 

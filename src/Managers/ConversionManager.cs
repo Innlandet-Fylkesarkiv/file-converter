@@ -204,6 +204,14 @@ public class ConversionManager
 
 		//Initialize converters
 		Converters = AddConverters.Instance.GetConverters();
+        List<string> existingConverters = new List<string> { "Libreoffice", "iText7", "EmailConverter", "Ghostscript" };
+        foreach (string converterName in existingConverters)
+		{
+			if (!Converters.Any(c => c.Name == converterName))
+			{
+                PrintHelper.PrintLn("Dependencies for '{0}' converter not present", GlobalVariables.WARNING_COL, converterName);
+            }
+		}
 
 		//Initialize FileMap
 		initFileMap();

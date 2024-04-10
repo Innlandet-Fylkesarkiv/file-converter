@@ -32,14 +32,18 @@ public class LibreOfficeConverter : Converter
 		Name = "Libreoffice";
 		SetNameAndVersion();
 		SupportedConversions = getListOfSupportedConvesions();
-		BlockingConversions = getListOfBlockingConversions();
 		SupportedOperatingSystems = getSupportedOS();
 		currentOS = Environment.OSVersion;
-	}
+        DependeciesExists = currentOS.Platform == PlatformID.Unix ? checkPathVariableLinux("soffice")
+                                                                : checkPathVariableWindows("soffice.exe");
+    }
 
     public override void GetVersion()
     {
+        //TODO: Actually fetch version
+
         Version = "Unable to fetch version"; // Default version in case retrieval fails
+
         try
 		{ 
             string sofficePath = Environment.OSVersion.Platform == PlatformID.Unix ? "/usr/lib/libreoffice/program/soffice" : "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
@@ -71,7 +75,6 @@ public class LibreOfficeConverter : Converter
 		var supportedOS = new List<string>();
 		supportedOS.Add(PlatformID.Win32NT.ToString());
 		supportedOS.Add(PlatformID.Unix.ToString());
-		//Add more supported OS here
 		return supportedOS;
 	}
 
@@ -91,8 +94,8 @@ public class LibreOfficeConverter : Converter
 		string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(file.FilePath));
 		string executableName = currentOS.Platform == PlatformID.Unix ? "soffice" : "soffice.exe";
 
-		bool sofficePathWindows = checkSofficePathWindows(executableName);
-		bool sofficePathLinux = checkSofficePathLinux(executableName);
+		bool sofficePathWindows = checkPathVariableWindows(executableName);
+		bool sofficePathLinux = checkPathVariableLinux(executableName);
 
 		string targetFormat = GetConversionExtension(pronom);
 
@@ -190,6 +193,8 @@ public class LibreOfficeConverter : Converter
 			}
 			supportedConversions[docxPronom].AddRange(ODTPronoms);
 			supportedConversions[docxPronom].AddRange(PDFPronoms);
+			supportedConversions[docxPronom].AddRange(PPTPronoms);
+			supportedConversions[docxPronom].AddRange(AllPowerPointFormats);
 		}
 		// DOCM to DOCX, ODT and PDF
 		foreach (string docmPronom in DOCMPronoms)
@@ -396,60 +401,6 @@ public class LibreOfficeConverter : Converter
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("LibreOffice Error converting file to PDF. File is not converted: " + e.Message, true, filename: sourceDoc);
 		}
-	}
-
-	/// <summary>
-	/// Checks if the folder with the soffice.exe executable exists in the PATH.
-	/// </summary>
-	/// <param name="executableName">Name of the executable to have its folder in the PATH</param>
-	/// <returns>Bool indicating if the directory containing the executable was found </returns>
-	static bool checkSofficePathWindows(string executableName)
-	{
-
-		string pathVariable = Environment.GetEnvironmentVariable("PATH") ?? ""; // Get the environment variables as a string
-		string[] paths = pathVariable.Split(Path.PathSeparator);          // Split them into individual entries
-
-		foreach (string path in paths)                                    // Go through and check if found  
-		{
-			string fullPath = Path.Combine(path, executableName);
-			if (File.Exists(fullPath))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-	/// <summary>
-	/// Same function as for windows, but with small changes to facilitate for linux users
-	/// </summary>
-	/// <param name="executableName">Name of the executable to have its folder in the PATH</param>
-	/// <returns></returns>
-	static bool checkSofficePathLinux(string executableName)
-	{
-		string pathVariable = Environment.GetEnvironmentVariable("PATH") ?? "";
-		char pathSeparator = Path.PathSeparator;
-
-		// Use : as the separator on Linux
-		if (Environment.OSVersion.Platform == PlatformID.Unix)
-		{
-			pathSeparator = ':';
-		}
-
-		string[] paths = pathVariable.Split(pathSeparator);
-
-		foreach (string path in paths)
-		{
-			string fullPath = Path.Combine(path, executableName);
-
-			// Linux is case-sensitive, so check for case-insensitive existence
-			if (Directory.Exists(fullPath))
-			{
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/// <summary>
@@ -680,7 +631,7 @@ public class LibreOfficeConverter : Converter
 
 	List<string> ODPPronoms =
 	[
-		// ODT
+		// ODP
 		"fmt/293",
 		"fmt/292",
 		"fmt/138",
@@ -694,7 +645,6 @@ public class LibreOfficeConverter : Converter
 		"fmt/1756",
 		"fmt/136",
 		"fmt/290",
-
 		"fmt/291",
 	];
 	List<string> ODSPronoms =
@@ -716,4 +666,82 @@ public class LibreOfficeConverter : Converter
 		"fmt/53",
 		"fmt/355",
 	];
+
+	List<string> AllPowerPointFormats =
+	[
+        "fmt/1537",
+        "fmt/1866",
+        "fmt/181",
+        "fmt/1867",
+        "fmt/179",
+        "fmt/1747",
+        "fmt/1748",
+        "x-fmt/88",
+        "fmt/125",
+        "fmt/126",
+        "fmt/631",
+        "fmt/487",
+        "fmt/215",
+        "fmt/1829",
+        "fmt/494",
+    ];
+
+    List<string> AllWordFormats =
+    [
+        "x-fmt/329",
+        "fmt/609",
+        "fmt/39",
+        "x-fmt/274",
+        "x-fmt/275",
+        "x-fmt/276",
+        "fmt/1688",
+        "fmt/37",
+        "fmt/38",
+        "fmt/1282",
+        "fmt/1283",
+        "x-fmt/131",
+        "x-fmt/42",
+        "x-fmt/43",
+        "fmt/40",
+        "x-fmt/44",
+        "x-fmt/393",
+        "x-fmt/394",
+        "fmt/892",
+        "fmt/1827",
+        "fmt/412",
+        "fmt/523",
+        "fmt/597",
+    ];
+
+    List<string> AllExcelFormats =
+    [
+        "fmt/55",
+        "fmt/56",
+        "fmt/57",
+        "fmt/61",
+        "fmt/62",
+        "fmt/59",
+        "fmt/598",
+        "fmt/445",
+        "fmt/214",
+        "fmt/1828",
+    ];
+
+    List<string> AllOpenDocumentFormats =
+    [
+        "fmt/293",
+        "fmt/292",
+        "fmt/138",
+        "fmt/1754",
+        "x-fmt/3",
+        "fmt/1756",
+        "fmt/136",
+        "fmt/290",
+        "fmt/291",
+        "fmt/1755",
+        "fmt/137",
+        "fmt/294",
+        "fmt/295",
+
+    ];
 }

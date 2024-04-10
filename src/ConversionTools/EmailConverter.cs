@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 /// EML TO PDF WINDOWS and LINUX: https://github.com/nickrussler/email-to-pdf-converter
 /// OLM to EML>                   https://github.com/PeterWarrington/olm-convert
 /// 
-/// EMLTO PDF converter requires Java installed on the pc aswell as https://github.com/wkhtmltopdf/wkhtmltopdf
+/// EML TO PDF converter requires Java installed on the pc aswell as https://github.com/wkhtmltopdf/wkhtmltopdf
 /// needs to be in the systems PATH
 /// 
 /// MSG TO EML on linux has simple installation steps found in the link above.
@@ -32,6 +32,7 @@ public class EmailConverter : Converter
         BlockingConversions = getListOfBlockingConversions();
         SupportedOperatingSystems = getSupportedOS();
         currentOS = Environment.OSVersion;
+        DependeciesExists = checkDependencies();
     }
 
     /// <summary>
@@ -41,8 +42,8 @@ public class EmailConverter : Converter
     /// <param name="pronom">The file format to convert to</param>
     async public override Task ConvertFile(FileToConvert file, string pronom)
     {
-        string inputFolder = GlobalVariables.parsedOptions.Input;   
-        string outputFolder = GlobalVariables.parsedOptions.Output; 
+        string inputFolder = GlobalVariables.parsedOptions.Input;
+        string outputFolder = GlobalVariables.parsedOptions.Output;
 
         // Get the full path to the input directory and output directory 
         string outputDir = Directory.GetParent(file.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";
@@ -66,7 +67,7 @@ public class EmailConverter : Converter
         string commandToExecute = "";
         string targetFormat = "";
         // Sets the targetFormat and command to execute based on the current pronom
-        switch (file.CurrentPronom)      
+        switch (file.CurrentPronom)
         {
             // EML pronoms set targetFormat to pdf and get correct command
             case "fmt/278":
@@ -133,13 +134,13 @@ public class EmailConverter : Converter
                 else
                 {
                     // Conversion was succesfull get new path and check for attachments
-                    string newFolderName = Path.GetFileNameWithoutExtension (inputFilePath) + "-attachments";
+                    string newFolderName = Path.GetFileNameWithoutExtension(inputFilePath) + "-attachments";
                     string folderWithAttachments = Path.Combine(Path.GetDirectoryName(inputFilePath), newFolderName);
                     if (Directory.Exists(folderWithAttachments))
                     {
                         // Attachements found, add them to the working set for further conversion
                         await addAttachementFilesToWorkingSet(inputFilePath, folderWithAttachments);
-                    } 
+                    }
                     // Delete copy in ouputfolder if converted successfully
                     deleteOriginalFileFromOutputDirectory(inputFilePath);
                 }
@@ -198,13 +199,13 @@ public class EmailConverter : Converter
     string GetEmlToPdfCommand(string inputFilePath, string workingDirectory)
     {
         Version = "2.6.0";
-        
+
         // Get correct path to email converter relative to the workign directory
         string relativeJarPathWindows = ".\\src\\ConversionTools\\emailconverter-2.6.0-all.jar";
         string relativeJarPathLinux = "./src/ConversionTools/emailconverter-2.6.0-all.jar";
-        string jarFile = Environment.OSVersion.Platform == PlatformID.Unix ? Path.Combine(workingDirectory + relativeJarPathLinux) 
+        string jarFile = Environment.OSVersion.Platform == PlatformID.Unix ? Path.Combine(workingDirectory + relativeJarPathLinux)
                                                                            : Path.Combine(workingDirectory + relativeJarPathWindows);
-        return Environment.OSVersion.Platform == PlatformID.Unix ? $@"-c java -jar ""{jarFile}"" ""{inputFilePath}"" -a": 
+        return Environment.OSVersion.Platform == PlatformID.Unix ? $@"-c java -jar ""{jarFile}"" ""{inputFilePath}"" -a" :
                                                                    $@" /C java -jar ""{jarFile}"" ""{inputFilePath}"" -a";
     }
 
@@ -259,6 +260,7 @@ public class EmailConverter : Converter
             newFile.Id = id;
             var newFileToConvert = new FileToConvert(newFile);
             newFileToConvert.TargetPronom = Settings.GetTargetPronom(newFile);
+            newFile.AddConversionTool(NameAndVersion);
 
             //Use current and target pronom to create a key for the conversion map
             var key = new KeyValuePair<string, string>(newFileToConvert.CurrentPronom, newFileToConvert.TargetPronom);
@@ -280,7 +282,18 @@ public class EmailConverter : Converter
             newFileToConvert.addedDuringRun = true;
             ConversionManager.Instance.WorkingSet.TryAdd(id, newFileToConvert);
             ConversionManager.Instance.FileInfoMap.TryAdd(id, newFile);
+            FileManager.Instance.Files.TryAdd(newFile.Id, newFile);
         }
+    }
+
+    bool checkDependencies()
+    {
+        string wkhtmltopdfExecutable = currentOS.Platform == PlatformID.Unix ? "wkhtmltopdf" : "wkhtmltopdf.exe";
+        string javaExecutable = currentOS.Platform == PlatformID.Unix ? "java" : "java.exe";
+        bool wkhtmltopdfFound = currentOS.Platform == PlatformID.Unix ? checkPathVariableLinux(wkhtmltopdfExecutable) : checkPathVariableWindows(wkhtmltopdfExecutable);
+        bool javaFound = currentOS.Platform == PlatformID.Unix ? checkPathVariableLinux(javaExecutable) : checkPathVariableWindows(javaExecutable);
+
+        return wkhtmltopdfFound && javaFound;
     }
 
     // Lists with the pronoms for correctly identifying the formats

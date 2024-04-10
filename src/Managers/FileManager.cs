@@ -359,6 +359,7 @@ public class FileManager
 
 		//Get converters supported formats
 		var converters = AddConverters.Instance.GetConverters();
+		bool macroDetected = false;
 
 		string notSupportedString = " (Not supported)"; //Needs to have a space in front to extract the pronom code from the string
 		string notSetString = "Not set";
@@ -379,11 +380,14 @@ public class FileManager
 			string currentPronom = file.NewPronom != "" ? file.NewPronom : file.OriginalPronom;
 			string? targetPronom = Settings.GetTargetPronom(file);
 			bool supported = false;
-
-
-			//Check if the conversion is supported by any of the converters
-			if (targetPronom != null)
+			
+			if (file.OriginalPronom == "fmt/523" || file.OriginalPronom == "fmt/487" || file.OriginalPronom == "fmt/445")
 			{
+				macroDetected = true;
+            }
+			
+            //Check if the conversion is supported by any of the converters
+            if (targetPronom != null) { 
 				converters.ForEach(c =>
 				{
 					//Check if the conversion is directly supported by the converter or if it is supported by the ConversionManager through different converters
@@ -416,6 +420,11 @@ public class FileManager
 				fileCount[key] = 1;
 			}
 		}
+
+		if (macroDetected)
+		{
+            PrintHelper.PrintLn("One or more macro files detected in '{0}' folder.", GlobalVariables.WARNING_COL, GlobalVariables.parsedOptions.Input);
+        }
 
 		var formatList = new List<FileInfoGroup>();
 		foreach (KeyValuePair<KeyValuePair<string, string>, int> entry in fileCount)

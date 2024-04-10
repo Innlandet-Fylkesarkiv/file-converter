@@ -3,9 +3,6 @@ using Ghostscript.NET.Rasterizer;
 using System.Drawing.Imaging;
 using Ghostscript.NET;
 using System.Text.RegularExpressions;
-using Org.BouncyCastle.Asn1;
-
-//TODO: Put all images in a folder with original name and delete original file
 
 /// <summary>
 /// GhostScript is a subclass of the Converter class.   <br></br>
@@ -20,16 +17,29 @@ using Org.BouncyCastle.Asn1;
 public class GhostscriptConverter : Converter
 {
 	private static readonly object lockobject = new object();
-	public GhostscriptConverter()
+
+	//NOTE: GhostScript only supports PDF to Image for these specific Image PRONOMs
+    public string PNGPronom = "fmt/12";
+    public string JPGPronom = "fmt/43";
+    public string TIFFPronom = "fmt/353";
+    public string BMPPronom = "fmt/116";
+
+    public string gsWindowsExecutable = "";
+    public string gsWindowsLibrary = "";
+    public GhostscriptConverter()
 	{
 		Name = "Ghostscript";
 		GetExecutablePath();
 		SetNameAndVersion();
 		SupportedConversions = getListOfSupportedConvesions();
         BlockingConversions = getListOfBlockingConversions();
-        SupportedOperatingSystems = getSupportedOS();		
-	}
+        SupportedOperatingSystems = getSupportedOS();
+        DependeciesExists = Environment.OSVersion.Platform == PlatformID.Win32NT ? File.Exists(gsWindowsExecutable) : checkPathVariableLinux("gs");
+    }
 
+    /// <summary>
+    /// Get the version of Ghostscript on the system
+    /// </summary>
     public override void GetVersion()
     {
 		//TODO: Actually fetch version
@@ -80,6 +90,9 @@ public class GhostscriptConverter : Converter
         }
     }
 
+    /// <summary>
+    /// Get the path to the Ghostscript executable depending on the operating system
+    /// </summary>
 	void GetExecutablePath()
 	{
 		string fileName = "gswin64c.exe";
@@ -104,11 +117,6 @@ public class GhostscriptConverter : Converter
             Logger.Instance.SetUpRunTimeLogMessage("Ghostscript library not found", true);
         }
 	}
-
-	public string gsWindowsExecutable = "";
-
-    public string gsWindowsLibrary = "";
-
    
 
 	/// <summary>
@@ -121,8 +129,8 @@ public class GhostscriptConverter : Converter
 		//PDF to Image
 		foreach (string pdfPronom in PDFPronoms.Concat(PDFAPronoms))
 		{
-			supportedConversions.Add(pdfPronom, PNGPronoms.Concat(JPGPronoms.Concat(BMPPronoms.Concat(TIFFPronoms))).ToList());
-		}
+            supportedConversions.Add(pdfPronom, new List<string> { PNGPronom, JPGPronom, BMPPronom, TIFFPronom });
+        }
 
 		//PostScript to PDF
 		foreach (string postScriptPronom in PostScriptPronoms)
@@ -133,12 +141,16 @@ public class GhostscriptConverter : Converter
 		return supportedConversions;
 	}
 
-    public override Dictionary<string, List<string>> getListOfBlockingConversions()
-    {
-        return SupportedConversions;
-    }
+public override Dictionary<string, List<string>> getListOfBlockingConversions()
+{
+    return SupportedConversions;
+}
 
-    public override List<string> getSupportedOS()
+/// <summary>
+/// Get the supported operating systems for Ghostscript
+/// </summary>
+/// <returns>A list of supported OS</returns>   
+public override List<string> getSupportedOS()
 	{
 		var supportedOS = new List<string>();
 		supportedOS.Add(PlatformID.Win32NT.ToString());
@@ -147,20 +159,20 @@ public class GhostscriptConverter : Converter
 		return supportedOS;
 	}
 
-	/// <summary>
-	/// Convert a file to a new format
-	/// </summary>
-	/// <param name="filePath">The file to be converted</param>
-	/// <param name="pronom">The file format to convert to</param>
-	async public override Task ConvertFile(FileToConvert file, string pronom)
+    /// <summary>
+    /// Convert a file to a new format
+    /// </summary>
+    /// <param name="file"> FileToConvert object with the specific file to be converted </param>
+    /// <param name="pronom"> Only added to match virtual method (Not used) </param>
+    async public override Task ConvertFile(FileToConvert file, string pronom)
 	{
 		string outputFileName = Path.GetFileNameWithoutExtension(file.FilePath);
-		string? extension = GetExtension(pronom);
-		string? sDevice = GetDevice(pronom);
+		string? extension = GetExtension(file.Route.First());
+		string? sDevice = GetDevice(file.Route.First());
 
 		if(extension == null || sDevice == null)
 		{
-			Logger.Instance.SetUpRunTimeLogMessage(pronom + " is not supported by GhostScript. File is not converted.", true,filename: file.FilePath);
+			Logger.Instance.SetUpRunTimeLogMessage(file.Route.First() + " is not supported by GhostScript. File is not converted.", true,filename: file.FilePath);
 			return;
 		}
 
@@ -168,10 +180,10 @@ public class GhostscriptConverter : Converter
 		{
             if (extension == ".pdf")
             {
-                string pdfVersion = GetPDFVersion(pronom);
+                string pdfVersion = GetPDFVersion(file.Route.First());
 				lock (lockobject)
 				{
-					convertToPDF(file, outputFileName, sDevice, extension, pdfVersion, pronom);
+					convertToPDF(file, outputFileName, sDevice, extension, pdfVersion);
 				}
             }
             else
@@ -180,29 +192,29 @@ public class GhostscriptConverter : Converter
 				{
 					if (OperatingSystem.IsWindows())
 					{
-						convertToImagesWindows(file, outputFileName, sDevice, extension, pronom);
+						convertToImagesWindows(file, outputFileName, sDevice, extension);
 					}
 					else
 					{
-						convertToImagesLinux(file, outputFileName, sDevice, extension, pronom);
+						convertToImagesLinux(file, outputFileName, sDevice, extension);
 					}
 				}
             }
         }
         catch(Exception e)
 		{
-			Logger.Instance.SetUpRunTimeLogMessage(pronom + " is not supported by GhostScript. File is not converted.", true, file.FilePath);
+			Logger.Instance.SetUpRunTimeLogMessage(file.Route.First() + " is not supported by GhostScript. File is not converted.", true, file.FilePath);
 		}
 	}
 
-	/// <summary>
-	/// Convert a file using GhostScript command line
-	/// </summary>
-	/// <param name="filePath">The file to be converted</param>
-	/// <param name="outputFileName">The name of the new file</param>
-	/// <param name="sDevice">What format GhostScript will convert to</param>
-	/// <param name="extension">Extension type for after the conversion</param>
-	void convertToImagesWindows(FileToConvert file, string outputFileName, string sDevice, string extension, string pronom)
+    /// <summary>
+    /// Convert a file using GhostScript command line
+    /// </summary>
+    /// <param name="file"> FileToConvert object with the specific file </param>
+    /// <param name="outputFileName">The name of the new file</param>
+    /// <param name="sDevice">What format GhostScript will convert to</param>
+    /// <param name="extension">Extension type for after the conversion</param>
+    void convertToImagesWindows(FileToConvert file, string outputFileName, string sDevice, string extension)
 	{
 		Logger log = Logger.Instance;
 		if (!System.OperatingSystem.IsWindowsVersionAtLeast(6,1)) 
@@ -264,7 +276,7 @@ public class GhostscriptConverter : Converter
 				}
 				foreach (var newFile in files)
 				{
-					converted = CheckConversionStatus(newFile.FilePath, pronom);
+					converted = CheckConversionStatus(newFile.FilePath, file.Route.First());
 					//It is only relevant to check if at least one file is not converted, rest will be checked at the end of conversion
 					if (!converted)
 					{
@@ -289,6 +301,11 @@ public class GhostscriptConverter : Converter
 		}
 	}
 
+    /// <summary>
+    /// Get the image format for a specific extension
+    /// </summary>
+    /// <param name="extension"> A string with the file extension </param>
+    /// <returns></returns>
 	private ImageFormat ?GetImageFormat(string extension)
 	{
         if (!System.OperatingSystem.IsWindowsVersionAtLeast(6, 1))
@@ -314,12 +331,11 @@ public class GhostscriptConverter : Converter
     /// <summary>
     /// Convert a file to images using GhostScript command line
     /// </summary>
-    /// <param name="filePath"></param>
-    /// <param name="outputFileName"></param>
-    /// <param name="sDevice"></param>
-    /// <param name="extension"></param>
-    /// <param name="pronom"></param>
-    void convertToImagesLinux(FileToConvert file, string outputFileName, string sDevice, string extension, string pronom)
+    /// <param name="file"> FileToConvert object with the specific file </param>
+    /// <param name="outputFileName"> Filename of the converted file </param>
+    /// <param name="sDevice"> Ghostscript variable that determines what conversion it should do </param>
+    /// <param name="extension"> Extension for the new file </param>
+    void convertToImagesLinux(FileToConvert file, string outputFileName, string sDevice, string extension)
     {
         try
         {
@@ -348,7 +364,7 @@ public class GhostscriptConverter : Converter
 
 				string command = $"gs -sDEVICE={sDevice} -o {folderPath}{outputFileName}%d{extension} {file.FilePath}";  // %d adds page number to filename, i.e outputFileName1.png outputFileName2.png
 
-				ProcessStartInfo startInfo = new ProcessStartInfo();
+				ProcessStartInfo startInfo = new ProcessStartInfo();			//Starting a terminal process and running the ghostscript command
 				startInfo.FileName = "/bin/bash";
 				startInfo.Arguments = $"-c \"{command}\"";
 				startInfo.RedirectStandardOutput = true;
@@ -365,6 +381,9 @@ public class GhostscriptConverter : Converter
 				}
 
 				var newFilePaths = Directory.GetFiles(folderPath);
+
+				//Add all new files as FileInfo objects and add them to the FileManager
+				//Needed in order to properly be able to check if the conversion was successful at the end of the program
 				foreach (var filePath in newFilePaths)
 				{
 					var newFile = new FileInfo(filePath, originalFileInfo);
@@ -372,7 +391,7 @@ public class GhostscriptConverter : Converter
 					newFile.UpdateSelf(new FileInfo(Siegfried.Instance.IdentifyFile(newFile.FilePath,true)));
 					newFile.AddConversionTool(NameAndVersion);
 					files.Add(newFile);
-                    converted = converted && CheckConversionStatus(newFile.FilePath, pronom);
+                    converted = converted && CheckConversionStatus(newFile.FilePath, file.Route.First());
                 }
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
 			FileManager.Instance.AddFiles(files);
@@ -389,13 +408,12 @@ public class GhostscriptConverter : Converter
     /// <summary>
     ///     Convert to PDF using GhostScript
     /// </summary>
-    /// <param name="filePath"> Name and path of original file </param>
+    /// <param name="file"> FileToConvert object with the specific file </param>
     /// <param name="outputFileName"> Filename of the converted file </param>
     /// <param name="sDevice"> Ghostscript variable that determines what conversion it should do </param>
     /// <param name="extension"> Extension for the new file </param>
     /// <param name="pdfVersion"> The PDF version to covnert to </param>
-    /// <param name="pronom"> The output pronom </param>
-	void convertToPDF(FileToConvert file, string outputFileName, string sDevice, string extension, string pdfVersion, string pronom)
+	void convertToPDF(FileToConvert file, string outputFileName, string sDevice, string extension, string pdfVersion)
     {
         string? outputFolder = Path.GetDirectoryName(file.FilePath);
 
@@ -438,8 +456,8 @@ public class GhostscriptConverter : Converter
                     throw new Exception("Could not get pronom for file");
                 }
                 //Convert to another PDF format if Ghostscript's standard output format is not the desired one
-                if (currPronom != pronom && 
-						(PDFPronoms.Contains(pronom) || PDFAPronoms.Contains(pronom) ))
+                if (currPronom != file.Route.First() && 
+						(PDFPronoms.Contains(file.Route.First()) || PDFAPronoms.Contains(file.Route.First()) ))
                 {
                     // Set the new filename
 					replaceFileInList(outputFilePath, file);
@@ -450,11 +468,11 @@ public class GhostscriptConverter : Converter
                     {
                         FileInfoMap[file.Id].ConversionTools.Add(converter.NameAndVersion);
                     }
-                    converter.convertFromPDFToPDF(file, pronom);
+                    converter.convertFromPDFToPDF(file, file.Route.First());
                 }
-                converted = CheckConversionStatus(outputFilePath, pronom);
+                converted = CheckConversionStatus(outputFilePath, file.Route.First());
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
-			file.Failed = !CheckConversionStatus(outputFilePath, pronom, file);
+			file.Failed = !CheckConversionStatus(outputFilePath, file.Route.First(), file);
         }
         catch (Exception e)
         {
@@ -462,52 +480,74 @@ public class GhostscriptConverter : Converter
         }
     }
 
+    /// <summary>
+    /// Get the extension for a specific pronom
+    /// </summary>
+    /// <param name="pronom">Specified output pronom</param>
+    /// <returns>The extension as a string</returns>
+    string? GetExtension(string pronom)
+    {
+        switch (pronom)
+        {
+            case string p when PDFPronoms.Contains(p) || PDFAPronoms.Contains(p):
+                return ".pdf";
+            case string p when p == PNGPronom:
+                return ".png";
+            case string p when p == JPGPronom:
+                return ".jpg";
+            case string p when p == TIFFPronom:
+                return ".tiff";
+            case string p when p == BMPPronom:
+                return ".bmp";
+            default:
+                return null;
+        }
+    }
 
-	List<string> PNGPronoms =
-		[
-        "fmt/11",
-        "fmt/12",
-        "fmt/13",
-        "fmt/935"
-        ];
+    /// <summary>
+    /// Get the device needed to convert to a specific format
+    /// </summary>
+    /// <param name="pronom">Specified output pronom</param>
+    /// <returns>String with the device name</returns>
+    string? GetDevice(string pronom)
+    {
+        switch (pronom)
+        {
+            case string p when PDFPronoms.Contains(p) || PDFAPronoms.Contains(p):
+                return "pdfwrite";
+            case string p when p == PNGPronom:
+                return "png16m";
+            case string p when p == JPGPronom:
+                return "jpeg";
+            case string p when p == TIFFPronom:
+                return "tiff24nc";
+            case string p when p == BMPPronom:
+                return "bmp16m";
+            default:
+                return null;
+        }
+    }
 
-	List<string> JPGPronoms =
-		[
-        "fmt/41",
-        "fmt/42",
-        "fmt/43",
-        "fmt/44",
-        "x-fmt/398",
-        "x-fmt/390",
-        "x-fmt/391",
-        "fmt/645",
-        "fmt/1507",
-        "fmt/112"
-        ];
-
-	List<string> TIFFPronoms =
-		[
-        "fmt/1917",
-        "x-fmt/399",
-        "x-fmt/388",
-        "x-fmt/387",
-        "fmt/155",
-        "fmt/353",
-        "fmt/154",
-        "fmt/153",
-        "fmt/156"
-        ];
-
-	List<string> BMPPronoms =
-		[
-        "x-fmt/270",
-        "fmt/115",
-        "fmt/118",
-        "fmt/119",
-        "fmt/114",
-        "fmt/116",
-        "fmt/117"
-        ];
+    /// <summary>
+    /// Get the PDF version to convert to
+    /// </summary>
+    /// <param name="pronom">Specified output pronom</param>
+    /// <returns>The PDF version parameter</returns>
+    string GetPDFVersion(string pronom)
+    {
+        switch (pronom)
+        {
+            case "fmt/15": return "1.1";
+            case "fmt/16": return "1.2";
+            case "fmt/17": return "1.3";
+            case "fmt/18": return "1.4";
+            case "fmt/19": return "1.5";
+            case "fmt/20": return "1.6";
+            case "fmt/276": return "1.7";
+            case "fmt/1129": return "2";
+            default: return "2";
+        }
+    }
 
     List<string> PDFPronoms =
         [
@@ -541,73 +581,6 @@ public class GhostscriptConverter : Converter
         "x-fmt/408",
         "fmt/501"
         ];
-
-	string? GetExtension(string pronom)
-	{
-		if(PDFPronoms.Contains(pronom) || PDFAPronoms.Contains(pronom))
-		{
-			return ".pdf";
-		}
-		if (PNGPronoms.Contains(pronom))
-		{
-			return ".png";
-		}
-		if (JPGPronoms.Contains(pronom))
-		{
-            return ".jpg";
-        }
-		if (TIFFPronoms.Contains(pronom))
-		{
-            return ".tiff";
-        }
-		if (BMPPronoms.Contains(pronom))
-		{
-            return ".bmp";
-        }
-
-		return null;
-	}
-
-	string? GetDevice(string pronom)
-	{
-        if (PDFPronoms.Contains(pronom) || PDFAPronoms.Contains(pronom))
-        {
-            return "pdfwrite";
-        }
-        if (PNGPronoms.Contains(pronom))
-        {
-            return "png16m";
-        }
-        if (JPGPronoms.Contains(pronom))
-        {
-            return "jpeg";
-        }
-        if (TIFFPronoms.Contains(pronom))
-        {
-            return "tiff24nc";
-        }
-        if (BMPPronoms.Contains(pronom))
-        {
-            return "bmp16m";
-        }
-        return null;
-	}
-
-	string GetPDFVersion(string pronom)
-	{
-		switch (pronom)
-		{
-			case "fmt/15":		return "1.1";
-			case "fmt/16":		return "1.2";
-			case "fmt/17":		return "1.3";
-			case "fmt/18":		return "1.4";
-			case "fmt/19":		return "1.5";
-			case "fmt/20":		return "1.6";
-			case "fmt/276":		return "1.7";
-			case "fmt/1129":	return "2";
-			default:			return "2";
-		}
-	}
 }
 
 
