@@ -193,6 +193,8 @@ public class LibreOfficeConverter : Converter
 			}
 			supportedConversions[docxPronom].AddRange(ODTPronoms);
 			supportedConversions[docxPronom].AddRange(PDFPronoms);
+			supportedConversions[docxPronom].AddRange(PPTPronoms);
+			supportedConversions[docxPronom].AddRange(AllPowerPointFormats);
 		}
 		// DOCM to DOCX, ODT and PDF
 		foreach (string docmPronom in DOCMPronoms)
@@ -624,7 +626,7 @@ public class LibreOfficeConverter : Converter
 
 	List<string> ODPPronoms =
 	[
-		// ODT
+		// ODP
 		"fmt/293",
 		"fmt/292",
 		"fmt/138",
@@ -638,7 +640,6 @@ public class LibreOfficeConverter : Converter
 		"fmt/1756",
 		"fmt/136",
 		"fmt/290",
-
 		"fmt/291",
 	];
 	List<string> ODSPronoms =
@@ -660,4 +661,82 @@ public class LibreOfficeConverter : Converter
 		"fmt/53",
 		"fmt/355",
 	];
+
+	List<string> AllPowerPointFormats =
+	[
+        "fmt/1537",
+        "fmt/1866",
+        "fmt/181",
+        "fmt/1867",
+        "fmt/179",
+        "fmt/1747",
+        "fmt/1748",
+        "x-fmt/88",
+        "fmt/125",
+        "fmt/126",
+        "fmt/631",
+        "fmt/487",
+        "fmt/215",
+        "fmt/1829",
+        "fmt/494",
+    ];
+
+    List<string> AllWordFormats =
+    [
+        "x-fmt/329",
+        "fmt/609",
+        "fmt/39",
+        "x-fmt/274",
+        "x-fmt/275",
+        "x-fmt/276",
+        "fmt/1688",
+        "fmt/37",
+        "fmt/38",
+        "fmt/1282",
+        "fmt/1283",
+        "x-fmt/131",
+        "x-fmt/42",
+        "x-fmt/43",
+        "fmt/40",
+        "x-fmt/44",
+        "x-fmt/393",
+        "x-fmt/394",
+        "fmt/892",
+        "fmt/1827",
+        "fmt/412",
+        "fmt/523",
+        "fmt/597",
+    ];
+
+    List<string> AllExcelFormats =
+    [
+        "fmt/55",
+        "fmt/56",
+        "fmt/57",
+        "fmt/61",
+        "fmt/62",
+        "fmt/59",
+        "fmt/598",
+        "fmt/445",
+        "fmt/214",
+        "fmt/1828",
+    ];
+
+    List<string> AllOpenDocumentFormats =
+    [
+        "fmt/293",
+        "fmt/292",
+        "fmt/138",
+        "fmt/1754",
+        "x-fmt/3",
+        "fmt/1756",
+        "fmt/136",
+        "fmt/290",
+        "fmt/291",
+        "fmt/1755",
+        "fmt/137",
+        "fmt/294",
+        "fmt/295",
+
+    ];
 }

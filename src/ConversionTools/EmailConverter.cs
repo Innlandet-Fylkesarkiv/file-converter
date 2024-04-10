@@ -256,6 +256,7 @@ public class EmailConverter : Converter
             newFile.Id = id;
             var newFileToConvert = new FileToConvert(newFile);
             newFileToConvert.TargetPronom = Settings.GetTargetPronom(newFile);
+            newFile.AddConversionTool(NameAndVersion);
 
             //Use current and target pronom to create a key for the conversion map
             var key = new KeyValuePair<string, string>(newFileToConvert.CurrentPronom, newFileToConvert.TargetPronom);
@@ -277,6 +278,7 @@ public class EmailConverter : Converter
             newFileToConvert.addedDuringRun = true;
             ConversionManager.Instance.WorkingSet.TryAdd(id, newFileToConvert);
             ConversionManager.Instance.FileInfoMap.TryAdd(id, newFile);
+            FileManager.Instance.Files.TryAdd(newFile.Id, newFile);
         }
     }
 
