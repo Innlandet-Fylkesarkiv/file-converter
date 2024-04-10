@@ -2,7 +2,7 @@
 This guide explains in detail how to:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **1. [Add a new converter](#adding-a-new-converter)** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2. [Add a new conversion path](#Adding-a-new-conversion-path-(Multistep-conversion))**
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2. [Add a new conversion path](#Adding-a-new-conversion-path-Multistep-conversion)**
 
 # Adding a new converter
 All source code for external converters is based on the same parent ```Converter``` class, located in ```\ConversionTools\Converter.cs```.
