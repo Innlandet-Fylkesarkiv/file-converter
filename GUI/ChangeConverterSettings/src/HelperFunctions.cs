@@ -1,5 +1,8 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
+using ChangeConverterSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +12,11 @@ using System.Threading.Tasks;
 
 public static class HelperFunctions
 {
+    /// <summary>
+    /// Opens up a explorer window and prompts the user to select a folder
+    /// </summary>
+    /// <param name="window"> the window it opens up from</param>
+    /// <returns> a list of all folders selected </returns>
     public static async Task<List<String>> SelectFolderInExplorer(Window window)
     {
         if (window == null)
@@ -38,10 +46,56 @@ public static class HelperFunctions
                 {
                     folderPaths[i] = folderPaths[i].Substring(8); // Remove "file:///" from the start of paths
                 }
+                if(GlobalVariables.Input == null)
+                {
+                    continue;
+                }
+                if (folderPaths[i].Contains(GlobalVariables.Input))
+                {
+                    char[] separator = { '/', '\\' };
+                    List<string> newPath = folderPaths[i].Split(separator).ToList();
+                    bool isFound = false;
+                    while (!isFound)
+                    {
+                        if(string.Compare(newPath.First(), GlobalVariables.Input)==0)
+                        {
+                            isFound = true;
+                        }
+                        newPath.RemoveAt(0);
+                    }
+                    folderPaths[i] = string.Join("/", newPath);
+                }
+                if (GlobalVariables.FolderOverride.ContainsKey(folderPaths[i]))
+                {
+                    ShowWarningPopup("The selected folder is already a part of the folder override", window);
+                    folderPaths.Remove(folderPaths[i]);
+                }
             }
             return folderPaths;
         }
         return [];
     }
-}
 
+    /// <summary>
+    /// Shows a warning popup
+    /// </summary>
+    /// <param name="warning"> the waring message </param>
+    /// <param name="window"> which window it should pop up at, normally main </param>
+    private static void ShowWarningPopup(string warning, Window window)
+    {
+        var warningWindow = new Window
+        {
+            Title = "Warning",
+            Content = new TextBlock
+            {
+                Text = warning,
+                TextWrapping = TextWrapping.Wrap,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            },
+            SizeToContent = SizeToContent.WidthAndHeight,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+        };
+        warningWindow.ShowDialog(window);
+    }
+} 
