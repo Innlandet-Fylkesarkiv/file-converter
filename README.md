@@ -285,6 +285,7 @@ Additionally, a ```documentation.json``` file is created which lists all files a
 {"Metadata": {
     "requester": "Name",
     "converter": "Name"
+     "hashing": "SHA256"
   },
   "Files": [
     {
@@ -297,7 +298,7 @@ Additionally, a ```documentation.json``` file is created which lists all files a
       "NewChecksum": "b462a8261d26ece8707fac7f6921cc0ddfb352165cb608a38fed92ed044a6a05",
       "NewSize": 519283,
       "Converter": [
-	"iText7"
+	"iText7 8.0.3.0"
 	],
       "IsConverted": true
     }]}
@@ -310,17 +311,17 @@ All source code for external converters is based on the same parent ```Converter
 ```csharp
 	public string? Name { get; set; } // Name of the converter
 	public string? Version { get; set; } // Version of the converter
+	public string? NameAndVersion { get; set;}
+	public bool DependenciesExists { get; set;}
 	public Dictionary<string, List<string>>? SupportedConversions { get; set; }
 	public List<string> SupportedOperatingSystems { get; set; } = new List<string>();
-
-	private List<FileInfo> files = new List<FileInfo>(FileManager.Instance.Files);
 
 	public virtual void ConvertFile(string fileinfo, string pronom){ }
 	public virtual void CombineFiles(string []files, string pronom){ }
 ```
 
-All fields shown in the code block above must be included in the subclass for the new external converter to work properly. If you are adding a library-based converter we would suggest having a look at ```iText7.cs``` for examples on how to structure the subclass.
-For external converters where you want to parse arguments and use an executable in CLI we would suggest looking at ```GhostScript.cs```.
+All fields shown in the code block above **must** be included in the subclass for the new external converter to work properly. If you are adding a *library-based* converter we would suggest having a look at ```iText7.cs``` for examples on how to structure the subclass.
+For external converters where you want to *parse arguments and use an executable in CLI* we would suggest looking at ```GhostScript.cs```.
 
 > :memo: NOTE: If you are adding an **executable** file that you want to use it needs to be included in the ```.csproj``` file as such to be loaded properly at runtime:
 >```xml
@@ -330,7 +331,7 @@ For external converters where you want to parse arguments and use an executable 
 >	</None>
 ></ItemGroup>
 >```
->This will make the executable file available at the path ```file-converter-prog2900\bin\Debug\net8.0\PathToExecutableFile```.
+>This will make the executable file available at the path ```file-converter\bin\Debug\net8.0\PathToExecutableFile```.
 
 All subclasses of ```Converter``` follow the same commenting scheme for consistency and ease when maintaining/debugging the application. It should state that it is a subclass of the ```Converter```class and which conversions it supports. Other functionalities of the converter, such as combining images, can be added after.
 
