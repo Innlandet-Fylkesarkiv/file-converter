@@ -182,7 +182,7 @@ The program is mostly tested in Windows, so Linux specific issues may not appear
 ## GUI
 ![guisettings](https://github.com/larsmhaugland/file-converter/assets/117298604/b9569561-7a2c-4ed4-8a53-7264f071de26)
 
-The GUI provides a more user-friendly way of editing the settings of the application. Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default```PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
+The GUI provides a more user-friendly way of editing the settings of the application (see [Settings](#settings) for further information). Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default```PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
 
 
 
