@@ -82,6 +82,7 @@ make build
 | Windows and Linux| **[Java JDK](https://www.oracle.com/java/technologies/downloads/)** (Only JRE also works)| Dependency for using the e-mail converter. |
 | Windows| **[LibreOffice](https://www.libreoffice.org/download/download-libreoffice/?type=win-x86_64&version=7.6.6&lang=nb)** ( download version 7.6.6)| Required for converting office documents (Word, PowerPoint, Excel and OpenOffice). |
 | Linux| Libreoffice should be already present on Linux. This can be checked with ```Soffice --version```. Otherwise, download from the link above.||
+| Linux | **[GhostScript.](https://ghostscript.com/docs/9.55.0/Install.htm)** Should be installed on most distros, which can be checked by running ```gs```. | Required for PostScript and PDF to image conversion. |
 | Windows and Linux| **[wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)** | Needed for converting emails. |
 | Linux | **[Siegfried](https://github.com/richardlehane/siegfried)** | To identify files and keep track of the conversion process. |
 > [!NOTE]
