@@ -78,6 +78,7 @@ public static class CreateControl
             Content = text,
             Name = "Button" + (index + 1),
             Background = Avalonia.Media.Brushes.Green,
+            Foreground = Avalonia.Media.Brushes.White,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(10, 10, 0, 0)
@@ -92,7 +93,7 @@ public static class CreateControl
     {
         return new Rectangle
         {
-            Fill = Avalonia.Media.Brushes.Black,
+            Fill = Avalonia.Media.Brushes.SlateGray,
             Height = 1,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Bottom,
@@ -110,7 +111,6 @@ public static class CreateControl
         return new Grid
         {
             Name = "FolderOverrideGrid" + index,
-            Background = Avalonia.Media.Brushes.Gray,
             ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto,Auto,Auto"),
         };
     }
