@@ -51,8 +51,8 @@ public class GhostscriptConverter : Converter
 
         using (Process process = new Process())
         {
-            process.StartInfo.FileName = System.OperatingSystem.IsWindows() ? gsWindowsExecutable : "/bin/bash gs";
-            process.StartInfo.Arguments = "-h";
+            process.StartInfo.FileName = OperatingSystem.IsWindows() ? gsWindowsExecutable : "/bin/bash";
+            process.StartInfo.Arguments = OperatingSystem.IsWindows() ? "-h" : "gs -h";
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.UseShellExecute = false;
