@@ -277,6 +277,9 @@ The first part of the XML file concerns arguments needed to run the program. The
 ## Currently supported file formats 
 <img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/92f26f2b-2ad4-4179-ac6f-07fb4f7dc1ba">
 
+For a more extensive **PRONOM-based** overview see the following JSON file: **[Supported Conversions.](DevDocuments/supportedconversions.json)** <br>
+For a more extensive overview for **each external converter** see the following TXT file: **[Supported Conversions per converter.](DevDocuments/supportedconversions.txt)**
+
 ## Documentation and logging 
 The ```.txt```log files use the following convention and is automatically generated each time the program is run:
 ```
