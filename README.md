@@ -22,15 +22,15 @@ This application provides a framework for different conversion libraries/softwar
 - [Install](#-install)
   - [Install from source](#install-from-source)
   - [Dependencies](#-dependencies)
-  	- [External libraries and software](#external-libraries-and-software)
+  - [External libraries and software](#external-libraries-and-software)
   - [Installation for Windows](#-installation-for-windows)
   - [Installation for Linux](#-installation-for-linux)
   	-  [Installing Siegfried on Linux](#installing-siegfried-on-linux)
 - [Usage](#-usage)
-  - [Beta notes](#beta)	 
-  - [GUI](#gui)
+  - [Beta notes](#-beta)	 
   - [CLI](#cli)
   - [Arguments](#arguments)
+  - [GUI](#gui)
   - [Settings](#settings)
   - [Currently supported file formats](#currently-supported-file-formats)
   - [Documentation and logging](#documentation-and-logging)
@@ -110,8 +110,8 @@ To add it as an environment variable:
 3.  To apply the changes immediately run the command ```source ~/.bashrc```. Alternatively, log in and out.
 4.   To verify, run the command ```echo $PATH``` and the path added should be at the end of the output from the command.
 
-### External libraries and software
-#### Libraries
+## External libraries and software
+### Libraries
 - **[iText7](https://github.com/itext/itext-dotnet)** under the GNU Affero General Public License v3.0.
 - **[BouncyCastle.NetCore](https://github.com/chrishaly/bc-csharp)** under the MIT License.
 - **[iText7 Bouncycastle Adapter](https://www.nuget.org/packages/itext7.bouncy-castle-adapter/8.0.2)** under the GNU Affero General Public License v3.0.
@@ -119,7 +119,7 @@ To add it as an environment variable:
 - **[SharpCompress](https://github.com/adamhathcock/sharpcompress)** under the MIT License.
 - **[Avalonia](https://avaloniaui.net/)** under the MIT License.
 
-#### Software
+### Software
 - **[GhostScript](https://www.ghostscript.com/index.html)** under the GNU Affero General Public License v3.0.
 - **[LibreOffice](https://www.libreoffice.org/)** under the Mozilla Public License 2.0.
 - **[wkhtmltopdf](https://wkhtmltopdf.org/)** under the GNU Lesser General Public License v3.0.
@@ -166,11 +166,13 @@ If you are **not** using on of these distros please see the **[Siegfried GitHub]
 # 🚀 Usage 
 
 ![basicusage](https://github.com/larsmhaugland/file-converter/assets/117298604/abd0408d-13bf-45d7-b450-015e9fa946b9)
+<div align="center">
+	<i> Main CLI application</i>
+	<br>
+</div>
 
-
-
-## Beta
-Since the program is still in beta, there are some limitations or bugs in the software. This section will be updated throughout the development process as we fix or find problems.
+## 🔨 Beta
+Since the program is still in beta, there are some **limitations** or **bugs** in the software. This section will be updated throughout the development process as we fix or find problems.
 The program is mostly tested in Windows, so Linux specific issues may not appear in list. 
 - (Landscape oriented PDF or PDF/A -> PDF/A or other PDF version)
   	- There is a bug where iText7 doesn't recognize that a document is landscape oriented when converting from PDF->PDF/A. This results in the content of the file being cropped to portrait.
@@ -187,13 +189,6 @@ The program is mostly tested in Windows, so Linux specific issues may not appear
 - Office conversion (Linux)
   	- Office conversion using LibreOffice does not work correctly
   
-## GUI
-![guisettings](https://github.com/larsmhaugland/file-converter/assets/117298604/b9569561-7a2c-4ed4-8a53-7264f071de26)
-
-The GUI provides a more user-friendly way of editing the settings of the application (see [Settings](#settings) for further information). Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default``` PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
-
-
-
 ## CLI
 Cover options and common usage
 ```
@@ -203,7 +198,7 @@ $ .\file-converter-prog2900.exe
 
 ## Arguments
 > [!NOTE]
-> All paths must be absolute or relative to executable.
+> All paths must be *absolute* or *relative* to executable.
 
 ### Set custom input folder 
 Default: *input*
@@ -232,9 +227,17 @@ $ .\example -y
 $ .\example --yes 
 ```
 
+## GUI
+![guisettings](https://github.com/larsmhaugland/file-converter/assets/117298604/b9569561-7a2c-4ed4-8a53-7264f071de26)
+<div align="center">
+	<i>GUI-version of Settings</i>
+	<br>
+</div>
+
+The GUI provides a more user-friendly way of editing the settings of the application (see [Settings](#settings) for further information). Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default``` PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
 
 ## Settings
-Settings can be manually set in the ```Settings.xml``` file.
+Settings can be manually set in an ```xml``` file.
 
 ### Setting run time arguments
 ```xml  
