@@ -349,7 +349,9 @@ Our bachelor thesis would also not have been possible without our **[supervisor 
 
 
 # 🌍 Contributing
-> ❗TODO:Explain how one can contribute.
+> [!IMPORTANT]
+> We are currently **not** open for contributors, due to this being part of a bachelor thesis. <br>
+> Hopefully, we will be able to open up for contributors after the thesis has been approved.
 
 ## Contributors
 This project exists thanks to these wonderful people:<br>
