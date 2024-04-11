@@ -193,6 +193,7 @@ public class iText7 : Converter
     {
         var supportedOS = new List<string>();
         supportedOS.Add(PlatformID.Win32NT.ToString());
+        supportedOS.Add(PlatformID.Unix.ToString());
         //Add more supported OS here
         return supportedOS;
     }

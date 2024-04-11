@@ -1,6 +1,7 @@
 ﻿using iText.Layout.Splitting;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 /// <summary>
 /// Libreoffice supports the following conversions for both Linux and Windows:
@@ -23,6 +24,7 @@ public class LibreOfficeConverter : Converter
 	Logger log = Logger.Instance;
 	private static readonly object locker = new object();
 	OperatingSystem currentOS;
+	bool iTextFound = false;
 
 	/// <summary>
 	/// Constructor setting important properties for the class.
@@ -129,6 +131,26 @@ public class LibreOfficeConverter : Converter
 	public override Dictionary<string, List<string>> getListOfSupportedConvesions()
 	{
 		var supportedConversions = new Dictionary<string, List<string>>();
+
+		// Remove PDF/A formats if iText7 is not available
+		var converters = AddConverters.Instance.GetConverters();
+		converters.ForEach(converter =>
+		{
+            if (converter.Name == new iText7().Name)
+			{
+                iTextFound = true;
+            }
+        });
+		if (!iTextFound)
+		{
+			foreach(string pronom in PDFAPronoms)
+			{
+				if (PDFPronoms.Contains(pronom))
+				{
+                    PDFPronoms.Remove(pronom);
+                }
+            }
+		}
 
 		// XLS to XLSX, ODS and PDF
 		foreach (string XLSPronom in XLSPronoms)
@@ -377,7 +399,7 @@ public class LibreOfficeConverter : Converter
 					throw new Exception("Could not get pronom for file");
 				}
 				//Convert to another PDF format if LibreOffice's standard output format is not the desired one
-				if (currPronom != pronom && PDFPronoms.Contains(pronom))
+				if (currPronom != pronom && PDFPronoms.Contains(pronom) && iTextFound)
 				{
 					var converter = new iText7();
                     // Add iText7 to the list of conversion tools
@@ -509,13 +531,6 @@ public class LibreOfficeConverter : Converter
 
 
     List<string> PDFPronoms = [
-        "fmt/95",       // PDF/A 1A
-        "fmt/354",      // PDF/A 1B
-        "fmt/476",      // PDF/A 2A
-        "fmt/477",      // PDF/A 2B
-        "fmt/478",      // PDF/A 2U
-        "fmt/479",      // PDF/A 3A
-        "fmt/480",      // PDF/A 3B
         "fmt/14",       // PDF 1.0
         "fmt/15",       // PDF 1.1
         "fmt/16",       // PDF 1.2
@@ -526,6 +541,16 @@ public class LibreOfficeConverter : Converter
         "fmt/276",      // PDF 1.7
         "fmt/1129"      // PDF 2.0
     ];
+
+	List<string> PDFAPronoms = [
+		"fmt/95",       // PDF/A 1A
+        "fmt/354",      // PDF/A 1B
+        "fmt/476",      // PDF/A 2A
+        "fmt/477",      // PDF/A 2B
+        "fmt/478",      // PDF/A 2U
+        "fmt/479",      // PDF/A 3A
+        "fmt/480",      // PDF/A 3B
+	];
 
     List<string> DOCPronoms =
 	[
