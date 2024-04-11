@@ -42,7 +42,7 @@ This application provides a framework for different conversion libraries/softwar
 
 
 # 📖 Background
-This project is part of a collaboration with [Innlandet County Archive](https://www.visarkiv.no/) and is a Bachelor's thesis project for a [Bachelor's in Programming](https://www.ntnu.edu/studies/bprog) at the [Norwegian University of Technology and Science (NTNU)](https://www.ntnu.edu/).
+This project is part of a collaboration with **[Innlandet County Archive](https://www.visarkiv.no/)** and is a Bachelor's thesis project for a [Bachelor's in Programming](https://www.ntnu.edu/studies/bprog) at the **[Norwegian University of Technology and Science (NTNU)](https://www.ntnu.edu/)**.
 
 In Norway, the act of archiving is regulated by the Archives Act, which states that public bodies have a duty to register and preserve documents that are created as part of their activity [^1]. As society is becoming more digitized so is information, and the documents that were previously physical and stored physically are now digital and stored digitally. Innlandet County Archive is an inter-municipal archive cooperation, that registers and preserves documents from 48 municipalities. However, not all file types they receive are suitable for archiving as they run a risk of becoming obsolete. (For further reading see: [Obsolescence: File Formats and Software](https://dpworkshop.org/dpm-eng/oldmedia/obsolescence1.html)) Innlandet County Archive wished to streamline its conversion process into one application that could deal with a vast array of file formats. Furthermore, archiving is based on the principles of accessibility, accountability and integrity, which is why this application also provides documentation of all changes made to files.
 
@@ -58,7 +58,7 @@ To download the application source code run:
   git clone --recursive https://github.com/larsmhaugland/file-converter.git
 ```
 
-Build it using ```mingw32 make``` ([see tutorial here for setup](https://nerdyelectronics.com/install-mingw-on-windows-for-make/)) from the command line using:
+Build it using ```mingw32 make``` (For further instructions see: [mingw Tutorial](https://nerdyelectronics.com/install-mingw-on-windows-for-make/)) from the command line using:
 ```sh
 make build
 ```
@@ -91,19 +91,24 @@ make build
 <br>
 
 ### Further download instructions for LibreOffice 
-#### WINDOWS
-Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. 
+#### :window: Windows
+Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```, but the entry needs to be ```"C:\Program Files\LibreOffice\program"```.
 
-Open *Settings* -> *Home* -> *About* (scroll down on the left) -> *Advanced system settings* (on the right) -> *Environment variables.*<br>
-Alternatively use the ```Windows key + R``` on the keyboard, then type in ```"sysdm.cpl"``` and hit enter. Thereafter, press *Advanced* and then *Environment variables.*
-
-The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```. The "program" folder must be added to ```PATH```, meaning the entry should be ```"C:\Program Files\LibreOffice\program"```.
-To add this locate the ```PATH``` variable and highlight it. Press *Edit* -> *New* -> copy the path to the program folder -> press *Ok*. This adds it to the users environment variables, but it can also be added as a system wide environment variable. 
+1. Open *Settings* -> *Home* -> *About* (scroll down on the left) -> *Advanced system settings* (on the right) -> *Environment variables.*
+> [!TIP]
+> Alternatively use the ```Windows key + R``` on the keyboard, then type in ```"sysdm.cpl"``` and hit enter. Thereafter, press *Advanced* and then *Environment variables.*
+2. Locate the ```PATH``` variable and highlight it. Press *Edit* -> *New* -> copy the path to the program folder -> press *Ok*. This adds it to the users environment variables.
+   
 <br><br>
 **[wkhtmltopdf](https://wkhtmltopdf.org/downloads.html)** must also be manually added to ```PATH```. For windows, it can be done as described above, just swap ```"C:\Program Files\LibreOffice\program"``` with ```"C:\Program Files\wkhtmltopdf\bin"```. 
 
-#### LINUX
-For Linux the default installation directory is ```...``` One alternative for adding it as an environment variable is to open the file ```.bashrc``` using the command ```nano ~/.bashrc```. Navigate to the bottom of the file with the arrow keys and add this line at the end ```export PATH="$PATH:DefaultPathHere"```. Remember to save the file and exit. To apply the changes immediately run the command ```source ~/.bashrc```. Alternatively, log in and out. To verify, run the command ```echo $PATH``` and the path added should be at the end of the output from the command.
+#### 🐧 Linux
+For Linux the default installation directory is ```...``` <br>
+To add it as an environment variable:
+1. Open the file ```.bashrc``` using ```nano ~/.bashrc```.
+2. Navigate to the bottom of the file with the arrow keys and add this line at the end ```export PATH="$PATH:DefaultPathHere"```. Remember to save the file and exit.
+3.  To apply the changes immediately run the command ```source ~/.bashrc```. Alternatively, log in and out.
+4.   To verify, run the command ```echo $PATH``` and the path added should be at the end of the output from the command.
 
 ### External libraries and software
 #### Libraries
@@ -154,7 +159,7 @@ If you are using a **Debian**, **Arch** or **Red Hat** based distro the applicat
 
 </div>
 
-If you are not using on of these distros please see the [Siegfried GitHub](https://github.com/richardlehane/siegfried) for information on downloading Siegfried.
+If you are **not** using on of these distros please see the **[Siegfried GitHub](https://github.com/richardlehane/siegfried)** for information on downloading Siegfried.
 
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
 
@@ -182,7 +187,7 @@ The program is mostly tested in Windows, so Linux specific issues may not appear
 ## GUI
 ![guisettings](https://github.com/larsmhaugland/file-converter/assets/117298604/b9569561-7a2c-4ed4-8a53-7264f071de26)
 
-The GUI provides a more user-friendly way of editing the settings of the application (see [Settings](#settings) for further information). Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default```PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
+The GUI provides a more user-friendly way of editing the settings of the application (see [Settings](#settings) for further information). Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default``` PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
 
 
 
@@ -232,12 +237,12 @@ Settings can be manually set in the ```Settings.xml``` file.
 ```xml  
     <Requester></Requester>                    <!-- Name of person requesting the conversion -->
     <Converter></Converter>                    <!-- Name of person doing the conversion -->
-	<ChecksumHashing></ChecksumHashing>          <!-- SHA256 (standard) or MD5 -->
-	<InputFolder></InputFolder>                  <!-- Specify input folder, default is "input" -->
-	<OutputFolder></OutputFolder>                <!-- Specify output folder, default is "output" -->
-	<MaxThreads></MaxThreads>	                   <!-- Write a number, deafult is cores*2 -->
-	<Timeout></Timeout>			                     <!-- Timeout in minutes, default is 30min -->
-	<MaxFileSize></MaxFileSize>		<!-- Max total input bytes per file for merged files, default is 1GB. Note: output file size may differ from total of input files -->
+	<ChecksumHashing></ChecksumHashing>    <!-- SHA256 (standard) or MD5 -->
+	<InputFolder></InputFolder>            <!-- Specify input folder, default is "input" -->
+	<OutputFolder></OutputFolder>          <!-- Specify output folder, default is "output" -->
+	<MaxThreads></MaxThreads>	       <!-- Write a number, deafult is cores*2 -->
+	<Timeout></Timeout>       	       <!-- Timeout in minutes, default is 30min -->
+	<MaxFileSize></MaxFileSize>	       <!-- Max total input bytes per file for merged files, default is 1GB. Note: output file size may differ from total of input files -->
 ```
 
 The first part of the XML file concerns arguments needed to run the program. The second part allows you to set up two things:
@@ -247,37 +252,35 @@ The first part of the XML file concerns arguments needed to run the program. The
 ### Global settings
 ```xml
 <FileClass>
-	<ClassName>pdf</ClassName>
-	<Default>fmt/477</Default>        <!-- The target PRONOM code the class should be converted to -->
-	<FileTypes>
-		<Filename>pdf</Filename>
-    <Pronoms>                             <!-- List of all PRONOMs that should be converted to the target PRONOM -->
-			fmt/95,fmt/354,fmt/476,fmt/477 ,fmt/478 ,fmt/479 ,fmt/480
-		</Pronoms>
-		<Default></Default>
-	</FileTypes>
+    <ClassName>pdf</ClassName>
+    <Default>fmt/477</Default>  <!-- The target PRONOM code the class should be converted to -->
+    <FileTypes>
+           <Filename>pdf</Filename>
+       <Pronoms>       <!-- List of all PRONOMs that should be converted to the target PRONOM -->
+              fmt/95,fmt/354,fmt/476,fmt/477 ,fmt/478 ,fmt/479 ,fmt/480
+       </Pronoms>
+    <Default></Default>
+    </FileTypes>
 </FileClass>
 ```
 
 ### Folder settings
 ```xml
-	<FolderOverride>
-		<FolderPath>apekatter</FolderPath>      <!-- Path after input folder example: /documents -->
-		<Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398</Pronoms>
-		<ConvertTo>fmt/14</ConvertTo>
-		<MergeImages></MergeImages>             <!-- Yes, No -->
-	</FolderOverride>
+<FolderOverride>
+	<FolderPath>apekatter</FolderPath>      <!-- Path after input folder example: /documents -->
+	<Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398</Pronoms>
+	<ConvertTo>fmt/14</ConvertTo>
+	<MergeImages></MergeImages>             <!-- Yes, No -->
+</FolderOverride>
 ```
 
 ## Currently supported file formats 
 <img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/92f26f2b-2ad4-4179-ac6f-07fb4f7dc1ba">
 
-
-
 ## Documentation and logging 
 The ```.txt```log files use the following convention and is automatically generated each time the program is run:
 ```
-Type	| (Error) Message | Format | Filetype | Filename
+Type | (Error) Message | Format | Filetype | Filename
 ```
 All log files can be found in the ```logs``` folder.
 
