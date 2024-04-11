@@ -182,6 +182,10 @@ The program is mostly tested in Windows, so Linux specific issues may not appear
 ## GUI
 Common usage GUI
 
+![mainsettings](https://github.com/larsmhaugland/file-converter/assets/117298604/6d2e4269-6f53-48fa-bfc4-54d7479b5699)
+
+
+
 ## CLI
 Cover options and common usage
 ```
