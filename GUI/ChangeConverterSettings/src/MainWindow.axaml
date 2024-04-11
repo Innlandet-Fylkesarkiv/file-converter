@@ -5,7 +5,12 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="ChangeConverterSettings.MainWindow"
         Title="ChangeConverterSettings">
-	
+	<Window.Styles>
+		<Style Selector="Button:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="LightGreen"/>
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+	</Window.Styles>
 	<ScrollViewer HorizontalScrollBarVisibility="Visible">
 		<TabControl Margin="5">
 			<TabItem Header="Main Settings">
@@ -30,7 +35,7 @@
 							<StackPanel Grid.Column="1"/>
 
 							<!-- Save button -->
-							<Button Name="Save" Grid.Column="2" Margin="0,0,10,0" Background="Green" Click="SaveButton">Save</Button>
+							<Button Name="Save" Grid.Column="2" Margin="0,0,10,0" Background="Green" Foreground="White" Click="SaveButton">Save</Button>
 						</Grid>
 
 						<TextBox  Margin="0,10,0,0" Name="Requester" HorizontalAlignment="Left"></TextBox>
@@ -64,14 +69,14 @@
 				</StackPanel>
 			</TabItem>
 			<TabItem Header="Folder Override">
-				<Grid Background="Black" Name="FolderOverrideGrid">
+				<Grid Name="FolderOverrideGrid">
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
 						<RowDefinition Height="Auto"/>
 					</Grid.RowDefinitions>
 
-					<Grid Grid.Row="0" Background="Gray">
-						<Button Name="Save2" Margin="0,0,10,0" Background="Green" HorizontalAlignment="Center" Click="SaveButton">Save</Button>
+					<Grid Grid.Row="0" >
+						<Button Name="Save2" Margin="0,0,10,0" Background="Green" Foreground="White" HorizontalAlignment="Center" Click="SaveButton">Save</Button>
 					</Grid>
 
 					<!-- Separator (White Line) -->
