@@ -365,5 +365,3 @@ This project exists thanks to these wonderful people:<br>
 
 # 📄 Licensing
 This project is licensed under the GNU Affero General Public License v3.0. as listed on https://spdx.org/licenses/ 
-<br>
-[AGPL v3.0.](LICENSE)
