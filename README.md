@@ -158,10 +158,9 @@ If you are not using on of these distros please see the [Siegfried GitHub](https
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
 
 # 🚀 Usage 
-Common usage (code block)
 
+![basicusage](https://github.com/larsmhaugland/file-converter/assets/117298604/abd0408d-13bf-45d7-b450-015e9fa946b9)
 
-![commonusage](https://github.com/larsmhaugland/file-converter/assets/117298604/9ea3901e-dfe3-4282-bd56-1d6f67a126a1)
 
 
 ## Beta
