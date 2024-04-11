@@ -531,6 +531,13 @@ public class LibreOfficeConverter : Converter
 
 
     List<string> PDFPronoms = [
+        "fmt/95",       // PDF/A 1A
+        "fmt/354",      // PDF/A 1B
+        "fmt/476",      // PDF/A 2A
+        "fmt/477",      // PDF/A 2B
+        "fmt/478",      // PDF/A 2U
+        "fmt/479",      // PDF/A 3A
+        "fmt/480",      // PDF/A 3B
         "fmt/14",       // PDF 1.0
         "fmt/15",       // PDF 1.1
         "fmt/16",       // PDF 1.2

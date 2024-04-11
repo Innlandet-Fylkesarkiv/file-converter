@@ -257,9 +257,9 @@ class Program
 	{
 		ProcessStartInfo startInfo = new ProcessStartInfo();
 		
-		startInfo.FileName = OperatingSystem.IsLinux() ? "" : "";
-        startInfo.Arguments = OperatingSystem.IsLinux() ? "dotnet " + getGUIPath() : getGUIPath();
-        if (startInfo.FileName == "")
+		startInfo.FileName = OperatingSystem.IsLinux() ? "dotnet " + getGUIPath() : getGUIPath();
+		startInfo.Arguments = "";
+        if (startInfo.FileName == "" || startInfo.FileName == "dotnet ")
 		{
             Console.WriteLine("Could not find GUI executable");
             return;
