@@ -177,14 +177,15 @@ The program is mostly tested in Windows, so Linux specific issues may not appear
   	- UPDATE: May be resolved, more testing required.
 - Parsing siegfried data from incomplete run
   	- The current version of the program cannot successfully recover siegfried data from an incomplete run
-- Timeout
-  	- Timeout for conversion is not yet implemented
+  	  
 - (Compressed files)
   	- Zip is the only tested format, but .tar .gz .7z and .rar is also supported in the current version. It seems stable, but it is best to double check results.
 - HTML -> PDF
   	- This conversion does not work, even though the program may think it did based on the output file's pronom. Output file will be empty.
 - GUI
   	- Starting GUI from main program will crash the program on Linux
+- Office conversion (Linux)
+  	- Office conversion using LibreOffice does not work correctly
   
 ## GUI
 ![guisettings](https://github.com/larsmhaugland/file-converter/assets/117298604/b9569561-7a2c-4ed4-8a53-7264f071de26)
