@@ -1,3 +1,4 @@
+//THIS IS A CONSISIVE TXT FILE THAT SHOWS ALL SUPPORTED CONVERSIONS SORTED BY THE EXTERNAL CONVERTER. FOR A MORE READABLE VERSION (WITHOUT DUPLICATE FROM-PRONOMS) SEE THE .JSON FILE.
 //ITEXT7
 fmt/3 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/4 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
@@ -58,7 +59,6 @@ fmt/19 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, f
 fmt/20 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/276 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/1129 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
-Error:  | Error getting LibreOffice version: C:\Program Files\LibreOffice\program\soffice.exe | N/A | N/A | N/A
 fmt/3 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/4 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/11 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
@@ -200,7 +200,6 @@ x-fmt/406 | fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129, f
 x-fmt/407 | fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129, fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480
 x-fmt/408 | fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129, fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480
 fmt/501 | fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129, fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480
-Error:  | Error getting LibreOffice version: C:\Program Files\LibreOffice\program\soffice.exe | N/A | N/A | N/A
 fmt/3 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/4 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/11 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
@@ -530,7 +529,6 @@ fmt/19 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, f
 fmt/20 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/276 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/1129 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
-Error:  | Error getting LibreOffice version: C:\Program Files\LibreOffice\program\soffice.exe | N/A | N/A | N/A
 fmt/55 | fmt/214, fmt/1828
 fmt/55 | fmt/1755, fmt/137, fmt/294, fmt/295
 fmt/55 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
@@ -777,7 +775,6 @@ fmt/19 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, f
 fmt/20 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/276 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
 fmt/1129 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
-Error:  | Error getting LibreOffice version: C:\Program Files\LibreOffice\program\soffice.exe | N/A | N/A | N/A
 fmt/55 | fmt/214, fmt/1828
 fmt/55 | fmt/1755, fmt/137, fmt/294, fmt/295
 fmt/55 | fmt/95, fmt/354, fmt/476, fmt/477, fmt/478, fmt/479, fmt/480, fmt/14, fmt/15, fmt/16, fmt/17, fmt/18, fmt/19, fmt/20, fmt/276, fmt/1129
@@ -980,6 +977,3 @@ fmt/278 | fmt/18
 fmt/950 | fmt/18
 x-fmt/430 | fmt/278, fmt/950
 fmt/1144 | fmt/278, fmt/950
-
-
-
