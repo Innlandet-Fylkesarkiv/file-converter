@@ -164,7 +164,7 @@ public class FileManager
             if (Directory.Exists(directoryPath))
             {
                 // Check if parent directory exists
-                if (!Directory.Exists(Directory.GetParent(path).FullName))
+                if (!Directory.Exists(Directory.GetParent(path)!.FullName))
                 {
                     return false;
                 }
@@ -263,7 +263,7 @@ public class FileManager
         filteredFiles.ForEach(kv =>
         {
             kv.Value.RemoveAll(f => kv.Value
-                .Count(x => Path.GetFileNameWithoutExtension(x.FilePath) == Path.GetFileNameWithoutExtension(f.FilePath)) == 1);
+                .Count(x => Path.GetFileNameWithoutExtension(x.FilePath) == Path.GetFileNameWithoutExtension(f.FilePath)) == 1); //TODO: Should check if the files are in the same directory
         });
         //Remove the keys that have no values
         filteredFiles = filteredFiles.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value);
@@ -299,11 +299,11 @@ public class FileManager
 	/// </summary>
 	private class FileInfoGroup
 	{
-        public string CurrentPronom { get; set; }
-		public string CurrentFormatName { get; set; }
-        public string TargetPronom { get; set; }
-		public string TargetFormatName { get; set; }
-        public int Count { get; set; }
+        public string CurrentPronom { get; set; } = "";
+		public string CurrentFormatName { get; set; } = "";
+        public string TargetPronom { get; set; } = "";
+		public string TargetFormatName { get; set; } = "";
+		public int Count { get; set; } = 0;
     }
 
 	/// <summary>

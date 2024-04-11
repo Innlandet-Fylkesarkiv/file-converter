@@ -5,29 +5,29 @@ using System.Text;
 using System.Threading.Tasks;
 class AddConverters
 {
-    List<Converter> converters = null;
-
+    List<Converter>? Converters = null;
+    private static AddConverters? instance;
+    private static readonly object lockObject = new object();
 
     public List<Converter> GetConverters()
     {
-        if (converters == null)
+        if (Converters == null)
         {
-            converters = new List<Converter>();
-            converters.Add(new iText7());
-            converters.Add(new GhostscriptConverter());
-            converters.Add(new LibreOfficeConverter());
-            converters.Add(new EmailConverter());
+            Converters = new List<Converter>();
+            Converters.Add(new iText7());
+            Converters.Add(new GhostscriptConverter());
+            Converters.Add(new LibreOfficeConverter());
+            Converters.Add(new EmailConverter());
             //Remove converters that are not supported on the current operating system
             var currentOS = Environment.OSVersion.Platform.ToString();
-            converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
+            Converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
                                       !c.SupportedOperatingSystems.Contains(currentOS) ||
                                       !c.DependeciesExists);
         }
         
-        return converters;
+        return Converters;
     }
-    private static AddConverters? instance;
-    private static readonly object lockObject = new object();
+    
     public static AddConverters Instance
     {
         get

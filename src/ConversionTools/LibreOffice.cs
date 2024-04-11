@@ -33,11 +33,11 @@ public class LibreOfficeConverter : Converter
 	{
 		Name = "Libreoffice";
 		SetNameAndVersion();
-		SupportedConversions = getListOfSupportedConvesions();
-		SupportedOperatingSystems = getSupportedOS();
+		SupportedConversions = GetListOfSupportedConvesions();
+		SupportedOperatingSystems = GetSupportedOS();
 		currentOS = Environment.OSVersion;
-        DependeciesExists = currentOS.Platform == PlatformID.Unix ? checkPathVariableLinux("soffice")
-                                                                : checkPathVariableWindows("soffice.exe");
+        DependeciesExists = currentOS.Platform == PlatformID.Unix ? CheckPathVariableLinux("soffice")
+                                                                : CheckPathVariableWindows("soffice.exe");
     }
 
     public override void GetVersion()
@@ -54,7 +54,7 @@ public class LibreOfficeConverter : Converter
                 FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(sofficePath);
                 if (fileVersionInfo != null)
                 {
-                    Version = fileVersionInfo.ProductVersion;
+                    Version = fileVersionInfo.ProductVersion ?? "Version not found";
                 }
             }
             else
@@ -72,7 +72,7 @@ public class LibreOfficeConverter : Converter
     /// Gets the supported operating system for the converter
     /// </summary>
     /// <returns>Returns a list of string with the suported operating systems</returns>
-    public override List<string> getSupportedOS()
+    public override List<string> GetSupportedOS()
 	{
 		var supportedOS = new List<string>();
 		supportedOS.Add(PlatformID.Win32NT.ToString());
@@ -96,8 +96,8 @@ public class LibreOfficeConverter : Converter
 		string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(file.FilePath));
 		string executableName = currentOS.Platform == PlatformID.Unix ? "soffice" : "soffice.exe";
 
-		bool sofficePathWindows = checkPathVariableWindows(executableName);
-		bool sofficePathLinux = checkPathVariableLinux(executableName);
+		bool sofficePathWindows = CheckPathVariableWindows(executableName);
+		bool sofficePathLinux = CheckPathVariableLinux(executableName);
 
 		string targetFormat = GetConversionExtension(pronom);
 
@@ -128,7 +128,7 @@ public class LibreOfficeConverter : Converter
 	/// Reference list stating supported conversions containing key value pairs with string input pronom and string output pronom
 	/// </summary>
 	/// <returns>List of all supported conversions</returns>
-	public override Dictionary<string, List<string>> getListOfSupportedConvesions()
+	public override Dictionary<string, List<string>> GetListOfSupportedConvesions()
 	{
 		var supportedConversions = new Dictionary<string, List<string>>();
 
@@ -338,7 +338,7 @@ public class LibreOfficeConverter : Converter
 		return supportedConversions;
 	}
 
-    public override Dictionary<string, List<string>> getListOfBlockingConversions()
+    public override Dictionary<string, List<string>> GetListOfBlockingConversions()
     {
         return SupportedConversions;
     }
@@ -415,8 +415,8 @@ public class LibreOfficeConverter : Converter
 			if (converted)
 			{
 				// Delete copy in ouputfolder if converted successfully
-				deleteOriginalFileFromOutputDirectory(sourceDoc);
-                replaceFileInList(newFileName, file);
+				DeleteOriginalFileFromOutputDirectory(sourceDoc);
+                ReplaceFileInList(newFileName, file);
             }
 		}
 		catch (Exception e)

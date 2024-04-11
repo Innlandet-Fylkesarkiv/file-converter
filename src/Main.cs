@@ -166,7 +166,7 @@ class Program
             logger.AskAboutReqAndConv();
             fileManager.DisplayFileList();
 			PrintHelper.PrintLn("Requester: {0}\nConverter: {1}\nMaxThreads: {2}\nTimeout in minutes: {3}", 
-				GlobalVariables.INFO_COL, Logger.JsonRoot.requester, Logger.JsonRoot.converter, GlobalVariables.maxThreads, GlobalVariables.timeout);
+				GlobalVariables.INFO_COL, Logger.JsonRoot.Requester, Logger.JsonRoot.Converter, GlobalVariables.maxThreads, GlobalVariables.timeout);
 
             Console.Write("Do you want to proceed with these settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
             while (!validInput.Contains(input))
@@ -220,7 +220,7 @@ class Program
 		Console.WriteLine("Compressing folders...");
 		sf.CompressFolders();
 
-		if (Logger.Instance.errorHappened)
+		if (Logger.Instance.ErrorHappened)
 		{
 			PrintHelper.PrintLn("One or more errors happened during runtime, please check the log file for more information.", GlobalVariables.ERROR_COL);
 		}
@@ -274,7 +274,7 @@ class Program
         }
 
         // Monitor user input and process status
-        while (!process.HasExited)
+        while (process != null && !process.HasExited)
         {
 			// Check if a key is available (user typed a character)
 			if (Console.KeyAvailable)

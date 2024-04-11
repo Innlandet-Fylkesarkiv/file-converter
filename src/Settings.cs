@@ -66,11 +66,11 @@ class Settings
             string? converter = converterNode?.InnerText.Trim();
             if (!String.IsNullOrEmpty(requester))
 			{
-                Logger.JsonRoot.requester = requester;
+                Logger.JsonRoot.Requester = requester;
             } 
 			if (!String.IsNullOrEmpty(converter))
 			{
-                Logger.JsonRoot.converter = converter;
+                Logger.JsonRoot.Converter = converter;
             }
 			string? input = inputNode?.InnerText.Trim();
 			string? output = outputNode?.InnerText.Trim();

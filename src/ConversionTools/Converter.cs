@@ -3,12 +3,12 @@
 /// </summary>
 public class Converter
 {
-	public string Name { get; set; } // Name of the converter
-	public string Version { get; set; } // Version of the converter
-	public string NameAndVersion { get; set; } // Name and version of the converter
-	public Dictionary<string, List<string>> SupportedConversions { get; set; }
-	public List<string> SupportedOperatingSystems { get; set; } = new List<string>();
-    public bool DependeciesExists { get; set; }    // Whether the required dependencies for the converter are available on the system
+    public string Name { get; set; } = ""; // Name of the converter
+    public string Version { get; set; } = ""; // Version of the converter
+	public string NameAndVersion { get; set; } = ""; // Name and version of the converter
+	public Dictionary<string, List<string>> SupportedConversions { get; set; } = new Dictionary<string, List<string>>(); // Supported conversions
+	public List<string> SupportedOperatingSystems { get; set; } = new List<string>(); // Supported operating systems
+    public bool DependeciesExists { get; set; } = false;    // Whether the required dependencies for the converter are available on the system
     public Dictionary<string, List<string>> BlockingConversions { get; set; } = new Dictionary<string, List<string>>();
 	SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
@@ -25,7 +25,7 @@ public class Converter
     /// Get the supported operating systems for the converter
     /// </summary>
     /// <returns> A list of supported OS </returns>
-    public virtual List<string> getSupportedOS()
+    public virtual List<string> GetSupportedOS()
     {
         return new List<string>();
     }
@@ -34,11 +34,11 @@ public class Converter
     /// Get a list of supported conversions for the converter
     /// </summary>
     /// <returns> A dictionary with string originalPRONOM and a list of PRONOMS it can be converted to </returns>
-    public virtual Dictionary<string, List<string>>? getListOfSupportedConvesions()
+    public virtual Dictionary<string, List<string>>? GetListOfSupportedConvesions()
     {
         return new Dictionary<string, List<string>>();
     }
-    public virtual Dictionary<string, List<string>> getListOfBlockingConversions()
+    public virtual Dictionary<string, List<string>> GetListOfBlockingConversions()
     {
         return new Dictionary<string, List<string>>();
     }
@@ -86,7 +86,7 @@ public class Converter
                 await semaphore.WaitAsync();
 			}
 			await ConvertFileWithTimeout(file, timeout);
-		} catch (TimeoutException e)
+		} catch (TimeoutException)
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("ConvertFile: Conversion timed out", true, filename: file.FilePath);
 		}
@@ -157,7 +157,7 @@ public class Converter
     /// Delete an original file, that has been converted, from the output directory
     /// </summary>
     /// <param name="filePath">The specific file to be deleted</param>
-    public virtual void deleteOriginalFileFromOutputDirectory(string filePath)
+    public void DeleteOriginalFileFromOutputDirectory(string filePath)
     {
         try
         {
@@ -177,7 +177,7 @@ public class Converter
     /// </summary>
     /// <param name="newPath"> The new path of the file </param>
     /// <param name="f"> The specific file </param>
-    public virtual void replaceFileInList(string newPath, FileToConvert f)
+    public void ReplaceFileInList(string newPath, FileToConvert f)
     {
         f.FilePath = newPath;
         var file = FileManager.Instance.GetFile(f.Id);
@@ -209,8 +209,8 @@ public class Converter
             {
                 if (result.matches[0].id == newFormat)
                 {
-                    deleteOriginalFileFromOutputDirectory(file.FilePath);
-                    replaceFileInList(newFilepath, file);
+                    DeleteOriginalFileFromOutputDirectory(file.FilePath);
+                    ReplaceFileInList(newFilepath, file);
                     return true;
                 }
             }
@@ -278,7 +278,7 @@ public class Converter
     /// </summary>
     /// <param name="executableName"> Name of the executable to have its folder in the PATH </param>
     /// <returns> Bool indicating if the directory containing the executable was found </returns>
-    public static bool checkPathVariableWindows(string executableName)
+    public static bool CheckPathVariableWindows(string executableName)
     {
 
         string pathVariable = Environment.GetEnvironmentVariable("PATH") ?? ""; // Get the environment variables as a string
@@ -301,7 +301,7 @@ public class Converter
     /// </summary>
     /// <param name="executableName"> Name of the executable to have its folder in the PATH </param>
     /// <returns> Bool indicating if the directory containing the executable was found </returns>
-    public static bool checkPathVariableLinux(string executableName)
+    public static bool CheckPathVariableLinux(string executableName)
     {
         string pathVariable = Environment.GetEnvironmentVariable("PATH") ?? "";
         char pathSeparator = Path.PathSeparator;

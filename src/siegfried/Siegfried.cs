@@ -199,6 +199,10 @@ public class Siegfried
 
 	private void ReadFromFiles()
 	{
+		if(instance == null)
+		{
+			instance = new Siegfried();
+		}
 		//TODO: Compressed files are not handled correctly here
 		var paths = Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories);
 		using (ProgressBar progressBar = new ProgressBar(paths.Length))
@@ -618,7 +622,7 @@ public class Siegfried
 			try
 			{
 				File.Copy(file, outputPath, true);
-			} catch (IOException ex)
+			} catch (IOException)
 			{
 				Console.WriteLine("Could not open file '{0}', it may be used in another process");
 				retryFiles.Add(file);

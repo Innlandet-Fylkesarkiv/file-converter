@@ -31,9 +31,9 @@ public class iText7 : Converter
 	{
 		Name = "iText7";
         SetNameAndVersion();
-		SupportedConversions = getListOfSupportedConvesions();
-        SupportedOperatingSystems = getSupportedOS();
-        BlockingConversions = getListOfBlockingConversions();
+		SupportedConversions = GetListOfSupportedConvesions();
+        SupportedOperatingSystems = GetSupportedOS();
+        BlockingConversions = GetListOfBlockingConversions();
 
         DependeciesExists = true;   // Bundled with program 
         //Acknowledge AGPL usage warning
@@ -156,7 +156,7 @@ public class iText7 : Converter
     /// Reference list stating supported conversions containing key value pairs with string input pronom and string output pronom
     /// </summary>
     /// <returns>List of all conversions</returns>
-    public override Dictionary<string, List<string>> getListOfSupportedConvesions()
+    public override Dictionary<string, List<string>> GetListOfSupportedConvesions()
     {
         var supportedConversions = new Dictionary<string, List<string>>();
         foreach (string imagePronom in ImagePronoms)
@@ -177,7 +177,7 @@ public class iText7 : Converter
         return supportedConversions;
     }
 
-    public override Dictionary<string, List<string>> getListOfBlockingConversions()
+    public override Dictionary<string, List<string>> GetListOfBlockingConversions()
     {
         var blockingConversions = new Dictionary<string, List<string>>();
         foreach(string pronom in ImagePronoms.Concat(HTMLPronoms.Concat(PDFPronoms)))
@@ -189,7 +189,7 @@ public class iText7 : Converter
 
 
 
-    public override List<string> getSupportedOS()
+    public override List<string> GetSupportedOS()
     {
         var supportedOS = new List<string>();
         supportedOS.Add(PlatformID.Win32NT.ToString());
@@ -407,7 +407,7 @@ public class iText7 : Converter
                 {
                     File.Delete(filename);
                     File.Move(tmpFilename, filename);
-                    replaceFileInList(filename, file);
+                    ReplaceFileInList(filename, file);
                 }
             }
         }
@@ -527,7 +527,7 @@ public class iText7 : Converter
                 File.Delete(filename);
                 File.Move(tmpFilename, filename);
                 //Rename reference in filemanager
-                replaceFileInList(filename, file);
+                ReplaceFileInList(filename, file);
             }
         }
         catch (Exception e)
@@ -632,7 +632,7 @@ public class iText7 : Converter
             foreach (var file in files)
             {
                 string filename = Path.Combine(file.FilePath);
-                deleteOriginalFileFromOutputDirectory(filename);
+                DeleteOriginalFileFromOutputDirectory(filename);
                 file.IsMerged = true;
                 file.NewFileName = outputFileName;
             }

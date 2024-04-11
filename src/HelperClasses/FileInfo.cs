@@ -1,7 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using System.Security.Cryptography;
-using System.Text.Json.Serialization;
-using System.Drawing;
 
 public enum HashAlgorithms
 {
@@ -26,9 +24,7 @@ public class FileInfo
 	public long OriginalSize { get; set; } = 0;					// Original file size (bytes)
 	public long NewSize { get; set; } = 0;						// New file size (bytes)
 	public bool IsConverted { get; set; } = false;				// True if file is converted
-	public bool IsModified { get; set; } = false;				// True if file is modified
 	public List<string> Route { get; set; } = new List<string>();   // List of modification tools used
-	public string TargetPronom { get; set; } = "";				// The pronom the file should be converted to
 	public Guid Id { get; set; }								// Unique identifier for the file
 	public bool ShouldMerge { get; set; } = false;				// True if file should be merged
 	public bool IsMerged { get; set; } = false;					// True if file is merged

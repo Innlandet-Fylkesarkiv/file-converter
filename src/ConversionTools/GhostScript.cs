@@ -31,10 +31,10 @@ public class GhostscriptConverter : Converter
 		Name = "Ghostscript";
 		GetExecutablePath();
 		SetNameAndVersion();
-		SupportedConversions = getListOfSupportedConvesions();
-        BlockingConversions = getListOfBlockingConversions();
-        SupportedOperatingSystems = getSupportedOS();
-        DependeciesExists = Environment.OSVersion.Platform == PlatformID.Win32NT ? File.Exists(gsWindowsExecutable) : checkPathVariableLinux("gs");
+		SupportedConversions = GetListOfSupportedConvesions();
+        BlockingConversions = GetListOfBlockingConversions();
+        SupportedOperatingSystems = GetSupportedOS();
+        DependeciesExists = Environment.OSVersion.Platform == PlatformID.Win32NT ? File.Exists(gsWindowsExecutable) : CheckPathVariableLinux("gs");
     }
 
     /// <summary>
@@ -123,7 +123,7 @@ public class GhostscriptConverter : Converter
 	/// Reference list stating supported conversions containing key value pairs with string input pronom and string output pronom
 	/// </summary>
 	/// <returns>List of all conversions</returns>
-	public override Dictionary<string, List<string>> getListOfSupportedConvesions()
+	public override Dictionary<string, List<string>> GetListOfSupportedConvesions()
 	{
 		var supportedConversions = new Dictionary<string, List<string>>();
 		//PDF to Image
@@ -141,7 +141,7 @@ public class GhostscriptConverter : Converter
 		return supportedConversions;
 	}
 
-public override Dictionary<string, List<string>> getListOfBlockingConversions()
+public override Dictionary<string, List<string>> GetListOfBlockingConversions()
 {
     return SupportedConversions;
 }
@@ -150,7 +150,7 @@ public override Dictionary<string, List<string>> getListOfBlockingConversions()
 /// Get the supported operating systems for Ghostscript
 /// </summary>
 /// <returns>A list of supported OS</returns>   
-public override List<string> getSupportedOS()
+public override List<string> GetSupportedOS()
 	{
 		var supportedOS = new List<string>();
 		supportedOS.Add(PlatformID.Win32NT.ToString());
@@ -183,7 +183,7 @@ public override List<string> getSupportedOS()
                 string pdfVersion = GetPDFVersion(file.Route.First());
 				lock (lockobject)
 				{
-					convertToPDF(file, outputFileName, sDevice, extension, pdfVersion);
+					ConvertToPDF(file, outputFileName, sDevice, extension, pdfVersion);
 				}
             }
             else
@@ -192,16 +192,16 @@ public override List<string> getSupportedOS()
 				{
 					if (OperatingSystem.IsWindows())
 					{
-						convertToImagesWindows(file, outputFileName, sDevice, extension);
+						ConvertToImagesWindows(file, outputFileName, sDevice, extension);
 					}
 					else
 					{
-						convertToImagesLinux(file, outputFileName, sDevice, extension);
+						ConvertToImagesLinux(file, outputFileName, sDevice, extension);
 					}
 				}
             }
         }
-        catch(Exception e)
+        catch(Exception)
 		{
 			Logger.Instance.SetUpRunTimeLogMessage(file.Route.First() + " is not supported by GhostScript. File is not converted.", true, file.FilePath);
 		}
@@ -214,7 +214,7 @@ public override List<string> getSupportedOS()
     /// <param name="outputFileName">The name of the new file</param>
     /// <param name="sDevice">What format GhostScript will convert to</param>
     /// <param name="extension">Extension type for after the conversion</param>
-    void convertToImagesWindows(FileToConvert file, string outputFileName, string sDevice, string extension)
+    void ConvertToImagesWindows(FileToConvert file, string outputFileName, string sDevice, string extension)
 	{
 		Logger log = Logger.Instance;
 		if (!System.OperatingSystem.IsWindowsVersionAtLeast(6,1)) 
@@ -287,7 +287,7 @@ public override List<string> getSupportedOS()
             FileManager.Instance.AddFiles(files);
 			if (converted)
 			{
-				deleteOriginalFileFromOutputDirectory(file.FilePath);
+				DeleteOriginalFileFromOutputDirectory(file.FilePath);
 				originalFileInfo.Display = false;
 				originalFileInfo.IsDeleted = true;
 				originalFileInfo.UpdateSelf(files.First());	//TODO: Ask County Archive how they want the original file to be documented if it is split into different files
@@ -335,7 +335,7 @@ public override List<string> getSupportedOS()
     /// <param name="outputFileName"> Filename of the converted file </param>
     /// <param name="sDevice"> Ghostscript variable that determines what conversion it should do </param>
     /// <param name="extension"> Extension for the new file </param>
-    void convertToImagesLinux(FileToConvert file, string outputFileName, string sDevice, string extension)
+    void ConvertToImagesLinux(FileToConvert file, string outputFileName, string sDevice, string extension)
     {
         try
         {
@@ -413,7 +413,7 @@ public override List<string> getSupportedOS()
     /// <param name="sDevice"> Ghostscript variable that determines what conversion it should do </param>
     /// <param name="extension"> Extension for the new file </param>
     /// <param name="pdfVersion"> The PDF version to covnert to </param>
-	void convertToPDF(FileToConvert file, string outputFileName, string sDevice, string extension, string pdfVersion)
+	void ConvertToPDF(FileToConvert file, string outputFileName, string sDevice, string extension, string pdfVersion)
     {
         string? outputFolder = Path.GetDirectoryName(file.FilePath);
 
@@ -460,7 +460,7 @@ public override List<string> getSupportedOS()
 						(PDFPronoms.Contains(file.Route.First()) || PDFAPronoms.Contains(file.Route.First()) ))
                 {
                     // Set the new filename
-					replaceFileInList(outputFilePath, file);
+					ReplaceFileInList(outputFilePath, file);
                     var converter = new iText7();
                     // Add iText7 to the list of conversion tools
                     var FileInfoMap = ConversionManager.Instance.FileInfoMap;

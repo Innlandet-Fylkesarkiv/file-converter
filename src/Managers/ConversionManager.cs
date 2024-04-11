@@ -10,7 +10,6 @@ public class FileToConvert
 	public bool IsModified { get; set; } = false;   //True if file has been worked on
 	public bool Failed { get; set; } = false;       //True if the file has failed conversion without throwing an exception
 	public bool addedDuringRun { get; set; } = false; //True if the file has been added while the conversion was running
-	public CancellationToken ct { get; set; }        //CancellationToken for the conversion
 	public Guid Id { get; set; }   //Unique identifier for the file
 
 	public FileToConvert(FileInfo file)
@@ -113,7 +112,7 @@ public class ConversionManager
     /// <summary>
     /// initializes the map for how to reach each format
     /// </summary>
-    private void initMap()
+    private void InitMap()
     {
         LibreOfficeConverter converter = new LibreOfficeConverter();
         EmailConverter emailConverter = new EmailConverter();
@@ -148,7 +147,7 @@ public class ConversionManager
         }
     }
 
-    private void initFileMap()
+    private void InitFileMap()
 	{
 		foreach (FileInfo file in FileManager.Instance.Files.Values)
 		{
@@ -200,7 +199,7 @@ public class ConversionManager
 	public ConversionManager()
 	{
 		//Initialize conversion map
-		initMap();
+		InitMap();
 
 		//Initialize converters
 		Converters = AddConverters.Instance.GetConverters();
@@ -214,7 +213,7 @@ public class ConversionManager
 		}
 
 		//Initialize FileMap
-		initFileMap();
+		InitFileMap();
 		FilterConversionMap();
 	}
 
