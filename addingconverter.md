@@ -2,9 +2,9 @@
 This guide explains in detail how to:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **1. [Add a new converter](#adding-a-new-converter)** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2. [Add a new conversion path](#adding-a-new-conversion-path-(multistep-conversion))**
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **2. [Add a new conversion path](#Adding-a-new-conversion-path-Multistep-conversion)**
+
 # Adding a new converter
-Adding new external converters or conversion paths is described in detail in the [Adding a new converter]() guide.
 All source code for external converters is based on the same parent ```Converter``` class, located in ```\ConversionTools\Converter.cs```.
 
 **Converter class**
@@ -23,7 +23,8 @@ All source code for external converters is based on the same parent ```Converter
 All fields shown in the code block above **must** be included in the subclass for the new external converter to work properly. If you are adding a *library-based* converter we would suggest having a look at ```iText7.cs``` for examples on how to structure the subclass.
 For external converters where you want to *parse arguments and use an executable in CLI* we would suggest looking at ```GhostScript.cs```.
 
-> :memo: NOTE: If you are adding an **executable** file that you want to use it needs to be included in the ```.csproj``` file as such to be loaded properly at runtime:
+> [!TIP]
+> If you are adding an **executable** file that you want to use it needs to be included in the ```.csproj``` file as such to be loaded properly at runtime:
 >```xml
 ><ItemGroup>
 >	<None Update="PathToExecutableFile">
