@@ -180,9 +180,9 @@ The program is mostly tested in Windows, so Linux specific issues may not appear
   	- This conversion does not work, even though the program may think it did based on the output file's pronom. Output file will be empty.
   
 ## GUI
-Common usage GUI
+![guisettings](https://github.com/larsmhaugland/file-converter/assets/117298604/b9569561-7a2c-4ed4-8a53-7264f071de26)
 
-![mainsettings](https://github.com/larsmhaugland/file-converter/assets/117298604/6d2e4269-6f53-48fa-bfc4-54d7479b5699)
+The GUI provides a more user-friendly way of editing the settings of the application. Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default```PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
 
 
 
