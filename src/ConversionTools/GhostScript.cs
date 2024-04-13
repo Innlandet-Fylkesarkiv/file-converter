@@ -468,7 +468,7 @@ public override List<string> getSupportedOS()
                     {
                         FileInfoMap[file.Id].ConversionTools.Add(converter.NameAndVersion);
                     }
-                    converter.convertFromPDFToPDF(file, file.Route.First());
+                    converter.convertFromPDFToPDF(file);
                 }
                 converted = CheckConversionStatus(outputFilePath, file.Route.First());
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);

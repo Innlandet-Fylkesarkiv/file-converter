@@ -408,7 +408,7 @@ public class LibreOfficeConverter : Converter
                     {
                         FileInfoMap[file.Id].ConversionTools.Add(converter.NameAndVersion);
                     }
-                    converter.convertFromPDFToPDF(file, pronom);
+                    converter.convertFromPDFToPDF(file);
 				}
 				converted = CheckConversionStatus(newFileName, pronom);
 			} while (!converted && ++count < GlobalVariables.MAX_RETRIES);
