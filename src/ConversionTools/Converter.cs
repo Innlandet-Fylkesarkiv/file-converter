@@ -76,7 +76,7 @@ public class Converter
 	/// Wrapper for the ConvertFile method that also handles the timeout
 	/// </summary>
 	/// <param name="file"></param>
-	async public Task ConvertFile(FileToConvert file)
+	async virtual public Task ConvertFile(FileToConvert file)
 	{
         var timeout = TimeSpan.FromMinutes(GlobalVariables.timeout);
         try
@@ -149,8 +149,7 @@ public class Converter
 	/// Combine multiple files into one file
 	/// </summary>
 	/// <param name="files">List of files that should be combined</param>
-	/// <param name="pronom">The file format to convert to</param>
-	public virtual void CombineFiles(List<FileInfo> files, string pronom)
+	public virtual void CombineFiles(List<FileInfo> files)
 	{ }
 
     /// <summary>
