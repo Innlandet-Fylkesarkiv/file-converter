@@ -164,8 +164,8 @@ If you are **not** using on of these distros please see the **[Siegfried GitHub]
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
 
 # 🚀 Usage 
+![file-converter](https://github.com/larsmhaugland/file-converter/assets/117298604/2de5c420-968c-43e5-b355-8d89cf75012f)
 
-![basicusage](https://github.com/larsmhaugland/file-converter/assets/117298604/abd0408d-13bf-45d7-b450-015e9fa946b9)
 <div align="center">
 	<i> Main CLI application</i>
 	<br>
@@ -228,7 +228,7 @@ $ .\example --yes
 ```
 
 ## GUI
-![guisettings](https://github.com/larsmhaugland/file-converter/assets/117298604/b9569561-7a2c-4ed4-8a53-7264f071de26)
+![gui](https://github.com/larsmhaugland/file-converter/assets/117298604/0fd96cea-d84c-4b83-91b6-737c74ba8baf)
 <div align="center">
 	<i>GUI-version of Settings</i>
 	<br>
@@ -281,10 +281,12 @@ The first part of the XML file concerns arguments needed to run the program. The
 ```
 
 ## Currently supported file formats 
+<div align=center>
 <img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/92f26f2b-2ad4-4179-ac6f-07fb4f7dc1ba">
+</div>
 
 For a more extensive **PRONOM-based** overview you can ***click*** on the following image to be taken to a codesandbox code snippet: <br>
-[![Edit file-converter](https://github.com/larsmhaugland/file-converter/assets/117298604/b417b84f-9ea3-467f-bbfa-39331d1d82c9)](https://codesandbox.io/p/sandbox/file-converter-ynh84y)
+[![Edit file-converter](https://github.com/larsmhaugland/file-converter/assets/117298604/e0b35b20-43e2-4081-908f-19cb885951e4)](https://codesandbox.io/p/sandbox/file-converter-ynh84y)
 
 The code snippet is based on data from the following JSON file: **[Supported Conversions.](DevDocumentation/supportedconversions.json)** <br>
 For a more extensive overview for **each external converter** see the following TXT file: **[Supported Conversions per converter.](DevDocumentation/supportedconversions.txt)**
