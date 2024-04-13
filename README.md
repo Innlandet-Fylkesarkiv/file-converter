@@ -159,7 +159,7 @@ If you are using a **Debian**, **Arch** or **Red Hat** based distro the applicat
 
 </div>
 
-If you are **not** using on of these distros please see the **[Siegfried GitHub](https://github.com/richardlehane/siegfried)** for information on downloading Siegfried.
+If you are **not** using one of these distros please see the **[Siegfried GitHub](https://github.com/richardlehane/siegfried)** for information on downloading Siegfried.
 
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
 
