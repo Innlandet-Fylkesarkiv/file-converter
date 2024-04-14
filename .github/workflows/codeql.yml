@@ -59,6 +59,7 @@ jobs:
                   - cs/weak-encryption
                   - cs/insecure-randomness
                   - cs/user-controlled-bypass
+                  - cs/web/persistent-cookie
             - exclude:
                 tags: 
                   - /telemetry/ 
