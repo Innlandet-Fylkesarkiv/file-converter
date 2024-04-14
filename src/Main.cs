@@ -67,12 +67,6 @@ class Program
             GlobalVariables.parsedOptions = options;
         });
 
-		
-        if (GlobalVariables.parsedOptions.Settings == "Settings.xml")
-        {
-            settingsPath = GlobalVariables.debug ? "Settings.xml" : "Settings.xml";
-        }
-
         if (!OperatingSystem.IsLinux())
         {
             //Look for settings file in parent directories as long as settings file is not found and we are not in the root directory
