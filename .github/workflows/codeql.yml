@@ -61,7 +61,6 @@ jobs:
             - exclude:
                 tags: 
                   - /telemetry/ 
-                  - /security/
     
 
     # Autobuild attempts to build any compiled languages (C/C++, C#, Go, Java, or Swift).
