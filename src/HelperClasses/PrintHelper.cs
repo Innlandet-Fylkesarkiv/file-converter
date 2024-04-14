@@ -21,5 +21,4 @@
         Console.WriteLine(formattedString);
         Console.ForegroundColor = OldCol;
     }
-
 }

@@ -75,7 +75,6 @@ public class Logger
 		public string? MergedTo { get; set; }
     }
 
-
 	List<JsonData> JsonFiles = new List<JsonData>();
 	Dictionary<string,Dictionary<string,List<JsonDataMerge>>> JsonMergedFiles = new Dictionary<string, Dictionary<string, List<JsonDataMerge>>>();
 	List<JsonDataOutputNotSupported> JsonNotSupportedFiles = new List<JsonDataOutputNotSupported>();
@@ -206,7 +205,6 @@ public class Logger
 						JsonMergedFiles[parentDir].Add(jsonData.MergedTo, new List<JsonDataMerge>());
 						JsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
 					}
-					
                 } else
 				{
                     JsonMergedFiles.Add(parentDir, new Dictionary<string, List<JsonDataMerge>>());
