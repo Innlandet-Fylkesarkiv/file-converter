@@ -124,6 +124,8 @@ To add it as an environment variable:
 - **[LibreOffice](https://www.libreoffice.org/)** under the Mozilla Public License 2.0.
 - **[wkhtmltopdf](https://wkhtmltopdf.org/)** under the GNU Lesser General Public License v3.0.
 - **[email-outlook-message-perl](https://github.com/mvz/email-outlook-message-perl)** under the GNU Affero General Public License v3.0.
+- **[Rebex Mail Converter](https://www.rebex.net/mail-converter/)** under Freeware.
+- **[email-to-pdf-converter](https://github.com/nickrussler/email-to-pdf-converter)** under the Apache License 2.0.
 - **[Siegfried](https://www.itforarchivists.com/siegfried/)** under the Apache License 2.0.
 
 ## 🪟 Installation for Windows 
