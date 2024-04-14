@@ -1,7 +1,4 @@
-﻿using iText.Layout.Splitting;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
 
 /// <summary>
 /// Libreoffice supports the following conversions for both Linux and Windows:
@@ -38,6 +35,7 @@ public class LibreOfficeConverter : Converter
 		currentOS = Environment.OSVersion;
         DependeciesExists = currentOS.Platform == PlatformID.Unix ? CheckPathVariableLinux("soffice")
                                                                 : CheckPathVariableWindows("soffice.exe");
+		BlockingConversions = GetListOfBlockingConversions();
     }
 
     public override void GetVersion()
@@ -216,7 +214,6 @@ public class LibreOfficeConverter : Converter
 			supportedConversions[docxPronom].AddRange(ODTPronoms);
 			supportedConversions[docxPronom].AddRange(PDFPronoms);
 			supportedConversions[docxPronom].AddRange(PPTPronoms);
-			supportedConversions[docxPronom].AddRange(AllPowerPointFormats);
 		}
 		// DOCM to DOCX, ODT and PDF
 		foreach (string docmPronom in DOCMPronoms)
@@ -530,7 +527,7 @@ public class LibreOfficeConverter : Converter
     }
 
 
-    List<string> PDFPronoms = [
+    static List<string> PDFPronoms = [
         "fmt/95",       // PDF/A 1A
         "fmt/354",      // PDF/A 1B
         "fmt/476",      // PDF/A 2A
@@ -549,7 +546,7 @@ public class LibreOfficeConverter : Converter
         "fmt/1129"      // PDF 2.0
     ];
 
-	List<string> PDFAPronoms = [
+	static List<string> PDFAPronoms = [
 		"fmt/95",       // PDF/A 1A
         "fmt/354",      // PDF/A 1B
         "fmt/476",      // PDF/A 2A
@@ -559,7 +556,7 @@ public class LibreOfficeConverter : Converter
         "fmt/480",      // PDF/A 3B
 	];
 
-    List<string> DOCPronoms =
+    static List<string> DOCPronoms =
 	[
 		// DOC
 		"x-fmt/329",
@@ -582,7 +579,7 @@ public class LibreOfficeConverter : Converter
 		"x-fmt/394",
 		"fmt/892",
 	];
-	List<string> DOCXPronoms =
+	static List<string> DOCXPronoms =
 	[
 		// DOCX
 		//"fmt/473",		This is the code for Office Owner File
@@ -590,16 +587,16 @@ public class LibreOfficeConverter : Converter
 		"fmt/412",
 	];
 
-	List<string> DOCMPronoms =
+	static List<string> DOCMPronoms =
 	[
 		"fmt/523", // DOCM
 	];
-	List<string> DOTXPronoms =
+	static List<string> DOTXPronoms =
 	[
 		 "fmt/597", // DOTX
 	];
 
-	List<string> XLSPronoms =
+	static List<string> XLSPronoms =
 	[
 		//XLS
 		"fmt/55",
@@ -609,26 +606,26 @@ public class LibreOfficeConverter : Converter
 		"fmt/62",
 		"fmt/59",
 	];
-	List<string> XLTXPronoms =
+    static List<string> XLTXPronoms =
 	[
 		"fmt/598", // XLTX
 	];
-	List<string> XLSMPronoms =
+    static List<string> XLSMPronoms =
 	[
 		"fmt/445", // XLSM
 	];
-	List<string> XLSXPronoms =
+    static List<string> XLSXPronoms =
 	[
 		//XLSX
 		"fmt/214",
 		"fmt/1828",
 	];
-	List<string> CSVPronoms =
-   [
+    static List<string> CSVPronoms =
+    [
 	   "x-fmt/18", //CSV
 	   "fmt/800",
-   ];
-	List<string> PPTPronoms =
+    ];
+    static List<string> PPTPronoms =
 	[
 		// PPT
 		"fmt/1537",
@@ -643,25 +640,25 @@ public class LibreOfficeConverter : Converter
 		"fmt/126",
 	];
 
-	List<string> PPTXPronoms =
+    static List<string> PPTXPronoms =
 	[
 		// PPTX
 		"fmt/215",
 		"fmt/1829",
 		"fmt/494",
 	];
-	List<string> PPTMPronoms =
+    static List<string> PPTMPronoms =
 	[
 		// PPTM
 		"fmt/487",
 	];
-	List<string> POTXPronoms =
+    static List<string> POTXPronoms =
 	[
 		//POTX
 		"fmt/631",
 	];
 
-	List<string> ODPPronoms =
+    static List<string> ODPPronoms =
 	[
 		// ODP
 		"fmt/293",
@@ -670,7 +667,7 @@ public class LibreOfficeConverter : Converter
 		"fmt/1754",
 	];
 
-	List<string> ODTPronoms =
+    static List<string> ODTPronoms =
 	[
 		// ODT
 		"x-fmt/3",
@@ -679,7 +676,7 @@ public class LibreOfficeConverter : Converter
 		"fmt/290",
 		"fmt/291",
 	];
-	List<string> ODSPronoms =
+    static List<string> ODSPronoms =
 	[
 		// ODS
 		"fmt/1755",
@@ -688,8 +685,7 @@ public class LibreOfficeConverter : Converter
 		"fmt/295",
 	];
 
-
-	List<string> RTFPronoms =
+    static List<string> RTFPronoms =
 	[
 		"fmt/969",
 		"fmt/45",
@@ -699,81 +695,11 @@ public class LibreOfficeConverter : Converter
 		"fmt/355",
 	];
 
-	List<string> AllPowerPointFormats =
-	[
-        "fmt/1537",
-        "fmt/1866",
-        "fmt/181",
-        "fmt/1867",
-        "fmt/179",
-        "fmt/1747",
-        "fmt/1748",
-        "x-fmt/88",
-        "fmt/125",
-        "fmt/126",
-        "fmt/631",
-        "fmt/487",
-        "fmt/215",
-        "fmt/1829",
-        "fmt/494",
-    ];
+    static List<string> AllPowerPointFormats = PPTMPronoms.Concat(PPTXPronoms).Concat(PPTPronoms).Concat(POTXPronoms).ToList();
 
-    List<string> AllWordFormats =
-    [
-        "x-fmt/329",
-        "fmt/609",
-        "fmt/39",
-        "x-fmt/274",
-        "x-fmt/275",
-        "x-fmt/276",
-        "fmt/1688",
-        "fmt/37",
-        "fmt/38",
-        "fmt/1282",
-        "fmt/1283",
-        "x-fmt/131",
-        "x-fmt/42",
-        "x-fmt/43",
-        "fmt/40",
-        "x-fmt/44",
-        "x-fmt/393",
-        "x-fmt/394",
-        "fmt/892",
-        "fmt/1827",
-        "fmt/412",
-        "fmt/523",
-        "fmt/597",
-    ];
+    static List<string> AllWordFormats = DOCPronoms.Concat(DOCXPronoms).Concat(DOCMPronoms).Concat(DOTXPronoms).ToList();
 
-    List<string> AllExcelFormats =
-    [
-        "fmt/55",
-        "fmt/56",
-        "fmt/57",
-        "fmt/61",
-        "fmt/62",
-        "fmt/59",
-        "fmt/598",
-        "fmt/445",
-        "fmt/214",
-        "fmt/1828",
-    ];
+    static List<string> AllExcelFormats = XLSPronoms.Concat(XLSXPronoms).Concat(XLSMPronoms).Concat(XLTXPronoms).ToList();
 
-    List<string> AllOpenDocumentFormats =
-    [
-        "fmt/293",
-        "fmt/292",
-        "fmt/138",
-        "fmt/1754",
-        "x-fmt/3",
-        "fmt/1756",
-        "fmt/136",
-        "fmt/290",
-        "fmt/291",
-        "fmt/1755",
-        "fmt/137",
-        "fmt/294",
-        "fmt/295",
-
-    ];
+    static List<string> AllOpenDocumentFormats = ODTPronoms.Concat(ODSPronoms).Concat(ODPPronoms).ToList();
 }

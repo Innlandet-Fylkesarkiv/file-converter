@@ -1,12 +1,5 @@
 ﻿using CommandLine;
-using Ghostscript.NET;
-using iText.Kernel.Pdf;
-using iText.Layout.Splitting;
-using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Reflection.Emit;
-using System.Runtime.InteropServices;
 
 public enum PrintSortBy
 {
@@ -60,6 +53,9 @@ class Program
 { 
 	static void Main(string[] args)
 	{
+		
+		Stopwatch sw = new Stopwatch();
+		sw.Start();
 		PrintHelper.OldCol = Console.ForegroundColor;
 		if (GlobalVariables.debug)
 		{
@@ -98,7 +94,7 @@ class Program
         Settings settings = Settings.Instance;
         Console.WriteLine("Reading settings from '{0}'...", settingsPath);
         settings.ReadSettings(settingsPath);
-
+        GlobalVariables.parsedOptions.AcceptAll = true;
         //Check if input and output folders exist
         if (!Directory.Exists(GlobalVariables.parsedOptions.Input))
 		{
@@ -230,6 +226,8 @@ class Program
 		}
 
 		END:
+		sw.Stop();
+		Console.WriteLine("Time elapsed: {0}", sw.Elapsed);
 		Console.WriteLine("Press any key to exit...");
 		Console.ReadKey();	//Keep console open
 	}

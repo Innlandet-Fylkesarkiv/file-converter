@@ -1,11 +1,5 @@
-﻿using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Mozilla;
-using SharpCompress;
-using System.Collections;
+﻿using SharpCompress;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Xml.Serialization;
 
 public class FileManager
 {

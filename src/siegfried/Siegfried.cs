@@ -1,19 +1,9 @@
-﻿	using Ghostscript.NET;
-using iText.IO.Source;
-using iText.Kernel.Pdf.Function;
-using iText.Kernel.Utils.Objectpathitems;
-using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509.SigI;
-using SharpCompress.Archives;
+﻿using SharpCompress.Archives;
 using SharpCompress.Common;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 public class SiegfriedJSON
 {
@@ -566,7 +556,6 @@ public class Siegfried
 		JsonElement jsonElement;
 		return new SiegfriedFile
 		{
-			
 			filename = fileElement.GetProperty("filename").GetString() ?? "",
 			
 			hash = fileElement.TryGetProperty(hashMethod,out jsonElement) ? fileElement.GetProperty(hashMethod).GetString() ?? "" : "",
