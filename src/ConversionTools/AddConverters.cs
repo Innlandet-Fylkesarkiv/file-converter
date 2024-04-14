@@ -1,5 +1,4 @@
-﻿
-class AddConverters
+﻿class AddConverters
 {
     List<Converter>? Converters = null;
     private static AddConverters? instance;
@@ -42,5 +41,3 @@ class AddConverters
         }
     }
 }
-
-

@@ -12,9 +12,6 @@ public class Converter
     public Dictionary<string, List<string>> BlockingConversions { get; set; } = new Dictionary<string, List<string>>();  // Conversions that are blocking (can't be multithreaded)
     SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);      // Semaphore to handle locked sections
 
-
-
-
     /// <summary>
     /// Converter constructor
     /// </summary>
@@ -140,7 +137,6 @@ public class Converter
 		return false;
 	}
 
-
 	/// <summary>
 	/// Convert a file to a new format
 	/// </summary>
@@ -193,7 +189,6 @@ public class Converter
         {
             Logger.Instance.SetUpRunTimeLogMessage("replaceFileInList: File not found in FileManager", true, filename: f.FilePath);
         }
-
     }
 
     /// <summary>
@@ -283,7 +278,6 @@ public class Converter
     /// <returns> Bool indicating if the directory containing the executable was found </returns>
     public static bool CheckPathVariableWindows(string executableName)
     {
-
         string pathVariable = Environment.GetEnvironmentVariable("PATH") ?? ""; // Get the environment variables as a string
         string[] paths = pathVariable.Split(Path.PathSeparator);          // Split them into individual entries
 

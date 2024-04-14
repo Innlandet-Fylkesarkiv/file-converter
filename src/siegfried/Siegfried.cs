@@ -13,7 +13,6 @@ public class SiegfriedJSON
 	public string scandate = "";
 	[JsonPropertyName("files")]
 	public SiegfriedFile[] files = [];
-
 }
 
 public class SiegfriedFile
@@ -754,8 +753,6 @@ public class Siegfried
 		return compressedFolders;
     }
 
-
-
 	/// <summary>
 	/// Compresses a folder to a specified format and deletes the unpacked folder
 	/// </summary>
@@ -815,10 +812,8 @@ public class Siegfried
 			} catch (Exception e)
 			{
                 Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + e.Message, true);
-            }
-			//TODO: Delete the compressed folder
-
-		} catch (Exception e)
+            }//TODO: Delete the compressed folder
+        } catch (Exception e)
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + e.Message, true);
 		}

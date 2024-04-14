@@ -322,45 +322,6 @@ class Settings
 		return null;
     }
 
-	/*
-	 * probably not necessary
-	 * 
-	public void AskAboutEmptyDefaults()
-	{
-		foreach(KeyValuePair<string, string> entry in GlobalVariables.FileSettings)
-		{
-            if (entry.Value == "")
-			{
-                Console.WriteLine("No default type found for " + entry.Key + ". Do you want it to NOT convert(Y/N): ");
-                string? input = Console.ReadLine();
-				if (input != null)
-				{
-                    input = input.ToUpper().Trim();
-                    if (input.Equals("N"))
-                    {
-                        Console.WriteLine("What should it convert to(pronomcode example: fmt/14): ");
-                        input = Console.ReadLine();
-						if (input != null )
-						{
-							string pronomName = PronomHelper.PronomToFullName(input.Trim());
-							if (pronomName != "Empty" && pronomName != "Unknown")
-							{
-                                GlobalVariables.FileSettings[entry.Key] = input;
-                            }
-
-                        }
-                    }
-					else
-					{
-                        GlobalVariables.FileSettings[entry.Key] = entry.Key;
-                    }
-                }
-				
-            }
-        }
-	}
-	*/
-
 	/// <summary>
 	/// Checks if a file should be merged
 	/// </summary>
@@ -376,4 +337,3 @@ class Settings
 		return false;
 	}
 }
-

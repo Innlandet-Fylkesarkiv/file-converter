@@ -490,7 +490,6 @@ public class LibreOfficeConverter : Converter
 				break;
 		}
 
-
 		return extensionNameForConversion;
 	}
 
@@ -525,7 +524,6 @@ public class LibreOfficeConverter : Converter
         }
         return version;
     }
-
 
     static List<string> PDFPronoms = [
         "fmt/95",       // PDF/A 1A

@@ -148,7 +148,6 @@ public class EmailConverter : Converter
         }
     }
 
-
     /// <summary>
     /// Reference list stating supported conversions containing 
     /// key value pairs with string input pronom and string output pronom
@@ -182,7 +181,6 @@ public class EmailConverter : Converter
     {
         return new Dictionary<string, List<string>>();
     }
-
 
     /// <summary>
     /// Gets the correct command for executing eml to pdf conversion

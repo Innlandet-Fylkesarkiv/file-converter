@@ -123,7 +123,6 @@ public class ConversionManager
         string pdfPronomForEmail = "fmt/18";
         string emlConversionPronom = "fmt/950";
 
-
         foreach (FileInfo file in FileManager.Instance.Files.Values)
         {
             // MSG to PDFA-2B via eml and PDF 1.4
@@ -183,7 +182,6 @@ public class ConversionManager
 				}
 				prev = pronom;
 			}
-			
 		});
 
 		//Remove all entries that are not supported by any converter
@@ -231,8 +229,6 @@ public class ConversionManager
 			}
 		}
 	}
-
-	
 
 	public bool SupportsConversion(string currentPronom, string targetPronom)
 	{
@@ -391,7 +387,6 @@ public class ConversionManager
 		}
 	}
 
-
 	/// <summary>
 	/// Updates the data in the working set and removes files that are done or failed conversion after 3 attempts
 	/// </summary>
@@ -478,9 +473,6 @@ public class ConversionManager
 				//Set success to false and log the error message if an exception was thrown
 				Logger.Instance.SetUpRunTimeLogMessage("CM SendToConverter: Error when converting file: " + e.Message, true);
 			}
-			finally
-			{
-			}
 		});
 		if (!queued)
 		{
@@ -527,7 +519,6 @@ public class ConversionManager
 			}
 		}
 	}
-
 
 	/// <summary>
 	/// Sends files to be combined

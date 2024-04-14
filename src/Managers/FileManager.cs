@@ -51,7 +51,6 @@ public class FileManager
 					file.Id = id;
 					Files.TryAdd(id, file);
 				}
-
 			}
 			else
 			{
@@ -108,7 +107,6 @@ public class FileManager
                     Files.TryAdd(id, file);
                 }
             });
-
         }
         catch (Exception e)
         {
@@ -252,7 +250,6 @@ public class FileManager
             .Where(kv => kv.Value.Count > 1)
             .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-
         //Remove the files that are not duplicates
         filteredFiles.ForEach(kv =>
         {
@@ -285,7 +282,6 @@ public class FileManager
 	{
 		AddFiles(new List<FileInfo> { file });
 	}
-
 
 	/// <summary>
 	/// Prints out a grouped list of all identified input file formats and target file formats with pronom codes and full name. <br></br>
@@ -350,7 +346,6 @@ public class FileManager
 	/// </summary>
 	public void DisplayFileList()
 	{
-
 		//Get converters supported formats
 		var converters = AddConverters.Instance.GetConverters();
 		bool macroDetected = false;
@@ -360,7 +355,6 @@ public class FileManager
 		Dictionary<KeyValuePair<string, string>, int> fileCount = new Dictionary<KeyValuePair<string, string>, int>();
 		foreach (FileInfo file in Files.Values)
 		{
-
 			//Skip files that should be merged or should not be displayed
 			if (Settings.ShouldMerge(file))
 			{
@@ -574,9 +568,7 @@ public class FileManager
 				}
 			}
 		}
-
 		Console.ForegroundColor = oldColor;
-
 	}
 
 	/// <summary>
