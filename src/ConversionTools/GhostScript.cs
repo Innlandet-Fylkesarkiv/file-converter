@@ -48,7 +48,6 @@ public class GhostscriptConverter : Converter
         string output = "";
         string error = "";
 
-
         using (Process process = new Process())
         {
             process.StartInfo.FileName = OperatingSystem.IsWindows() ? gsWindowsExecutable : "/bin/bash";
@@ -118,7 +117,6 @@ public class GhostscriptConverter : Converter
         }
 	}
    
-
 	/// <summary>
 	/// Reference list stating supported conversions containing key value pairs with string input pronom and string output pronom
 	/// </summary>
@@ -403,10 +401,8 @@ public override List<string> getSupportedOS()
         }
     }
 
-
-
     /// <summary>
-    ///     Convert to PDF using GhostScript
+    /// Convert to PDF using GhostScript
     /// </summary>
     /// <param name="file"> FileToConvert object with the specific file </param>
     /// <param name="outputFileName"> Filename of the converted file </param>
@@ -449,7 +445,6 @@ public override List<string> getSupportedOS()
 					exeProcess?.WaitForExit();
 				}
 
-               
                 string? currPronom = GetPronom(outputFilePath);
                 if (currPronom == null)
                 {
@@ -582,5 +577,3 @@ public override List<string> getSupportedOS()
         "fmt/501"
         ];
 }
-
-
