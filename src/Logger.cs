@@ -67,7 +67,6 @@ public class Logger
 		public string? MergedTo { get; set; }
     }
 
-
 	List<JsonData> jsonFiles = new List<JsonData>();
 	Dictionary<string,Dictionary<string,List<JsonDataMerge>>> jsonMergedFiles = new Dictionary<string, Dictionary<string, List<JsonDataMerge>>>();
 	List<JsonDataOutputNotSupported> JsonNotSupportedFiles = new List<JsonDataOutputNotSupported>();
@@ -85,7 +84,7 @@ public class Logger
 			case HashAlgorithms.MD5:
 				JsonRoot.hashing = "MD5";
                 break;
-		};
+		}
 
         if (!Directory.Exists(path))
 		{
@@ -197,8 +196,7 @@ public class Logger
 					{
 						jsonMergedFiles[parentDir].Add(jsonData.MergedTo, new List<JsonDataMerge>());
 						jsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
-					}
-					
+					}	
                 } else
 				{
                     jsonMergedFiles.Add(parentDir, new Dictionary<string, List<JsonDataMerge>>());

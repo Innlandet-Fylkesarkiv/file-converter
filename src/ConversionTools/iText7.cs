@@ -24,7 +24,6 @@ using iText.Layout.Element;
 /// </summary>
 public class iText7 : Converter
 {
-
 	private static readonly object pdfalock = new object();     //PDF-A uses a .icc file when converting, which can not be accessed by multiple threads at the same time
 
     public iText7()
@@ -38,9 +37,7 @@ public class iText7 : Converter
         DependeciesExists = true;   // Bundled with program 
         //Acknowledge AGPL usage warning
         EventManager.AcknowledgeAgplUsageDisableWarningMessage();
-    }
-
-  
+    }  
 
     /// <summary>
     /// Get the version of the iText7 library
@@ -88,7 +85,6 @@ public class iText7 : Converter
         }
         return blockingConversions;
     }
-
 
     /// <summary>
     /// Get the supported os for the iText7 library
@@ -162,15 +158,14 @@ public class iText7 : Converter
         return path;
     }
 
-
 	/// <summary>
 	/// Convert from any image file to pdf version 1.0-2.0
 	/// </summary>
 	/// <param name="file">The file being converted</param>
 	/// <param name="pdfVersion">What pdf version it is being converted to</param>
 	/// <param name="conformanceLevel"></param>
-	void convertFromImageToPDF(FileToConvert file, PdfVersion pdfVersion, PdfAConformanceLevel? conformanceLevel = null) {
-	
+	void convertFromImageToPDF(FileToConvert file, PdfVersion pdfVersion, PdfAConformanceLevel? conformanceLevel = null) 
+    {
 		string dir = Path.GetDirectoryName(file.FilePath)?.ToString() ?? "";
 		string filePathWithoutExtension = Path.Combine(dir, Path.GetFileNameWithoutExtension(file.FilePath));
 		string output = Path.Combine(filePathWithoutExtension + ".pdf");
@@ -205,7 +200,6 @@ public class iText7 : Converter
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("Error converting Image to PDF. File is not converted: " + e.Message, true, filename: file.FilePath);
 		}
-		
 	}
 
 	/// <summary>
@@ -257,7 +251,6 @@ public class iText7 : Converter
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("Error converting HTML to PDF. File is not converted: " + e.Message, true, filename: file.FilePath);
 		}
-
 	}
 
     /// <summary>
@@ -451,7 +444,6 @@ public class iText7 : Converter
         }
     }
 
-
     /// <summary>
     /// Merge files into one PDF
     /// </summary>
@@ -575,11 +567,9 @@ public class iText7 : Converter
         }
         catch (Exception e)
         {
-
             Logger.Instance.SetUpRunTimeLogMessage("Error combining files to PDF. Files are not combined: " + e.Message, true, files.First().TargetPronom, outputFileName);
             return Task.CompletedTask;
-        }
-        
+        } 
      }
 
     List<string> ImagePronoms = [
