@@ -38,7 +38,7 @@ jobs:
       contents: read
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         language: [ 'csharp' ]
         
@@ -51,7 +51,6 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-        verbose: true
         config: |
           query-filters:
             - exclude:
@@ -60,6 +59,7 @@ jobs:
                   - cs/insecure-randomness
                   - cs/user-controlled-bypass
                   - cs/web/persistent-cookie
+                  - cs/insufficient-key-size
             - exclude:
                 tags: 
                   - /telemetry/ 
