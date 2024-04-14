@@ -565,7 +565,7 @@ public class iText7 : Converter
         }
         catch (Exception e)
         {
-            Logger.Instance.SetUpRunTimeLogMessage("Error combining files to PDF. Files are not combined: " + e.Message, true, files.First().TargetPronom, outputFileName);
+            Logger.Instance.SetUpRunTimeLogMessage("Error combining files to PDF. Files are not combined: " + e.Message, true, files.First().OriginalPronom, outputFileName);
             return Task.CompletedTask;
         } 
      }

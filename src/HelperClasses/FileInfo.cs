@@ -77,7 +77,6 @@ public class FileInfo
 			default:
 				OriginalChecksum = CalculateFileChecksum(SHA256.Create());
 				break;
-
 		}
 	}
 
