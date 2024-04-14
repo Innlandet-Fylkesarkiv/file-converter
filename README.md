@@ -9,6 +9,7 @@
 
 ![Static Badge](https://img.shields.io/badge/.net-8.0-blue)
 ![dotnet-badge](https://github.com/larsmhaugland/file-converter/actions/workflows/dotnet.yml/badge.svg?event=push)
+[![CodeFactor](https://www.codefactor.io/repository/github/larsmhaugland/file-converter/badge)](https://www.codefactor.io/repository/github/larsmhaugland/file-converter)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
