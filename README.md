@@ -9,6 +9,7 @@
 
 ![Static Badge](https://img.shields.io/badge/.net-8.0-blue)
 ![dotnet-badge](https://github.com/larsmhaugland/file-converter/actions/workflows/dotnet.yml/badge.svg?event=push)
+[![CodeFactor](https://www.codefactor.io/repository/github/larsmhaugland/file-converter/badge)](https://www.codefactor.io/repository/github/larsmhaugland/file-converter)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
@@ -124,6 +125,8 @@ To add it as an environment variable:
 - **[LibreOffice](https://www.libreoffice.org/)** under the Mozilla Public License 2.0.
 - **[wkhtmltopdf](https://wkhtmltopdf.org/)** under the GNU Lesser General Public License v3.0.
 - **[email-outlook-message-perl](https://github.com/mvz/email-outlook-message-perl)** under the GNU Affero General Public License v3.0.
+- **[Rebex Mail Converter](https://www.rebex.net/mail-converter/)** under Freeware.
+- **[email-to-pdf-converter](https://github.com/nickrussler/email-to-pdf-converter)** under the Apache License 2.0.
 - **[Siegfried](https://www.itforarchivists.com/siegfried/)** under the Apache License 2.0.
 
 ## 🪟 Installation for Windows 
@@ -159,13 +162,13 @@ If you are using a **Debian**, **Arch** or **Red Hat** based distro the applicat
 
 </div>
 
-If you are **not** using on of these distros please see the **[Siegfried GitHub](https://github.com/richardlehane/siegfried)** for information on downloading Siegfried.
+If you are **not** using one of these distros please see the **[Siegfried GitHub](https://github.com/richardlehane/siegfried)** for information on downloading Siegfried.
 
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
 
 # 🚀 Usage 
+![file-converter](https://github.com/larsmhaugland/file-converter/assets/117298604/2de5c420-968c-43e5-b355-8d89cf75012f)
 
-![basicusage](https://github.com/larsmhaugland/file-converter/assets/117298604/abd0408d-13bf-45d7-b450-015e9fa946b9)
 <div align="center">
 	<i> Main CLI application</i>
 	<br>
@@ -228,7 +231,7 @@ $ .\example --yes
 ```
 
 ## GUI
-![guisettings](https://github.com/larsmhaugland/file-converter/assets/117298604/b9569561-7a2c-4ed4-8a53-7264f071de26)
+![gui](https://github.com/larsmhaugland/file-converter/assets/117298604/0fd96cea-d84c-4b83-91b6-737c74ba8baf)
 <div align="center">
 	<i>GUI-version of Settings</i>
 	<br>
@@ -281,9 +284,14 @@ The first part of the XML file concerns arguments needed to run the program. The
 ```
 
 ## Currently supported file formats 
+<div align=center>
 <img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/92f26f2b-2ad4-4179-ac6f-07fb4f7dc1ba">
+</div>
 
-For a more extensive **PRONOM-based** overview see the following JSON file: **[Supported Conversions.](DevDocumentation/supportedconversions.json)** <br>
+For a more extensive **PRONOM-based** overview you can ***click*** on the following image to be taken to a codesandbox code snippet: <br>
+[![Edit file-converter](https://github.com/larsmhaugland/file-converter/assets/117298604/e0b35b20-43e2-4081-908f-19cb885951e4)](https://codesandbox.io/p/sandbox/file-converter-ynh84y)
+
+The code snippet is based on data from the following JSON file: **[Supported Conversions.](DevDocumentation/supportedconversions.json)** <br>
 For a more extensive overview for **each external converter** see the following TXT file: **[Supported Conversions per converter.](DevDocumentation/supportedconversions.txt)**
 
 ## Documentation and logging 
@@ -349,7 +357,9 @@ Our bachelor thesis would also not have been possible without our **[supervisor 
 
 
 # 🌍 Contributing
-> ❗TODO:Explain how one can contribute.
+> [!IMPORTANT]
+> We are currently **not** open for contributors, due to this being part of a bachelor thesis. <br>
+> Hopefully, we will be able to open up for contributors after the thesis has been approved.
 
 ## Contributors
 This project exists thanks to these wonderful people:<br>

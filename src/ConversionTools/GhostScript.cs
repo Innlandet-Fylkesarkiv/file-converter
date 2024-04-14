@@ -268,7 +268,7 @@ public override List<string> GetSupportedOS()
 								var newFile = new FileInfo(pageOutputFileName, originalFileInfo);
 								newFile.IsPartOfSplit = true;
 								newFile.AddConversionTool(NameAndVersion);
-                                newFile.UpdateSelf(new FileInfo(Siegfried.Instance.IdentifyFile(newFile.FilePath, true)));
+                                newFile.UpdateSelf(new FileInfo(Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!));
                                 files.Add(newFile);
 							}
 						}
@@ -388,7 +388,7 @@ public override List<string> GetSupportedOS()
 				{
 					var newFile = new FileInfo(filePath, originalFileInfo);
 					newFile.IsPartOfSplit = true;
-					newFile.UpdateSelf(new FileInfo(Siegfried.Instance.IdentifyFile(newFile.FilePath,true)));
+					newFile.UpdateSelf(new FileInfo(Siegfried.Instance.IdentifyFile(newFile.FilePath,true)!));
 					newFile.AddConversionTool(NameAndVersion);
 					files.Add(newFile);
                     converted = converted && CheckConversionStatus(newFile.FilePath, file.Route.First());
@@ -468,7 +468,7 @@ public override List<string> GetSupportedOS()
                     {
                         FileInfoMap[file.Id].ConversionTools.Add(converter.NameAndVersion);
                     }
-                    converter.convertFromPDFToPDF(file, file.Route.First());
+                    converter.convertFromPDFToPDF(file);
                 }
                 converted = CheckConversionStatus(outputFilePath, file.Route.First());
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
@@ -582,5 +582,3 @@ public override List<string> GetSupportedOS()
         "fmt/501"
         ];
 }
-
-

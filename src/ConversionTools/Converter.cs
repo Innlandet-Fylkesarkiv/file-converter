@@ -6,11 +6,11 @@ public class Converter
     public string Name { get; set; } = ""; // Name of the converter
     public string Version { get; set; } = ""; // Version of the converter
 	public string NameAndVersion { get; set; } = ""; // Name and version of the converter
-	public Dictionary<string, List<string>> SupportedConversions { get; set; } = new Dictionary<string, List<string>>(); // Supported conversions
-	public List<string> SupportedOperatingSystems { get; set; } = new List<string>(); // Supported operating systems
+	public Dictionary<string, List<string>> SupportedConversions { get; set; } = new Dictionary<string, List<string>>(); // Supported conversions for the converter
+	public List<string> SupportedOperatingSystems { get; set; } = new List<string>(); // Supported operating systems for the converter
     public bool DependeciesExists { get; set; } = false;    // Whether the required dependencies for the converter are available on the system
-    public Dictionary<string, List<string>> BlockingConversions { get; set; } = new Dictionary<string, List<string>>();
-	SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+    public Dictionary<string, List<string>> BlockingConversions { get; set; } = new Dictionary<string, List<string>>();  // Conversions that are blocking (can't be multithreaded)
+    SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);      // Semaphore to handle locked sections
 
 
 
@@ -75,8 +75,8 @@ public class Converter
 	/// <summary>
 	/// Wrapper for the ConvertFile method that also handles the timeout
 	/// </summary>
-	/// <param name="file"></param>
-	async public Task ConvertFile(FileToConvert file)
+	/// <param name="file">File that should be converted</param>
+	async virtual public Task ConvertFile(FileToConvert file)
 	{
         var timeout = TimeSpan.FromMinutes(GlobalVariables.timeout);
         try
@@ -100,7 +100,11 @@ public class Converter
 		return;
 	}
 
-    // Method to call another method with a timeout
+    /// <summary>
+    /// Method to call another method with a timeout
+    /// </summary>
+    /// <param name="file">File to convert</param>
+    /// <param name="timeout">Time before timeout</param>
     private async Task ConvertFileWithTimeout(FileToConvert file, TimeSpan timeout)
     {
         var cancellationTokenSource = new CancellationTokenSource();
@@ -149,8 +153,7 @@ public class Converter
 	/// Combine multiple files into one file
 	/// </summary>
 	/// <param name="files">List of files that should be combined</param>
-	/// <param name="pronom">The file format to convert to</param>
-	public virtual void CombineFiles(List<FileInfo> files, string pronom)
+	public virtual void CombineFiles(List<FileInfo> files)
 	{ }
 
     /// <summary>

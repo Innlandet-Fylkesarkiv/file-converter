@@ -541,7 +541,7 @@ public class ConversionManager
 			{
 				var converter = new iText7();
 				var outputPronom = GlobalVariables.FolderOverride[entry.Key].DefaultType;
-				converter.CombineFiles(entry.Value, outputPronom);
+				converter.CombineFiles(entry.Value);
 				foreach (FileInfo file in entry.Value)
 				{
 					file.ConversionTools.Add(converter.NameAndVersion ?? "Not found");

@@ -118,12 +118,23 @@ public class FileInfo
 	/// <param name="f">FileInfo that has new data in it</param>
 	public void UpdateSelf(FileInfo f)
 	{
-		//Set new values based on the input FileInfo
-		NewPronom = f.OriginalPronom;
-		NewFormatName = f.OriginalFormatName;
-		NewMime = f.OriginalMime;
-		NewSize = f.OriginalSize;
-		NewChecksum = f.OriginalChecksum;
+		if (f == null)
+		{
+			NewPronom = OriginalPronom;
+			NewFormatName = OriginalFormatName;
+			NewMime = OriginalMime;
+			NewSize = OriginalSize;
+			NewChecksum = OriginalChecksum;
+		}
+		else
+		{
+			//Set new values based on the input FileInfo
+			NewPronom = f.OriginalPronom;
+			NewFormatName = f.OriginalFormatName;
+			NewMime = f.OriginalMime;
+			NewSize = f.OriginalSize;
+			NewChecksum = f.OriginalChecksum;
+		}
 	}
 
 	public void RenameFile(string newName)

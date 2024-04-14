@@ -217,7 +217,7 @@ class Settings
 					SettingsData settings = new SettingsData
 					{
 						PronomsList = pronomsList,
-						DefaultType = folderOverrideNode.SelectSingleNode("ConvertTo")?.InnerText,
+						DefaultType = folderOverrideNode.SelectSingleNode("ConvertTo")?.InnerText ?? "",
 						Merge = merge == "YES",
 					};
 
@@ -231,9 +231,9 @@ class Settings
                     }
                     else
                     {
-						if (Directory.Exists(inputFolder + "/" + folderPath)) 
+						if (Directory.Exists(inputFolder + "/" + folderPath) && folderPath != null) 
 						{ 
-							GlobalVariables.FolderOverride[folderPath] = settings;
+							GlobalVariables.FolderOverride.Add(folderPath,settings);
 							List<string> subfolders = GetSubfolderPaths(folderPath);
 							if (subfolders.Count > 0)
 							{

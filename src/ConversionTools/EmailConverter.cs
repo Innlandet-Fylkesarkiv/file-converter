@@ -247,13 +247,13 @@ public class EmailConverter : Converter
     /// <returns></returns>
     public async Task addAttachementFilesToWorkingSet(string inputFilePath, string folderWithAttachments)
     {
-        List<FileInfo>? attachementFiles = await Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments);
+        List<FileInfo>? attachementFiles = await Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments)!;
         foreach (FileInfo newFile in attachementFiles)
         {
             Guid id = Guid.NewGuid();
             newFile.Id = id;
             var newFileToConvert = new FileToConvert(newFile);
-            newFileToConvert.TargetPronom = Settings.GetTargetPronom(newFile);
+            newFileToConvert.TargetPronom = Settings.GetTargetPronom(newFile)!;
             newFile.AddConversionTool(NameAndVersion);
 
             //Use current and target pronom to create a key for the conversion map
