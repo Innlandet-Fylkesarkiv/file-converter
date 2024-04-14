@@ -7,7 +7,7 @@ using iText.Kernel.Pdf.Canvas;
 using iText.Commons.Actions;
 using iText.Kernel.Geom;
 using Path = System.IO.Path;
-using iText.Layout.Element;
+using System.Diagnostics;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -180,7 +180,7 @@ public class iText7 : Converter
     public override Dictionary<string, List<string>> GetListOfBlockingConversions()
     {
         var blockingConversions = new Dictionary<string, List<string>>();
-        foreach(string pronom in ImagePronoms.Concat(HTMLPronoms.Concat(PDFPronoms)))
+        foreach(string pronom in ImagePronoms.Concat(HTMLPronoms).Concat(PDFPronoms))
         {
             blockingConversions.Add(pronom, PDFAPronoms);
         }
@@ -368,47 +368,50 @@ public class iText7 : Converter
             PdfOutputIntent outputIntent;
 
             RemoveInterpolation(filename);
-            lock (pdfalock)
+           
+            do
             {
-                do
+                // Initialize PdfOutputIntent outside the loop
+                Stopwatch sw = new Stopwatch();
+                lock (pdfalock)
                 {
                     using (FileStream iccFileStream = new FileStream(GetICCFilePath(), FileMode.Open))
                     {
                         outputIntent = new PdfOutputIntent("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
-
-                        using (PdfWriter writer = new PdfWriter(tmpFilename)) // Create PdfWriter instance
-                        using (PdfADocument pdfADocument = new PdfADocument(writer, conformanceLevel, outputIntent))    // Associate PdfADocument with PdfWriter
-                        using (PdfReader reader = new PdfReader(filename))
-                        {
-                            PdfDocument pdfDocument = new PdfDocument(reader);
-                            pdfADocument.SetTagged();
-                                
-                            for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
-                            {
-                                PdfPage sourcePage = pdfDocument.GetPage(pageNum);
-                                var ps = sourcePage.GetPageSize();
-
-
-                                PdfPage page = pdfADocument.AddNewPage(new PageSize(sourcePage.GetPageSize()));
-                                PdfFormXObject pageCopy = sourcePage.CopyAsFormXObject(pdfADocument);
-
-                                PdfCanvas canvas = new PdfCanvas(page);
-                                canvas.AddXObject(pageCopy);
-                            }
-                        }
                     }
-                    converted = CheckConversionStatus(tmpFilename, pronom);
-                } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
-                if (!converted)
-                {
-                    file.Failed = true;
                 }
-                else
+                
+                using (PdfWriter writer = new PdfWriter(tmpFilename)) // Create PdfWriter instance
+                using (PdfADocument pdfADocument = new PdfADocument(writer, conformanceLevel, outputIntent))    // Associate PdfADocument with PdfWriter
+                using (PdfReader reader = new PdfReader(filename))
                 {
-                    File.Delete(filename);
-                    File.Move(tmpFilename, filename);
-                    ReplaceFileInList(filename, file);
+                    PdfDocument pdfDocument = new PdfDocument(reader);
+                    pdfADocument.SetTagged();
+                                
+                    for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
+                    {
+                        PdfPage sourcePage = pdfDocument.GetPage(pageNum);
+                        var ps = sourcePage.GetPageSize();
+
+
+                        PdfPage page = pdfADocument.AddNewPage(new PageSize(sourcePage.GetPageSize()));
+                        PdfFormXObject pageCopy = sourcePage.CopyAsFormXObject(pdfADocument);
+
+                        PdfCanvas canvas = new PdfCanvas(page);
+                        canvas.AddXObject(pageCopy);
+                    }
                 }
+                converted = CheckConversionStatus(tmpFilename, pronom);
+            } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
+            if (!converted)
+            {
+                file.Failed = true;
+            }
+            else
+            {
+                File.Delete(filename);
+                File.Move(tmpFilename, filename);
+                ReplaceFileInList(filename, file);
             }
         }
         catch (Exception e)
@@ -550,7 +553,6 @@ public class iText7 : Converter
             Logger.Instance.SetUpRunTimeLogMessage("Files sent to iText7 to be combined, but no files found.", true);
             return;
         }
-
         try
         {
             //Set base output file name to YYYY-MM-DD
@@ -665,7 +667,6 @@ public class iText7 : Converter
 
             Logger.Instance.SetUpRunTimeLogMessage("Error combining files to PDF. Files are not combined: " + e.Message, true, pronom, outputFileName);
             return Task.CompletedTask;
-        }
-        
+        } 
      }
 }
