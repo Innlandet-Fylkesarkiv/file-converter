@@ -93,7 +93,7 @@ public class Logger
 			case HashAlgorithms.MD5:
 				JsonRoot.Hashing = "MD5";
                 break;
-		};
+		}
 
         if (!Directory.Exists(path))
 		{

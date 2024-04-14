@@ -152,7 +152,6 @@ class LinuxSetup
             }
     }
     
-
     /// <summary>
     /// Checks whether the given converter is installed
     /// </summary>
