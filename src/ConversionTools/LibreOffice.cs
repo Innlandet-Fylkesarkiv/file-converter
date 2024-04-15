@@ -33,7 +33,7 @@ public class LibreOfficeConverter : Converter
 		SupportedConversions = GetListOfSupportedConvesions();
 		SupportedOperatingSystems = GetSupportedOS();
 		currentOS = Environment.OSVersion;
-        DependeciesExists = currentOS.Platform == PlatformID.Unix ? CheckPathVariableLinux("soffice")
+        DependenciesExists = currentOS.Platform == PlatformID.Unix ? CheckPathVariableLinux("soffice")
                                                                 : CheckPathVariableWindows("soffice.exe");
 		BlockingConversions = GetListOfBlockingConversions();
     }

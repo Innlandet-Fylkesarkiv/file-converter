@@ -26,7 +26,7 @@ public class EmailConverter : Converter
         BlockingConversions = GetListOfBlockingConversions();
         SupportedOperatingSystems = GetSupportedOS();
         currentOS = Environment.OSVersion;
-        DependeciesExists = checkDependencies();
+        DependenciesExists = checkDependencies();
     }
 
     /// <summary>

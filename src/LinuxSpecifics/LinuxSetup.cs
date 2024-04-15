@@ -28,10 +28,6 @@ class LinuxSetup
     {
         Console.WriteLine("Running on Linux");
         checkInstallSiegfried();
-        foreach (var converter in converterArguments)
-        {
-            checkInstallConverter(converter.Key[0], converter.Key[1], converter.Key[2]);
-        }
     }
 
     /// <summary>
@@ -101,9 +97,9 @@ class LinuxSetup
     /// </summary>
     private static void InstallSiegfried()
     {
-        string checkDependencies;
-        string output;
-
+        string checkDependencies;   //Result from running terminal process to check if dependencies are installed
+        string output;              //Result from running terminal process to install Siegfried
+            //Download methods for different distros can be found at https://www.github.com/richardlehane/siegfried
             switch(LinuxDistro)
             {
             case "debian":
@@ -150,25 +146,6 @@ class LinuxSetup
                 }
                 break;
             }
-    }
-    
-    /// <summary>
-    /// Checks whether the given converter is installed
-    /// </summary>
-    /// <param name="arguments"> CLI arguments to be run</param>
-    /// <param name="expectedOutput"> Expected output from CLI arguments </param>
-    /// <param name="consoleMessage"> Message to write if converter is not installed </param>
-    private static void checkInstallConverter(string arguments, string expectedOutput, string consoleMessage) {
-       string output = RunProcess(startInfo =>
-        {
-            startInfo.FileName = PathRunningProgram;
-            startInfo.Arguments = $"{arguments} | cat {consoleMessage}";
-        });
-        if (!output.Contains(expectedOutput))
-        {
-            Console.WriteLine(output);
-            //TODO: Remove converter from converters and continue program
-        }
     }
 
     /// <summary>

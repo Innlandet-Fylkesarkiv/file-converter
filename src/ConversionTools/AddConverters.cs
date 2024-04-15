@@ -17,7 +17,7 @@
             var currentOS = Environment.OSVersion.Platform.ToString();
             Converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
                                       !c.SupportedOperatingSystems.Contains(currentOS) ||
-                                      !c.DependeciesExists);
+                                      !c.DependenciesExists);
         }
         
         return Converters;
