@@ -8,7 +8,7 @@ public class Converter
 	public string NameAndVersion { get; set; } = ""; // Name and version of the converter
 	public Dictionary<string, List<string>> SupportedConversions { get; set; } = new Dictionary<string, List<string>>(); // Supported conversions for the converter
 	public List<string> SupportedOperatingSystems { get; set; } = new List<string>(); // Supported operating systems for the converter
-    public bool DependeciesExists { get; set; } = false;    // Whether the required dependencies for the converter are available on the system
+    public bool DependenciesExists { get; set; } = false;    // Whether the required dependencies for the converter are available on the system
     public Dictionary<string, List<string>> BlockingConversions { get; set; } = new Dictionary<string, List<string>>();  // Conversions that are blocking (can't be multithreaded)
     SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);      // Semaphore to handle locked sections
 
