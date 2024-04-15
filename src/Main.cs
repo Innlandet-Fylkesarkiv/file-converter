@@ -61,7 +61,7 @@ class Program
 		{
 			Console.WriteLine("Running in debug mode...");
 		}
-		string settingsPath = "";
+		string settingsPath = "Settings.xml";
         Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
         {
             GlobalVariables.parsedOptions = options;
@@ -88,7 +88,6 @@ class Program
         Settings settings = Settings.Instance;
         Console.WriteLine("Reading settings from '{0}'...", settingsPath);
         settings.ReadSettings(settingsPath);
-        GlobalVariables.parsedOptions.AcceptAll = true;
         //Check if input and output folders exist
         if (!Directory.Exists(GlobalVariables.parsedOptions.Input))
 		{

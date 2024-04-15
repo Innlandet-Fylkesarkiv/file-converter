@@ -82,7 +82,6 @@ public class Siegfried
 	private Siegfried()
 	{
 		Logger logger = Logger.Instance;
-		//TODO: Should check Version and ScanDate here
 		CompressedFolders = new List<List<string>>();
 		//Look for Siegfried files
 		if (OperatingSystem.IsWindows())

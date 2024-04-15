@@ -40,8 +40,6 @@ public class LibreOfficeConverter : Converter
 
     public override void GetVersion()
     {
-        //TODO: Actually fetch version
-
         Version = "Unable to fetch version"; // Default version in case retrieval fails
 
         try
