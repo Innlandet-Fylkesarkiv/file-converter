@@ -87,8 +87,7 @@ class Program
 
         Settings settings = Settings.Instance;
         Console.WriteLine("Reading settings from '{0}'...", settingsPath);
-        settings.ReadSettings(settingsPath);
-        GlobalVariables.parsedOptions.AcceptAll = true;
+        settings.ReadSettings(settingsPath);s
         //Check if input and output folders exist
         if (!Directory.Exists(GlobalVariables.parsedOptions.Input))
 		{
