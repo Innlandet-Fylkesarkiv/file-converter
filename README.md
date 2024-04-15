@@ -86,6 +86,7 @@ make build
 | Linux | **[GhostScript.](https://ghostscript.com/docs/9.55.0/Install.htm)** Should be installed on most distros, which can be checked by running ```gs -version```. | Required for PostScript and PDF to image conversion. |
 | Windows and Linux| **[wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)** | Needed for converting emails. |
 | Linux | **[Siegfried](https://github.com/richardlehane/siegfried)** | To identify files and keep track of the conversion process. |
+| Linux | **sudo apt-get install libemail-outlook-message-perl** | Needed to convert msg files on Linux |
 > [!NOTE]
 > If you are on Linux see [Installation for Linux](#-installation-for-linux) for more info on Siegfried installation.
 
