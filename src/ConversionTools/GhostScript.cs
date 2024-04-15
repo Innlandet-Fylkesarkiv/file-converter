@@ -42,7 +42,6 @@ public class GhostscriptConverter : Converter
     /// </summary>
     public override void GetVersion()
     {
-		//TODO: Actually fetch version
 		Version = "";
 
         string output = "";

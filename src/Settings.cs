@@ -274,7 +274,7 @@ class Settings
             if (Directory.Exists(targetFolderPath))
             {
                 // Add current folder to subfolders list
-                // TODO: Is this not needed?, as the folder is already added in the main function
+                // TODO: Is this not needed?, as the folder is already added in the SetUpFolderOverride function
                 subfolders.Add(relativePath); 
 
                 // Add immediate subfolders
