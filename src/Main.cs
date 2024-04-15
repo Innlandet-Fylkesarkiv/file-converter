@@ -61,7 +61,7 @@ class Program
 		{
 			Console.WriteLine("Running in debug mode...");
 		}
-		string settingsPath = "";
+		string settingsPath = "Settings.xml";
         Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
         {
             GlobalVariables.parsedOptions = options;
