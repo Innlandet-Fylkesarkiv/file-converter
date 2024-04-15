@@ -7,7 +7,13 @@ public class Logger
 	private static readonly object LockObject = new object();
 	string LogPath;         // Path to log file
 	string DocPath;         // Path to documentation file
-	public bool ErrorHappened { get; set; }             // True if an error message has been written
+
+    List<JsonData> JsonFiles = new List<JsonData>();
+    Dictionary<string, Dictionary<string, List<JsonDataMerge>>> JsonMergedFiles = new Dictionary<string, Dictionary<string, List<JsonDataMerge>>>();
+    List<JsonDataOutputNotSupported> JsonNotSupportedFiles = new List<JsonDataOutputNotSupported>();
+    List<JsonDataOutputNotSet> JsonOutputNotSetFiles = new List<JsonDataOutputNotSet>();
+
+    public bool ErrorHappened { get; set; }             // True if an error message has been written
 	// Configure JSON serializer options for pretty-printing
 	JsonSerializerOptions Options = new JsonSerializerOptions
 	{
@@ -74,11 +80,6 @@ public class Logger
         public bool IsMerged { get; set; }
 		public string? MergedTo { get; set; }
     }
-
-	List<JsonData> JsonFiles = new List<JsonData>();
-	Dictionary<string,Dictionary<string,List<JsonDataMerge>>> JsonMergedFiles = new Dictionary<string, Dictionary<string, List<JsonDataMerge>>>();
-	List<JsonDataOutputNotSupported> JsonNotSupportedFiles = new List<JsonDataOutputNotSupported>();
-	List<JsonDataOutputNotSet> JsonOutputNotSetFiles = new List<JsonDataOutputNotSet>();
 
 	private Logger()
 	{
