@@ -20,14 +20,15 @@ public class FileToConvert
 		Route = new List<string>();
 		Id = file.Id;
 	}
-	public FileToConvert(string path, Guid id)
+	public FileToConvert(string path, Guid id, string target)
 	{
 		FilePath = path;
 		CurrentPronom = "";
-		TargetPronom = "";
+		TargetPronom = target;
 		Route = new List<string>();
 		IsModified = false;
 		Id = id;
+		Route.Add(target);
 	}
 }
 
@@ -532,10 +533,10 @@ public class ConversionManager
 			{
 				var converter = new iText7();
 				var outputPronom = GlobalVariables.FolderOverride[entry.Key].DefaultType;
-				converter.CombineFiles(entry.Value);
+				converter.CombineFiles(entry.Value, outputPronom);
 				foreach (FileInfo file in entry.Value)
 				{
-					file.ConversionTools.Add(converter.NameAndVersion ?? "Not found");
+					file.ConversionTools.Add(converter.NameAndVersion);
 				}
 			});
 		}

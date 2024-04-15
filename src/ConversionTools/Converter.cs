@@ -149,7 +149,7 @@ public class Converter
 	/// Combine multiple files into one file
 	/// </summary>
 	/// <param name="files">List of files that should be combined</param>
-	public virtual void CombineFiles(List<FileInfo> files)
+	public virtual void CombineFiles(List<FileInfo> files, string pronom)
 	{ }
 
     /// <summary>

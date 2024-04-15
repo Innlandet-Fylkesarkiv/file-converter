@@ -190,7 +190,7 @@ public class iText7 : Converter
                 }
 		        if (conformanceLevel != null)
 		        {
-			        convertFromPDFToPDFA(new FileToConvert(output, file.Id), conformanceLevel);
+			        convertFromPDFToPDFA(new FileToConvert(output, file.Id, file.Route.First()), conformanceLevel);
 		        }
 			    
 			    converted = CheckConversionStatus(output, file.TargetPronom, file);
@@ -238,7 +238,7 @@ public class iText7 : Converter
 
                 if (conformanceLevel != null)
                 {
-                    convertFromPDFToPDFA(new FileToConvert(output,file.Id), conformanceLevel);
+                    convertFromPDFToPDFA(new FileToConvert(output,file.Id, file.Route.First()), conformanceLevel);
                 }
                 converted = CheckConversionStatus(output, file.TargetPronom, file);
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
@@ -268,7 +268,7 @@ public class iText7 : Converter
             bool converted = false;
             PdfOutputIntent outputIntent;
 
-            RemoveInterpolation(filename);
+            //RemoveInterpolation(filename);
            
             do
             {
@@ -448,7 +448,7 @@ public class iText7 : Converter
     /// </summary>
     /// <param name="files">List of files that should be nerged</param>
     /// <param name="pronom">The file format to convert to</param>
-    public override void CombineFiles(List<FileInfo> files)
+    public override void CombineFiles(List<FileInfo> files, string pronom)
     {
         if (files == null || files.Count == 0)
         {
@@ -476,7 +476,7 @@ public class iText7 : Converter
                 groupSize += file.OriginalSize;
                 if (groupSize > GlobalVariables.maxFileSize)
                 {
-                    Task.Run(() => MergeFilesToPDF(group, outputFileName).Wait()); 
+                    Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom).Wait()); 
                     group.Clear();
                     groupSize = 0;
                     groupCount++;
@@ -485,7 +485,7 @@ public class iText7 : Converter
             if(group.Count > 0)
             {
                 string outputFileName = $@"{filename}_{groupCount}.pdf";
-                Task.Run(() => MergeFilesToPDF(group, outputFileName).Wait());
+                Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom).Wait());
             }
         }
         catch (Exception e)
@@ -499,20 +499,20 @@ public class iText7 : Converter
     /// </summary>
     /// <param name="files"></param>
     /// <param name="outputFileName"></param>
-    Task MergeFilesToPDF(List<FileInfo> files, string outputFileName)
+    Task MergeFilesToPDF(List<FileInfo> files, string outputFileName, string pronom)
      {
         try
         {
-            PdfVersion? pdfVersion = PronomToPdfVersion[files.First().OriginalPronom];
+            PdfVersion? pdfVersion = PronomToPdfVersion[pronom];
             if (pdfVersion == null)
             {
                 pdfVersion = PdfVersion.PDF_2_0; //Default PDF version
             }
 
             PdfAConformanceLevel? conformanceLevel = null;
-            if (PronomToPdfAConformanceLevel.ContainsKey(files.First().OriginalPronom))
+            if (PronomToPdfAConformanceLevel.ContainsKey(pronom))
             {
-                conformanceLevel = PronomToPdfAConformanceLevel[files.First().OriginalPronom];
+                conformanceLevel = PronomToPdfAConformanceLevel[pronom];
             }
 
             using (var pdfWriter = new PdfWriter(outputFileName, new WriterProperties().SetPdfVersion(pdfVersion)))
@@ -540,7 +540,7 @@ public class iText7 : Converter
                 file.NewFileName = outputFileName;
             }
 
-            FileToConvert ftc = new FileToConvert(outputFileName, new Guid());
+            FileToConvert ftc = new FileToConvert(outputFileName, new Guid(), pronom);
 
             if (conformanceLevel != null)
             {
@@ -552,7 +552,7 @@ public class iText7 : Converter
             {
                 FileInfo newFileInfo = new FileInfo(result);
                 newFileInfo.Id = new Guid();
-                newFileInfo.IsMerged = files.First().OriginalPronom == result.matches[0].id;
+                newFileInfo.IsMerged = pronom == result.matches[0].id;
                 newFileInfo.ShouldMerge = true;
                 newFileInfo.AddConversionTool(NameAndVersion);
                 FileManager.Instance.Files.TryAdd(newFileInfo.Id, newFileInfo);
@@ -565,7 +565,7 @@ public class iText7 : Converter
         }
         catch (Exception e)
         {
-            Logger.Instance.SetUpRunTimeLogMessage("Error combining files to PDF. Files are not combined: " + e.Message, true, files.First().OriginalPronom, outputFileName);
+            Logger.Instance.SetUpRunTimeLogMessage("Error combining files to PDF. Files are not combined: " + e.Message, true, pronom, outputFileName);
             return Task.CompletedTask;
         } 
      }
