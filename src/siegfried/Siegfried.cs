@@ -59,7 +59,7 @@ public class Siegfried
 	private string HomeFolder = "siegfried/";
 	private string PronomSignatureFile = "default.sig";		 //"pronom64k.sig";
     private static readonly object lockObject = new object();
-	private List<List<string>> CompressedFolders;
+	public List<List<string>> CompressedFolders;
 	public ConcurrentBag<FileInfo> Files = new ConcurrentBag<FileInfo>();
 	public static Siegfried Instance
 	{

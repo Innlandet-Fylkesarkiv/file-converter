@@ -506,9 +506,9 @@ public class FileManager
 		int totalFinished = formatList.Where(x => x.CurrentPronom == x.TargetPronom).Sum(x => x.Count);
 		//Print totals to user
 		Console.ForegroundColor = GlobalVariables.INFO_COL;
-		Console.WriteLine("\nNumber of files: {0,-10}", Files.Count);
-		Console.WriteLine("Number of files with supported output specified: {0,-10}", total);
-		Console.WriteLine("Number of files not at target pronom: {0,-10}", total - totalFinished);
+		Console.WriteLine("\n{0, 6} file{1}", Files.Count, Files.Count > 1 ? "s" : "");
+		Console.WriteLine("{0, 6} file{1} with supported output format specified", total, total > 1 ? "s" : "");
+		Console.WriteLine("{0, 6} file{1} not at target format", total - totalFinished, total - totalFinished > 1 ? "s" : "");
 		//Get a list of all directories that will be merged
 		List<(string, string)> dirsToBeMerged = new List<(string, string)>();
 		foreach (var entry in GlobalVariables.FolderOverride)

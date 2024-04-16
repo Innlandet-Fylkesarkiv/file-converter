@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using Org.BouncyCastle.Asn1;
 using System.Diagnostics;
 
 public enum PrintSortBy
@@ -124,12 +125,7 @@ class Program
 			}
 			else
 			{
-				Console.WriteLine("Copying files from {0} to {1}...",GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
-				//Copy files
-				sf.CopyFiles(GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
-				Console.WriteLine("Identifying files...");
-				//Identify and unpack files
-				fileManager.IdentifyFiles();
+				InitFiles();
 			}
 		} catch (Exception e)
 		{
@@ -137,7 +133,7 @@ class Program
 			logger.SetUpRunTimeLogMessage("Main: Error when copying/unpacking/identifying files: " + e.Message, true);
 			goto END;
 		}
-		ConversionManager cm = ConversionManager.Instance;
+		
 		//Set up folder override after files have been copied over
         settings.SetUpFolderOverride(settingsPath);
 
@@ -149,8 +145,14 @@ class Program
 
 		char input = ' ';
 		string validInput = "YyNnRrGg";
+		string prevInputFolder = GlobalVariables.parsedOptions.Input;
 		do
 		{
+			if (prevInputFolder != GlobalVariables.parsedOptions.Input)
+			{
+				PrintHelper.PrintLn("Input folder changed, reidentifying files...", GlobalVariables.WARNING_COL);
+				InitFiles();
+			}
             input = GlobalVariables.parsedOptions.AcceptAll ? 'Y' : 'X';
             logger.AskAboutReqAndConv();
             fileManager.DisplayFileList();
@@ -178,7 +180,7 @@ class Program
                     settings.SetUpFolderOverride(settingsPath);
 					break;
 				case 'G':	//Change settings and reload in GUI
-                    awaitGUI().Wait();
+                    AwaitGUI().Wait();
                     settings.ReadSettings(settingsPath);
                     settings.SetUpFolderOverride(settingsPath);
 					break;
@@ -186,7 +188,8 @@ class Program
             }
         } while (input != 'Y' && input != 'N');
 
-		try
+        ConversionManager cm = ConversionManager.Instance;
+        try
 		{
 			fileManager.CheckForNamingConflicts();
             Console.WriteLine("Converting files...");
@@ -225,11 +228,25 @@ class Program
 		Console.ReadKey();	//Keep console open
 	}
 
+	static void InitFiles()
+	{
+		FileManager.Instance.Files.Clear();
+		Siegfried.Instance.Files.Clear();
+		Siegfried.Instance.CompressedFolders.Clear();
+        Console.WriteLine("Copying files from {0} to {1}...", GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
+        //Copy files
+        Siegfried.Instance.CopyFiles(GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
+        Console.WriteLine("Identifying files...");
+        //Identify and unpack files
+        FileManager.Instance.IdentifyFiles();
+		ConversionManager.Instance.InitFileMap();
+    }
+
 	/// <summary>
 	/// Method to get the path of the GUI executable
 	/// </summary>
 	/// <returns>Path to GUI executable</returns>
-	static string getGUIPath()
+	static string GetGUIPath()
 	{
 		string filename = OperatingSystem.IsLinux() ? "ChangeConverterSettings.dll": "ChangeConverterSettings.exe";
 		string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), filename, SearchOption.AllDirectories);
@@ -244,11 +261,11 @@ class Program
 	/// Method to start and await the GUI process
 	/// </summary>
 	/// <returns>Task</returns>
-	async static Task awaitGUI()
+	async static Task AwaitGUI()
 	{
 		ProcessStartInfo startInfo = new ProcessStartInfo();
 		
-		startInfo.FileName = OperatingSystem.IsLinux() ? "dotnet " + getGUIPath() : getGUIPath();
+		startInfo.FileName = OperatingSystem.IsLinux() ? "dotnet " + GetGUIPath() : GetGUIPath();
 		startInfo.Arguments = "";
         if (startInfo.FileName == "" || startInfo.FileName == "dotnet ")
 		{
