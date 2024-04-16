@@ -7,7 +7,8 @@ using iText.Kernel.Pdf.Canvas;
 using iText.Commons.Actions;
 using iText.Kernel.Geom;
 using Path = System.IO.Path;
-using System.Diagnostics;
+using System.Resources;
+
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -226,12 +227,15 @@ public class iText7 : Converter
 			    {
 				    pdfDocument.SetTagged();
 				    PdfDocumentInfo info = pdfDocument.GetDocumentInfo();
+                    
 				    using(var htmlSource = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None))
 				    {
-					    HtmlConverter.ConvertToPdf(htmlSource, pdfDocument); //TODO: System.UriFormatException: 'Invalid URI: The URI is empty'
-					    document.Close();
+                        //Create a URI for the base path
+                        Uri uri = new Uri(Path.GetFullPath(filename), UriKind.RelativeOrAbsolute);
+                        HtmlConverter.ConvertToPdf(htmlSource, pdfDocument, new ConverterProperties().SetBaseUri(uri.ToString()));
 				    }
-				    pdfDocument.Close();
+                    document.Close();
+                    pdfDocument.Close();
 				    pdfWriter.Close();
 				    pdfWriter.Dispose();
 			    }
@@ -240,7 +244,7 @@ public class iText7 : Converter
                 {
                     convertFromPDFToPDFA(new FileToConvert(output,file.Id, file.Route.First()), conformanceLevel);
                 }
-                converted = CheckConversionStatus(output, file.TargetPronom, file);
+                converted = CheckConversionStatus(output, file.Route.First(), file);
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
             if (!converted)
             {
@@ -262,14 +266,14 @@ public class iText7 : Converter
     {
         try
         {
-            string tmpFilename = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_PDFA.pdf");
+            string pdfaFileName = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_PDFA.pdf");
             string filename = Path.Combine(file.FilePath);
             int count = 0;
             bool converted = false;
             PdfOutputIntent outputIntent;
 
-            //RemoveInterpolation(filename);
-           
+            string tmpFileName = RemoveInterpolation(filename);
+            
             do
             {
                 // Initialize PdfOutputIntent outside the loop
@@ -281,9 +285,9 @@ public class iText7 : Converter
                     }
                 }
                 
-                using (PdfWriter writer = new PdfWriter(tmpFilename)) // Create PdfWriter instance
+                using (PdfWriter writer = new PdfWriter(pdfaFileName)) // Create PdfWriter instance
                 using (PdfADocument pdfADocument = new PdfADocument(writer, conformanceLevel, outputIntent))    // Associate PdfADocument with PdfWriter
-                using (PdfReader reader = new PdfReader(filename))
+                using (PdfReader reader = new PdfReader(tmpFileName))
                 {
                     PdfDocument pdfDocument = new PdfDocument(reader);
                     pdfADocument.SetTagged();
@@ -299,16 +303,19 @@ public class iText7 : Converter
                         canvas.AddXObject(pageCopy);
                     }
                 }
-                converted = CheckConversionStatus(tmpFilename, file.Route.First());
+                converted = CheckConversionStatus(pdfaFileName, file.Route.First());
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
             if (!converted)
             {
                 file.Failed = true;
+                File.Delete(pdfaFileName);
+                File.Delete(tmpFileName);
             }
             else
             {
+                File.Delete(tmpFileName);
                 File.Delete(filename);
-                File.Move(tmpFilename, filename);
+                File.Move(pdfaFileName, filename);
                 ReplaceFileInList(filename, file);
             }
         }
@@ -318,56 +325,52 @@ public class iText7 : Converter
         }
     }
 
-    /// <summary>
-    /// Remove interpolation 
-    /// </summary>
-    /// <param name="filename">Name of the file</param>
-    void RemoveInterpolation(string filename)
+    public string RemoveInterpolation(string filename)
     {
-        using (PdfReader reader = new PdfReader(filename))
+        int dotindex = filename.LastIndexOf('.');
+        string name = filename.Substring(0, dotindex);
+        string newfilename = String.Format("{0}_{1}.pdf", name, "TEMP");
+        try
         {
-            PdfDocument pdfDocument = new PdfDocument(reader);
-            for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
+            // Open the input PDF file.
+            PdfReader reader = new PdfReader(filename);
+            PdfWriter writer = new PdfWriter(newfilename);
+            PdfDocument pdfDoc = new PdfDocument(reader, writer);
+
+            // Iterate through each page of the input PDF.
+            for (int pageNum = 1; pageNum <= pdfDoc.GetNumberOfPages(); pageNum++)
             {
-                PdfPage page = pdfDocument.GetPage(pageNum);
-                RemoveInterpolationFromResources(page.GetPdfObject());
-            }
-
-            // Save the modified document
-            pdfDocument.Close();
-        }
-    }
-
-    /// <summary>
-    /// Remove interpolation from resources
-    /// </summary>
-    /// <param name="resource">The specific PDF document</param>
-    void RemoveInterpolationFromResources(PdfObject resource)
-    {
-        if (resource is PdfDictionary resources)
-        {
-            PdfDictionary xobjs = resources.GetAsDictionary(PdfName.XObject);
-
-            if (xobjs != null)
-            {
-                foreach (PdfName name in xobjs.KeySet())
+                PdfPage page = pdfDoc.GetPage(pageNum);
+                var obj = page.GetPdfObject();
+                var resources = obj.GetAsDictionary(PdfName.Resources);
+                PdfDictionary asDictionary = resources.GetAsDictionary(PdfName.XObject);
+                if (asDictionary == null)
                 {
-                    PdfStream xobjStream = xobjs.GetAsStream(name);
-
-                    if (PdfName.Form.Equals(xobjStream.GetAsName(PdfName.Subtype)))
+                    continue;
+                }
+                foreach (PdfObject item in asDictionary.Values())
+                {
+                    if (item.IsStream())
                     {
-                        // XObject forms have their own nested resources
-                        PdfDictionary nestedResources = xobjStream.GetAsDictionary(PdfName.Resources);
-                        RemoveInterpolationFromResources(nestedResources);
-                    }
-                    else
-                    {
-                        // Remove the interpolate flag
-                        xobjStream.Remove(PdfName.Interpolate);
+                        PdfStream pdfStream = (PdfStream)item;
+                        if (pdfStream.ContainsKey(PdfName.Interpolate))
+                        {
+                            pdfStream.Remove(PdfName.Interpolate);
+                            Logger.Instance.SetUpRunTimeLogMessage("Interpolation removed from PDF to comply with PDF/A standards on page " + pageNum, true, filename: filename);
+                        }
                     }
                 }
             }
+
+            // Close the PDF document.
+            pdfDoc.Close();
         }
+        catch (Exception e)
+        {
+            // Handle any exceptions during processing.
+            Console.WriteLine($"Unable to process file: {filename}. Exception: {e}");
+        }
+        return newfilename;
     }
 
     /// <summary>
