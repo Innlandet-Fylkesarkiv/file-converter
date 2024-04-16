@@ -61,7 +61,8 @@ To download the application source code run:
 
 Build it using ```mingw32 make``` (For further instructions see: [mingw Tutorial](https://nerdyelectronics.com/install-mingw-on-windows-for-make/)) from the command line using:
 ```sh
-make build
+make build_win #Build for Windows
+make build_linux #Build for Linux (not stable, use Windows build)
 ```
 
 > [!WARNING]
