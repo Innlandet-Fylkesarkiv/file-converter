@@ -398,7 +398,10 @@ public class ConversionManager
 				{
 					await c.ConvertFile(f);
                     f.IsModified = true;
-                    countdownEvent.Signal();
+					if (!countdownEvent.IsSet)
+					{
+						countdownEvent.Signal();
+					}
                 });  
             }
 			catch (Exception e)
