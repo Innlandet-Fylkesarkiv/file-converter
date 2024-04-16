@@ -346,6 +346,11 @@ public class FileManager
 	/// </summary>
 	public void DisplayFileList()
 	{
+		if(Files.Count < 1)
+		{
+			PrintHelper.PrintLn("No files found", GlobalVariables.ERROR_COL);
+			return;
+		}
 		//Get converters supported formats
 		var converters = AddConverters.Instance.GetConverters();
 		bool macroDetected = false;

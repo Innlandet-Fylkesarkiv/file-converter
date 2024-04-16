@@ -62,12 +62,12 @@ class Program
 		{
 			Console.WriteLine("Running in debug mode...");
 		}
-		string settingsPath = "Settings.xml";
+		
         Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
         {
             GlobalVariables.parsedOptions = options;
         });
-
+		string settingsPath = GlobalVariables.parsedOptions.Settings;
         if (!OperatingSystem.IsLinux())
         {
             //Look for settings file in parent directories as long as settings file is not found and we are not in the root directory
@@ -89,12 +89,20 @@ class Program
         Settings settings = Settings.Instance;
         Console.WriteLine("Reading settings from '{0}'...", settingsPath);
         settings.ReadSettings(settingsPath);
+
         //Check if input and output folders exist
-        if (!Directory.Exists(GlobalVariables.parsedOptions.Input))
-		{
-			PrintHelper.PrintLn("Input folder '{0}' not found!",GlobalVariables.ERROR_COL, GlobalVariables.parsedOptions.Input);
-			goto END;
+        while (!Directory.Exists(GlobalVariables.parsedOptions.Input))
+        {
+			
+			PrintHelper.PrintLn("Input folder '{0}' not found!", GlobalVariables.ERROR_COL, GlobalVariables.parsedOptions.Input);
+			var exit = ResolveInputNotFound();
+            settings.ReadSettings(settingsPath);
+            if (exit)
+			{
+				goto END;
+			}
 		}
+
 		if (!Directory.Exists(GlobalVariables.parsedOptions.Output))
 		{
             Console.WriteLine("Output folder '{0}' not found! Creating...",GlobalVariables.parsedOptions.Output);
@@ -136,14 +144,17 @@ class Program
 		
 		//Set up folder override after files have been copied over
         settings.SetUpFolderOverride(settingsPath);
-
-		if (fileManager.Files.Count < 1)
-		{
-			PrintHelper.PrintLn("No files to convert", GlobalVariables.ERROR_COL);
-            goto END;
+		while(fileManager.Files.Count < 1) { 
+			var exit = ResolveInputNotFound();
+			if (exit)
+			{
+				goto END;
+			}
+			settings.ReadSettings(settingsPath);
+			InitFiles();
         }
 
-		char input = ' ';
+        char input = ' ';
 		string validInput = "YyNnRrGg";
 		string prevInputFolder = GlobalVariables.parsedOptions.Input;
 		do
@@ -186,7 +197,7 @@ class Program
 					break;
 				default: break;
             }
-        } while (input != 'Y' && input != 'N');
+        } while (input != 'Y' || fileManager.Files.Count < 0);
 
         ConversionManager cm = ConversionManager.Instance;
         try
@@ -226,6 +237,36 @@ class Program
 		Console.WriteLine("Time elapsed: {0}", sw.Elapsed);
 		Console.WriteLine("Press any key to exit...");
 		Console.ReadKey();	//Keep console open
+	}
+
+	static bool ResolveInputNotFound()
+	{
+		PrintHelper.PrintLn("Input folder not found / Input folder empty!", GlobalVariables.ERROR_COL);
+		Console.WriteLine("Do you want to:  N (Exit program) / R (Reload settings file) / G (Change settings in GUI)");
+		char input = ' ';
+		string validInput = "NnRrGg";
+		while (!validInput.Contains(input))
+		{
+            var r = Console.ReadKey();
+            input = r.KeyChar;
+            input = char.ToUpper(input);
+        }
+		Console.WriteLine();
+		
+        if (input == 'R')
+		{
+            Console.WriteLine("Change settings file and hit enter when finished (Remember to save file)");
+            Console.ReadLine();
+        }
+        else if (input == 'G')
+		{
+            AwaitGUI().Wait();
+        }
+        else
+		{
+            return true;
+        }
+		return false;
 	}
 
 	static void InitFiles()
