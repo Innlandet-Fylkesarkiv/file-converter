@@ -284,11 +284,21 @@ public class iText7 : Converter
                         outputIntent = new PdfOutputIntent("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
                     }
                 }
-                
-                using (PdfWriter writer = new PdfWriter(pdfaFileName)) // Create PdfWriter instance
+
+                PdfVersion pdfVersion;
+                if (PronomToPdfVersion.ContainsKey(file.Route.First()))
+                {
+                    pdfVersion = PronomToPdfVersion[file.Route.First()];
+                } else
+                {
+                    pdfVersion = PdfVersion.PDF_1_7; //Default PDF version
+                }
+
+                using (PdfWriter writer = new PdfWriter(pdfaFileName, new WriterProperties().SetPdfVersion(pdfVersion))) // Create PdfWriter instance
                 using (PdfADocument pdfADocument = new PdfADocument(writer, conformanceLevel, outputIntent))    // Associate PdfADocument with PdfWriter
                 using (PdfReader reader = new PdfReader(tmpFileName))
                 {
+                    
                     PdfDocument pdfDocument = new PdfDocument(reader);
                     pdfADocument.SetTagged();
 
@@ -522,7 +532,8 @@ public class iText7 : Converter
             using (var pdfDocument = new PdfDocument(pdfWriter))
             using (var document = new iText.Layout.Document(pdfDocument))
             {
-                pdfDocument.SetTagged();                                
+                pdfDocument.SetTagged();
+                pdfDocument.GetCatalog().SetLang(new PdfString("nl-nl"));
                 PdfDocumentInfo info = pdfDocument.GetDocumentInfo();   // Set the document's metadata
                 foreach (var file in files)
                 {
@@ -628,6 +639,10 @@ public class iText7 : Converter
         "fmt/478",      // PDF/A 2U
         "fmt/479",      // PDF/A 3A
         "fmt/480",      // PDF/A 3B
+        "fmt/481",      // PDF/A 3U
+        //"fmt/1910",     // PDF/A 4
+        //"fmt/1911",     // PDF/A 4E
+        //"fmt/1912",     // PDF/A 4F
         "fmt/14",       // PDF 1.0
         "fmt/15",       // PDF 1.1
         "fmt/16",       // PDF 1.2
@@ -647,6 +662,10 @@ public class iText7 : Converter
         "fmt/478",      // PDF/A 2U
         "fmt/479",      // PDF/A 3A
         "fmt/480",      // PDF/A 3B
+        "fmt/481",      // PDF/A 3U
+        //"fmt/1910",     // PDF/A 4
+        //"fmt/1911",     // PDF/A 4E
+        //"fmt/1912",     // PDF/A 4F
     ];
 
     /// <summary>
@@ -664,13 +683,17 @@ public class iText7 : Converter
         {"fmt/20", PdfVersion.PDF_1_6},
         {"fmt/276", PdfVersion.PDF_1_7},
         {"fmt/1129", PdfVersion.PDF_2_0},
-        {"fmt/95", PdfVersion.PDF_2_0 },
-        {"fmt/354", PdfVersion.PDF_2_0 },
-        {"fmt/476", PdfVersion.PDF_2_0 },
-        {"fmt/477", PdfVersion.PDF_2_0 },
-        {"fmt/478", PdfVersion.PDF_2_0 },
-        {"fmt/479", PdfVersion.PDF_2_0 },
-        {"fmt/480", PdfVersion.PDF_2_0 }
+        {"fmt/95", PdfVersion.PDF_1_4 },    //PDF/A 1A
+        {"fmt/354", PdfVersion.PDF_1_4 },   //PDF/A 1B
+        {"fmt/476", PdfVersion.PDF_1_7 },   //PDF/A 2A
+        {"fmt/477", PdfVersion.PDF_1_7 },   //PDF/A 2B
+        {"fmt/478", PdfVersion.PDF_1_7 },   //PDF/A 2U
+        {"fmt/479", PdfVersion.PDF_1_7 },   //PDF/A 3A
+        {"fmt/480", PdfVersion.PDF_1_7 },   //PDF/A 3B
+        {"fmt/481", PdfVersion.PDF_1_7 },   //PDF/A 3U
+        {"fmt/1910", PdfVersion.PDF_2_0 },  //PDF/A 4
+        {"fmt/1911", PdfVersion.PDF_2_0 },  //PDF/A 4E
+        {"fmt/1912", PdfVersion.PDF_2_0 }   //PDF/A 4F
     };
 
     /// <summary>
@@ -678,12 +701,16 @@ public class iText7 : Converter
     /// </summary>
     public Dictionary<String, PdfAConformanceLevel> PronomToPdfAConformanceLevel = new Dictionary<string, PdfAConformanceLevel>()
     {
-        {"fmt/95", PdfAConformanceLevel.PDF_A_1A },
+        {"fmt/95",  PdfAConformanceLevel.PDF_A_1A },
         {"fmt/354", PdfAConformanceLevel.PDF_A_1B },
         {"fmt/476", PdfAConformanceLevel.PDF_A_2A },
         {"fmt/477", PdfAConformanceLevel.PDF_A_2B },
         {"fmt/478", PdfAConformanceLevel.PDF_A_2U },
         {"fmt/479", PdfAConformanceLevel.PDF_A_3A },
-        {"fmt/480", PdfAConformanceLevel.PDF_A_3B }
+        {"fmt/480", PdfAConformanceLevel.PDF_A_3B },
+        {"fmt/481", PdfAConformanceLevel.PDF_A_3U },
+        {"fmt/1910", PdfAConformanceLevel.PDF_A_4 },
+        {"fmt/1911", PdfAConformanceLevel.PDF_A_4E},
+        {"fmt/1912", PdfAConformanceLevel.PDF_A_4F}
     };
 }
