@@ -1,26 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-class AddConverters
+﻿class AddConverters
 {
-    public List<Converter> GetConverters()
-    {
-        List<Converter> converters = new List<Converter>();
-        converters.Add(new iText7());
-        converters.Add(new GhostscriptConverter());
-        converters.Add(new LibreOfficeConverter());
-        converters.Add(new EmailConverter());
-        //Remove converters that are not supported on the current operating system
-        var currentOS = Environment.OSVersion.Platform.ToString();
-        converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
-                                  !c.SupportedOperatingSystems.Contains(currentOS) ||
-                                  !c.DependeciesExists);
-        return converters;
-    }
+    List<Converter>? Converters = null;
     private static AddConverters? instance;
     private static readonly object lockObject = new object();
+
+    public List<Converter> GetConverters()
+    {
+        if (Converters == null)
+        {
+            Converters = new List<Converter>();
+            Converters.Add(new iText7());
+            Converters.Add(new GhostscriptConverter());
+            Converters.Add(new LibreOfficeConverter());
+            Converters.Add(new EmailConverter());
+            //Remove converters that are not supported on the current operating system
+            var currentOS = Environment.OSVersion.Platform.ToString();
+            Converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
+                                      !c.SupportedOperatingSystems.Contains(currentOS) ||
+                                      !c.DependenciesExists);
+        }
+        
+        return Converters;
+    }
+    
     public static AddConverters Instance
     {
         get
@@ -39,5 +41,3 @@ class AddConverters
         }
     }
 }
-
-

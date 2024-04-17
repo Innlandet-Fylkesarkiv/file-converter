@@ -1,11 +1,5 @@
-﻿using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Mozilla;
-using SharpCompress;
-using System.Collections;
+﻿using SharpCompress;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Xml.Serialization;
 
 public class FileManager
 {
@@ -57,7 +51,6 @@ public class FileManager
 					file.Id = id;
 					Files.TryAdd(id, file);
 				}
-
 			}
 			else
 			{
@@ -114,7 +107,6 @@ public class FileManager
                     Files.TryAdd(id, file);
                 }
             });
-
         }
         catch (Exception e)
         {
@@ -164,7 +156,7 @@ public class FileManager
             if (Directory.Exists(directoryPath))
             {
                 // Check if parent directory exists
-                if (!Directory.Exists(Directory.GetParent(path).FullName))
+                if (!Directory.Exists(Directory.GetParent(path)!.FullName))
                 {
                     return false;
                 }
@@ -258,12 +250,11 @@ public class FileManager
             .Where(kv => kv.Value.Count > 1)
             .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-
         //Remove the files that are not duplicates
         filteredFiles.ForEach(kv =>
         {
             kv.Value.RemoveAll(f => kv.Value
-                .Count(x => Path.GetFileNameWithoutExtension(x.FilePath) == Path.GetFileNameWithoutExtension(f.FilePath)) == 1);
+                .Count(x => Path.GetFileNameWithoutExtension(x.FilePath) == Path.GetFileNameWithoutExtension(f.FilePath)) == 1); //TODO: Should check if the files are in the same directory
         });
         //Remove the keys that have no values
         filteredFiles = filteredFiles.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value);
@@ -292,18 +283,17 @@ public class FileManager
 		AddFiles(new List<FileInfo> { file });
 	}
 
-
 	/// <summary>
 	/// Prints out a grouped list of all identified input file formats and target file formats with pronom codes and full name. <br></br>
 	/// Also gives a count of how many files are in each group.
 	/// </summary>
 	private class FileInfoGroup
 	{
-        public string CurrentPronom { get; set; }
-		public string CurrentFormatName { get; set; }
-        public string TargetPronom { get; set; }
-		public string TargetFormatName { get; set; }
-        public int Count { get; set; }
+        public string CurrentPronom { get; set; } = "";
+		public string CurrentFormatName { get; set; } = "";
+        public string TargetPronom { get; set; } = "";
+		public string TargetFormatName { get; set; } = "";
+		public int Count { get; set; } = 0;
     }
 
 	/// <summary>
@@ -356,7 +346,11 @@ public class FileManager
 	/// </summary>
 	public void DisplayFileList()
 	{
-
+		if(Files.Count < 1)
+		{
+			PrintHelper.PrintLn("No files found", GlobalVariables.ERROR_COL);
+			return;
+		}
 		//Get converters supported formats
 		var converters = AddConverters.Instance.GetConverters();
 		bool macroDetected = false;
@@ -366,7 +360,6 @@ public class FileManager
 		Dictionary<KeyValuePair<string, string>, int> fileCount = new Dictionary<KeyValuePair<string, string>, int>();
 		foreach (FileInfo file in Files.Values)
 		{
-
 			//Skip files that should be merged or should not be displayed
 			if (Settings.ShouldMerge(file))
 			{
@@ -518,9 +511,9 @@ public class FileManager
 		int totalFinished = formatList.Where(x => x.CurrentPronom == x.TargetPronom).Sum(x => x.Count);
 		//Print totals to user
 		Console.ForegroundColor = GlobalVariables.INFO_COL;
-		Console.WriteLine("\nNumber of files: {0,-10}", Files.Count);
-		Console.WriteLine("Number of files with supported output specified: {0,-10}", total);
-		Console.WriteLine("Number of files not at target pronom: {0,-10}", total - totalFinished);
+		Console.WriteLine("\n{0, 6} file{1}", Files.Count, Files.Count > 1 ? "s" : "");
+		Console.WriteLine("{0, 6} file{1} with supported output format specified", total, total > 1 ? "s" : "");
+		Console.WriteLine("{0, 6} file{1} not at target format", total - totalFinished, total - totalFinished > 1 ? "s" : "");
 		//Get a list of all directories that will be merged
 		List<(string, string)> dirsToBeMerged = new List<(string, string)>();
 		foreach (var entry in GlobalVariables.FolderOverride)
@@ -580,9 +573,7 @@ public class FileManager
 				}
 			}
 		}
-
 		Console.ForegroundColor = oldColor;
-
 	}
 
 	/// <summary>

@@ -1,12 +1,6 @@
 ﻿using CommandLine;
-using Ghostscript.NET;
-using iText.Kernel.Pdf;
-using iText.Layout.Splitting;
-using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1;
 using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Reflection.Emit;
-using System.Runtime.InteropServices;
 
 public enum PrintSortBy
 {
@@ -60,23 +54,20 @@ class Program
 { 
 	static void Main(string[] args)
 	{
+		
+		Stopwatch sw = new Stopwatch();
+		sw.Start();
 		PrintHelper.OldCol = Console.ForegroundColor;
 		if (GlobalVariables.debug)
 		{
 			Console.WriteLine("Running in debug mode...");
 		}
-		string settingsPath = "";
+		
         Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
         {
             GlobalVariables.parsedOptions = options;
         });
-
-		
-        if (GlobalVariables.parsedOptions.Settings == "Settings.xml")
-        {
-            settingsPath = GlobalVariables.debug ? "Settings.xml" : "Settings.xml";
-        }
-
+		string settingsPath = GlobalVariables.parsedOptions.Settings;
         if (!OperatingSystem.IsLinux())
         {
             //Look for settings file in parent directories as long as settings file is not found and we are not in the root directory
@@ -100,11 +91,18 @@ class Program
         settings.ReadSettings(settingsPath);
 
         //Check if input and output folders exist
-        if (!Directory.Exists(GlobalVariables.parsedOptions.Input))
-		{
-			PrintHelper.PrintLn("Input folder '{0}' not found!",GlobalVariables.ERROR_COL, GlobalVariables.parsedOptions.Input);
-			goto END;
+        while (!Directory.Exists(GlobalVariables.parsedOptions.Input))
+        {
+			
+			PrintHelper.PrintLn("Input folder '{0}' not found!", GlobalVariables.ERROR_COL, GlobalVariables.parsedOptions.Input);
+			var exit = ResolveInputNotFound();
+            settings.ReadSettings(settingsPath);
+            if (exit)
+			{
+				goto END;
+			}
 		}
+
 		if (!Directory.Exists(GlobalVariables.parsedOptions.Output))
 		{
             Console.WriteLine("Output folder '{0}' not found! Creating...",GlobalVariables.parsedOptions.Output);
@@ -134,12 +132,7 @@ class Program
 			}
 			else
 			{
-				Console.WriteLine("Copying files from {0} to {1}...",GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
-				//Copy files
-				sf.CopyFiles(GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
-				Console.WriteLine("Identifying files...");
-				//Identify and unpack files
-				fileManager.IdentifyFiles();
+				InitFiles();
 			}
 		} catch (Exception e)
 		{
@@ -147,25 +140,34 @@ class Program
 			logger.SetUpRunTimeLogMessage("Main: Error when copying/unpacking/identifying files: " + e.Message, true);
 			goto END;
 		}
-		ConversionManager cm = ConversionManager.Instance;
+		
 		//Set up folder override after files have been copied over
         settings.SetUpFolderOverride(settingsPath);
-
-		if (fileManager.Files.Count < 1)
-		{
-			PrintHelper.PrintLn("No files to convert", GlobalVariables.ERROR_COL);
-            goto END;
+		while(fileManager.Files.Count < 1) { 
+			var exit = ResolveInputNotFound();
+			if (exit)
+			{
+				goto END;
+			}
+			settings.ReadSettings(settingsPath);
+			InitFiles();
         }
 
-		char input = ' ';
+        char input = ' ';
 		string validInput = "YyNnRrGg";
+		string prevInputFolder = GlobalVariables.parsedOptions.Input;
 		do
 		{
+			if (prevInputFolder != GlobalVariables.parsedOptions.Input)
+			{
+				PrintHelper.PrintLn("Input folder changed, reidentifying files...", GlobalVariables.WARNING_COL);
+				InitFiles();
+			}
             input = GlobalVariables.parsedOptions.AcceptAll ? 'Y' : 'X';
             logger.AskAboutReqAndConv();
             fileManager.DisplayFileList();
 			PrintHelper.PrintLn("Requester: {0}\nConverter: {1}\nMaxThreads: {2}\nTimeout in minutes: {3}", 
-				GlobalVariables.INFO_COL, Logger.JsonRoot.requester, Logger.JsonRoot.converter, GlobalVariables.maxThreads, GlobalVariables.timeout);
+				GlobalVariables.INFO_COL, Logger.JsonRoot.Requester, Logger.JsonRoot.Converter, GlobalVariables.maxThreads, GlobalVariables.timeout);
 
             Console.Write("Do you want to proceed with these settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
             while (!validInput.Contains(input))
@@ -188,15 +190,16 @@ class Program
                     settings.SetUpFolderOverride(settingsPath);
 					break;
 				case 'G':	//Change settings and reload in GUI
-                    awaitGUI().Wait();
+                    AwaitGUI().Wait();
                     settings.ReadSettings(settingsPath);
                     settings.SetUpFolderOverride(settingsPath);
 					break;
 				default: break;
             }
-        } while (input != 'Y' && input != 'N');
+        } while (input != 'Y' || fileManager.Files.Count < 0);
 
-		try
+        ConversionManager cm = ConversionManager.Instance;
+        try
 		{
 			fileManager.CheckForNamingConflicts();
             Console.WriteLine("Converting files...");
@@ -219,7 +222,7 @@ class Program
 		Console.WriteLine("Compressing folders...");
 		sf.CompressFolders();
 
-		if (Logger.Instance.errorHappened)
+		if (Logger.Instance.ErrorHappened)
 		{
 			PrintHelper.PrintLn("One or more errors happened during runtime, please check the log file for more information.", GlobalVariables.ERROR_COL);
 		}
@@ -229,17 +232,63 @@ class Program
 		}
 
 		END:
+		sw.Stop();
+		Console.WriteLine("Time elapsed: {0}", sw.Elapsed);
 		Console.WriteLine("Press any key to exit...");
 		Console.ReadKey();	//Keep console open
 	}
+
+	static bool ResolveInputNotFound()
+	{
+		PrintHelper.PrintLn("Input folder not found / Input folder empty!", GlobalVariables.ERROR_COL);
+		Console.WriteLine("Do you want to:  N (Exit program) / R (Reload settings file) / G (Change settings in GUI)");
+		char input = ' ';
+		string validInput = "NnRrGg";
+		while (!validInput.Contains(input))
+		{
+            var r = Console.ReadKey();
+            input = r.KeyChar;
+            input = char.ToUpper(input);
+        }
+		Console.WriteLine();
+		
+        if (input == 'R')
+		{
+            Console.WriteLine("Change settings file and hit enter when finished (Remember to save file)");
+            Console.ReadLine();
+        }
+        else if (input == 'G')
+		{
+            AwaitGUI().Wait();
+        }
+        else
+		{
+            return true;
+        }
+		return false;
+	}
+
+	static void InitFiles()
+	{
+		FileManager.Instance.Files.Clear();
+		Siegfried.Instance.Files.Clear();
+		Siegfried.Instance.CompressedFolders.Clear();
+        Console.WriteLine("Copying files from {0} to {1}...", GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
+        //Copy files
+        Siegfried.Instance.CopyFiles(GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
+        Console.WriteLine("Identifying files...");
+        //Identify and unpack files
+        FileManager.Instance.IdentifyFiles();
+		ConversionManager.Instance.InitFileMap();
+    }
 
 	/// <summary>
 	/// Method to get the path of the GUI executable
 	/// </summary>
 	/// <returns>Path to GUI executable</returns>
-	static string getGUIPath()
+	static string GetGUIPath()
 	{
-		string filename = OperatingSystem.IsLinux() ? "ChangeConverterSettings.exe": "ChangeConverterSettings.exe";
+		string filename = OperatingSystem.IsLinux() ? "ChangeConverterSettings.dll": "ChangeConverterSettings.exe";
 		string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), filename, SearchOption.AllDirectories);
 		if (files.Length > 0)
 		{
@@ -252,11 +301,13 @@ class Program
 	/// Method to start and await the GUI process
 	/// </summary>
 	/// <returns>Task</returns>
-	async static Task awaitGUI()
+	async static Task AwaitGUI()
 	{
 		ProcessStartInfo startInfo = new ProcessStartInfo();
-		startInfo.FileName = OperatingSystem.IsLinux() ? "dotnet " + getGUIPath() : getGUIPath();
-		if (startInfo.FileName == "")
+		
+		startInfo.FileName = OperatingSystem.IsLinux() ? "dotnet " + GetGUIPath() : GetGUIPath();
+		startInfo.Arguments = "";
+        if (startInfo.FileName == "" || startInfo.FileName == "dotnet ")
 		{
             Console.WriteLine("Could not find GUI executable");
             return;
@@ -271,7 +322,7 @@ class Program
         }
 
         // Monitor user input and process status
-        while (!process.HasExited)
+        while (process != null && !process.HasExited)
         {
 			// Check if a key is available (user typed a character)
 			if (Console.KeyAvailable)

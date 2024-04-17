@@ -1,16 +1,21 @@
 ﻿using System.Text.Json;
 using System.DirectoryServices.AccountManagement;
-using Org.BouncyCastle.Asn1.Ocsp;
 
 public class Logger
 {
 	private static Logger? instance;
-	private static readonly object lockObject = new object();
-	string logPath;         // Path to log file
-	string docPath;         // Path to documentation file
-	public bool errorHappened { get; set; }             // True if an error message has been written
+	private static readonly object LockObject = new object();
+	string LogPath;         // Path to log file
+	string DocPath;         // Path to documentation file
+
+    List<JsonData> JsonFiles = new List<JsonData>();
+    Dictionary<string, Dictionary<string, List<JsonDataMerge>>> JsonMergedFiles = new Dictionary<string, Dictionary<string, List<JsonDataMerge>>>();
+    List<JsonDataOutputNotSupported> JsonNotSupportedFiles = new List<JsonDataOutputNotSupported>();
+    List<JsonDataOutputNotSet> JsonOutputNotSetFiles = new List<JsonDataOutputNotSet>();
+
+    public bool ErrorHappened { get; set; }             // True if an error message has been written
 	// Configure JSON serializer options for pretty-printing
-	JsonSerializerOptions options = new JsonSerializerOptions
+	JsonSerializerOptions Options = new JsonSerializerOptions
 	{
 		WriteIndented = true,
 	};
@@ -20,9 +25,9 @@ public class Logger
 	/// </summary>
 	public static class JsonRoot
 	{
-		public static string requester { get; set; } = ""; // the person requesting the converting
-		public static string converter { get; set; } = ""; // the person that converts
-		public static string? hashing { get; set; } // the hashing algorithm used
+		public static string Requester { get; set; } = ""; // the person requesting the converting
+		public static string Converter { get; set; } = ""; // the person that converts
+		public static string? Hashing { get; set; } // the hashing algorithm used
 	}
 
 	/// <summary>
@@ -43,6 +48,9 @@ public class Logger
 		public bool IsConverted { get; set; }
 	}
 
+	/// <summary>
+	/// Class that holds the data for files that are not set in settings
+	/// </summary>
 	public class JsonDataOutputNotSet
 	{
         public string? Filename { get; set; }
@@ -51,6 +59,9 @@ public class Logger
         public long OriginalSize { get; set; }
     }
 
+	/// <summary>
+	/// Class that holds the data for files that are not supported
+	/// </summary>
     public class JsonDataOutputNotSupported
     {
         public string? Filename { get; set; }
@@ -60,6 +71,9 @@ public class Logger
         public string? TargetPronom { get; set; }
     }
 
+	/// <summary>
+	/// Class that holds the data for files that are merged or a result from a merge
+	/// </summary>
     public class JsonDataMerge
     {
         public string? Filename { get; set; }
@@ -74,10 +88,6 @@ public class Logger
     }
 
 
-	List<JsonData> jsonFiles = new List<JsonData>();
-	Dictionary<string,Dictionary<string,List<JsonDataMerge>>> jsonMergedFiles = new Dictionary<string, Dictionary<string, List<JsonDataMerge>>>();
-	List<JsonDataOutputNotSupported> JsonNotSupportedFiles = new List<JsonDataOutputNotSupported>();
-	List<JsonDataOutputNotSet> JsonOutputNotSetFiles = new List<JsonDataOutputNotSet>();
 
 	/// <summary>
 	/// When logger is created, it sets the correct hashing algorithm and creates the log file
@@ -89,12 +99,12 @@ public class Logger
 		switch (GlobalVariables.checksumHash)
 		{
 			case HashAlgorithms.SHA256:
-				JsonRoot.hashing = "SHA256";
+				JsonRoot.Hashing = "SHA256";
                 break;
 			case HashAlgorithms.MD5:
-				JsonRoot.hashing = "MD5";
+				JsonRoot.Hashing = "MD5";
                 break;
-		};
+		}
 
         if (!Directory.Exists(path))
 		{
@@ -103,9 +113,9 @@ public class Logger
 		DateTime currentDateTime = DateTime.Now;
 		string formattedDateTime = currentDateTime.ToString("yyyy-MM-dd HHmmss");
 		path += "/";
-		logPath = path+ "log " + formattedDateTime + ".txt";
+		LogPath = path+ "log " + formattedDateTime + ".txt";
 		// Write the specified text asynchronously to a new file.
-		using (StreamWriter outputFile = new StreamWriter(logPath))
+		using (StreamWriter outputFile = new StreamWriter(LogPath))
 		{
 			outputFile.WriteAsync("Type: | (Error) Message | Pronom Code | Mime Type | Filename\n");
 		}
@@ -120,7 +130,7 @@ public class Logger
 		{
 			if (instance == null)
 			{
-				lock (lockObject)
+				lock (LockObject)
 				{
 					if (instance == null)
 					{
@@ -139,7 +149,7 @@ public class Logger
 	/// <param name="filepath"> The filepath to the logfile </param>
 	private void WriteLog(string message, string filepath)
 	{
-		lock(lockObject)
+		lock(LockObject)
 		{
 			// https://learn.microsoft.com/en-us/dotnet/standard/io/how-to-write-text-to-a-file    
 
@@ -163,11 +173,11 @@ public class Logger
 	/// <returns> returns the message in the correct format </returns>
 	public void SetUpRunTimeLogMessage(string message, bool error, string pronom = "N/A", string mime = "N/A", string filename = "N/A")
 	{
-		errorHappened = errorHappened ? true : error;
+		ErrorHappened = ErrorHappened ? true : error;
 		string errorM = "Message: ";
 		if (error) { errorM = "Error: "; }
 		string formattedMessage =  errorM + " | " + message + " | " + pronom + " | " + mime + " | " + filename + "\n";
-		WriteLog(formattedMessage, logPath);
+		WriteLog(formattedMessage, LogPath);
 	}
 
 	/// <summary>
@@ -178,8 +188,8 @@ public class Logger
 	{
 		//TODO: Comment: Maybe find better place to put the file and set docPath earlier
 		string path = GlobalVariables.parsedOptions.Output + "/";
-		docPath = path + "documentation.json";
-		using (StreamWriter outputFile = new StreamWriter(docPath))
+		DocPath = path + "documentation.json";
+		using (StreamWriter outputFile = new StreamWriter(DocPath))
 		{
 			outputFile.WriteAsync("\n");
 		}
@@ -200,22 +210,21 @@ public class Logger
                 };
                 var parentDir = Path.GetDirectoryName(file.FilePath) ?? "";
 
-				if (jsonMergedFiles.ContainsKey(parentDir))
+				if (JsonMergedFiles.ContainsKey(parentDir))
 				{
-					if (jsonMergedFiles[parentDir].ContainsKey(jsonData.MergedTo))
+					if (JsonMergedFiles[parentDir].ContainsKey(jsonData.MergedTo))
 					{
-                        jsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
+                        JsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
                     } else
 					{
-						jsonMergedFiles[parentDir].Add(jsonData.MergedTo, new List<JsonDataMerge>());
-						jsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
+						JsonMergedFiles[parentDir].Add(jsonData.MergedTo, new List<JsonDataMerge>());
+						JsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
 					}
-					
                 } else
 				{
-                    jsonMergedFiles.Add(parentDir, new Dictionary<string, List<JsonDataMerge>>());
-					jsonMergedFiles[parentDir].Add(jsonData.MergedTo, new List<JsonDataMerge>());
-					jsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
+                    JsonMergedFiles.Add(parentDir, new Dictionary<string, List<JsonDataMerge>>());
+					JsonMergedFiles[parentDir].Add(jsonData.MergedTo, new List<JsonDataMerge>());
+					JsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
                 }
             } 
 			else if (file.NotSupported)
@@ -256,25 +265,25 @@ public class Logger
                     Converter = file.ConversionTools,
                     IsConverted = file.IsConverted
                 };
-                jsonFiles.Add(jsonData);
+                JsonFiles.Add(jsonData);
             }
 		}
 
-		jsonFiles = jsonFiles.OrderByDescending(x => x.IsConverted).ToList();
+		JsonFiles = JsonFiles.OrderByDescending(x => x.IsConverted).ToList();
 
 		// Create an anonymous object with "requester" and "converter" properties
 		var metadata = new
 		{
-			JsonRoot.requester,
-			JsonRoot.converter,
-			JsonRoot.hashing
+			JsonRoot.Requester,
+			JsonRoot.Converter,
+			JsonRoot.Hashing
 		};
 		var FilesWrapper = new
 		{
-            ConvertedFiles = jsonFiles,
+            ConvertedFiles = JsonFiles,
             NotSupported = JsonNotSupportedFiles,
 			OutputNotSet = JsonOutputNotSetFiles,
-			MergedFiles = jsonMergedFiles
+			MergedFiles = JsonMergedFiles
         };
 
 		// Create an anonymous object with a "Files" property
@@ -285,10 +294,10 @@ public class Logger
 		};
 
 		// Serialize the wrapper object
-		string json = JsonSerializer.Serialize(jsonDataWrapper, options);
+		string json = JsonSerializer.Serialize(jsonDataWrapper, Options);
 
 		// Send it to writelog to print it out there
-		WriteLog(json, docPath);
+		WriteLog(json, DocPath);
 	}
 
 	/// <summary>
@@ -296,7 +305,7 @@ public class Logger
 	/// </summary>
 	public void AskAboutReqAndConv()
 	{
-		if(JsonRoot.requester == null || JsonRoot.requester == "")
+		if(JsonRoot.Requester == null || JsonRoot.Requester == "")
 		{
 			string requester = Environment.UserName;
 			if (OperatingSystem.IsWindows())
@@ -306,23 +315,23 @@ public class Logger
 			if (!GlobalVariables.parsedOptions.AcceptAll)
 			{
 				Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as requester in the documentation? (Y/N)", requester);
-				var response = GlobalVariables.parsedOptions.AcceptAll ? "Y" : Console.ReadLine();
+				var response = GlobalVariables.parsedOptions.AcceptAll ? "Y" : Console.ReadLine()!;
 				if (response.ToUpper() == "Y")
 				{
-					JsonRoot.requester = requester;
+					JsonRoot.Requester = requester;
 				}
 				else
 				{
 					Console.WriteLine("Who is requesting the converting?");
-					JsonRoot.requester = Console.ReadLine();
+					JsonRoot.Requester = Console.ReadLine()!;
 				}
 			} else
 			{
-                JsonRoot.requester = requester;
+                JsonRoot.Requester = requester;
             }
 		}
 
-		if(JsonRoot.converter == null || JsonRoot.converter == "")
+		if(JsonRoot.Converter == null || JsonRoot.Converter == "")
 		{
             string converter = Environment.UserName;
             if (OperatingSystem.IsWindows())
@@ -332,19 +341,19 @@ public class Logger
 			if (!GlobalVariables.parsedOptions.AcceptAll)
 			{
 				Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as converter in the documentation? (Y/N)", converter);
-				var response = Console.ReadLine();
+				var response = Console.ReadLine()!;
 				if (response.ToUpper() == "Y")
 				{
-					JsonRoot.converter = converter;
+					JsonRoot.Converter = converter;
 				}
 				else
 				{
 					Console.WriteLine("Who is requesting the converting?");
-					JsonRoot.converter = Console.ReadLine();
+					JsonRoot.Converter = Console.ReadLine()!;
 				}
 			} else
 			{
-				JsonRoot.converter = converter;
+				JsonRoot.Converter = converter;
 			}
         }
 	}

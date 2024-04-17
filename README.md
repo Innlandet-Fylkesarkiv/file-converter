@@ -9,6 +9,7 @@
 
 ![Static Badge](https://img.shields.io/badge/.net-8.0-blue)
 ![dotnet-badge](https://github.com/larsmhaugland/file-converter/actions/workflows/dotnet.yml/badge.svg?event=push)
+[![CodeFactor](https://www.codefactor.io/repository/github/larsmhaugland/file-converter/badge)](https://www.codefactor.io/repository/github/larsmhaugland/file-converter)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
@@ -22,15 +23,15 @@ This application provides a framework for different conversion libraries/softwar
 - [Install](#-install)
   - [Install from source](#install-from-source)
   - [Dependencies](#-dependencies)
-  	- [External libraries and software](#external-libraries-and-software)
+  - [External libraries and software](#external-libraries-and-software)
   - [Installation for Windows](#-installation-for-windows)
   - [Installation for Linux](#-installation-for-linux)
   	-  [Installing Siegfried on Linux](#installing-siegfried-on-linux)
 - [Usage](#-usage)
-  - [Beta notes](#beta)	 
-  - [GUI](#gui)
+  - [Beta notes](#-beta)	 
   - [CLI](#cli)
   - [Arguments](#arguments)
+  - [GUI](#gui)
   - [Settings](#settings)
   - [Currently supported file formats](#currently-supported-file-formats)
   - [Documentation and logging](#documentation-and-logging)
@@ -42,7 +43,7 @@ This application provides a framework for different conversion libraries/softwar
 
 
 # 📖 Background
-This project is part of a collaboration with [Innlandet County Archive](https://www.visarkiv.no/) and is a Bachelor's thesis project for a [Bachelor's in Programming](https://www.ntnu.edu/studies/bprog) at the [Norwegian University of Technology and Science (NTNU)](https://www.ntnu.edu/).
+This project is part of a collaboration with **[Innlandet County Archive](https://www.visarkiv.no/)** and is a Bachelor's thesis project for a [Bachelor's in Programming](https://www.ntnu.edu/studies/bprog) at the **[Norwegian University of Technology and Science (NTNU)](https://www.ntnu.edu/)**.
 
 In Norway, the act of archiving is regulated by the Archives Act, which states that public bodies have a duty to register and preserve documents that are created as part of their activity [^1]. As society is becoming more digitized so is information, and the documents that were previously physical and stored physically are now digital and stored digitally. Innlandet County Archive is an inter-municipal archive cooperation, that registers and preserves documents from 48 municipalities. However, not all file types they receive are suitable for archiving as they run a risk of becoming obsolete. (For further reading see: [Obsolescence: File Formats and Software](https://dpworkshop.org/dpm-eng/oldmedia/obsolescence1.html)) Innlandet County Archive wished to streamline its conversion process into one application that could deal with a vast array of file formats. Furthermore, archiving is based on the principles of accessibility, accountability and integrity, which is why this application also provides documentation of all changes made to files.
 
@@ -58,9 +59,10 @@ To download the application source code run:
   git clone --recursive https://github.com/larsmhaugland/file-converter.git
 ```
 
-Build it using ```mingw32 make``` ([see tutorial here for setup](https://nerdyelectronics.com/install-mingw-on-windows-for-make/)) from the command line using:
+Build it using ```mingw32 make``` (For further instructions see: [mingw Tutorial](https://nerdyelectronics.com/install-mingw-on-windows-for-make/)) from the command line using:
 ```sh
-make build
+make build_win #Build for Windows
+make build_linux #Build for Linux (not stable, use Windows build)
 ```
 
 > [!WARNING]
@@ -85,28 +87,34 @@ make build
 | Linux | **[GhostScript.](https://ghostscript.com/docs/9.55.0/Install.htm)** Should be installed on most distros, which can be checked by running ```gs -version```. | Required for PostScript and PDF to image conversion. |
 | Windows and Linux| **[wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)** | Needed for converting emails. |
 | Linux | **[Siegfried](https://github.com/richardlehane/siegfried)** | To identify files and keep track of the conversion process. |
+| Linux | **sudo apt-get install libemail-outlook-message-perl** | Needed to convert msg files on Linux |
 > [!NOTE]
 > If you are on Linux see [Installation for Linux](#-installation-for-linux) for more info on Siegfried installation.
 
 <br>
 
 ### Further download instructions for LibreOffice 
-#### WINDOWS
-Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. 
+#### :window: Windows
+Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```, but the entry needs to be ```"C:\Program Files\LibreOffice\program"```.
 
-Open *Settings* -> *Home* -> *About* (scroll down on the left) -> *Advanced system settings* (on the right) -> *Environment variables.*<br>
-Alternatively use the ```Windows key + R``` on the keyboard, then type in ```"sysdm.cpl"``` and hit enter. Thereafter, press *Advanced* and then *Environment variables.*
-
-The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```. The "program" folder must be added to ```PATH```, meaning the entry should be ```"C:\Program Files\LibreOffice\program"```.
-To add this locate the ```PATH``` variable and highlight it. Press *Edit* -> *New* -> copy the path to the program folder -> press *Ok*. This adds it to the users environment variables, but it can also be added as a system wide environment variable. 
+1. Open *Settings* -> *Home* -> *About* (scroll down on the left) -> *Advanced system settings* (on the right) -> *Environment variables.*
+> [!TIP]
+> Alternatively use the ```Windows key + R``` on the keyboard, then type in ```"sysdm.cpl"``` and hit enter. Thereafter, press *Advanced* and then *Environment variables.*
+2. Locate the ```PATH``` variable and highlight it. Press *Edit* -> *New* -> copy the path to the program folder -> press *Ok*. This adds it to the users environment variables.
+   
 <br><br>
 **[wkhtmltopdf](https://wkhtmltopdf.org/downloads.html)** must also be manually added to ```PATH```. For windows, it can be done as described above, just swap ```"C:\Program Files\LibreOffice\program"``` with ```"C:\Program Files\wkhtmltopdf\bin"```. 
 
-#### LINUX
-For Linux the default installation directory is ```...``` One alternative for adding it as an environment variable is to open the file ```.bashrc``` using the command ```nano ~/.bashrc```. Navigate to the bottom of the file with the arrow keys and add this line at the end ```export PATH="$PATH:DefaultPathHere"```. Remember to save the file and exit. To apply the changes immediately run the command ```source ~/.bashrc```. Alternatively, log in and out. To verify, run the command ```echo $PATH``` and the path added should be at the end of the output from the command.
+#### 🐧 Linux
+For Linux the default installation directory is ```...``` <br>
+To add it as an environment variable:
+1. Open the file ```.bashrc``` using ```nano ~/.bashrc```.
+2. Navigate to the bottom of the file with the arrow keys and add this line at the end ```export PATH="$PATH:DefaultPathHere"```. Remember to save the file and exit.
+3.  To apply the changes immediately run the command ```source ~/.bashrc```. Alternatively, log in and out.
+4.   To verify, run the command ```echo $PATH``` and the path added should be at the end of the output from the command.
 
-### External libraries and software
-#### Libraries
+## External libraries and software
+### Libraries
 - **[iText7](https://github.com/itext/itext-dotnet)** under the GNU Affero General Public License v3.0.
 - **[BouncyCastle.NetCore](https://github.com/chrishaly/bc-csharp)** under the MIT License.
 - **[iText7 Bouncycastle Adapter](https://www.nuget.org/packages/itext7.bouncy-castle-adapter/8.0.2)** under the GNU Affero General Public License v3.0.
@@ -114,11 +122,13 @@ For Linux the default installation directory is ```...``` One alternative for ad
 - **[SharpCompress](https://github.com/adamhathcock/sharpcompress)** under the MIT License.
 - **[Avalonia](https://avaloniaui.net/)** under the MIT License.
 
-#### Software
+### Software
 - **[GhostScript](https://www.ghostscript.com/index.html)** under the GNU Affero General Public License v3.0.
 - **[LibreOffice](https://www.libreoffice.org/)** under the Mozilla Public License 2.0.
 - **[wkhtmltopdf](https://wkhtmltopdf.org/)** under the GNU Lesser General Public License v3.0.
 - **[email-outlook-message-perl](https://github.com/mvz/email-outlook-message-perl)** under the GNU Affero General Public License v3.0.
+- **[Rebex Mail Converter](https://www.rebex.net/mail-converter/)** under Freeware.
+- **[email-to-pdf-converter](https://github.com/nickrussler/email-to-pdf-converter)** under the Apache License 2.0.
 - **[Siegfried](https://www.itforarchivists.com/siegfried/)** under the Apache License 2.0.
 
 ## 🪟 Installation for Windows 
@@ -154,38 +164,36 @@ If you are using a **Debian**, **Arch** or **Red Hat** based distro the applicat
 
 </div>
 
-If you are not using on of these distros please see the [Siegfried GitHub](https://github.com/richardlehane/siegfried) for information on downloading Siegfried.
+If you are **not** using one of these distros please see the **[Siegfried GitHub](https://github.com/richardlehane/siegfried)** for information on downloading Siegfried.
 
 [^2]:*Homebrew on Linux* URL: https://docs.brew.sh/Homebrew-on-Linux (visited on 3rd Mar. 2024)
 
 # 🚀 Usage 
+![file-converter](https://github.com/larsmhaugland/file-converter/assets/117298604/2de5c420-968c-43e5-b355-8d89cf75012f)
 
-![basicusage](https://github.com/larsmhaugland/file-converter/assets/117298604/abd0408d-13bf-45d7-b450-015e9fa946b9)
+<div align="center">
+	<i> Main CLI application</i>
+	<br>
+</div>
 
-
-
-## Beta
-Since the program is still in beta, there are some limitations or bugs in the software. This section will be updated throughout the development process as we fix or find problems.
+## 🔨 Beta
+Since the program is still in beta, there are some **limitations** or **bugs** in the software. This section will be updated throughout the development process as we fix or find problems.
 The program is mostly tested in Windows, so Linux specific issues may not appear in list. 
 - (Landscape oriented PDF or PDF/A -> PDF/A or other PDF version)
   	- There is a bug where iText7 doesn't recognize that a document is landscape oriented when converting from PDF->PDF/A. This results in the content of the file being cropped to portrait.
   	- UPDATE: May be resolved, more testing required.
 - Parsing siegfried data from incomplete run
   	- The current version of the program cannot successfully recover siegfried data from an incomplete run
-- Timeout
-  	- Timeout for conversion is not yet implemented
+  	  
 - (Compressed files)
   	- Zip is the only tested format, but .tar .gz .7z and .rar is also supported in the current version. It seems stable, but it is best to double check results.
 - HTML -> PDF
   	- This conversion does not work, even though the program may think it did based on the output file's pronom. Output file will be empty.
+- GUI
+  	- Starting GUI from main program will crash the program on Linux
+- Office conversion (Linux)
+  	- Office conversion using LibreOffice does not work correctly
   
-## GUI
-![guisettings](https://github.com/larsmhaugland/file-converter/assets/117298604/b9569561-7a2c-4ed4-8a53-7264f071de26)
-
-The GUI provides a more user-friendly way of editing the settings of the application (see [Settings](#settings) for further information). Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default```PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
-
-
-
 ## CLI
 Cover options and common usage
 ```
@@ -195,7 +203,7 @@ $ .\file-converter-prog2900.exe
 
 ## Arguments
 > [!NOTE]
-> All paths must be absolute or relative to executable.
+> All paths must be *absolute* or *relative* to executable.
 
 ### Set custom input folder 
 Default: *input*
@@ -224,20 +232,28 @@ $ .\example -y
 $ .\example --yes 
 ```
 
+## GUI
+![gui](https://github.com/larsmhaugland/file-converter/assets/117298604/0fd96cea-d84c-4b83-91b6-737c74ba8baf)
+<div align="center">
+	<i>GUI-version of Settings</i>
+	<br>
+</div>
+
+The GUI provides a more user-friendly way of editing the settings of the application (see [Settings](#settings) for further information). Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default``` PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
 
 ## Settings
-Settings can be manually set in the ```Settings.xml``` file.
+Settings can be manually set in an ```xml``` file.
 
 ### Setting run time arguments
 ```xml  
     <Requester></Requester>                    <!-- Name of person requesting the conversion -->
     <Converter></Converter>                    <!-- Name of person doing the conversion -->
-	<ChecksumHashing></ChecksumHashing>          <!-- SHA256 (standard) or MD5 -->
-	<InputFolder></InputFolder>                  <!-- Specify input folder, default is "input" -->
-	<OutputFolder></OutputFolder>                <!-- Specify output folder, default is "output" -->
-	<MaxThreads></MaxThreads>	                   <!-- Write a number, deafult is cores*2 -->
-	<Timeout></Timeout>			                     <!-- Timeout in minutes, default is 30min -->
-	<MaxFileSize></MaxFileSize>		<!-- Max total input bytes per file for merged files, default is 1GB. Note: output file size may differ from total of input files -->
+	<ChecksumHashing></ChecksumHashing>    <!-- SHA256 (standard) or MD5 -->
+	<InputFolder></InputFolder>            <!-- Specify input folder, default is "input" -->
+	<OutputFolder></OutputFolder>          <!-- Specify output folder, default is "output" -->
+	<MaxThreads></MaxThreads>	       <!-- Write a number, deafult is cores*2 -->
+	<Timeout></Timeout>       	       <!-- Timeout in minutes, default is 30min -->
+	<MaxFileSize></MaxFileSize>	       <!-- Max total input bytes per file for merged files, default is 1GB. Note: output file size may differ from total of input files -->
 ```
 
 The first part of the XML file concerns arguments needed to run the program. The second part allows you to set up two things:
@@ -247,37 +263,43 @@ The first part of the XML file concerns arguments needed to run the program. The
 ### Global settings
 ```xml
 <FileClass>
-	<ClassName>pdf</ClassName>
-	<Default>fmt/477</Default>        <!-- The target PRONOM code the class should be converted to -->
-	<FileTypes>
-		<Filename>pdf</Filename>
-    <Pronoms>                             <!-- List of all PRONOMs that should be converted to the target PRONOM -->
-			fmt/95,fmt/354,fmt/476,fmt/477 ,fmt/478 ,fmt/479 ,fmt/480
-		</Pronoms>
-		<Default></Default>
-	</FileTypes>
+    <ClassName>pdf</ClassName>
+    <Default>fmt/477</Default>  <!-- The target PRONOM code the class should be converted to -->
+    <FileTypes>
+           <Filename>pdf</Filename>
+       <Pronoms>       <!-- List of all PRONOMs that should be converted to the target PRONOM -->
+              fmt/95,fmt/354,fmt/476,fmt/477 ,fmt/478 ,fmt/479 ,fmt/480
+       </Pronoms>
+    <Default></Default>
+    </FileTypes>
 </FileClass>
 ```
 
 ### Folder settings
 ```xml
-	<FolderOverride>
-		<FolderPath>apekatter</FolderPath>      <!-- Path after input folder example: /documents -->
-		<Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398</Pronoms>
-		<ConvertTo>fmt/14</ConvertTo>
-		<MergeImages></MergeImages>             <!-- Yes, No -->
-	</FolderOverride>
+<FolderOverride>
+	<FolderPath>apekatter</FolderPath>      <!-- Path after input folder example: /documents -->
+	<Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398</Pronoms>
+	<ConvertTo>fmt/14</ConvertTo>
+	<MergeImages></MergeImages>             <!-- Yes, No -->
+</FolderOverride>
 ```
 
 ## Currently supported file formats 
+<div align=center>
 <img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/92f26f2b-2ad4-4179-ac6f-07fb4f7dc1ba">
+</div>
 
+For a more extensive **PRONOM-based** overview you can ***click*** on the following image to be taken to a codesandbox code snippet: <br>
+[![Edit file-converter](https://github.com/larsmhaugland/file-converter/assets/117298604/e0b35b20-43e2-4081-908f-19cb885951e4)](https://codesandbox.io/p/sandbox/file-converter-ynh84y)
 
+The code snippet is based on data from the following JSON file: **[Supported Conversions.](DevDocumentation/supportedconversions.json)** <br>
+For a more extensive overview for **each external converter** see the following TXT file: **[Supported Conversions per converter.](DevDocumentation/supportedconversions.txt)**
 
 ## Documentation and logging 
 The ```.txt```log files use the following convention and is automatically generated each time the program is run:
 ```
-Type	| (Error) Message | Format | Filetype | Filename
+Type | (Error) Message | Format | Filetype | Filename
 ```
 All log files can be found in the ```logs``` folder.
 
@@ -337,7 +359,9 @@ Our bachelor thesis would also not have been possible without our **[supervisor 
 
 
 # 🌍 Contributing
-> ❗TODO:Explain how one can contribute.
+> [!IMPORTANT]
+> We are currently **not** open for contributors, due to this being part of a bachelor thesis. <br>
+> Hopefully, we will be able to open up for contributors after the thesis has been approved.
 
 ## Contributors
 This project exists thanks to these wonderful people:<br>

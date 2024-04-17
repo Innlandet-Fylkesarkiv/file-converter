@@ -72,11 +72,11 @@ class Settings
             string? converter = converterNode?.InnerText.Trim();
             if (!String.IsNullOrEmpty(requester))
 			{
-                Logger.JsonRoot.requester = requester;
+                Logger.JsonRoot.Requester = requester;
             } 
 			if (!String.IsNullOrEmpty(converter))
 			{
-                Logger.JsonRoot.converter = converter;
+                Logger.JsonRoot.Converter = converter;
             }
 			string? input = inputNode?.InnerText.Trim();
 			string? output = outputNode?.InnerText.Trim();
@@ -223,7 +223,7 @@ class Settings
 					SettingsData settings = new SettingsData
 					{
 						PronomsList = pronomsList,
-						DefaultType = folderOverrideNode.SelectSingleNode("ConvertTo")?.InnerText,
+						DefaultType = folderOverrideNode.SelectSingleNode("ConvertTo")?.InnerText ?? "",
 						Merge = merge == "YES",
 					};
 
@@ -237,9 +237,9 @@ class Settings
                     }
                     else
                     {
-						if (Directory.Exists(inputFolder + "/" + folderPath)) 
+						if (Directory.Exists(inputFolder + "/" + folderPath) && folderPath != null) 
 						{ 
-							GlobalVariables.FolderOverride[folderPath] = settings;
+							GlobalVariables.FolderOverride.Add(folderPath,settings);
 							List<string> subfolders = GetSubfolderPaths(folderPath);
 							if (subfolders.Count > 0)
 							{
@@ -280,7 +280,7 @@ class Settings
             if (Directory.Exists(targetFolderPath))
             {
                 // Add current folder to subfolders list
-                // TODO: Is this not needed?, as the folder is already added in the main function
+                // TODO: Is this not needed?, as the folder is already added in the SetUpFolderOverride function
                 subfolders.Add(relativePath); 
 
                 // Add immediate subfolders
@@ -328,45 +328,6 @@ class Settings
 		return null;
     }
 
-	/*
-	 * probably not necessary
-	 * 
-	public void AskAboutEmptyDefaults()
-	{
-		foreach(KeyValuePair<string, string> entry in GlobalVariables.FileSettings)
-		{
-            if (entry.Value == "")
-			{
-                Console.WriteLine("No default type found for " + entry.Key + ". Do you want it to NOT convert(Y/N): ");
-                string? input = Console.ReadLine();
-				if (input != null)
-				{
-                    input = input.ToUpper().Trim();
-                    if (input.Equals("N"))
-                    {
-                        Console.WriteLine("What should it convert to(pronomcode example: fmt/14): ");
-                        input = Console.ReadLine();
-						if (input != null )
-						{
-							string pronomName = PronomHelper.PronomToFullName(input.Trim());
-							if (pronomName != "Empty" && pronomName != "Unknown")
-							{
-                                GlobalVariables.FileSettings[entry.Key] = input;
-                            }
-
-                        }
-                    }
-					else
-					{
-                        GlobalVariables.FileSettings[entry.Key] = entry.Key;
-                    }
-                }
-				
-            }
-        }
-	}
-	*/
-
 	/// <summary>
 	/// Checks if a file should be merged
 	/// </summary>
@@ -382,4 +343,3 @@ class Settings
 		return false;
 	}
 }
-

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 /// <summary>
 /// Converts EML and MSG to pdf. Also allows for converting MSG to EML.
@@ -28,11 +22,11 @@ public class EmailConverter : Converter
     {
         Name = "EmailConverter";
         Version = "";
-        SupportedConversions = getListOfSupportedConvesions();
-        BlockingConversions = getListOfBlockingConversions();
-        SupportedOperatingSystems = getSupportedOS();
+        SupportedConversions = GetListOfSupportedConvesions();
+        BlockingConversions = GetListOfBlockingConversions();
+        SupportedOperatingSystems = GetSupportedOS();
         currentOS = Environment.OSVersion;
-        DependeciesExists = checkDependencies();
+        DependenciesExists = checkDependencies();
     }
 
     /// <summary>
@@ -135,14 +129,14 @@ public class EmailConverter : Converter
                 {
                     // Conversion was succesfull get new path and check for attachments
                     string newFolderName = Path.GetFileNameWithoutExtension(inputFilePath) + "-attachments";
-                    string folderWithAttachments = Path.Combine(Path.GetDirectoryName(inputFilePath), newFolderName);
+                    string folderWithAttachments = Path.Combine(Path.GetDirectoryName(inputFilePath) ?? "", newFolderName);
                     if (Directory.Exists(folderWithAttachments))
                     {
                         // Attachements found, add them to the working set for further conversion
                         await addAttachementFilesToWorkingSet(inputFilePath, folderWithAttachments);
                     }
                     // Delete copy in ouputfolder if converted successfully
-                    deleteOriginalFileFromOutputDirectory(inputFilePath);
+                    DeleteOriginalFileFromOutputDirectory(inputFilePath);
                 }
             }
         }
@@ -154,13 +148,12 @@ public class EmailConverter : Converter
         }
     }
 
-
     /// <summary>
     /// Reference list stating supported conversions containing 
     /// key value pairs with string input pronom and string output pronom
     /// </summary>
     /// <returns>List of all supported conversions</returns>
-    public override Dictionary<string, List<string>> getListOfSupportedConvesions()
+    public override Dictionary<string, List<string>> GetListOfSupportedConvesions()
     {
         var supportedConversions = new Dictionary<string, List<string>>();
         // eml to pdf
@@ -184,11 +177,10 @@ public class EmailConverter : Converter
         return supportedConversions;
     }
 
-    public override Dictionary<string, List<string>> getListOfBlockingConversions()
+    public override Dictionary<string, List<string>> GetListOfBlockingConversions()
     {
         return new Dictionary<string, List<string>>();
     }
-
 
     /// <summary>
     /// Gets the correct command for executing eml to pdf conversion
@@ -238,7 +230,7 @@ public class EmailConverter : Converter
     /// Get the supported operating system for this converter 
     /// </summary>
     /// <returns>Returns list of strings wiht the supported OS'es</returns>
-    public override List<string> getSupportedOS()
+    public override List<string> GetSupportedOS()
     {
         var supportedOS = new List<string>();
         supportedOS.Add(PlatformID.Win32NT.ToString());
@@ -253,13 +245,13 @@ public class EmailConverter : Converter
     /// <returns></returns>
     public async Task addAttachementFilesToWorkingSet(string inputFilePath, string folderWithAttachments)
     {
-        List<FileInfo>? attachementFiles = await Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments);
+        List<FileInfo>? attachementFiles = await Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments)!;
         foreach (FileInfo newFile in attachementFiles)
         {
             Guid id = Guid.NewGuid();
             newFile.Id = id;
             var newFileToConvert = new FileToConvert(newFile);
-            newFileToConvert.TargetPronom = Settings.GetTargetPronom(newFile);
+            newFileToConvert.TargetPronom = Settings.GetTargetPronom(newFile)!;
             newFile.AddConversionTool(NameAndVersion);
 
             //Use current and target pronom to create a key for the conversion map
@@ -290,8 +282,8 @@ public class EmailConverter : Converter
     {
         string wkhtmltopdfExecutable = currentOS.Platform == PlatformID.Unix ? "wkhtmltopdf" : "wkhtmltopdf.exe";
         string javaExecutable = currentOS.Platform == PlatformID.Unix ? "java" : "java.exe";
-        bool wkhtmltopdfFound = currentOS.Platform == PlatformID.Unix ? checkPathVariableLinux(wkhtmltopdfExecutable) : checkPathVariableWindows(wkhtmltopdfExecutable);
-        bool javaFound = currentOS.Platform == PlatformID.Unix ? checkPathVariableLinux(javaExecutable) : checkPathVariableWindows(javaExecutable);
+        bool wkhtmltopdfFound = currentOS.Platform == PlatformID.Unix ? CheckPathVariableLinux(wkhtmltopdfExecutable) : CheckPathVariableWindows(wkhtmltopdfExecutable);
+        bool javaFound = currentOS.Platform == PlatformID.Unix ? CheckPathVariableLinux(javaExecutable) : CheckPathVariableWindows(javaExecutable);
 
         return wkhtmltopdfFound && javaFound;
     }

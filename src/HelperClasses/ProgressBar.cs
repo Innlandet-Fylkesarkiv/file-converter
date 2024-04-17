@@ -57,7 +57,7 @@ public class ProgressBar : IDisposable, IProgress<double>
 			animation[animationIndex++ % animation.Length],
 			currentDone, totalJobs);
 			string elapsedTime = elapsed.ToString(@"hh\:mm\:ss");
-			bool showEstimatedTime = currentDone < totalJobs && percent >= 10;
+			bool showEstimatedTime = currentDone < totalJobs && percent >= 25;
 			string estimatedTimeLeft;
 			string displayText;
 
@@ -118,5 +118,4 @@ public class ProgressBar : IDisposable, IProgress<double>
 			UpdateText(string.Empty);
 		}
 	}
-
 }

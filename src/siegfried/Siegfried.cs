@@ -1,19 +1,9 @@
-﻿	using Ghostscript.NET;
-using iText.IO.Source;
-using iText.Kernel.Pdf.Function;
-using iText.Kernel.Utils.Objectpathitems;
-using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509.SigI;
-using SharpCompress.Archives;
+﻿using SharpCompress.Archives;
 using SharpCompress.Common;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 public class SiegfriedJSON
 {
@@ -23,7 +13,6 @@ public class SiegfriedJSON
 	public string scandate = "";
 	[JsonPropertyName("files")]
 	public SiegfriedFile[] files = [];
-
 }
 
 public class SiegfriedFile
@@ -70,7 +59,7 @@ public class Siegfried
 	private string HomeFolder = "siegfried/";
 	private string PronomSignatureFile = "default.sig";		 //"pronom64k.sig";
     private static readonly object lockObject = new object();
-	private List<List<string>> CompressedFolders;
+	public List<List<string>> CompressedFolders;
 	public ConcurrentBag<FileInfo> Files = new ConcurrentBag<FileInfo>();
 	public static Siegfried Instance
 	{
@@ -93,7 +82,6 @@ public class Siegfried
 	private Siegfried()
 	{
 		Logger logger = Logger.Instance;
-		//TODO: Should check Version and ScanDate here
 		CompressedFolders = new List<List<string>>();
 		//Look for Siegfried files
 		if (OperatingSystem.IsWindows())
@@ -199,6 +187,10 @@ public class Siegfried
 
 	private void ReadFromFiles()
 	{
+		if(instance == null)
+		{
+			instance = new Siegfried();
+		}
 		//TODO: Compressed files are not handled correctly here
 		var paths = Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories);
 		using (ProgressBar progressBar = new ProgressBar(paths.Length))
@@ -562,7 +554,6 @@ public class Siegfried
 		JsonElement jsonElement;
 		return new SiegfriedFile
 		{
-			
 			filename = fileElement.GetProperty("filename").GetString() ?? "",
 			
 			hash = fileElement.TryGetProperty(hashMethod,out jsonElement) ? fileElement.GetProperty(hashMethod).GetString() ?? "" : "",
@@ -618,7 +609,7 @@ public class Siegfried
 			try
 			{
 				File.Copy(file, outputPath, true);
-			} catch (IOException ex)
+			} catch (IOException)
 			{
 				Console.WriteLine("Could not open file '{0}', it may be used in another process");
 				retryFiles.Add(file);
@@ -761,8 +752,6 @@ public class Siegfried
 		return compressedFolders;
     }
 
-
-
 	/// <summary>
 	/// Compresses a folder to a specified format and deletes the unpacked folder
 	/// </summary>
@@ -822,10 +811,8 @@ public class Siegfried
 			} catch (Exception e)
 			{
                 Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + e.Message, true);
-            }
-			//TODO: Delete the compressed folder
-
-		} catch (Exception e)
+            }//TODO: Delete the compressed folder
+        } catch (Exception e)
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + e.Message, true);
 		}

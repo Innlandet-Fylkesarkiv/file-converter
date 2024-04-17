@@ -1,7 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using System.Security.Cryptography;
-using System.Text.Json.Serialization;
-using System.Drawing;
 
 public enum HashAlgorithms
 {
@@ -26,9 +24,7 @@ public class FileInfo
 	public long OriginalSize { get; set; } = 0;					// Original file size (bytes)
 	public long NewSize { get; set; } = 0;						// New file size (bytes)
 	public bool IsConverted { get; set; } = false;				// True if file is converted
-	public bool IsModified { get; set; } = false;				// True if file is modified
 	public List<string> Route { get; set; } = new List<string>();   // List of modification tools used
-	public string TargetPronom { get; set; } = "";				// The pronom the file should be converted to
 	public Guid Id { get; set; }								// Unique identifier for the file
 	public bool ShouldMerge { get; set; } = false;				// True if file should be merged
 	public bool IsMerged { get; set; } = false;					// True if file is merged
@@ -71,7 +67,6 @@ public class FileInfo
 	{
 		FilePath = path;
 		ParseOutput(output);
-		//TODO: Hashing algorithm should be set in settings
 		//Get checksum
 		switch (GlobalVariables.checksumHash)
 		{
@@ -81,7 +76,6 @@ public class FileInfo
 			default:
 				OriginalChecksum = CalculateFileChecksum(SHA256.Create());
 				break;
-
 		}
 	}
 
@@ -122,12 +116,23 @@ public class FileInfo
 	/// <param name="f">FileInfo that has new data in it</param>
 	public void UpdateSelf(FileInfo f)
 	{
-		//Set new values based on the input FileInfo
-		NewPronom = f.OriginalPronom;
-		NewFormatName = f.OriginalFormatName;
-		NewMime = f.OriginalMime;
-		NewSize = f.OriginalSize;
-		NewChecksum = f.OriginalChecksum;
+		if (f == null)
+		{
+			NewPronom = OriginalPronom;
+			NewFormatName = OriginalFormatName;
+			NewMime = OriginalMime;
+			NewSize = OriginalSize;
+			NewChecksum = OriginalChecksum;
+		}
+		else
+		{
+			//Set new values based on the input FileInfo
+			NewPronom = f.OriginalPronom;
+			NewFormatName = f.OriginalFormatName;
+			NewMime = f.OriginalMime;
+			NewSize = f.OriginalSize;
+			NewChecksum = f.OriginalChecksum;
+		}
 	}
 
 	public void RenameFile(string newName)
