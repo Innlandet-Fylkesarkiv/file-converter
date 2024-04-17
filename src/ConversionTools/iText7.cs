@@ -109,20 +109,12 @@ public class iText7 : Converter
     {
 		try
 		{
-			PdfVersion? pdfVersion = null;
-			PdfAConformanceLevel? conformanceLevel = null;
-			if (PronomToPdfVersion.ContainsKey(file.TargetPronom))
-			{
-				pdfVersion = PronomToPdfVersion[file.TargetPronom];
-			}
-			if (PronomToPdfAConformanceLevel.ContainsKey(file.TargetPronom))
-			{
-				conformanceLevel = PronomToPdfAConformanceLevel[file.TargetPronom];
-			}
+			PdfVersion pdfVersion = GetPDFVersion(file.Route.First());
+			PdfAConformanceLevel? conformanceLevel = GetPdfAConformanceLevel(file.Route.First());
            
 			if (HTMLPronoms.Contains(file.CurrentPronom))
 			{
-				convertFromHTMLToPDF(file, pdfVersion ?? PdfVersion.PDF_2_0, conformanceLevel);
+				convertFromHTMLToPDF(file, pdfVersion, conformanceLevel);
 			}
 			else if (PDFPronoms.Contains(file.CurrentPronom))
 			{
@@ -130,7 +122,7 @@ public class iText7 : Converter
 			}
 			else if (ImagePronoms.Contains(file.CurrentPronom))
 			{
-				convertFromImageToPDF(file, pdfVersion ?? PdfVersion.PDF_2_0, conformanceLevel);
+				convertFromImageToPDF(file, pdfVersion, conformanceLevel);
 			}
         }
         catch(Exception e)
@@ -258,7 +250,7 @@ public class iText7 : Converter
 	}
 
     /// <summary>
-    /// Convert from any pdf file to pdf-A version 1A-3B
+    /// Convert from any pdf file to pdf-A version 1A-3U
     /// </summary>
     /// <param name="file">The file to convert</param>
     /// <param name="conformanceLevel">The type of PDF-A to convert to</param>
@@ -270,35 +262,33 @@ public class iText7 : Converter
             string filename = Path.Combine(file.FilePath);
             int count = 0;
             bool converted = false;
+            string pronom = file.Route.First();
             PdfOutputIntent outputIntent;
 
             string tmpFileName = RemoveInterpolation(filename);
-            
+            // Initialize PdfOutputIntent object
+            lock (pdfalock)
+            {
+                using (FileStream iccFileStream = new FileStream(GetICCFilePath(), FileMode.Open))
+                {
+                    outputIntent = new PdfOutputIntent("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
+                }
+            }
             do
             {
-                // Initialize PdfOutputIntent outside the loop
-                lock (pdfalock)
+                PdfVersion pdfVersion = GetPDFVersion(pronom);
+                //If the conversion failed with PDF/A Accessible, try PDF/A Basic/F depending on the pronom
+                if (PDFAAPronoms.Contains(pronom) && count > 0)
                 {
-                    using (FileStream iccFileStream = new FileStream(GetICCFilePath(), FileMode.Open))
-                    {
-                        outputIntent = new PdfOutputIntent("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
-                    }
-                }
-
-                PdfVersion pdfVersion;
-                if (PronomToPdfVersion.ContainsKey(file.Route.First()))
-                {
-                    pdfVersion = PronomToPdfVersion[file.Route.First()];
-                } else
-                {
-                    pdfVersion = PdfVersion.PDF_1_7; //Default PDF version
+                    var oldConformance = conformanceLevel.ToString();
+                    pronom = SetToPDFABasic(pronom, out conformanceLevel, out pdfVersion);
+                    Logger.Instance.SetUpRunTimeLogMessage("PDF to PDF/A Accessible (" + oldConformance + ") conversion failed. Attempting " + conformanceLevel.ToString(), true, filename: file.FilePath);
                 }
 
                 using (PdfWriter writer = new PdfWriter(pdfaFileName, new WriterProperties().SetPdfVersion(pdfVersion))) // Create PdfWriter instance
                 using (PdfADocument pdfADocument = new PdfADocument(writer, conformanceLevel, outputIntent))    // Associate PdfADocument with PdfWriter
                 using (PdfReader reader = new PdfReader(tmpFileName))
                 {
-                    
                     PdfDocument pdfDocument = new PdfDocument(reader);
                     pdfADocument.SetTagged();
 
@@ -313,7 +303,7 @@ public class iText7 : Converter
                         canvas.AddXObject(pageCopy);
                     }
                 }
-                converted = CheckConversionStatus(pdfaFileName, file.Route.First());
+                converted = CheckConversionStatus(pdfaFileName, pronom);
             } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
             if (!converted)
             {
@@ -371,7 +361,6 @@ public class iText7 : Converter
                     }
                 }
             }
-
             // Close the PDF document.
             pdfDoc.Close();
         }
@@ -391,19 +380,11 @@ public class iText7 : Converter
     {
         try
         {
-            PdfVersion? pdfVersion;
-            if(PronomToPdfVersion.ContainsKey(file.TargetPronom))
+            PdfVersion pdfVersion = GetPDFVersion(file.Route.First());
+            PdfAConformanceLevel? conformanceLevel = GetPdfAConformanceLevel(file.Route.First());
+            if(conformanceLevel != null)
             {
-                pdfVersion = PronomToPdfVersion[file.TargetPronom];
-            }
-            else
-            {
-                Logger.Instance.SetUpRunTimeLogMessage("PDF pronom not found in dictionary. Using default PDF version 2.0", true, file.TargetPronom, file.FilePath);
-                pdfVersion = PdfVersion.PDF_2_0; //Default PDF version
-            }
-            if(PronomToPdfAConformanceLevel.ContainsKey(file.TargetPronom))
-            {
-                convertFromPDFToPDFA(file, PronomToPdfAConformanceLevel[file.TargetPronom]);
+                convertFromPDFToPDFA(file, conformanceLevel);
                 return;
             }
 
@@ -516,25 +497,15 @@ public class iText7 : Converter
      {
         try
         {
-            PdfVersion? pdfVersion = PronomToPdfVersion[pronom];
-            if (pdfVersion == null)
-            {
-                pdfVersion = PdfVersion.PDF_2_0; //Default PDF version
-            }
+            PdfVersion pdfVersion = GetPDFVersion(pronom);
 
-            PdfAConformanceLevel? conformanceLevel = null;
-            if (PronomToPdfAConformanceLevel.ContainsKey(pronom))
-            {
-                conformanceLevel = PronomToPdfAConformanceLevel[pronom];
-            }
+            PdfAConformanceLevel? conformanceLevel = GetPdfAConformanceLevel(pronom);
 
             using (var pdfWriter = new PdfWriter(outputFileName, new WriterProperties().SetPdfVersion(pdfVersion)))
             using (var pdfDocument = new PdfDocument(pdfWriter))
             using (var document = new iText.Layout.Document(pdfDocument))
             {
                 pdfDocument.SetTagged();
-                pdfDocument.GetCatalog().SetLang(new PdfString("nl-nl"));
-                PdfDocumentInfo info = pdfDocument.GetDocumentInfo();   // Set the document's metadata
                 foreach (var file in files)
                 {
                     string filename = Path.Combine(file.FilePath);
@@ -584,6 +555,71 @@ public class iText7 : Converter
         } 
      }
 
+    static PdfVersion GetPDFVersion(string pronom)
+    {
+        if (PronomToPdfVersion.ContainsKey(pronom))
+        {
+            return PronomToPdfVersion[pronom];
+        }
+        else
+        {
+            return PdfVersion.PDF_1_7;
+        }
+    }
+
+    static PdfAConformanceLevel? GetPdfAConformanceLevel(string pronom)
+    {
+        if (PronomToPdfAConformanceLevel.ContainsKey(pronom))
+        {
+            return PronomToPdfAConformanceLevel[pronom];
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    static string SetToPDFABasic(string pronom, out PdfAConformanceLevel conformanceLevel, out PdfVersion pdfVersion)
+    {
+
+        switch (pronom)
+        {
+            case "fmt/95":
+            case "fmt/354":
+                conformanceLevel = PdfAConformanceLevel.PDF_A_1B;
+                pronom = "fmt/354";
+                pdfVersion = PdfVersion.PDF_1_4;
+                break;
+            case "fmt/476":
+            case "fmt/477":
+            case "fmt/478":
+                conformanceLevel = PdfAConformanceLevel.PDF_A_2B;
+                pronom = "fmt/477";
+                pdfVersion = PdfVersion.PDF_1_7;
+                break;
+            case "fmt/479":
+            case "fmt/480":
+            case "fmt/481":
+                conformanceLevel = PdfAConformanceLevel.PDF_A_3B;
+                pronom = "fmt/480";
+                pdfVersion = PdfVersion.PDF_1_7;
+                break;
+            case "fmt/1910":
+            case "fmt/1911":
+            case "fmt/1912":
+                conformanceLevel = PdfAConformanceLevel.PDF_A_4F;
+                pronom = "fmt/1912";
+                pdfVersion = PdfVersion.PDF_2_0;
+                break;
+            default:
+                conformanceLevel = PdfAConformanceLevel.PDF_A_2B;
+                pronom = "fmt/477";
+                pdfVersion = PdfVersion.PDF_1_7;
+                break;
+        }
+        return pronom;
+    }
+
     List<string> ImagePronoms = [
        "fmt/3",
         "fmt/4",
@@ -618,7 +654,7 @@ public class iText7 : Converter
         "fmt/114",
         "fmt/116",
         "fmt/117"
-];
+    ];
     List<string> HTMLPronoms = [
         "fmt/103",
         "fmt/96",
@@ -668,11 +704,17 @@ public class iText7 : Converter
         //"fmt/1912",     // PDF/A 4F
     ];
 
+    List<string> PDFAAPronoms = [
+        "fmt/95",       // PDF/A 1A
+        "fmt/476",      // PDF/A 2A
+        "fmt/479",      // PDF/A 3A
+    ];
+
     /// <summary>
     /// Maps a string pronom to the corresponding iText7 class PdfVersion
     /// NOTE: All PDF-A PRONOMS should be mapped to PDF 2.0
     /// </summary>
-    Dictionary<String, PdfVersion> PronomToPdfVersion = new Dictionary<string, PdfVersion>()
+    static Dictionary<String, PdfVersion> PronomToPdfVersion = new Dictionary<string, PdfVersion>()
     {
         {"fmt/14", PdfVersion.PDF_1_0},
         {"fmt/15", PdfVersion.PDF_1_1},
@@ -699,7 +741,7 @@ public class iText7 : Converter
     /// <summary>
     /// Maps a string pronom to the corresponding iText7 class PdfAConformanceLevel
     /// </summary>
-    public Dictionary<String, PdfAConformanceLevel> PronomToPdfAConformanceLevel = new Dictionary<string, PdfAConformanceLevel>()
+    static public Dictionary<String, PdfAConformanceLevel> PronomToPdfAConformanceLevel = new Dictionary<string, PdfAConformanceLevel>()
     {
         {"fmt/95",  PdfAConformanceLevel.PDF_A_1A },
         {"fmt/354", PdfAConformanceLevel.PDF_A_1B },
