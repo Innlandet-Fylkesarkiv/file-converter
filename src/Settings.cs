@@ -238,7 +238,10 @@ class Settings
                     else
                     {
 						if (Directory.Exists(inputFolder + "/" + folderPath) && folderPath != null) 
-						{ 
+						{
+							// Ensure that the folder path is valid on all operating systems
+							folderPath = folderPath.Replace('\\', Path.DirectorySeparatorChar);
+							folderPath = folderPath.Replace('/', Path.DirectorySeparatorChar);
 							GlobalVariables.FolderOverride.Add(folderPath,settings);
 							List<string> subfolders = GetSubfolderPaths(folderPath);
 							if (subfolders.Count > 0)
@@ -280,8 +283,6 @@ class Settings
             if (Directory.Exists(targetFolderPath))
             {
                 // Add current folder to subfolders list
-                // TODO: Is this not needed?, as the folder is already added in the SetUpFolderOverride function
-                subfolders.Add(relativePath); 
 
                 // Add immediate subfolders
                 foreach (string subfolder in Directory.GetDirectories(targetFolderPath))

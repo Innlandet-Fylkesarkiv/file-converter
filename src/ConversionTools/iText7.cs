@@ -464,13 +464,19 @@ public class iText7 : Converter
 
             List<Task> tasks = new List<Task>();
             List<FileInfo> group = new List<FileInfo>();
+            List<string> sentPaths = new List<string>();
             long groupSize = 0;
             int groupCount = 1;
             foreach (var file in files)
             {
                 string outputFileName = $@"{filename}_{groupCount}.pdf";
                 file.NewFileName = outputFileName;
+                if (sentPaths.Contains(file.FilePath))
+                {
+                    continue;
+                }
                 group.Add(file);
+                sentPaths.Add(file.FilePath);
                 groupSize += file.OriginalSize;
                 if (groupSize > GlobalVariables.maxFileSize)
                 {

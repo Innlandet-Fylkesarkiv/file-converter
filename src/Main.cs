@@ -157,7 +157,6 @@ class Program
 		string validInput = "YyNnRrGg";
 		string prevInputFolder = GlobalVariables.parsedOptions.Input; ;
 
-
         do
 		{
             if (prevInputFolder != GlobalVariables.parsedOptions.Input)
@@ -187,7 +186,7 @@ class Program
 				case 'N':	//Exit program
 					goto END;
 				case 'R':	//Change settings and reload manually
-                    Console.WriteLine("Change settings file and hit enter when finished (Remember to save file)");
+                    Console.WriteLine("Edit settings file and hit enter when finished (Remember to save file)");
                     Console.ReadLine();
                     settings.ReadSettings(settingsPath);
                     settings.SetUpFolderOverride(settingsPath);
@@ -199,7 +198,6 @@ class Program
 					break;
 				default: break;
             }
-            
         } while (input != 'Y' || fileManager.Files.Count < 0);
 
         ConversionManager cm = ConversionManager.Instance;
