@@ -5,9 +5,21 @@ public class FileManager
 {
     private static FileManager? instance;
     private static readonly object lockObject = new object();
-	public ConcurrentDictionary<Guid,FileInfo> Files;	// List of files to be converted
-	private static readonly object identifyingFiles = new object(); // True if files are being identified
-	public bool ConversionFinished = false; // True if conversion is finished
+    private ConcurrentDictionary<Guid, FileInfo> _files = new ConcurrentDictionary<Guid, FileInfo>();
+    private static readonly object identifyingFiles = new object(); // True if files are being identified
+    private bool _conversionFinished = false;
+
+    public bool ConversionFinished
+    {
+        get { return _conversionFinished; }
+        set { _conversionFinished = value; }
+    }
+
+    public ConcurrentDictionary<Guid, FileInfo> Files
+    {
+        get { return _files; }
+        set { _files = value; }
+    }
     private FileManager()
     {
         Files = new ConcurrentDictionary<Guid, FileInfo>();
@@ -243,7 +255,7 @@ public class FileManager
 	/// 
 	/// </summary>
 	/// <param name="dict"></param>
-	private void filterNonDuplicates(Dictionary<string,List<FileInfo>> dict)
+	static private void filterNonDuplicates(Dictionary<string,List<FileInfo>> dict)
 	{
         // Remove groups with only one file name
         var filteredFiles = dict
@@ -257,7 +269,7 @@ public class FileManager
                 .Count(x => Path.GetFileNameWithoutExtension(x.FilePath) == Path.GetFileNameWithoutExtension(f.FilePath)) == 1); //TODO: Should check if the files are in the same directory
         });
         //Remove the keys that have no values
-        filteredFiles = filteredFiles.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value);
+        filteredFiles.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value);
     }
 
 	/// <summary>
@@ -287,7 +299,7 @@ public class FileManager
 	/// Prints out a grouped list of all identified input file formats and target file formats with pronom codes and full name. <br></br>
 	/// Also gives a count of how many files are in each group.
 	/// </summary>
-	private class FileInfoGroup
+	sealed private class FileInfoGroup
 	{
         public string CurrentPronom { get; set; } = "";
 		public string CurrentFormatName { get; set; } = "";
@@ -301,7 +313,7 @@ public class FileManager
 	/// </summary>
 	/// <param name="pronom"></param>
 	/// <returns></returns>
-	int ParsePronom(string pronom)
+	static int ParsePronom(string pronom)
 	{
         if (pronom.Contains('/'))
 		{
@@ -319,9 +331,9 @@ public class FileManager
 		foreach (var file in Files.Values)
 		{
 			var key = Path.GetFileName(file.FilePath);
-            if (dict.ContainsKey(key))
-			{
-				dict[key].Add(file);
+            if (dict.TryGetValue(key, out var fileList))
+            {
+                fileList.Add(file);
             }
             else
 			{
@@ -346,7 +358,7 @@ public class FileManager
 	/// </summary>
 	public void DisplayFileList()
 	{
-		if(Files.Count < 1)
+		if(Files.IsEmpty)
 		{
 			PrintHelper.PrintLn("No files found", GlobalVariables.ERROR_COL);
 			return;
@@ -404,11 +416,11 @@ public class FileManager
 			}
 			//Add new entry in dictionary or add to count if entry already exists
 			KeyValuePair<string, string> key = new KeyValuePair<string, string>(currentPronom, targetPronom);
-			if (fileCount.ContainsKey(key))
-			{
-				fileCount[key]++;
-			}
-			else
+            if (fileCount.TryGetValue(key, out var count))
+            {
+                fileCount[key] = count + 1;
+            }
+            else
 			{
 				fileCount[key] = 1;
 			}
@@ -541,8 +553,8 @@ public class FileManager
 				foreach (var dir in dirsToBeMerged)
 				{
 					var relPath = Path.Combine(GlobalVariables.parsedOptions.Output, dir.Item1);
-					var totalFiles = Directory.Exists(relPath) ? Directory.GetFiles(relPath).Count() : -1;
-					Console.WriteLine("\t{0,-" + maxLength + "} | {1} files ({2})", dir.Item1, totalFiles, dir.Item2);
+                    var totalFiles = Directory.Exists(relPath) ? Directory.GetFiles(relPath).Length : -1;
+                    Console.WriteLine("\t{0,-" + maxLength + "} | {1} files ({2})", dir.Item1, totalFiles, dir.Item2);
 				}
 			}
 			else    //Check result of merge
@@ -595,9 +607,15 @@ public class FileManager
 	/// <returns></returns>
 	public FileInfo? GetFile(Guid id)
 	{
-		if (!Files.ContainsKey(id)) return null;
-		return Files[id];
-	}
+        if (Files.TryGetValue(id, out var file))
+        {
+            return file;
+        }
+        else
+        {
+            return null;
+        }
+    }
 
 	/// <summary>
 	/// 
