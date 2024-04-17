@@ -50,18 +50,18 @@ public class EmailConverter : Converter
     /// </summary>
     /// <param name="filePath">The file to be converted</param>
     /// <param name="pronom">The file format to convert to</param>
-    async public override Task ConvertFile(FileToConvert fileInfo, string pronom)
+    async public override Task ConvertFile(FileToConvert file, string pronom)
     {
         string inputFolder = GlobalVariables.parsedOptions.Input;
         string outputFolder = GlobalVariables.parsedOptions.Output;
 
         // Get the full path to the input directory and output directory 
-        string outputDir = Directory.GetParent(fileInfo.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";
-        string inputDirectory = Directory.GetParent(fileInfo.FilePath)?.ToString() ?? "";
-        string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(fileInfo.FilePath));
+        string outputDir = Directory.GetParent(file.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";
+        string inputDirectory = Directory.GetParent(file.FilePath)?.ToString() ?? "";
+        string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(file.FilePath));
 
         // Run conversion with correct paths
-        await RunConversion(inputFilePath, outputDir, fileInfo, pronom);
+        await RunConversion(inputFilePath, outputDir, file, pronom);
     }
 
     /// <summary>

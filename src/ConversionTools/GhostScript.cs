@@ -18,11 +18,34 @@ public class GhostscriptConverter : Converter
 {
 	private static readonly object lockobject = new object();
 
-	//NOTE: GhostScript only supports PDF to Image for these specific Image PRONOMs
-    public string PNGPronom = "fmt/12";
-    public string JPGPronom = "fmt/43";
-    public string TIFFPronom = "fmt/353";
-    public string BMPPronom = "fmt/116";
+    //NOTE: GhostScript only supports PDF to Image for these specific Image PRONOMs
+    private string _pngPronom = "fmt/12";
+    private string _jpgPronom = "fmt/43";
+    private string _tiffPronom = "fmt/353";
+    private string _bmpPronom = "fmt/116";
+
+    public string BMPPronom
+    {
+        get { return _bmpPronom; }
+        set { _bmpPronom = value; }
+    }
+
+    public string TIFFPronom
+    {
+        get { return _tiffPronom; }
+        set { _tiffPronom = value; }
+    }
+
+    public string JPGPronom
+    {
+        get { return _jpgPronom; }
+        set { _jpgPronom = value; }
+    }
+    public string PNGPronom
+    {
+        get { return _pngPronom; }
+        set { _pngPronom = value; }
+    }
 
     public string gsWindowsExecutable = "";
     public string gsWindowsLibrary = "";
@@ -189,7 +212,7 @@ public override List<string> GetSupportedOS()
 				{
 					if (OperatingSystem.IsWindows())
 					{
-						ConvertToImagesWindows(file, outputFileName, sDevice, extension);
+						ConvertToImagesWindows(file, outputFileName, extension);
 					}
 					else
 					{
@@ -211,7 +234,7 @@ public override List<string> GetSupportedOS()
     /// <param name="outputFileName">The name of the new file</param>
     /// <param name="sDevice">What format GhostScript will convert to</param>
     /// <param name="extension">Extension type for after the conversion</param>
-    void ConvertToImagesWindows(FileToConvert file, string outputFileName, string sDevice, string extension)
+    void ConvertToImagesWindows(FileToConvert file, string outputFileName, string extension)
 	{
 		Logger log = Logger.Instance;
 		if (!System.OperatingSystem.IsWindowsVersionAtLeast(6,1)) 
@@ -234,7 +257,6 @@ public override List<string> GetSupportedOS()
 				files = new List<FileInfo>(); //Clear list of files
 
                 //Create folder for images with original name
-                string filename = Path.GetFileNameWithoutExtension(file.FilePath);
 				string relPath = Path.GetRelativePath(Directory.GetCurrentDirectory(),file.FilePath);
 				 
                 string folderPath = relPath.Substring(0, relPath.LastIndexOf('.'));
@@ -287,7 +309,7 @@ public override List<string> GetSupportedOS()
 				DeleteOriginalFileFromOutputDirectory(file.FilePath);
 				originalFileInfo.Display = false;
 				originalFileInfo.IsDeleted = true;
-				originalFileInfo.UpdateSelf(files.First());	//TODO: Ask County Archive how they want the original file to be documented if it is split into different files
+				originalFileInfo.UpdateSelf(files.First());	
 				originalFileInfo.IsConverted = true;
 			}
 			file.Failed = !converted;
@@ -303,7 +325,7 @@ public override List<string> GetSupportedOS()
     /// </summary>
     /// <param name="extension"> A string with the file extension </param>
     /// <returns></returns>
-	private ImageFormat ?GetImageFormat(string extension)
+	static private ImageFormat ?GetImageFormat(string extension)
 	{
         if (!System.OperatingSystem.IsWindowsVersionAtLeast(6, 1))
         {
@@ -371,8 +393,10 @@ public override List<string> GetSupportedOS()
 
 				using (Process? process = Process.Start(startInfo))
 				{
+                    /* Not currently used. Maybe should be?
 					string? output = process?.StandardOutput.ReadToEnd();
 					string? error = process?.StandardError.ReadToEnd();
+                    */
 
 					process?.WaitForExit();
 				}
@@ -410,9 +434,13 @@ public override List<string> GetSupportedOS()
     /// <param name="pdfVersion"> The PDF version to covnert to </param>
 	void ConvertToPDF(FileToConvert file, string outputFileName, string sDevice, string extension, string pdfVersion)
     {
+        string outputFilePath = "";
         string? outputFolder = Path.GetDirectoryName(file.FilePath);
 
-        string outputFilePath = Path.Combine(outputFolder, outputFileName + extension);
+        if (outputFolder != null)
+        {
+            outputFilePath = Path.Combine(outputFolder, outputFileName + extension);
+        }
         string arguments = "-dCompatibilityLevel=" + pdfVersion + $" -sDEVICE={sDevice} -o " + outputFilePath + " " + file.FilePath;
         string command;
 
@@ -458,9 +486,9 @@ public override List<string> GetSupportedOS()
                     var converter = new iText7();
                     // Add iText7 to the list of conversion tools
                     var FileInfoMap = ConversionManager.Instance.FileInfoMap;
-                    if (FileInfoMap.ContainsKey(file.Id) && !FileInfoMap[file.Id].ConversionTools.Contains(converter.NameAndVersion))
+                    if (FileInfoMap.TryGetValue(file.Id, out var fileInfo) && !fileInfo.ConversionTools.Contains(converter.NameAndVersion))
                     {
-                        FileInfoMap[file.Id].ConversionTools.Add(converter.NameAndVersion);
+                        fileInfo.ConversionTools.Add(converter.NameAndVersion);
                     }
                     converter.convertFromPDFToPDF(file);
                 }
@@ -527,7 +555,7 @@ public override List<string> GetSupportedOS()
     /// </summary>
     /// <param name="pronom">Specified output pronom</param>
     /// <returns>The PDF version parameter</returns>
-    string GetPDFVersion(string pronom)
+    static string GetPDFVersion(string pronom)
     {
         switch (pronom)
         {
@@ -543,7 +571,7 @@ public override List<string> GetSupportedOS()
         }
     }
 
-    List<string> PDFPronoms =
+    readonly List<string> PDFPronoms =
         [
         "fmt/15",
         "fmt/16",
@@ -555,7 +583,7 @@ public override List<string> GetSupportedOS()
         "fmt/1129"
         ];
 
-    List<string> PDFAPronoms =
+    readonly List<string> PDFAPronoms =
         [
         "fmt/95",       // PDF/A 1A
         "fmt/354",      // PDF/A 1B
@@ -566,7 +594,7 @@ public override List<string> GetSupportedOS()
         "fmt/480",      // PDF/A 3B
 		];
 
-    List<string> PostScriptPronoms =
+    readonly List<string> PostScriptPronoms =
         [
         "fmt/124",
         "x-fmt/91",

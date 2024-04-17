@@ -84,15 +84,15 @@ public class LibreOfficeConverter : Converter
 	/// </summary>
 	/// <param name="filePath">The file to be converted</param>
 	/// <param name="pronom">The file format to convert to</param>
-	async public override Task ConvertFile(FileToConvert fileInfo, string pronom)
+	async public override Task ConvertFile(FileToConvert file, string pronom)
 	{
 		// Get correct folders and properties required for conversion
 		string inputFolder = GlobalVariables.parsedOptions.Input;
 		string outputFolder = GlobalVariables.parsedOptions.Output;
 
-		string outputDir = Directory.GetParent(fileInfo.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";
-		string inputDirectory = Directory.GetParent(fileInfo.FilePath)?.ToString() ?? "";
-		string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(fileInfo.FilePath));
+		string outputDir = Directory.GetParent(file.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";
+		string inputDirectory = Directory.GetParent(file.FilePath)?.ToString() ?? "";
+		string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(file.FilePath));
 		string executableName = currentOS.Platform == PlatformID.Unix ? "soffice" : "soffice.exe";
 
 		bool sofficePathWindows = CheckPathVariableWindows(executableName);
@@ -107,19 +107,19 @@ public class LibreOfficeConverter : Converter
 			// be converted without the lock
 			lock (locker)
 			{
-				RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathWindows, targetFormat, fileInfo);
+				RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathWindows, targetFormat, file);
 			}
 		}
 		else if (executableName == "soffice")
 		{
 			lock (locker)
 			{
-				RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathLinux, targetFormat, fileInfo);
+				RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathLinux, targetFormat, file);
 			}
 		}
 		else
 		{
-			log.SetUpRunTimeLogMessage("LibreOffice Operating system not supported for office conversion", true, fileInfo.FilePath);
+			log.SetUpRunTimeLogMessage("LibreOffice Operating system not supported for office conversion", true, file.FilePath);
 		}
 	}
 

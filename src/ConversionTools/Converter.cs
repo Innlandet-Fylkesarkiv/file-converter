@@ -144,7 +144,7 @@ public class Converter
 	/// </summary>
 	/// <param name="fileinfo">The file to be converted</param>
 	/// <param name="pronom">The file format to convert to</param>
-	async public virtual Task ConvertFile(FileToConvert fileinfo, string pronom)
+	async public virtual Task ConvertFile(FileToConvert file, string pronom)
 	{ }
 	
 	/// <summary>
