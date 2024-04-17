@@ -205,7 +205,7 @@ class Settings
     /// Sets up the FolderOverride Dictionary
     /// </summary>
     /// <param name="pathToSettings"> relative path to settings file from working directory </param>
-    private void SetUpFolderOverride(string pathToSettings)
+    public void SetUpFolderOverride(string pathToSettings)
     {
         Logger logger = Logger.Instance;
         try
@@ -257,23 +257,10 @@ class Settings
                     }
                     else
                     {
-                        string path = Path.GetDirectoryName(GlobalVariables.defaultSettingsPath)+"/" + inputFolder + "/" + folderPath;
-                        if (Directory.Exists(path) || Directory.Exists(folderPath))
+                        string path = Path.Combine(GlobalVariables.Input,folderPath);
+                        if (Directory.Exists(GlobalVariables.Input+"/"+folderPath))
                         {
                             GlobalVariables.FolderOverride[folderPath] = settings;
-                            /*
-                            List<string> subfolders = GetSubfolderPaths(folderPath);
-                            if (subfolders.Count > 0)
-                            {
-                                foreach (string subfolder in subfolders)
-                                {
-                                    // Check if the subfolder is already in the FolderOverride Map
-                                    if (!GlobalVariables.FolderOverride.ContainsKey(subfolder))
-                                    {
-                                        GlobalVariables.FolderOverride[subfolder] = settings;
-                                    }
-                                }
-                            }*/
                         }
                     }
                 }

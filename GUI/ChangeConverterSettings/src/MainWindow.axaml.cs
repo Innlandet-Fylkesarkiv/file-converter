@@ -15,6 +15,7 @@ using System.Diagnostics;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using System.Linq;
+using Avalonia.Controls.Shapes;
 
 
 namespace ChangeConverterSettings
@@ -81,6 +82,34 @@ namespace ChangeConverterSettings
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        public void InputLostFocus(object sender, RoutedEventArgs args)
+        {
+            GlobalVariables.FolderOverride.Clear();
+            TextBox? inputTextBox = this.FindControl<TextBox>("Input");
+            if (inputTextBox != null)
+            {
+                GlobalVariables.Input = inputTextBox.Text;
+            }
+            Settings settings = Settings.Instance;
+            settings.SetUpFolderOverride(GlobalVariables.defaultSettingsPath);
+            FolderOverride folderOverride = new FolderOverride(this);
+            var FolderOverrideGrid = this.FindControl<Grid>("FolderOverrideGrid");
+            if (FolderOverrideGrid != null)
+            {
+                for (int i = 2; i < FolderOverrideGrid.Children.Count; i++)
+                {
+                    if (FolderOverrideGrid.Children[i] is Grid || FolderOverrideGrid.Children[i] is Rectangle)
+                    {
+                        FolderOverrideGrid.Children.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+            folderOverride.WriteFolderOverrideToScreen();
+            folderOverride.SetUpInnerGrid();
+
         }
 
         /// <summary>
