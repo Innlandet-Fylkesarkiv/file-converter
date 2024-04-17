@@ -35,6 +35,7 @@ namespace ChangeConverterSettings
         public static string? requester = null;
         public static string? converter = null;
         public static string? timeout = null;
+        public static string? maxFileSize = (1*1024).ToString();
         public static string defaultText = "Default";
         public static List<string> supportedHashes = new List<string> { "MD5", "SHA256" };
         public static string defaultSettingsPath = "../Settings.xml";
@@ -120,6 +121,15 @@ namespace ChangeConverterSettings
             TextBox? timeoutTextBox = this.FindControl<TextBox>("Timeout");
             if (timeoutTextBox != null)
                 GlobalVariables.timeout = timeoutTextBox.Text;
+            TextBox? maxFileSizeTextBox = this.FindControl<TextBox>("MaxFileSize");
+            if (maxFileSizeTextBox != null)
+            {
+                if (long.TryParse(maxFileSizeTextBox.Text, out long fileSize))
+                {
+                    fileSize = fileSize * 1024 * 1024;
+                    GlobalVariables.maxFileSize = fileSize.ToString();
+                }
+            }
 
             // Goes through all FileTypes and sets the default types and class defaults for every format
             foreach (var settingsData in GlobalVariables.FileSettings)
@@ -152,13 +162,10 @@ namespace ChangeConverterSettings
                             else if (name == GlobalVariables.defaultText && settingsData.ClassName == ComponentLists.formatNames[i].Text)
                                 settingsData.ClassDefault = text;
                         }
-
                     }
-
                     ComponentLists.formatDropDowns[i].SelectedIndex = prevSelecIndex;
                 }
             }
-
             Settings settings = Settings.Instance;
             settings.WriteSettings(GlobalVariables.defaultSettingsPath);
         }
@@ -168,8 +175,6 @@ namespace ChangeConverterSettings
         /// </summary>
         private void WriteSettingsToScreen()
         {
-               
-
             // Fills the standard TextBoxes with values from the settings file
             TextBox? requesterTextBox = this.FindControl<TextBox>("Requester");
             if (requesterTextBox != null)
@@ -189,6 +194,14 @@ namespace ChangeConverterSettings
             TextBox? timeoutTextBox = this.FindControl<TextBox>("Timeout");
             if (timeoutTextBox != null)
                 timeoutTextBox.Text = GlobalVariables.timeout;
+            TextBox? maxFileSizeTextBox = this.FindControl<TextBox>("MaxFileSize");
+            if (maxFileSizeTextBox != null)
+            {
+                maxFileSizeTextBox.Text = GlobalVariables.maxFileSize;
+            }
+
+
+
 
             // Fills the checksum ComboBox with values from the settings file
             ComboBox? checksumComboBox = this.FindControl<ComboBox>("Checksum");
