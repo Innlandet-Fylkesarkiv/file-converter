@@ -111,7 +111,7 @@ public static class CreateControl
         return new Grid
         {
             Name = "FolderOverrideGrid" + index,
-            ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto,Auto,Auto"),
+            ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto,Auto,Auto,Auto"),
         };
     }
 

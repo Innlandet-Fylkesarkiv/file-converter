@@ -402,7 +402,7 @@ public class ConversionManager
                     f.IsModified = true;
 					if (!countdownEvent.IsSet)
 					{
-						countdownEvent.Signal();
+					countdownEvent.Signal();
 					}
                 });
             }
@@ -410,14 +410,11 @@ public class ConversionManager
 			{
 				//Set success to false and log the error message if an exception was thrown
 				Logger.Instance.SetUpRunTimeLogMessage("CM SendToConverter: Error when converting file: " + e.Message, true);
-			}
-			finally
-			{
-				if (!countdownEvent.IsSet)
-				{
-					countdownEvent.Signal();
-				}
-			}
+                if (!countdownEvent.IsSet)
+                {
+                    countdownEvent.Signal();
+                }
+            }
 		});
 		if (!queued)
 		{
@@ -455,7 +452,7 @@ public class ConversionManager
 		using (ProgressBar pb = new ProgressBar(total))
 		{
 			int numFinished = 0;
-			while (numFinished < total)
+			while (numFinished < countdownEvents.Count)
 			{
 				numFinished = countdownEvents.Values.Count(c => c.IsSet);
 				var elapsed = DateTime.Now - startTime;

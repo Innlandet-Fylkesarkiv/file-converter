@@ -83,6 +83,7 @@ class Settings
             XmlNode? outputNode = root?.SelectSingleNode("OutputFolder");
             XmlNode? maxThreadsNode = root?.SelectSingleNode("MaxThreads");
             XmlNode? timeout = root?.SelectSingleNode("Timeout");
+            XmlNode? maxFileSize = root?.SelectSingleNode("MaxFileSize");
 
             string? requester = requesterNode?.InnerText.Trim();
             string? converter = converterNode?.InnerText.Trim();
@@ -123,6 +124,15 @@ class Settings
             if (!String.IsNullOrEmpty(timeoutString))
             {
                 GlobalVariables.timeout = timeoutString;
+            }
+            string? maxFileSizeString = maxFileSize?.InnerText;
+            if (!String.IsNullOrEmpty(maxFileSizeString))
+            {
+                if (long.TryParse(maxFileSizeString, out long fileSize))
+                {
+                    fileSize = fileSize / 1024 / 1024;
+                    GlobalVariables.maxFileSize = fileSize.ToString();
+                }
             }
 
             // Access elements and attributes
@@ -200,7 +210,7 @@ class Settings
         Logger logger = Logger.Instance;
         try
         {
-            string inputFolder = GlobalVariables.Input;
+            string? inputFolder = GlobalVariables.Input;
             // Load the XML document from a file
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(pathToSettings);
@@ -223,10 +233,17 @@ class Settings
                                                      .Select(pronom => pronom.Trim()));
                     }
 
+                    string? convertTo = folderOverrideNode.SelectSingleNode("ConvertTo")?.InnerText;
+                    if (string.IsNullOrEmpty(convertTo))
+                    {
+                        logger.SetUpRunTimeLogMessage("Could not find convertTo in settings", true);
+                        convertTo = "unknown";
+                    }
+
                     SettingsData settings = new SettingsData
                     {
                         PronomsList = pronomsList,
-                        DefaultType = folderOverrideNode.SelectSingleNode("ConvertTo")?.InnerText,
+                        DefaultType = convertTo,
                         Merge = merge == "YES",
                     };
 
@@ -240,7 +257,8 @@ class Settings
                     }
                     else
                     {
-                        if (Directory.Exists("../"+"../"+inputFolder + "/" + folderPath) || Directory.Exists(folderPath))
+                        string path = Path.GetDirectoryName(GlobalVariables.defaultSettingsPath)+"/" + inputFolder + "/" + folderPath;
+                        if (Directory.Exists(path) || Directory.Exists(folderPath))
                         {
                             GlobalVariables.FolderOverride[folderPath] = settings;
                             /*
@@ -329,6 +347,7 @@ class Settings
         AddXmlElement(xmlDoc, root, "MaxThreads", GlobalVariables.maxThreads.ToString());
         AddXmlElement(xmlDoc, root, "ChecksumHashing", GlobalVariables.checksumHash);
         AddXmlElement(xmlDoc, root, "Timeout", GlobalVariables.timeout);
+        AddXmlElement(xmlDoc, root, "MaxFileSize", GlobalVariables.maxFileSize);
 
         GlobalVariables.FileSettings = GlobalVariables.FileSettings
             .OrderBy(x => x.ClassName)  // Sort by ClassName first

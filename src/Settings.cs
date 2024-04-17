@@ -1,15 +1,21 @@
 ﻿using System.Xml;
 public class SettingsData
 {
-	// List of input pronom codes
+    // List of input pronom codes
     public List<string> PronomsList { get; set; } = new List<string>();
-    //public string ConvertTo { get; set; } = "";
-	// Default file type to convert to
+    // Whether to merge images or not
+    public bool Merge { get; set; } = false;
+    // Default type of the FileClass
+    public string ClassName { get; set; } = "";
+
+    // Name of the FileTypes
+    public string FormatName { get; set; } = "";
+    // Name of the FileClass
+    public string ClassDefault { get; set; } = "";
+    // Default type of the FileTypes
     public string DefaultType { get; set; } = "";
-	// Whether to merge images or not
-	public bool Merge { get; set; } = false;
-	// Does not convert the filetype when set to true
-	public bool DoNotConvert { get; set; } = false;
+    // do not convert when set to true
+    public bool DoNotConvert { get; set; } = false;
 }
 class Settings
 {
