@@ -18,7 +18,7 @@ public static class GlobalVariables
 	public static Dictionary<string, SettingsData> FolderOverride = new Dictionary<string, SettingsData>(); // the key is a foldername
 	public static HashAlgorithms checksumHash = HashAlgorithms.SHA256;
 	public static int maxThreads = Environment.ProcessorCount*2;
-	public static int timeout = 5;
+	public static int timeout = 20;
     public static double maxFileSize = 1 * 1024 * 1024 * 1024;      //1GB
     public const int MAX_RETRIES = 3; //Maximum number of attempts in case of a failed conversion
 	public const ConsoleColor INFO_COL = ConsoleColor.Cyan;

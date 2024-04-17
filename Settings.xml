@@ -3,11 +3,9 @@
   <Converter>Larsern</Converter>
   <InputFolder>input</InputFolder>
   <OutputFolder>output</OutputFolder>
-  <MaxThreads>
-  </MaxThreads>
+  <MaxThreads>1</MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
-  <Timeout>
-  </Timeout>
+  <Timeout></Timeout>
   <FileClass>
     <ClassName>EXCEL</ClassName>
     <Default>fmt/477</Default>
