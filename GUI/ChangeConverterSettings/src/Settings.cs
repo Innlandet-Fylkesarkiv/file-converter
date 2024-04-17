@@ -272,47 +272,7 @@ class Settings
         }
     }
 
-    /// <summary>
-    /// Recursively retrieves all subfolders of a given parent folder.
-    /// </summary>
-    /// <param name="folderName">the name of the parent folder</param>
-    /// <returns>list with paths to all subfolders</returns>
-    private static List<string> GetSubfolderPaths(string folderName)
-    {
-        string outputPath = GlobalVariables.Output;
-        List<string> subfolders = new List<string>();
-
-        try
-        {
-            string targetFolderPath = Path.Combine(outputPath, folderName);
-            string relativePath = Path.GetRelativePath(outputPath, targetFolderPath); // Calculate the relative path for the current folder
-
-            if (Directory.Exists(targetFolderPath))
-            {
-                // Add current folder to subfolders list
-                subfolders.Add(relativePath);
-
-                // Add immediate subfolders
-                foreach (string subfolder in Directory.GetDirectories(targetFolderPath))
-                {
-                    // Recursively get subfolders of each subfolder
-                    subfolders.AddRange(GetSubfolderPaths(Path.Combine(folderName, Path.GetFileName(subfolder))));
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Folder '{folderName}' does not exist in '{outputPath}'");
-                Logger.Instance.SetUpRunTimeLogMessage($"Folder '{folderName}' does not exist in '{outputPath}'", true, filename: folderName);
-            }
-        }
-        catch (UnauthorizedAccessException)
-        {
-            Logger.Instance.SetUpRunTimeLogMessage("You do not have permission to access this folder", true, filename: outputPath);
-        }
-
-        return subfolders;
-    }
-
+    
     /// <summary>
     /// Sets up and writes the xml file with the settings
     /// </summary>
@@ -376,10 +336,10 @@ class Settings
         }
         if(GlobalVariables.FolderOverride.Count > 0)
         {
-            XmlElement folderOverride = xmlDoc.CreateElement("FolderOverride");
-            root.AppendChild(folderOverride);
             foreach (KeyValuePair<string, SettingsData> entry in GlobalVariables.FolderOverride)
             {
+                XmlElement folderOverride = xmlDoc.CreateElement("FolderOverride");
+                root.AppendChild(folderOverride);
                 AddXmlElement(xmlDoc, folderOverride, "FolderPath", entry.Key);
                 string pronomsListAsString = string.Join(", ", entry.Value.PronomsList);
                 AddXmlElement(xmlDoc, folderOverride, "Pronoms", pronomsListAsString);
