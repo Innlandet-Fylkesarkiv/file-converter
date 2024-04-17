@@ -412,7 +412,10 @@ public class LibreOfficeConverter : Converter
 				// Delete copy in ouputfolder if converted successfully
 				DeleteOriginalFileFromOutputDirectory(sourceDoc);
                 ReplaceFileInList(newFileName, file);
-            }
+            } else
+			{
+				file.Failed = true;
+			}
 		}
 		catch (Exception e)
 		{
