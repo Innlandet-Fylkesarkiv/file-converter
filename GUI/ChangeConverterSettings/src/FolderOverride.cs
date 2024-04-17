@@ -47,8 +47,12 @@ public class FolderOverride
                 return;
             }
 
-            Grid.SetColumn(innerGrid, 0);
-            innerGrid.Children.Add(CreateControl.CreateTextBlock(folder));
+            TextBlock? folderName = innerGrid.Children.OfType<TextBlock>().FirstOrDefault();
+            if (folderName == null)
+            {
+                return;
+            }
+            folderName.Text = folder;
             GlobalVariables.FolderOverride.Add(folder, new SettingsData());
         }
         if (IsLast(mainGrid, innerGrid))
@@ -74,6 +78,11 @@ public class FolderOverride
         Grid innerGrid = CreateControl.CreateFolderOverrideGrids(index);
         Grid.SetRow(innerGrid, index);
         mainGrid.Children.Add(innerGrid);
+
+        TextBlock folderName = CreateControl.CreateTextBlock("");
+        folderName.Name = "FolderName" + index;
+        Grid.SetColumn(innerGrid, innerGrid.Children.Count);
+        innerGrid.Children.Add(folderName);
 
         TextBox inputPRONOMs = CreateControl.CreateTextBox("", index, false);
         inputPRONOMs.Name = "InputPRONOMs" + index;

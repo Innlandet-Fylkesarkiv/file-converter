@@ -114,7 +114,6 @@ class Program
 		//Only maximize and center the console window if the OS is Windows
 		Console.Title = "FileConverter";
 		
-		
 		Logger logger = Logger.Instance;
 
 		FileManager fileManager = FileManager.Instance;

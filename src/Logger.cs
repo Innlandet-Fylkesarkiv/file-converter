@@ -15,6 +15,9 @@ public class Logger
 		WriteIndented = true,
 	};
 
+	/// <summary>
+	/// Metadata for the documentaion file
+	/// </summary>
 	public static class JsonRoot
 	{
 		public static string requester { get; set; } = ""; // the person requesting the converting
@@ -22,6 +25,9 @@ public class Logger
 		public static string? hashing { get; set; } // the hashing algorithm used
 	}
 
+	/// <summary>
+	/// Data for the documentation file when a file is supported and target PRONOM is set in settings
+	/// </summary>
 	public class JsonData
 	{
 		public string? Filename { get; set; }
@@ -73,10 +79,13 @@ public class Logger
 	List<JsonDataOutputNotSupported> JsonNotSupportedFiles = new List<JsonDataOutputNotSupported>();
 	List<JsonDataOutputNotSet> JsonOutputNotSetFiles = new List<JsonDataOutputNotSet>();
 
+	/// <summary>
+	/// When logger is created, it sets the correct hashing algorithm and creates the log file
+	/// </summary>
 	private Logger()
 	{
         string currentDirectory = Directory.GetCurrentDirectory();
-        string path = System.IO.Path.Combine(currentDirectory, "logs");
+        string path = Path.Combine(currentDirectory, "logs");
 		switch (GlobalVariables.checksumHash)
 		{
 			case HashAlgorithms.SHA256:
@@ -100,8 +109,11 @@ public class Logger
 		{
 			outputFile.WriteAsync("Type: | (Error) Message | Pronom Code | Mime Type | Filename\n");
 		}
-		docPath = "";
 	}
+
+	/// <summary>
+	/// Makes sure that only one instance of the logger is created
+	/// </summary>
 	public static Logger Instance
 	{
 		get
@@ -279,6 +291,9 @@ public class Logger
 		WriteLog(json, docPath);
 	}
 
+	/// <summary>
+	/// Asks the user about the requester and converter if they are not set in the settings
+	/// </summary>
 	public void AskAboutReqAndConv()
 	{
 		if(JsonRoot.requester == null || JsonRoot.requester == "")
