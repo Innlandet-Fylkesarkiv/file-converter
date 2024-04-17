@@ -10,7 +10,7 @@ public class Converter
 	public List<string> SupportedOperatingSystems { get; set; } = new List<string>(); // Supported operating systems for the converter
     public bool DependenciesExists { get; set; } = false;    // Whether the required dependencies for the converter are available on the system
     public Dictionary<string, List<string>> BlockingConversions { get; set; } = new Dictionary<string, List<string>>();  // Conversions that are blocking (can't be multithreaded)
-    SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);      // Semaphore to handle locked sections
+    readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);      // Semaphore to handle locked sections
 
     /// <summary>
     /// Converter constructor
@@ -55,6 +55,34 @@ public class Converter
     public virtual void GetVersion() { }
 
     /// <summary>
+	/// Wrapper for the ConvertFile method that also handles the timeout
+	/// </summary>
+	/// <param name="file">File that should be converted</param>
+	async virtual public Task ConvertFile(FileToConvert file)
+    {
+        var timeout = TimeSpan.FromMinutes(GlobalVariables.timeout);
+        try
+        {
+            if (ConversionContainsLock(file))
+            {
+                await semaphore.WaitAsync();
+            }
+            await ConvertFileWithTimeout(file, timeout);
+        }
+        catch (TimeoutException)
+        {
+            Logger.Instance.SetUpRunTimeLogMessage("ConvertFile: Conversion timed out", true, filename: file.FilePath);
+        }
+        finally
+        {
+            if (ConversionContainsLock(file))
+            {
+                semaphore.Release();
+            }
+        }
+    }
+
+    /// <summary>
     /// Checks if the converter supports the conversion of a file from one format to another
     /// </summary>
     /// <param name="originalPronom">The pronom code of the current file format</param>
@@ -62,40 +90,14 @@ public class Converter
     /// <returns>True if the converter supports it, otherwise False</returns>
     public bool SupportsConversion(string originalPronom, string targetPronom)
     {
-        if (SupportedConversions != null && SupportedConversions.ContainsKey(originalPronom))
+        if (SupportedConversions != null && SupportedConversions.TryGetValue(originalPronom, out var targetList))
         {
-            return SupportedConversions[originalPronom].Contains(targetPronom);
+            return targetList.Contains(targetPronom);
         }
         return false;
     }
 
-	/// <summary>
-	/// Wrapper for the ConvertFile method that also handles the timeout
-	/// </summary>
-	/// <param name="file">File that should be converted</param>
-	async virtual public Task ConvertFile(FileToConvert file)
-	{
-        var timeout = TimeSpan.FromMinutes(GlobalVariables.timeout);
-        try
-		{
-			if (ConversionContainsLock(file))
-			{
-                await semaphore.WaitAsync();
-			}
-			await ConvertFileWithTimeout(file, timeout);
-		} catch (TimeoutException)
-		{
-			Logger.Instance.SetUpRunTimeLogMessage("ConvertFile: Conversion timed out", true, filename: file.FilePath);
-		}
-		finally
-		{
-            if (ConversionContainsLock(file))
-			{
-                semaphore.Release();
-            }
-        }
-		return;
-	}
+	
 
     /// <summary>
     /// Method to call another method with a timeout
@@ -156,7 +158,7 @@ public class Converter
     /// Delete an original file, that has been converted, from the output directory
     /// </summary>
     /// <param name="filePath">The specific file to be deleted</param>
-    public void DeleteOriginalFileFromOutputDirectory(string filePath)
+    static public void DeleteOriginalFileFromOutputDirectory(string filePath)
     {
         try
         {
@@ -176,7 +178,7 @@ public class Converter
     /// </summary>
     /// <param name="newPath"> The new path of the file </param>
     /// <param name="f"> The specific file </param>
-    public void ReplaceFileInList(string newPath, FileToConvert f)
+    static public void ReplaceFileInList(string newPath, FileToConvert f)
     {
         f.FilePath = newPath;
         var file = FileManager.Instance.GetFile(f.Id);
@@ -198,19 +200,16 @@ public class Converter
     /// <param name="newFilepath">Filepath to new file</param>
     /// <param name="newFormat">Target pronom code</param>
     /// <returns>True if the conversion succeeded, otherwise false</returns>
-    public bool CheckConversionStatus(string newFilepath, string newFormat, FileToConvert file)
+    static public bool CheckConversionStatus(string newFilepath, string newFormat, FileToConvert file)
     {
         try
         {
             var result = Siegfried.Instance.IdentifyFile(newFilepath, false);
-            if (result != null)
+            if (result != null && result.matches[0].id == newFormat)
             {
-                if (result.matches[0].id == newFormat)
-                {
-                    DeleteOriginalFileFromOutputDirectory(file.FilePath);
-                    ReplaceFileInList(newFilepath, file);
-                    return true;
-                }
+                DeleteOriginalFileFromOutputDirectory(file.FilePath);
+                ReplaceFileInList(newFilepath, file);
+                return true;
             }
         }
         catch (Exception e)
@@ -245,7 +244,7 @@ public class Converter
     /// </summary>
     /// <param name="filepath"> Full path of the file </param>
     /// <returns> String containing PRONOM code or null </returns>
-    public string? GetPronom(string filepath)
+    static public string? GetPronom(string filepath)
     {
         try
         {
