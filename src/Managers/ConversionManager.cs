@@ -472,7 +472,7 @@ public class ConversionManager
 		{
 			Parallel.ForEach(mergingFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, entry =>
 			{
-				var converter = new iText7();
+				var converter = new IText7();
 				var outputPronom = GlobalVariables.FolderOverride[entry.Key].DefaultType;
 				converter.CombineFiles(entry.Value, outputPronom);
 				foreach (FileInfo file in entry.Value)

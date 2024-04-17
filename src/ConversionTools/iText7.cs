@@ -7,7 +7,6 @@ using iText.Kernel.Pdf.Canvas;
 using iText.Commons.Actions;
 using iText.Kernel.Geom;
 using Path = System.IO.Path;
-using System.Resources;
 
 
 /// <summary>
@@ -23,11 +22,11 @@ using System.Resources;
 /// - Image (jpg, png, gif, tiff, bmp)                                                               <br></br>
 ///                                                                                                  <br></br>
 /// </summary>
-public class iText7 : Converter
+public class IText7 : Converter
 {
 	private static readonly object pdfalock = new object();     //PDF-A uses a .icc file when converting, which can not be accessed by multiple threads at the same time
 
-    public iText7()
+    public IText7()
 	{
 		Name = "iText7";
         SetNameAndVersion();
@@ -135,7 +134,7 @@ public class iText7 : Converter
     /// Get the filepath of the ICC file needed for PDF-A conversion
     /// </summary>
     /// <returns>A string with the full path</returns>
-    string GetICCFilePath()
+    static string GetICCFilePath()
     {
         string fileName = "sRGB2014.icc";
         string path = "";
@@ -175,7 +174,6 @@ public class iText7 : Converter
                 using (var document = new iText.Layout.Document(pdfDocument))
                 {
                     pdfDocument.SetTagged();
-                    PdfDocumentInfo info = pdfDocument.GetDocumentInfo();
 
                     var imageData = ImageDataFactory.Create(filestream,false);
                     iText.Layout.Element.Image image = new iText.Layout.Element.Image(imageData);
@@ -218,7 +216,6 @@ public class iText7 : Converter
 			    using (var document = new iText.Layout.Document(pdfDocument))
 			    {
 				    pdfDocument.SetTagged();
-				    PdfDocumentInfo info = pdfDocument.GetDocumentInfo();
                     
 				    using(var htmlSource = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None))
 				    {
@@ -295,7 +292,6 @@ public class iText7 : Converter
                     for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
                     {
                         PdfPage sourcePage = pdfDocument.GetPage(pageNum);
-                        var ps = sourcePage.GetPageSize();
                         PdfPage page = pdfADocument.AddNewPage(new PageSize(sourcePage.GetPageSize()));
                         PdfFormXObject pageCopy = sourcePage.CopyAsFormXObject(pdfADocument);
 
@@ -325,7 +321,7 @@ public class iText7 : Converter
         }
     }
 
-    public string RemoveInterpolation(string filename)
+    static public string RemoveInterpolation(string filename)
     {
         int dotindex = filename.LastIndexOf('.');
         if(dotindex == -1)
@@ -411,7 +407,7 @@ public class iText7 : Converter
                         var landscape = ps.GetWidth() > ps.GetHeight();
                         if (landscape)
                         {
-                            //Console.WriteLine("Landscape");
+                           
                         }
 
                         PdfPage page = pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(sourcePage.GetPageSize()));
@@ -462,7 +458,6 @@ public class iText7 : Converter
             string outputDirectory = Path.GetDirectoryName(files.First().FilePath) ?? GlobalVariables.parsedOptions.Output;
             string filename = Path.Combine(outputDirectory, baseName + "_" + formattedDateTime);
 
-            List<Task> tasks = new List<Task>();
             List<FileInfo> group = new List<FileInfo>();
             List<string> sentPaths = new List<string>();
             long groupSize = 0;
@@ -534,7 +529,7 @@ public class iText7 : Converter
                 file.NewFileName = outputFileName;
             }
 
-            FileToConvert ftc = new FileToConvert(outputFileName, new Guid(), pronom);
+            FileToConvert ftc = new FileToConvert(outputFileName, Guid.NewGuid(), pronom);
 
             if (conformanceLevel != null)
             {
@@ -545,7 +540,7 @@ public class iText7 : Converter
             if (result != null)
             {
                 FileInfo newFileInfo = new FileInfo(result);
-                newFileInfo.Id = new Guid();
+                newFileInfo.Id = Guid.NewGuid();
                 newFileInfo.IsMerged = pronom == result.matches[0].id;
                 newFileInfo.ShouldMerge = true;
                 newFileInfo.AddConversionTool(NameAndVersion);
@@ -571,9 +566,9 @@ public class iText7 : Converter
     /// <returns>PdfVersion associated with PRONOM if found in map, default is PDF_1_7</returns>
     static PdfVersion GetPDFVersion(string pronom)
     {
-        if (PronomToPdfVersion.ContainsKey(pronom))
+        if (PronomToPdfVersion.TryGetValue(pronom, out var pdfVersion))
         {
-            return PronomToPdfVersion[pronom];
+            return pdfVersion;
         }
         else
         {
@@ -588,9 +583,9 @@ public class iText7 : Converter
     /// <returns>PdfAConformanceLevel based on input pronom if found in map, otherwise null</returns>
     static PdfAConformanceLevel? GetPdfAConformanceLevel(string pronom)
     {
-        if (PronomToPdfAConformanceLevel.ContainsKey(pronom))
+        if (PronomToPdfAConformanceLevel.TryGetValue(pronom, out var pdfAConformanceLevel))
         {
-            return PronomToPdfAConformanceLevel[pronom];
+            return pdfAConformanceLevel;
         }
         else
         {
@@ -616,13 +611,13 @@ public class iText7 : Converter
                 pronom = "fmt/354";
                 pdfVersion = PdfVersion.PDF_1_4;
                 break;
-            case "fmt/476":
+            /*case "fmt/476":   Default case is the same as these ones. Should it be commented or not?
             case "fmt/477":
             case "fmt/478":
                 conformanceLevel = PdfAConformanceLevel.PDF_A_2B;
                 pronom = "fmt/477";
                 pdfVersion = PdfVersion.PDF_1_7;
-                break;
+                break;*/
             case "fmt/479":
             case "fmt/480":
             case "fmt/481":
@@ -646,7 +641,7 @@ public class iText7 : Converter
         return pronom;
     }
 
-    List<string> ImagePronoms = [
+    readonly List<string> ImagePronoms = [
        "fmt/3",
         "fmt/4",
         "fmt/11",
@@ -681,7 +676,7 @@ public class iText7 : Converter
         "fmt/116",
         "fmt/117"
     ];
-    List<string> HTMLPronoms = [
+    readonly List<string> HTMLPronoms = [
         "fmt/103",
         "fmt/96",
         "fmt/97",
@@ -693,7 +688,7 @@ public class iText7 : Converter
         "fmt/102",
         "fmt/583"
     ];
-    List<string> PDFPronoms = [
+    readonly List<string> PDFPronoms = [
         "fmt/95",       // PDF/A 1A
         "fmt/354",      // PDF/A 1B
         "fmt/476",      // PDF/A 2A
@@ -716,7 +711,7 @@ public class iText7 : Converter
         "fmt/1129"      // PDF 2.0
     ];
 
-    List<string> PDFAPronoms = [
+    readonly List<string> PDFAPronoms = [
          "fmt/95",       // PDF/A 1A
         "fmt/354",      // PDF/A 1B
         "fmt/476",      // PDF/A 2A
@@ -730,7 +725,7 @@ public class iText7 : Converter
         //"fmt/1912",     // PDF/A 4F
     ];
 
-    List<string> PDFAAPronoms = [
+    readonly List<string> PDFAAPronoms = [
         "fmt/95",       // PDF/A 1A
         "fmt/476",      // PDF/A 2A
         "fmt/479",      // PDF/A 3A
@@ -767,7 +762,7 @@ public class iText7 : Converter
     /// <summary>
     /// Maps a string pronom to the corresponding iText7 class PdfAConformanceLevel
     /// </summary>
-    static public Dictionary<String, PdfAConformanceLevel> PronomToPdfAConformanceLevel = new Dictionary<string, PdfAConformanceLevel>()
+    static readonly public Dictionary<String, PdfAConformanceLevel> PronomToPdfAConformanceLevel = new Dictionary<string, PdfAConformanceLevel>()
     {
         {"fmt/95",  PdfAConformanceLevel.PDF_A_1A },
         {"fmt/354", PdfAConformanceLevel.PDF_A_1B },
