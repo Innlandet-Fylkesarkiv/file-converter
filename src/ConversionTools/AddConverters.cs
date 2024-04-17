@@ -9,7 +9,7 @@
         if (Converters == null)
         {
             Converters = new List<Converter>();
-            Converters.Add(new iText7());
+            Converters.Add(new IText7());
             Converters.Add(new GhostscriptConverter());
             Converters.Add(new LibreOfficeConverter());
             Converters.Add(new EmailConverter());

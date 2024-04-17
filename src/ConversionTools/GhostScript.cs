@@ -483,7 +483,7 @@ public override List<string> GetSupportedOS()
                 {
                     // Set the new filename
 					ReplaceFileInList(outputFilePath, file);
-                    var converter = new iText7();
+                    var converter = new IText7();
                     // Add iText7 to the list of conversion tools
                     var FileInfoMap = ConversionManager.Instance.FileInfoMap;
                     if (FileInfoMap.TryGetValue(file.Id, out var fileInfo) && !fileInfo.ConversionTools.Contains(converter.NameAndVersion))
