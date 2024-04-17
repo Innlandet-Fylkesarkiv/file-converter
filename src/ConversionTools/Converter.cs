@@ -75,6 +75,8 @@ public class Converter
 	/// <param name="file">File that should be converted</param>
 	async virtual public Task ConvertFile(FileToConvert file)
 	{
+        await ConvertFile(file, file.Route.First());
+        /*
         var timeout = TimeSpan.FromMinutes(GlobalVariables.timeout);
         try
 		{
@@ -94,7 +96,7 @@ public class Converter
                 semaphore.Release();
             }
         }
-		return;
+		return;*/
 	}
 
     /// <summary>

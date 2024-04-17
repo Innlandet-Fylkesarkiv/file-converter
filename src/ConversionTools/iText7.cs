@@ -515,8 +515,7 @@ public class iText7 : Converter
                     string filename = Path.Combine(file.FilePath);
                     var filestream = File.ReadAllBytes(filename);
                     var imageData = ImageDataFactory.Create(filestream, false);
-                    iText.Layout.Element.Image image = new iText.Layout.Element.Image(imageData); //TODO: System.UriFormatException: 'Invalid URI: The format of the URI could not be determined.'
-                                                                                                    //"output\\MergeFiles\\Norwegian_Flag\\Norwegian_flag (3339).jpg"
+                    iText.Layout.Element.Image image = new iText.Layout.Element.Image(imageData); 
                     document.Add(image);
                 }
             }
@@ -559,6 +558,11 @@ public class iText7 : Converter
         } 
      }
 
+    /// <summary>
+    /// Returns the PDFVersion based on the pronom
+    /// </summary>
+    /// <param name="pronom">PRONOM PUID that will be checked</param>
+    /// <returns>PdfVersion associated with PRONOM if found in map, default is PDF_1_7</returns>
     static PdfVersion GetPDFVersion(string pronom)
     {
         if (PronomToPdfVersion.ContainsKey(pronom))
@@ -571,6 +575,11 @@ public class iText7 : Converter
         }
     }
 
+    /// <summary>
+    /// Returns the PDF-A conformance level based on the pronom
+    /// </summary>
+    /// <param name="pronom">PRONOM PUID that will be checked</param>
+    /// <returns>PdfAConformanceLevel based on input pronom if found in map, otherwise null</returns>
     static PdfAConformanceLevel? GetPdfAConformanceLevel(string pronom)
     {
         if (PronomToPdfAConformanceLevel.ContainsKey(pronom))
@@ -583,6 +592,13 @@ public class iText7 : Converter
         }
     }
 
+    /// <summary>
+    /// Sets the conformance level and PdfVersion to PDF/A Basic for the given PDF/A version (ie. PDF/A 2A -> PDF/A 2B)
+    /// </summary>
+    /// <param name="pronom">Pronom for previous PDF/A version</param>
+    /// <param name="conformanceLevel">PDF/A conformance level that will be set in the method</param>
+    /// <param name="pdfVersion">PDF version that will be set in the method</param>
+    /// <returns>The new PRONOM PUID</returns>
     static string SetToPDFABasic(string pronom, out PdfAConformanceLevel conformanceLevel, out PdfVersion pdfVersion)
     {
 

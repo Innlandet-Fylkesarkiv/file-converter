@@ -207,20 +207,23 @@ public class ConversionManager
 	/// <summary>
 	/// Responsible for managing the convertion and combining of all files
 	/// </summary>
-	public void ConvertFiles()
+	public async void ConvertFiles()
 	{
 		int maxThreads = GlobalVariables.maxThreads;
 		Dictionary<string, List<FileInfo>> mergingFiles = new Dictionary<string, List<FileInfo>>();
-
+		Console.WriteLine("Setting up working set...");
 		//Initialize working set
 		SetupWorkingSet(WorkingSet, mergingFiles);  //Initialize working set
 
-		//mergingFiles = new Dictionary<string, List<FileInfo>>(); //DEBUG ONLY
+		if(mergingFiles.Count > 0)
+		{
+			Console.WriteLine("Sending files to be merged");
+		}
 		Task combineTask = Task.Run(() => SendToCombineFiles(mergingFiles));           //Combine files 
 
 		//Set max threads for the thread pool based on global variables
 		ThreadPool.SetMaxThreads(maxThreads, maxThreads);
-
+		Console.WriteLine("Starting conversion...");
 		//Repeat until all files have been converted/checked or there was no change during last run
 		while (WorkingSet.Count > 0)
 		{
@@ -305,7 +308,6 @@ public class ConversionManager
 			{
 				continue;
 			}
-			//TODO: Does this serve a purpose?
 			file.Route = newFile.Route;
 			//Add the file to the working set if it was not set to be merged
 			if (addToWorkingSet)
@@ -402,7 +404,7 @@ public class ConversionManager
 					{
 						countdownEvent.Signal();
 					}
-                });  
+                });
             }
 			catch (Exception e)
 			{

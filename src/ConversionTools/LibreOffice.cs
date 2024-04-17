@@ -396,6 +396,9 @@ public class LibreOfficeConverter : Converter
 				//Convert to another PDF format if LibreOffice's standard output format is not the desired one
 				if (currPronom != pronom && PDFPronoms.Contains(pronom) && iTextFound)
 				{
+					file.Route.Add(pronom);
+					pronom = currPronom;	//Override target pronom since the final PDF conversion will be done in iText7
+					/*
 					var converter = new iText7();
                     // Add iText7 to the list of conversion tools
                     var FileInfoMap = ConversionManager.Instance.FileInfoMap;
@@ -403,7 +406,7 @@ public class LibreOfficeConverter : Converter
                     {
                         FileInfoMap[file.Id].ConversionTools.Add(converter.NameAndVersion);
                     }
-                    converter.convertFromPDFToPDF(file);
+                    converter.convertFromPDFToPDF(file);*/
 				}
 				converted = CheckConversionStatus(newFileName, pronom);
 			} while (!converted && ++count < GlobalVariables.MAX_RETRIES);
@@ -534,6 +537,7 @@ public class LibreOfficeConverter : Converter
         "fmt/478",      // PDF/A 2U
         "fmt/479",      // PDF/A 3A
         "fmt/480",      // PDF/A 3B
+		"fmt/481",      // PDF/A 3U
         "fmt/14",       // PDF 1.0
         "fmt/15",       // PDF 1.1
         "fmt/16",       // PDF 1.2
@@ -553,6 +557,7 @@ public class LibreOfficeConverter : Converter
         "fmt/478",      // PDF/A 2U
         "fmt/479",      // PDF/A 3A
         "fmt/480",      // PDF/A 3B
+		"fmt/481",      // PDF/A 3U
 	];
 
     static List<string> DOCPronoms =

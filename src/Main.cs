@@ -156,10 +156,12 @@ class Program
 
         char input = ' ';
 		string validInput = "YyNnRrGg";
-		string prevInputFolder = GlobalVariables.parsedOptions.Input;
-		do
+		string prevInputFolder = GlobalVariables.parsedOptions.Input; ;
+
+
+        do
 		{
-			if (prevInputFolder != GlobalVariables.parsedOptions.Input)
+            if (prevInputFolder != GlobalVariables.parsedOptions.Input)
 			{
 				PrintHelper.PrintLn("Input folder changed, reidentifying files...", GlobalVariables.WARNING_COL);
 				InitFiles();
@@ -178,7 +180,8 @@ class Program
 				input = char.ToUpper(input);
 			}
 			Console.WriteLine();
-			switch (input)
+            prevInputFolder = GlobalVariables.parsedOptions.Input;
+            switch (input)
 			{
 				case 'Y':	//Proceed with conversion
                     break;
@@ -197,13 +200,14 @@ class Program
 					break;
 				default: break;
             }
+            
         } while (input != 'Y' || fileManager.Files.Count < 0);
 
         ConversionManager cm = ConversionManager.Instance;
         try
 		{
 			fileManager.CheckForNamingConflicts();
-            Console.WriteLine("Converting files...");
+            Console.WriteLine("Starting Conversion manager...");
             cm.ConvertFiles();
 			//Delete siegfrieds json files
 			sf.ClearOutputFolder();
@@ -314,7 +318,7 @@ class Program
             return;
         }
 		var process = Process.Start(startInfo);
-		Console.WriteLine("Press any key in terminal or close window to continue");
+		Console.WriteLine("Press any key in terminal or close GUI window to continue");
 
         // Discard any existing input in the console buffer
         while (Console.KeyAvailable)
