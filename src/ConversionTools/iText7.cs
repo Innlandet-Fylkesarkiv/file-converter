@@ -328,6 +328,10 @@ public class iText7 : Converter
     public string RemoveInterpolation(string filename)
     {
         int dotindex = filename.LastIndexOf('.');
+        if(dotindex == -1)
+        {
+            dotindex = filename.Length - 3;
+        }
         string name = filename.Substring(0, dotindex);
         string newfilename = String.Format("{0}_{1}.pdf", name, "TEMP");
         try
