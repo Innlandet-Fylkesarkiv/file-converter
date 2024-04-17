@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 /// <summary>
 /// Converts EML and MSG to pdf. Also allows for converting MSG to EML.
@@ -14,7 +15,11 @@
 /// </summary>
 public class EmailConverter : Converter
 {
-    OperatingSystem currentOS;
+    public readonly OperatingSystem currentOS;
+    private List<string> emlPronoms = new List<string> { "fmt/278", "fmt/950" };
+    private List<string> msgPronoms = new List<string> { "x-fmt/430", "fmt/1144" };
+    readonly List<string> PDFPronoms = new List<string> { "fmt/18" };
+
     /// <summary>
     /// Constructor setting important properties for the class.
     /// </summary>
@@ -29,23 +34,34 @@ public class EmailConverter : Converter
         DependenciesExists = checkDependencies();
     }
 
+    public List<string> EMLPronoms
+    {
+        get { return emlPronoms; }
+        set { emlPronoms = value; }
+    }
+
+    public List<string> MSGPronoms
+    {
+        get { return msgPronoms; }
+        set { msgPronoms = value; }
+    }
     /// <summary>
     /// Converts the file sent to a new target format
     /// </summary>
     /// <param name="filePath">The file to be converted</param>
     /// <param name="pronom">The file format to convert to</param>
-    async public override Task ConvertFile(FileToConvert file, string pronom)
+    async public override Task ConvertFile(FileToConvert fileInfo, string pronom)
     {
         string inputFolder = GlobalVariables.parsedOptions.Input;
         string outputFolder = GlobalVariables.parsedOptions.Output;
 
         // Get the full path to the input directory and output directory 
-        string outputDir = Directory.GetParent(file.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";
-        string inputDirectory = Directory.GetParent(file.FilePath)?.ToString() ?? "";
-        string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(file.FilePath));
+        string outputDir = Directory.GetParent(fileInfo.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";
+        string inputDirectory = Directory.GetParent(fileInfo.FilePath)?.ToString() ?? "";
+        string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(fileInfo.FilePath));
 
         // Run conversion with correct paths
-        await RunConversion(inputFilePath, outputDir, file, pronom);
+        await RunConversion(inputFilePath, outputDir, fileInfo, pronom);
     }
 
     /// <summary>
@@ -87,58 +103,63 @@ public class EmailConverter : Converter
         }
         try
         {
-            // Create the new process for the conversion
-            using (Process process = new Process())
+            bool converted = false;
+            int count = 0;
+            do
             {
-                // Set the correct properties for the process that will run the conversion
-                process.StartInfo.FileName = GetPlatformExecutionFile();
-                process.StartInfo.WorkingDirectory = workingDirectory;
-
-                process.StartInfo.Arguments = commandToExecute;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
-
-                process.Start();
-
-                // Get output and potential error
-                string standardOutput = process.StandardOutput.ReadToEnd();
-                string standardError = process.StandardError.ReadToEnd();
-
-                // wait for process to finish and get exit code
-                process.WaitForExit();
-                int exitCode = process.ExitCode;
-
-                if (exitCode != 0)      // Something went wrong, warn the user
+                // Create the new process for the conversion
+                using (Process process = new Process())
                 {
-                    Console.WriteLine($"\n Filepath: {file.FilePath} :  Exit Code: {exitCode}\n");
-                    Console.WriteLine("Standard Output:\n" + standardOutput);
-                    Console.WriteLine("Standard Error:\n" + standardError);
-                }
+                    // Set the correct properties for the process that will run the conversion
+                    process.StartInfo.FileName = GetPlatformExecutionFile();
+                    process.StartInfo.WorkingDirectory = workingDirectory;
 
-                // Get the new filename and check if the document was converted correctly
-                string newFileName = Path.Combine(destinationDir, Path.GetFileNameWithoutExtension(inputFilePath) + "." + targetFormat);
-                file.FilePath = inputFilePath;
-                bool converted = CheckConversionStatus(newFileName, pronom, file);
-                if (!converted)
-                {
-                    throw new Exception("File was not converted");
-                }
-                else
-                {
-                    // Conversion was succesfull get new path and check for attachments
-                    string newFolderName = Path.GetFileNameWithoutExtension(inputFilePath) + "-attachments";
-                    string folderWithAttachments = Path.Combine(Path.GetDirectoryName(inputFilePath) ?? "", newFolderName);
-                    if (Directory.Exists(folderWithAttachments))
+                    process.StartInfo.Arguments = commandToExecute;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.CreateNoWindow = true;
+
+                    process.Start();
+
+                    // Get output and potential error
+                    string standardOutput = process.StandardOutput.ReadToEnd();
+                    string standardError = process.StandardError.ReadToEnd();
+
+                    // wait for process to finish and get exit code
+                    process.WaitForExit();
+                    int exitCode = process.ExitCode;
+
+                    if (exitCode != 0)      // Something went wrong, warn the user
                     {
-                        // Attachements found, add them to the working set for further conversion
-                        await addAttachementFilesToWorkingSet(inputFilePath, folderWithAttachments);
+                        Console.WriteLine($"\n Filepath: {file.FilePath} :  Exit Code: {exitCode}\n");
+                        Console.WriteLine("Standard Output:\n" + standardOutput);
+                        Console.WriteLine("Standard Error:\n" + standardError);
                     }
-                    // Delete copy in ouputfolder if converted successfully
-                    DeleteOriginalFileFromOutputDirectory(inputFilePath);
+
+                    // Get the new filename and check if the document was converted correctly
+                    string newFileName = Path.Combine(destinationDir, Path.GetFileNameWithoutExtension(inputFilePath) + "." + targetFormat);
+                    file.FilePath = inputFilePath;
+                    converted = CheckConversionStatus(newFileName, pronom, file);
+                    if (!converted)
+                    {
+                        file.Failed = true;
+                    }
+                    else
+                    {
+                        // Conversion was succesfull get new path and check for attachments
+                        string newFolderName = Path.GetFileNameWithoutExtension(inputFilePath) + "-attachments";
+                        string folderWithAttachments = Path.Combine(Path.GetDirectoryName(inputFilePath) ?? "", newFolderName);
+                        if (Directory.Exists(folderWithAttachments))
+                        {
+                            // Attachements found, add them to the working set for further conversion
+                            await addAttachementFilesToWorkingSet(inputFilePath, folderWithAttachments);
+                        }
+                        // Delete copy in ouputfolder if converted successfully
+                        DeleteOriginalFileFromOutputDirectory(inputFilePath);
+                    }
                 }
-            }
+            } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
         }
         // Catch error and log it
         catch (Exception e)
@@ -159,20 +180,23 @@ public class EmailConverter : Converter
         // eml to pdf
         foreach (string emlPronom in EMLPronoms)
         {
-            if (!supportedConversions.ContainsKey(emlPronom))
+            // pronomList becomes a reference to the list with the emlpronom key if found
+            if (!supportedConversions.TryGetValue(emlPronom, out var pronomList))
             {
-                supportedConversions[emlPronom] = new List<string>();
+                pronomList = new List<string>();
+                supportedConversions[emlPronom] = pronomList;
             }
-            supportedConversions[emlPronom].AddRange(PDFPronoms);
+            pronomList.AddRange(PDFPronoms);
         }
         // msg to eml 
         foreach (string msgPronom in MSGPronoms)
         {
-            if (!supportedConversions.ContainsKey(msgPronom))
+            if (!supportedConversions.TryGetValue(msgPronom, out var pronomList))
             {
-                supportedConversions[msgPronom] = new List<string>();
+                pronomList = new List<string>();
+                supportedConversions[msgPronom] = pronomList;
             }
-            supportedConversions[msgPronom].AddRange(EMLPronoms);
+            pronomList.AddRange(EMLPronoms);
         }
         return supportedConversions;
     }
@@ -190,7 +214,7 @@ public class EmailConverter : Converter
     /// <returns>Returns the string with the correct command</returns>
     string GetEmlToPdfCommand(string inputFilePath, string workingDirectory)
     {
-        Version = "2.6.0";
+        Version = "'EML to PDF - 2.6.0'";
 
         // Get correct path to email converter relative to the workign directory
         string relativeJarPathWindows = ".\\src\\ConversionTools\\emailconverter-2.6.0-all.jar";
@@ -208,6 +232,7 @@ public class EmailConverter : Converter
     /// <returns>Returns the string with the correct command </returns>
     string GetMsgToEmlCommandUnix(string inputFilePath)
     {
+        Version = "'MSG to EML(Linux) - 0.921'";
         return $@"-c msgconvert ""{inputFilePath}"" ";
     }
 
@@ -220,6 +245,7 @@ public class EmailConverter : Converter
     /// <returns>returns the string with the correct command</returns>
     string GetMsgToEmlCommandWindows(string inputFilePath, string workingDirectory, string destinationDir)
     {
+        Version = "'MSG to EML(Windows) - 1.1.0'";
         // Get the correct path to the exe file for the mailcovnerter
         string relativeRebexFilePath = "src\\ConversionTools\\MailConverter.exe";
         string rebexConverterFile = Path.Combine(workingDirectory, relativeRebexFilePath);
@@ -257,9 +283,9 @@ public class EmailConverter : Converter
             //Use current and target pronom to create a key for the conversion map
             var key = new KeyValuePair<string, string>(newFileToConvert.CurrentPronom, newFileToConvert.TargetPronom);
             //If the conversion map contains the key, set the route to the value of the key
-            if (ConversionManager.Instance.ConversionMap.ContainsKey(key))
+            if (ConversionManager.Instance.ConversionMap.TryGetValue(key, out var route))
             {
-                newFileToConvert.Route = new List<string>(ConversionManager.Instance.ConversionMap[key]);
+                newFileToConvert.Route = new List<string>(route);
             }
             //If the conversion map does not contain the key, set the route to the target pronom
             else if (newFileToConvert.CurrentPronom != newFileToConvert.TargetPronom)
@@ -287,20 +313,5 @@ public class EmailConverter : Converter
 
         return wkhtmltopdfFound && javaFound;
     }
-
-    // Lists with the pronoms for correctly identifying the formats
-    List<string> PDFPronoms =
-    [
-        "fmt/18",
-    ];
-    public List<string> EMLPronoms =
-    [
-        "fmt/278",
-        "fmt/950"
-    ];
-    public List<string> MSGPronoms =
-    [
-        "x-fmt/430",
-        "fmt/1144"
-    ];
+    
 }
