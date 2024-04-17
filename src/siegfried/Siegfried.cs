@@ -132,6 +132,10 @@ public class Siegfried
 
 	void GetExecutable()
 	{
+		if (!OperatingSystem.IsWindows())
+		{
+			return;
+		}
 		string filename = "sf.exe";
 		string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), filename, SearchOption.AllDirectories);
 		if (files.Length > 0)
@@ -226,13 +230,15 @@ public class Siegfried
 		// Wrap the file path in quotes
 		string wrappedPath = "\"" + path + "\"";
 		string options;
-		if (hash)
+		
+		if (OperatingSystem.IsWindows())
 		{
-			options = $"-home {HomeFolder} -json -hash " + HashEnumToString(GlobalVariables.checksumHash) + $" -sig {PronomSignatureFile} ";
-		} else
+            options = String.Format("-coe -home {0} -json {1} -sig {2} ", HomeFolder, hash ? "-hash " + HashEnumToString(GlobalVariables.checksumHash) : "", PronomSignatureFile);
+        }
+		else 
 		{
-			options = $"-home {HomeFolder} -json -sig {PronomSignatureFile} ";
-		}
+            options = String.Format("-coe -json {0}", hash ? "-hash " + HashEnumToString(GlobalVariables.checksumHash) : "");
+        }
 
         // Define the process start info
         ProcessStartInfo psi = new ProcessStartInfo
@@ -259,7 +265,6 @@ public class Siegfried
 			process.WaitForExit();
 		}
 		//TODO: Check error and possibly continue
-
 		if (error.Length > 0)
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyFile: " + error, true);
@@ -300,9 +305,17 @@ public class Siegfried
 			tempPaths[i] = "\"" + paths[i] + "\"";
 		}
 		string wrappedPaths = String.Join(" ",tempPaths);
-		string options = $"-home {HomeFolder} -multi 64 -json -coe -hash " +  HashEnumToString(GlobalVariables.checksumHash) + $" -sig {PronomSignatureFile} ";
+		string options;
+        if (OperatingSystem.IsWindows())
+        {
+            options = String.Format("-home {0} -json {1} -sig {2} ", HomeFolder, "-hash " + HashEnumToString(GlobalVariables.checksumHash), PronomSignatureFile);
+        }
+        else
+        {
+            options = String.Format("-json {0}", "-hash " + HashEnumToString(GlobalVariables.checksumHash));
+        }
 
-		string outputFile = Path.Combine(OutputFolder, Guid.NewGuid().ToString(), ".json");
+        string outputFile = Path.Combine(OutputFolder, Guid.NewGuid().ToString(), ".json");
 		string? parentDir = Directory.GetParent(outputFile)?.FullName;
 
 		//Create output file
@@ -542,7 +555,7 @@ public class Siegfried
         }
 		catch (Exception e)
 		{
-			Console.WriteLine(e.Message);
+			Console.WriteLine("Siegfried had an error parsing JSON data, this is most likely because a fatal error happened in Siegfried: " + e.Message);
 			Logger.Instance.SetUpRunTimeLogMessage("SF ParseJSON: " + e.Message, true);
 			return null;
 		}
