@@ -231,7 +231,6 @@ public class CreateElements
         }
         if (selected.ToString() == "Default")
         {
-
             index = GlobalVariables.FileSettings.FindIndex(x => x.ClassName == textBlock.Text);
             for (int i = 0; i < comboBox.Items.Count; i++)
             {
@@ -248,8 +247,6 @@ public class CreateElements
             GlobalVariables.FileSettings[index].DoNotConvert = !GlobalVariables.FileSettings[index].DoNotConvert;
         }
     }
-
-
 
     /// <summary>
     /// When the selection of the ComboBox is changed, the output tracker is updated and the widths are recalculated

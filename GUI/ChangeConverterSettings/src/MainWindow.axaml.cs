@@ -17,7 +17,6 @@ using Avalonia.Threading;
 using System.Linq;
 using Avalonia.Controls.Shapes;
 
-
 namespace ChangeConverterSettings
 {
     /// <summary>

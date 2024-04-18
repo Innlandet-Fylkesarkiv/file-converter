@@ -13,7 +13,6 @@ using System.Reflection;
 using Avalonia.Layout;
 using Avalonia.Media;
 
-
 public class FolderOverride
 {
     Window mainWindow;
