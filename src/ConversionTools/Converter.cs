@@ -1,7 +1,5 @@
-using HelperClasses.FileInfo2;
-using Managers;
-using HelperClasses.Logger;
-
+using FileConverter.Managers;
+using FileConverter.HelperClasses;
 /// <summary>
 /// Parent class for all converters
 /// </summary>

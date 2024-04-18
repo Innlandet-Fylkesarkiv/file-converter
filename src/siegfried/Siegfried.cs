@@ -4,9 +4,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using HelperClasses.FileInfo2;
-using HelperClasses.ProgressBar;
-using HelperClasses.Logger;
+using FileConverter.HelperClasses;
 
 public class SiegfriedJSON
 {
@@ -55,13 +53,13 @@ public class SiegfriedMatches
 public class Siegfried
 {
 	private static Siegfried? instance;
-	public string ?Version = null;
-	public string ?ScanDate = null;
+	public string? Version = null;
+	public string? ScanDate = null;
 	public string OutputFolder = "siegfried/JSONoutput";
 	private string ExecutableName = OperatingSystem.IsLinux() ? "sf" : "sf.exe";
 	private string HomeFolder = "siegfried/";
-	private string PronomSignatureFile = "default.sig";		 //"pronom64k.sig";
-    private static readonly object lockObject = new object();
+	private string PronomSignatureFile = "default.sig";      //"pronom64k.sig";
+	private static readonly object lockObject = new object();
 	public List<List<string>> CompressedFolders;
 	public ConcurrentBag<FileInfo2> Files = new ConcurrentBag<FileInfo2>();
 	public static Siegfried Instance
@@ -107,30 +105,31 @@ public class Siegfried
 		}
 		else if (OperatingSystem.IsLinux())
 		{
-            ProcessStartInfo startInfo = new ProcessStartInfo();
+			ProcessStartInfo startInfo = new ProcessStartInfo();
 			startInfo.FileName = "/bin/bash";
 			startInfo.Arguments = "-c \" " + "sf -version" + " \"";
-            startInfo.RedirectStandardOutput = true;
-            startInfo.UseShellExecute = false;
-            startInfo.CreateNoWindow = true;
-            startInfo.RedirectStandardError = true;
+			startInfo.RedirectStandardOutput = true;
+			startInfo.UseShellExecute = false;
+			startInfo.CreateNoWindow = true;
+			startInfo.RedirectStandardError = true;
 
-            try
-            {
-                Process process = new Process();
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
+			try
+			{
+				Process process = new Process();
+				process.StartInfo = startInfo;
+				process.Start();
+				process.WaitForExit();
 				string output = process.StandardOutput.ReadToEnd();
-				if (!output.Contains("siegfried")) { 
-				    throw new FileNotFoundException("Cannot find Siegfried on Linux");
+				if (!output.Contains("siegfried"))
+				{
+					throw new FileNotFoundException("Cannot find Siegfried on Linux");
 				}
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-        }
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
+		}
 	}
 
 	void GetExecutable()
@@ -146,40 +145,41 @@ public class Siegfried
 			ExecutableName = files[0];
 			HomeFolder = Path.GetDirectoryName(ExecutableName) + "/";
 		}
-    }
+	}
 	public void AskReadFiles()
 	{
-        //Check if json files exist
-        if (Directory.Exists(OutputFolder) && Directory.GetFiles(OutputFolder,"*.*",SearchOption.AllDirectories).Count() > 0)
-        {
-            char input;
-            do
-            {
-                Console.Write("Siegfried data found, do you want to parse it? (Y/N): ");
-                input = char.ToUpper(Console.ReadKey().KeyChar);
-            } while (input != 'Y' && input != 'N');
+		//Check if json files exist
+		if (Directory.Exists(OutputFolder) && Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories).Count() > 0)
+		{
+			char input;
+			do
+			{
+				Console.Write("Siegfried data found, do you want to parse it? (Y/N): ");
+				input = char.ToUpper(Console.ReadKey().KeyChar);
+			} while (input != 'Y' && input != 'N');
 			Console.WriteLine();
-            if (input == 'Y')
-            {
-                ReadFromFiles();
-            }
-        }
-    }
+			if (input == 'Y')
+			{
+				ReadFromFiles();
+			}
+		}
+	}
 
 	public void ClearOutputFolder()
 	{
-        if (Directory.Exists(OutputFolder))
+		if (Directory.Exists(OutputFolder))
 		{
 			try
 			{
 				Directory.Delete(OutputFolder, true);
-			} catch 
+			}
+			catch
 			{
 				Logger logger = Logger.Instance;
 				logger.SetUpRunTimeLogMessage("SF Could not delete Siegfried output folder", true);
 			}
-        }
-    }
+		}
+	}
 
 	public static string HashEnumToString(HashAlgorithms hash)
 	{
@@ -194,7 +194,7 @@ public class Siegfried
 
 	private void ReadFromFiles()
 	{
-		if(instance == null)
+		if (instance == null)
 		{
 			instance = new Siegfried();
 		}
@@ -202,7 +202,7 @@ public class Siegfried
 		var paths = Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories);
 		using (ProgressBar progressBar = new ProgressBar(paths.Length))
 		{
-			for(int i = 0; i < paths.Length; i++)
+			for (int i = 0; i < paths.Length; i++)
 			{
 				var parsedData = ParseJSONOutput(paths[i], true);
 				if (parsedData == null)
@@ -216,7 +216,7 @@ public class Siegfried
 
 				foreach (var f in parsedData.files)
 				{
-                    instance.Files.Add(new FileInfo2(f));
+					instance.Files.Add(new FileInfo2(f));
 				}
 			}
 		}
@@ -233,18 +233,18 @@ public class Siegfried
 		// Wrap the file path in quotes
 		string wrappedPath = "\"" + path + "\"";
 		string options;
-		
+
 		if (OperatingSystem.IsWindows())
 		{
-            options = String.Format("-coe -home {0} -json {1} -sig {2} ", HomeFolder, hash ? "-hash " + HashEnumToString(GlobalVariables.checksumHash) : "", PronomSignatureFile);
-        }
-		else 
+			options = String.Format("-coe -home {0} -json {1} -sig {2} ", HomeFolder, hash ? "-hash " + HashEnumToString(GlobalVariables.checksumHash) : "", PronomSignatureFile);
+		}
+		else
 		{
-            options = String.Format("-coe -json {0}", hash ? "-hash " + HashEnumToString(GlobalVariables.checksumHash) : "");
-        }
+			options = String.Format("-coe -json {0}", hash ? "-hash " + HashEnumToString(GlobalVariables.checksumHash) : "");
+		}
 
-        // Define the process start info
-        ProcessStartInfo psi = new ProcessStartInfo
+		// Define the process start info
+		ProcessStartInfo psi = new ProcessStartInfo
 		{
 			FileName = $"{ExecutableName}", // or any other command you want to run
 			Arguments = options + wrappedPath,
@@ -274,8 +274,8 @@ public class Siegfried
 		}
 		var parsedData = ParseJSONOutput(output, false);
 		if (parsedData == null || parsedData.files == null)
-			return null; 
-			 
+			return null;
+
 		if (parsedData.files.Length > 0)
 		{
 			return parsedData.files[0];
@@ -296,7 +296,7 @@ public class Siegfried
 		Logger logger = Logger.Instance;
 		var files = new List<FileInfo2>();
 
-		if(paths.Length < 1)
+		if (paths.Length < 1)
 		{
 			return null;
 		}
@@ -307,18 +307,18 @@ public class Siegfried
 			tempPaths[i] = Path.GetFullPath(paths[i]);
 			tempPaths[i] = "\"" + paths[i] + "\"";
 		}
-		string wrappedPaths = String.Join(" ",tempPaths);
+		string wrappedPaths = String.Join(" ", tempPaths);
 		string options;
-        if (OperatingSystem.IsWindows())
-        {
-            options = String.Format("-home {0} -json {1} -sig {2} ", HomeFolder, "-hash " + HashEnumToString(GlobalVariables.checksumHash), PronomSignatureFile);
-        }
-        else
-        {
-            options = String.Format("-json {0}", "-hash " + HashEnumToString(GlobalVariables.checksumHash));
-        }
+		if (OperatingSystem.IsWindows())
+		{
+			options = String.Format("-home {0} -json {1} -sig {2} ", HomeFolder, "-hash " + HashEnumToString(GlobalVariables.checksumHash), PronomSignatureFile);
+		}
+		else
+		{
+			options = String.Format("-json {0}", "-hash " + HashEnumToString(GlobalVariables.checksumHash));
+		}
 
-        string outputFile = Path.Combine(OutputFolder, Guid.NewGuid().ToString(), ".json");
+		string outputFile = Path.Combine(OutputFolder, Guid.NewGuid().ToString(), ".json");
 		string? parentDir = Directory.GetParent(outputFile)?.FullName;
 
 		//Create output file
@@ -328,9 +328,11 @@ public class Siegfried
 			{
 				Directory.CreateDirectory(parentDir);
 			}
-			if (parentDir != null) { 
+			if (parentDir != null)
+			{
 				File.Create(outputFile).Close();
-			} else
+			}
+			else
 			{
 				Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: parentDir is null " + outputFile, true);
 			}
@@ -339,8 +341,8 @@ public class Siegfried
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: could not create output file " + e.Message, true);
 		}
-		
-        ProcessStartInfo psi = new ProcessStartInfo
+
+		ProcessStartInfo psi = new ProcessStartInfo
 		{
 			FileName = $"{ExecutableName}", // or any other command you want to run
 			Arguments = options + wrappedPaths,
@@ -392,14 +394,14 @@ public class Siegfried
 			var file = new FileInfo2(parsedData.files[i]);
 			file.FilePath = paths[i];
 			file.OriginalFilePath = Path.GetFileName(file.FilePath);
-            var pathWithoutInput = file.FilePath.Replace(GlobalVariables.parsedOptions.Input, "");
-            file.ShortFilePath = Path.Combine(pathWithoutInput.Replace(GlobalVariables.parsedOptions.Output, ""));
-            while (file.ShortFilePath[0] == '\\')
-            {
-                //Remove leading backslashes
-                file.ShortFilePath = file.ShortFilePath.Substring(1);
-            }
-            files.Add(file);
+			var pathWithoutInput = file.FilePath.Replace(GlobalVariables.parsedOptions.Input, "");
+			file.ShortFilePath = Path.Combine(pathWithoutInput.Replace(GlobalVariables.parsedOptions.Output, ""));
+			while (file.ShortFilePath[0] == '\\')
+			{
+				//Remove leading backslashes
+				file.ShortFilePath = file.ShortFilePath.Substring(1);
+			}
+			files.Add(file);
 		}
 		return files;
 	}
@@ -431,42 +433,42 @@ public class Siegfried
 				files.Add(f);
 			}
 		});
-	   
+
 		return Task.FromResult(files.ToList());
 	}
 
-    /// <summary>
-    /// Less parallelised version of IdentifyFilesIndividually, but ensures that the given files are correctly updated and the result is tied to the same file ID.
-    /// </summary>
-    /// <param name="input">Path to root folder for search</param>
-    /// <returns>A List of identified files</returns>
-    public Task<List<FileInfo2>>? IdentifyFilesIndividually(List<FileInfo2> inputFiles)
-    {
-        Logger logger = Logger.Instance;
-        var files = new ConcurrentBag<FileInfo2>();
+	/// <summary>
+	/// Less parallelised version of IdentifyFilesIndividually, but ensures that the given files are correctly updated and the result is tied to the same file ID.
+	/// </summary>
+	/// <param name="input">Path to root folder for search</param>
+	/// <returns>A List of identified files</returns>
+	public Task<List<FileInfo2>>? IdentifyFilesIndividually(List<FileInfo2> inputFiles)
+	{
+		Logger logger = Logger.Instance;
+		var files = new ConcurrentBag<FileInfo2>();
 
-        Parallel.ForEach(inputFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, file =>
-        {
+		Parallel.ForEach(inputFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, file =>
+		{
 			//Skip files that should be merged (they may not exist anymore and are documented in other methods)
 			if (file.ShouldMerge || file.IsDeleted)
 			{
 				return;
 			}
-            var result = IdentifyFile(file.FilePath, true);
+			var result = IdentifyFile(file.FilePath, true);
 			if (result == null)
 			{
-                logger.SetUpRunTimeLogMessage("SF IdentifyFilesIndividually: could not identify file", true, filename: file.FilePath);
-                return; //Skip current file
-            }
+				logger.SetUpRunTimeLogMessage("SF IdentifyFilesIndividually: could not identify file", true, filename: file.FilePath);
+				return; //Skip current file
+			}
 			var newFile = new FileInfo2(result);
 			newFile.Id = file.Id;
-            files.Add(newFile);
-        });
+			files.Add(newFile);
+		});
 
-        return Task.FromResult(files.ToList());
-    }
+		return Task.FromResult(files.ToList());
+	}
 
-    List<string[]> GroupPaths(List<string> paths)
+	List<string[]> GroupPaths(List<string> paths)
 	{
 		int groupSize = 128; //Number of files to be identified in each group
 		int groupCount = paths.Count / groupSize;
@@ -487,7 +489,7 @@ public class Siegfried
 		Logger logger = Logger.Instance;
 		UnpackCompressedFolders();
 		var fileBag = new ConcurrentBag<FileInfo2>();
-		
+
 		//For eaccompressed folder, identify all files
 		Parallel.ForEach(CompressedFolders, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, folders =>
 		{
@@ -495,7 +497,7 @@ public class Siegfried
 			{
 				//Identify all file paths in compressed folder and group them
 				var pathWithoutExt = folder.LastIndexOf('.') > 0 ? folder.Substring(0, folder.LastIndexOf('.')) : folder;
-                var paths = Directory.GetFiles(pathWithoutExt, "*.*", SearchOption.TopDirectoryOnly);
+				var paths = Directory.GetFiles(pathWithoutExt, "*.*", SearchOption.TopDirectoryOnly);
 				var filePathGroups = GroupPaths(new List<string>(paths));
 				//Identify all files in each group
 				Parallel.ForEach(filePathGroups, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, paths =>
@@ -521,9 +523,9 @@ public class Siegfried
 	SiegfriedJSON? ParseJSONOutput(string json, bool readFromFile)
 	{
 		try
-		{ 
+		{
 			SiegfriedJSON siegfriedJson;
-			FileStream ?file = null;
+			FileStream? file = null;
 			if (readFromFile)
 			{
 				file = File.OpenRead(json);
@@ -531,9 +533,9 @@ public class Siegfried
 
 			if (readFromFile && file == null)
 			{
-                Logger.Instance.SetUpRunTimeLogMessage("SF ParseJSON: file not found", true);
-                return null;
-            }
+				Logger.Instance.SetUpRunTimeLogMessage("SF ParseJSON: file not found", true);
+				return null;
+			}
 
 			using (JsonDocument document = readFromFile ? JsonDocument.Parse(file!) : JsonDocument.Parse(json))
 			{
@@ -554,8 +556,8 @@ public class Siegfried
 			{
 				file.Close();
 			}
-            return siegfriedJson;
-        }
+			return siegfriedJson;
+		}
 		catch (Exception e)
 		{
 			Console.WriteLine("Siegfried had an error parsing JSON data, this is most likely because a fatal error happened in Siegfried: " + e.Message);
@@ -571,8 +573,8 @@ public class Siegfried
 		return new SiegfriedFile
 		{
 			filename = fileElement.GetProperty("filename").GetString() ?? "",
-			
-			hash = fileElement.TryGetProperty(hashMethod,out jsonElement) ? fileElement.GetProperty(hashMethod).GetString() ?? "" : "",
+
+			hash = fileElement.TryGetProperty(hashMethod, out jsonElement) ? fileElement.GetProperty(hashMethod).GetString() ?? "" : "",
 			filesize = fileElement.GetProperty("filesize").GetInt64(),
 			modified = fileElement.GetProperty("modified").GetString() ?? "",
 			errors = fileElement.GetProperty("errors").GetString() ?? "",
@@ -607,7 +609,7 @@ public class Siegfried
 		string[] files = Directory.GetFiles(source, "*.*", SearchOption.AllDirectories);
 		List<string> retryFiles = new List<string>();
 		Parallel.ForEach(files, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, file =>
-			// (string file in files)
+		// (string file in files)
 		{
 			string relativePath = file.Replace(source, "");
 			string outputPath = destination + relativePath;
@@ -625,11 +627,12 @@ public class Siegfried
 			try
 			{
 				File.Copy(file, outputPath, true);
-			} catch (IOException)
+			}
+			catch (IOException)
 			{
 				Console.WriteLine("Could not open file '{0}', it may be used in another process");
 				retryFiles.Add(file);
-            }
+			}
 		});
 		if (retryFiles.Count > 0)
 		{
@@ -637,22 +640,23 @@ public class Siegfried
 			Console.ReadLine();
 			Parallel.ForEach(retryFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, file =>
 			{
-                string relativePath = file.Replace(source, "");
-                string outputPath = destination + relativePath;
-                string outputFolder = outputPath.Substring(0, outputPath.LastIndexOf('\\'));
+				string relativePath = file.Replace(source, "");
+				string outputPath = destination + relativePath;
+				string outputFolder = outputPath.Substring(0, outputPath.LastIndexOf('\\'));
 
-                if (!Directory.Exists(outputFolder))
+				if (!Directory.Exists(outputFolder))
 				{
-                    Directory.CreateDirectory(outputFolder);
-                }
+					Directory.CreateDirectory(outputFolder);
+				}
 				try
 				{
 					File.Copy(file, outputPath, true);
-				} catch (Exception e)
+				}
+				catch (Exception e)
 				{
 					Logger.Instance.SetUpRunTimeLogMessage("SF CopyFiles: " + e.Message, true);
 				}
-            });
+			});
 		}
 	}
 
@@ -662,12 +666,12 @@ public class Siegfried
 	public void CompressFolders()
 	{
 		//Identify original compression formats and compress the folders
-		CompressedFolders.ForEach( folders =>
+		CompressedFolders.ForEach(folders =>
 		{
 			//Compress in reverse order to avoid compressing a folder that contains an uncompressed folder that should be compressed
 			folders.Reverse();
-			foreach(string folder in folders)
-			{ 
+			foreach (string folder in folders)
+			{
 				var extention = Path.GetExtension(folder);
 				//Switch for different compression formats
 				switch (extention)
@@ -701,25 +705,25 @@ public class Siegfried
 	public void UnpackCompressedFolders()
 	{
 		//Identify all files in output directory
-		var compressedFoldersOutput = GetCompressedFolders(GlobalVariables.parsedOptions.Output); 
+		var compressedFoldersOutput = GetCompressedFolders(GlobalVariables.parsedOptions.Output);
 		var compressedFoldersInput = GetCompressedFolders(GlobalVariables.parsedOptions.Input);
 
-        // Remove root path from all paths in compressedFoldersInput
-        var inputWithoutRoot = compressedFoldersInput.Select(file =>
-        {
-            int index = file.IndexOf(GlobalVariables.parsedOptions.Input);
-            return index >= 0 ? file.Substring(0, index) + file.Substring(index + GlobalVariables.parsedOptions.Input.Length) : file;
-        }).ToList();
+		// Remove root path from all paths in compressedFoldersInput
+		var inputWithoutRoot = compressedFoldersInput.Select(file =>
+		{
+			int index = file.IndexOf(GlobalVariables.parsedOptions.Input);
+			return index >= 0 ? file.Substring(0, index) + file.Substring(index + GlobalVariables.parsedOptions.Input.Length) : file;
+		}).ToList();
 
-        // Remove root path from all paths in compressedFoldersOutput
-        var outputWithoutRoot = compressedFoldersOutput.Select(file =>
-        {
-            int index = file.IndexOf(GlobalVariables.parsedOptions.Output);
-            return index >= 0 ? file.Substring(0, index) + file.Substring(index + GlobalVariables.parsedOptions.Output.Length) : file;
-        }).ToList();
+		// Remove root path from all paths in compressedFoldersOutput
+		var outputWithoutRoot = compressedFoldersOutput.Select(file =>
+		{
+			int index = file.IndexOf(GlobalVariables.parsedOptions.Output);
+			return index >= 0 ? file.Substring(0, index) + file.Substring(index + GlobalVariables.parsedOptions.Output.Length) : file;
+		}).ToList();
 
-        //Remove all folders that are not in input directory
-        foreach (string folder in outputWithoutRoot)
+		//Remove all folders that are not in input directory
+		foreach (string folder in outputWithoutRoot)
 		{
 			if (!inputWithoutRoot.Contains(folder))
 			{
@@ -753,7 +757,7 @@ public class Siegfried
 		{
 			var path = Path.Combine(extractedFolder, Path.GetFileName(folder));
 			unpackedFolders.AddRange(UnpackRecursively(path));
-        }
+		}
 		return unpackedFolders;
 	}
 
@@ -764,9 +768,9 @@ public class Siegfried
 			return new List<string>();
 		}
 		var files = Directory.GetFiles(dir, "*.*", SearchOption.AllDirectories).ToList();
-        var compressedFolders = files.FindAll(file => file.EndsWith(".zip") || file.EndsWith(".tar") || file.EndsWith(".gz") || file.EndsWith(".rar") || file.EndsWith(".7z"));
+		var compressedFolders = files.FindAll(file => file.EndsWith(".zip") || file.EndsWith(".tar") || file.EndsWith(".gz") || file.EndsWith(".rar") || file.EndsWith(".7z"));
 		return compressedFolders;
-    }
+	}
 
 	/// <summary>
 	/// Compresses a folder to a specified format and deletes the unpacked folder
@@ -786,7 +790,8 @@ public class Siegfried
 			}
 			// Delete the unpacked folder
 			Directory.Delete(pathWithoutExtension, true);
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("SF CompressFolder " + e.Message, true);
 		}
@@ -821,14 +826,17 @@ public class Siegfried
 					}
 				}
 				File.Delete(path);
-			} catch (CryptographicException)
+			}
+			catch (CryptographicException)
 			{
 				Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + path + " is encrypted", true);
-			} catch (Exception e)
+			}
+			catch (Exception e)
 			{
-                Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + e.Message, true);
-            }//TODO: Delete the compressed folder
-        } catch (Exception e)
+				Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + e.Message, true);
+			}//TODO: Delete the compressed folder
+		}
+		catch (Exception e)
 		{
 			Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + e.Message, true);
 		}

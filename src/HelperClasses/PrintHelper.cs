@@ -1,4 +1,4 @@
-﻿namespace HelperClasses.PrintHelper
+﻿namespace FileConverter.HelperClasses
 {
     static class PrintHelper
     {

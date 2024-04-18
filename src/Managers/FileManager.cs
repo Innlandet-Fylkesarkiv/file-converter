@@ -1,12 +1,9 @@
 ﻿using ConversionTools;
 using SharpCompress;
 using System.Collections.Concurrent;
-using HelperClasses.FileInfo2;
-using HelperClasses.PrintHelper;
-using HelperClasses.PronomHelper;
-using HelperClasses.Logger;
+using FileConverter.HelperClasses;
 
-namespace Managers
+namespace FileConverter.Managers
 {
     public class FileManager
     {
@@ -276,7 +273,7 @@ namespace Managers
                     .Count(x => Path.GetFileNameWithoutExtension(x.FilePath) == Path.GetFileNameWithoutExtension(f.FilePath)) == 1); //TODO: Should check if the files are in the same directory
             });
             //Remove the keys that have no values
-            filteredFiles.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value);
+            _ = filteredFiles.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value);
         }
 
         /// <summary>
@@ -380,7 +377,7 @@ namespace Managers
             foreach (FileInfo2 file in Files.Values)
             {
                 //Skip files that should be merged or should not be displayed
-                if (Settings.ShouldMerge(file))
+                if (ConversionSettings.ShouldMerge(file))
                 {
                     continue;
                 }
@@ -390,7 +387,7 @@ namespace Managers
                 }
 
                 string currentPronom = file.NewPronom != "" ? file.NewPronom : file.OriginalPronom;
-                string? targetPronom = Settings.GetTargetPronom(file);
+                string? targetPronom = ConversionSettings.GetTargetPronom(file);
                 bool supported = false;
 
                 if (file.OriginalPronom == "fmt/523" || file.OriginalPronom == "fmt/487" || file.OriginalPronom == "fmt/445")
@@ -475,7 +472,7 @@ namespace Managers
             //Sort list
             switch (GlobalVariables.SortBy)
             {
-                //Sort by the count of files with the same settings
+                //Sort by the count of files with the same ConversionSettings
                 //TODO: Ask archive if they want the not set and not supported files to be at the bottom or in between the other files
                 case PrintSortBy.Count:
                     formatList = formatList.OrderBy(x => x.TargetPronom == notSetString || x.TargetFormatName.Contains(notSupportedString))
