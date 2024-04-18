@@ -1,4 +1,8 @@
 ﻿using System.Xml;
+using HelperClasses.FileInfo2;
+using HelperClasses.Logger;
+using Managers;
+
 public class SettingsData
 {
     // List of input pronom codes
@@ -305,7 +309,7 @@ class Settings
 		return subfolders;
 	}
 
-	public static string? GetTargetPronom(FileInfo f)
+	public static string? GetTargetPronom(FileInfo2 f)
 	{
 		if (f.IsPartOfSplit)
 		{
@@ -334,7 +338,7 @@ class Settings
 	/// </summary>
 	/// <param name="f">The file that should be checked</param>
 	/// <returns>True if it should be merged, otherwise False</returns>
-	public static bool ShouldMerge(FileInfo f)
+	public static bool ShouldMerge(FileInfo2 f)
 	{
 		var parentDir = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.parsedOptions.Output, f.FilePath));
 		if (parentDir != null && GlobalVariables.FolderOverride.ContainsKey(parentDir))

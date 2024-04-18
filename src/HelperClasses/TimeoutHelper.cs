@@ -4,50 +4,53 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-public class TimeoutHelper : IDisposable
+namespace HelperClasses.TimeoutHelper
 {
-    private readonly CancellationTokenSource cts;
-    private readonly Task timeoutTask;
-
-    public TimeoutHelper(TimeSpan timeout)
+    public class TimeoutHelper : IDisposable
     {
-        cts = new CancellationTokenSource(timeout);
-        timeoutTask = Task.Run(() => TimeoutCounter(cts.Token));
-    }
+        private readonly CancellationTokenSource cts;
+        private readonly Task timeoutTask;
 
-    public void Start()
-    {
-        // Nothing specific to start in this example
-    }
-
-    public void Dispose()
-    {
-        cts.Cancel();
-        cts.Dispose();
-    }
-
-    private void TimeoutCounter(CancellationToken cancellationToken)
-    {
-        DateTime startTime = DateTime.Now;
-
-        while (!cancellationToken.IsCancellationRequested)
+        public TimeoutHelper(TimeSpan timeout)
         {
-            // Periodic checks or work during the timeout period
-            Thread.Sleep(1000);
+            cts = new CancellationTokenSource(timeout);
+            timeoutTask = Task.Run(() => TimeoutCounter(cts.Token));
+        }
 
-            // Custom checks for cancellation
-            // For example, check some condition related to your RunOfficeToPdfConversion method
-            if (CheckCancellationCondition())
+        public void Start()
+        {
+            // Nothing specific to start in this example
+        }
+
+        public void Dispose()
+        {
+            cts.Cancel();
+            cts.Dispose();
+        }
+
+        private void TimeoutCounter(CancellationToken cancellationToken)
+        {
+            DateTime startTime = DateTime.Now;
+
+            while (!cancellationToken.IsCancellationRequested)
             {
-                cts.Cancel();
+                // Periodic checks or work during the timeout period
+                Thread.Sleep(1000);
+
+                // Custom checks for cancellation
+                // For example, check some condition related to your RunOfficeToPdfConversion method
+                if (CheckCancellationCondition())
+                {
+                    cts.Cancel();
+                }
             }
         }
-    }
 
-    private bool CheckCancellationCondition()
-    {
-        // Replace this with your specific cancellation condition logic
-        // For example, if the conversion is complete or another condition is met
-        return false;
+        private bool CheckCancellationCondition()
+        {
+            // Replace this with your specific cancellation condition logic
+            // For example, if the conversion is complete or another condition is met
+            return false;
+        }
     }
 }
