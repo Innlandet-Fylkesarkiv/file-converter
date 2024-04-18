@@ -6,6 +6,10 @@ using System;
 using System.Xml;
 using ChangeConverterSettings;
 using System.Linq;
+
+/// <summary>
+/// Class to hold information about the settings of one file type
+/// </summary>
 public class SettingsData
 {
     // List of input pronom codes
@@ -361,7 +365,7 @@ class Settings
     private void AddXmlElement(XmlDocument xmlDoc, XmlElement parentElement, string elementName, string? value)
     {
         XmlElement element = xmlDoc.CreateElement(elementName);
-        if (value != null)
+        if (!String.IsNullOrEmpty(value))
         {
             element.InnerText = value; 
         }

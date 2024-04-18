@@ -35,7 +35,8 @@ namespace ChangeConverterSettings
         public static string? requester = null;
         public static string? converter = null;
         public static string? timeout = null;
-        public static string? maxFileSize = (1*1024).ToString();
+        public static string? maxFileSize = (1 * 1024).ToString();
+
         public static string defaultText = "Default";
         public static List<string> supportedHashes = new List<string> { "MD5", "SHA256" };
         public static string defaultSettingsPath = "../Settings.xml";
@@ -142,6 +143,8 @@ namespace ChangeConverterSettings
             TextBox? threadsTextBox = this.FindControl<TextBox>("MaxThreads");
             if (threadsTextBox != null && int.TryParse(threadsTextBox.Text, out _))
                 GlobalVariables.maxThreads = int.Parse(threadsTextBox.Text);
+            else if (threadsTextBox != null && String.IsNullOrEmpty(threadsTextBox.Text))
+                GlobalVariables.maxThreads = null;
             ComboBox? checksumComboBox = this.FindControl<ComboBox>("Checksum");
             if (checksumComboBox != null && checksumComboBox.SelectedItem != null)
                 GlobalVariables.checksumHash = checksumComboBox.SelectedItem.ToString();
@@ -155,6 +158,9 @@ namespace ChangeConverterSettings
                 {
                     fileSize = fileSize * 1024 * 1024;
                     GlobalVariables.maxFileSize = fileSize.ToString();
+                } else
+                {
+                    GlobalVariables.maxFileSize = "";
                 }
             }
 
