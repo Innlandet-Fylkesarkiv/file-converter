@@ -1,5 +1,6 @@
 using FileConverter.Managers;
 using FileConverter.HelperClasses;
+using sf = FileConverter.Siegfried;
 /// <summary>
 /// Parent class for all converters
 /// </summary>
@@ -210,7 +211,7 @@ namespace ConversionTools
         {
             try
             {
-                var result = Siegfried.Instance.IdentifyFile(newFilepath, false);
+                var result = sf.Siegfried.Instance.IdentifyFile(newFilepath, false);
                 if (result != null && result.matches[0].id == newFormat)
                 {
                     DeleteOriginalFileFromOutputDirectory(file.FilePath);
@@ -235,7 +236,7 @@ namespace ConversionTools
         {
             try
             {
-                var result = Siegfried.Instance.IdentifyFile(filePath, false);
+                var result = sf.Siegfried.Instance.IdentifyFile(filePath, false);
                 return result != null && result.matches[0].id == pronom;
             }
             catch (Exception e)
@@ -254,7 +255,7 @@ namespace ConversionTools
         {
             try
             {
-                var result = Siegfried.Instance.IdentifyFile(filepath, false);
+                var result = sf.Siegfried.Instance.IdentifyFile(filepath, false);
                 if (result != null && result.matches.Length > 0)
                 {
                     return result.matches[0].id;

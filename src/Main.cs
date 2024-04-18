@@ -4,6 +4,7 @@ using System.Diagnostics;
 using FileConverter.HelperClasses;
 using FileConverter.LinuxSpecifics;
 using FileConverter.Managers;
+using sf = FileConverter.Siegfried;
 
 namespace FileConverter
 {
@@ -84,19 +85,19 @@ namespace FileConverter
 			Logger logger = Logger.Instance;
 
 			FileManager fileManager = FileManager.Instance;
-			Siegfried sf = Siegfried.Instance;
+			sf.Siegfried sf2 = sf.Siegfried.Instance;
 			//TODO: Check for malicous input files
 			try
 			{
 				//Check if user wants to use files from previous run
 				//sf.AskReadFiles();
 				//Check if files were added from previous run
-				if (!sf.Files.IsEmpty)
+				if (!sf2.Files.IsEmpty)
 				{
 					//Import files from previous run
 					Console.WriteLine("Checking files from previous run...");
-					fileManager.ImportFiles(sf.Files.ToList());
-					var compressedFiles = sf.IdentifyCompressedFilesJSON(GlobalVariables.parsedOptions.Input);
+					fileManager.ImportFiles(sf2.Files.ToList());
+					var compressedFiles = sf2.IdentifyCompressedFilesJSON(GlobalVariables.parsedOptions.Input);
 					fileManager.ImportCompressedFiles(compressedFiles);
 				}
 				else
@@ -178,7 +179,7 @@ namespace FileConverter
 				Console.WriteLine("Starting Conversion manager...");
 				cm.ConvertFiles();
 				//Delete siegfrieds json files
-				sf.ClearOutputFolder();
+				sf2.ClearOutputFolder();
 			}
 			catch (Exception e)
 			{
@@ -194,7 +195,7 @@ namespace FileConverter
 				fileManager.DocumentFiles();
 			}
 			Console.WriteLine("Compressing folders...");
-			sf.CompressFolders();
+			sf2.CompressFolders();
 
 			if (Logger.Instance.ErrorHappened)
 			{
@@ -245,11 +246,11 @@ namespace FileConverter
 		static void InitFiles()
 		{
 			FileManager.Instance.Files.Clear();
-			Siegfried.Instance.Files.Clear();
-			Siegfried.Instance.CompressedFolders.Clear();
+			sf.Siegfried.Instance.Files.Clear();
+			sf.Siegfried.Instance.CompressedFolders.Clear();
 			Console.WriteLine("Copying files from {0} to {1}...", GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
 			//Copy files
-			Siegfried.Instance.CopyFiles(GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
+			sf.Siegfried.Instance.CopyFiles(GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
 			Console.WriteLine("Identifying files...");
 			//Identify and unpack files
 			FileManager.Instance.IdentifyFiles();

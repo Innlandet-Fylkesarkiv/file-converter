@@ -2,6 +2,7 @@
 using SharpCompress;
 using System.Collections.Concurrent;
 using FileConverter.HelperClasses;
+using sf = FileConverter.Siegfried;
 
 namespace FileConverter.Managers
 {
@@ -50,11 +51,11 @@ namespace FileConverter.Managers
         {
             lock (identifyingFiles)
             {
-                Siegfried sf = Siegfried.Instance;
+                sf.Siegfried sf2 = sf.Siegfried.Instance;
                 Logger logger = Logger.Instance;
                 //TODO: Can maybe run both individually and compressed files at the same time
                 //Identifying all uncompressed files
-                List<FileInfo2>? files = sf.IdentifyFilesIndividually(GlobalVariables.parsedOptions.Input)!.Result; //Search for files in output folder since they are copied there from input folder
+                List<FileInfo2>? files = sf2.IdentifyFilesIndividually(GlobalVariables.parsedOptions.Input)!.Result; //Search for files in output folder since they are copied there from input folder
                 if (files != null)
                 {
                     //TODO: Should be more robust
@@ -74,7 +75,7 @@ namespace FileConverter.Managers
                 }
 
                 //Identifying all compressed files
-                List<FileInfo2>? compressedFiles = sf.IdentifyCompressedFilesJSON(GlobalVariables.parsedOptions.Input)!;
+                List<FileInfo2>? compressedFiles = sf2.IdentifyCompressedFilesJSON(GlobalVariables.parsedOptions.Input)!;
 
                 foreach (var file in compressedFiles)
                 {

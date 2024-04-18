@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using ConversionTools.Converters;
 using ConversionTools;
 using FileConverter.HelperClasses;
+using sf = FileConverter.Siegfried;
 
 namespace FileConverter.Managers
 {
@@ -183,7 +184,7 @@ namespace FileConverter.Managers
 		{
 			var files = Managers.FileManager.Instance.Files.Values.ToList();
 			//Run siegfried on all files
-			var f = Siegfried.Instance.IdentifyFilesIndividually(files)?.Result;
+			var f = sf.Siegfried.Instance.IdentifyFilesIndividually(files)?.Result;
 
 			//If siegfried fails, log error message and return
 			if (f == null)

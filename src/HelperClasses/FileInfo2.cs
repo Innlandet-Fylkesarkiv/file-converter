@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using FileConverter.Managers;
+using sf = FileConverter.Siegfried;
 
 namespace FileConverter.HelperClasses
 {
@@ -82,7 +83,7 @@ namespace FileConverter.HelperClasses
             }
         }
 
-        public FileInfo2(SiegfriedFile siegfriedFile)
+        public FileInfo2(sf.SiegfriedFile siegfriedFile)
         {
             OriginalSize = siegfriedFile.filesize;
             OriginalFilePath = Path.GetFileName(siegfriedFile.filename);
@@ -98,7 +99,7 @@ namespace FileConverter.HelperClasses
 
         public FileInfo2(FileToConvert f)
         {
-            var result = Siegfried.Instance.IdentifyFile(f.FilePath, true);
+            var result = Siegfried.Siegfried.Instance.IdentifyFile(f.FilePath, true);
             if (result != null)
             {
                 OriginalChecksum = NewChecksum = result.hash;

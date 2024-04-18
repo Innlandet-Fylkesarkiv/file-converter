@@ -5,6 +5,7 @@ using Ghostscript.NET;
 using System.Text.RegularExpressions;
 using FileConverter.HelperClasses;
 using FileConverter.Managers;
+using sf = FileConverter.Siegfried;
 
 /// <summary>
 /// GhostScript is a subclass of the Converter class.   <br></br>
@@ -294,7 +295,7 @@ namespace ConversionTools.Converters
                                     var newFile = new FileInfo2(pageOutputFileName, originalFileInfo);
                                     newFile.IsPartOfSplit = true;
                                     newFile.AddConversionTool(NameAndVersion);
-                                    newFile.UpdateSelf(new FileInfo2(Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!));
+                                    newFile.UpdateSelf(new FileInfo2(sf.Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!));
                                     files.Add(newFile);
                                 }
                             }
@@ -416,7 +417,7 @@ namespace ConversionTools.Converters
                     {
                         var newFile = new FileInfo2(filePath, originalFileInfo);
                         newFile.IsPartOfSplit = true;
-                        newFile.UpdateSelf(new FileInfo2(Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!));
+                        newFile.UpdateSelf(new FileInfo2(sf.Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!));
                         newFile.AddConversionTool(NameAndVersion);
                         files.Add(newFile);
                         converted = converted && CheckConversionStatus(newFile.FilePath, file.Route.First());

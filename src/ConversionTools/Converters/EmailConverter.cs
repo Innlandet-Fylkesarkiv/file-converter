@@ -2,6 +2,7 @@
 using System.Diagnostics.Metrics;
 using FileConverter.HelperClasses;
 using FileConverter.Managers;
+using sf = FileConverter.Siegfried;
 
 /// <summary>
 /// Converts EML and MSG to pdf. Also allows for converting MSG to EML.
@@ -276,7 +277,7 @@ namespace ConversionTools.Converters
         /// <returns></returns>
         public async Task addAttachementFilesToWorkingSet(string inputFilePath, string folderWithAttachments)
         {
-            List<FileInfo2>? attachementFiles = await Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments)!;
+            List<FileInfo2>? attachementFiles = await sf.Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments)!;
             foreach (FileInfo2 newFile in attachementFiles)
             {
                 Guid id = Guid.NewGuid();

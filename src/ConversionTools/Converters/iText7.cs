@@ -9,6 +9,8 @@ using iText.Kernel.Geom;
 using Path = System.IO.Path;
 using FileConverter.Managers;
 using FileConverter.HelperClasses;
+using FileConverter.Siegfried;
+using System.Collections.Immutable;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -725,45 +727,58 @@ namespace ConversionTools.Converters
         /// NOTE: All PDF-A PRONOMS should be mapped to PDF 2.0
         /// </summary>
         static Dictionary<String, PdfVersion> PronomToPdfVersion = new Dictionary<string, PdfVersion>()
-    {
-        {"fmt/14", PdfVersion.PDF_1_0},
-        {"fmt/15", PdfVersion.PDF_1_1},
-        {"fmt/16", PdfVersion.PDF_1_2},
-        {"fmt/17", PdfVersion.PDF_1_3},
-        {"fmt/18", PdfVersion.PDF_1_4},
-        {"fmt/19", PdfVersion.PDF_1_5},
-        {"fmt/20", PdfVersion.PDF_1_6},
-        {"fmt/276", PdfVersion.PDF_1_7},
-        {"fmt/1129", PdfVersion.PDF_2_0},
-        {"fmt/95", PdfVersion.PDF_1_4 },    //PDF/A 1A
-        {"fmt/354", PdfVersion.PDF_1_4 },   //PDF/A 1B
-        {"fmt/476", PdfVersion.PDF_1_7 },   //PDF/A 2A
-        {"fmt/477", PdfVersion.PDF_1_7 },   //PDF/A 2B
-        {"fmt/478", PdfVersion.PDF_1_7 },   //PDF/A 2U
-        {"fmt/479", PdfVersion.PDF_1_7 },   //PDF/A 3A
-        {"fmt/480", PdfVersion.PDF_1_7 },   //PDF/A 3B
-        {"fmt/481", PdfVersion.PDF_1_7 },   //PDF/A 3U
-        {"fmt/1910", PdfVersion.PDF_2_0 },  //PDF/A 4
-        {"fmt/1911", PdfVersion.PDF_2_0 },  //PDF/A 4E
-        {"fmt/1912", PdfVersion.PDF_2_0 }   //PDF/A 4F
-    };
+        {
+            {"fmt/14", PdfVersion.PDF_1_0},
+            {"fmt/15", PdfVersion.PDF_1_1},
+            {"fmt/16", PdfVersion.PDF_1_2},
+            {"fmt/17", PdfVersion.PDF_1_3},
+            {"fmt/18", PdfVersion.PDF_1_4},
+            {"fmt/19", PdfVersion.PDF_1_5},
+            {"fmt/20", PdfVersion.PDF_1_6},
+            {"fmt/276", PdfVersion.PDF_1_7},
+            {"fmt/1129", PdfVersion.PDF_2_0},
+            {"fmt/95", PdfVersion.PDF_1_4 },    //PDF/A 1A
+            {"fmt/354", PdfVersion.PDF_1_4 },   //PDF/A 1B
+            {"fmt/476", PdfVersion.PDF_1_7 },   //PDF/A 2A
+            {"fmt/477", PdfVersion.PDF_1_7 },   //PDF/A 2B
+            {"fmt/478", PdfVersion.PDF_1_7 },   //PDF/A 2U
+            {"fmt/479", PdfVersion.PDF_1_7 },   //PDF/A 3A
+            {"fmt/480", PdfVersion.PDF_1_7 },   //PDF/A 3B
+            {"fmt/481", PdfVersion.PDF_1_7 },   //PDF/A 3U
+            {"fmt/1910", PdfVersion.PDF_2_0 },  //PDF/A 4
+            {"fmt/1911", PdfVersion.PDF_2_0 },  //PDF/A 4E
+            {"fmt/1912", PdfVersion.PDF_2_0 }   //PDF/A 4F
+        };
 
         /// <summary>
         /// Maps a string pronom to the corresponding iText7 class PdfAConformanceLevel
         /// </summary>
-        static readonly public Dictionary<String, PdfAConformanceLevel> PronomToPdfAConformanceLevel = new Dictionary<string, PdfAConformanceLevel>()
-    {
-        {"fmt/95",  PdfAConformanceLevel.PDF_A_1A },
-        {"fmt/354", PdfAConformanceLevel.PDF_A_1B },
-        {"fmt/476", PdfAConformanceLevel.PDF_A_2A },
-        {"fmt/477", PdfAConformanceLevel.PDF_A_2B },
-        {"fmt/478", PdfAConformanceLevel.PDF_A_2U },
-        {"fmt/479", PdfAConformanceLevel.PDF_A_3A },
-        {"fmt/480", PdfAConformanceLevel.PDF_A_3B },
-        {"fmt/481", PdfAConformanceLevel.PDF_A_3U },
-        {"fmt/1910", PdfAConformanceLevel.PDF_A_4 },
-        {"fmt/1911", PdfAConformanceLevel.PDF_A_4E},
-        {"fmt/1912", PdfAConformanceLevel.PDF_A_4F}
-    };
+        static public readonly ImmutableDictionary<string, PdfAConformanceLevel> PronomToPdfAConformanceLevel = ImmutableDictionary<string, PdfAConformanceLevel>.Empty
+            .Add("fmt/95", PdfAConformanceLevel.PDF_A_1A)
+            .Add("fmt/354", PdfAConformanceLevel.PDF_A_1B)
+            .Add("fmt/476", PdfAConformanceLevel.PDF_A_2A)
+            .Add("fmt/477", PdfAConformanceLevel.PDF_A_2B)
+            .Add("fmt/478", PdfAConformanceLevel.PDF_A_2U)
+            .Add("fmt/479", PdfAConformanceLevel.PDF_A_3A)
+            .Add("fmt/480", PdfAConformanceLevel.PDF_A_3B)
+            .Add("fmt/481", PdfAConformanceLevel.PDF_A_3U)
+            .Add("fmt/1910", PdfAConformanceLevel.PDF_A_4)
+            .Add("fmt/1911", PdfAConformanceLevel.PDF_A_4E)
+            .Add("fmt/1912", PdfAConformanceLevel.PDF_A_4F);
+        
+        /*static readonly public Dictionary<String, PdfAConformanceLevel> PronomToPdfAConformanceLevel = new Dictionary<string, PdfAConformanceLevel>()
+        {
+            {"fmt/95",  PdfAConformanceLevel.PDF_A_1A },
+            {"fmt/354", PdfAConformanceLevel.PDF_A_1B },
+            {"fmt/476", PdfAConformanceLevel.PDF_A_2A },
+            {"fmt/477", PdfAConformanceLevel.PDF_A_2B },
+            {"fmt/478", PdfAConformanceLevel.PDF_A_2U },
+            {"fmt/479", PdfAConformanceLevel.PDF_A_3A },
+            {"fmt/480", PdfAConformanceLevel.PDF_A_3B },
+            {"fmt/481", PdfAConformanceLevel.PDF_A_3U },
+            {"fmt/1910", PdfAConformanceLevel.PDF_A_4 },
+            {"fmt/1911", PdfAConformanceLevel.PDF_A_4E},
+            {"fmt/1912", PdfAConformanceLevel.PDF_A_4F}
+        };*/
     }
 }
