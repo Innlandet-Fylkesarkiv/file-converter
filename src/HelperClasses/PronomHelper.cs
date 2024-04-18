@@ -16,7 +16,7 @@ class PronomHelper
     /// <returns> Full name of file type or "Not found"</returns>
     public static string PronomToFullName(string pronom)
     {
-        string output = "";
+        string output;
         switch (pronom)
         {
             case "": output = "Empty"; break;
