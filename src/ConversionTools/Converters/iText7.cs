@@ -11,7 +11,6 @@ using HelperClasses.FileInfo2;
 using HelperClasses.Logger;
 using Managers;
 
-
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
 ///                                                                                                  <br></br>
@@ -409,14 +408,7 @@ namespace ConversionTools.Converters
                         for (int pageNum = 1; pageNum <= sourceDoc.GetNumberOfPages(); pageNum++)
                         {
                             PdfPage sourcePage = sourceDoc.GetPage(pageNum);
-                            var ps = sourcePage.GetPageSize();
-                            var landscape = ps.GetWidth() > ps.GetHeight();
-                            if (landscape)
-                            {
-
-                            }
-
-                            PdfPage page = pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(sourcePage.GetPageSize()));
+                            PdfPage page = pdfDocument.AddNewPage(new PageSize(sourcePage.GetPageSize()));
                             PdfFormXObject pageCopy = sourcePage.CopyAsFormXObject(pdfDocument);
                             PdfCanvas canvas = new PdfCanvas(page);
                             canvas.AddXObject(pageCopy);
@@ -608,7 +600,6 @@ namespace ConversionTools.Converters
         /// <returns>The new PRONOM PUID</returns>
         static string SetToPDFABasic(string pronom, out PdfAConformanceLevel conformanceLevel, out PdfVersion pdfVersion)
         {
-
             switch (pronom)
             {
                 case "fmt/95":
@@ -617,13 +608,6 @@ namespace ConversionTools.Converters
                     pronom = "fmt/354";
                     pdfVersion = PdfVersion.PDF_1_4;
                     break;
-                /*case "fmt/476":   Default case is the same as these ones. Should it be commented or not?
-                case "fmt/477":
-                case "fmt/478":
-                    conformanceLevel = PdfAConformanceLevel.PDF_A_2B;
-                    pronom = "fmt/477";
-                    pdfVersion = PdfVersion.PDF_1_7;
-                    break;*/
                 case "fmt/479":
                 case "fmt/480":
                 case "fmt/481":

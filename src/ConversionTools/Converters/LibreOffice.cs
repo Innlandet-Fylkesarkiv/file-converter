@@ -30,7 +30,6 @@ namespace ConversionTools.Converters
 		string sofficePathLinux = "/usr/lib/libreoffice/program/soffice";
 		string sofficePathWindows = "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
 
-
 		/// <summary>
 		/// Constructor setting important properties for the class.
 		/// </summary>
@@ -533,7 +532,6 @@ namespace ConversionTools.Converters
 
 			return extensionNameForConversion;
 		}
-
 
 		static List<string> PDFPronoms = [
 			"fmt/95",       // PDF/A 1A

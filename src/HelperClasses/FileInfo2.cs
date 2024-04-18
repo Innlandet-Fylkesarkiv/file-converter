@@ -179,20 +179,12 @@ namespace HelperClasses.FileInfo2
             {
                 OriginalSize = long.Parse(fileSizeMatch.Groups[1].Value);
             }
-            else
-            {
-
-            }
 
             Regex idRegex = new Regex(@"id\s+:\s+'([^']+)'");
             Match idMatch = idRegex.Match(output);
             if (idMatch.Success)
             {
                 OriginalPronom = idMatch.Groups[1].Value;
-            }
-            else
-            {
-
             }
 
             Regex formatRegex = new Regex(@"format\s+:\s+'([^']+)'");
@@ -201,20 +193,12 @@ namespace HelperClasses.FileInfo2
             {
                 OriginalFormatName = formatMatch.Groups[1].Value;
             }
-            else
-            {
-
-            }
 
             Regex mimeRegex = new Regex(@"mime\s+:\s+'([^']+)'");
             Match mimeMatch = mimeRegex.Match(output);
             if (mimeMatch.Success)
             {
                 OriginalMime = mimeMatch.Groups[1].Value;
-            }
-            else
-            {
-
             }
         }
 

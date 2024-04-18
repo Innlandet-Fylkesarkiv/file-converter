@@ -9,7 +9,6 @@ using HelperClasses.Logger;
 
 namespace Managers
 {
-
 	public class FileToConvert
 	{
 		public string FilePath { get; set; }            //From FileInfo

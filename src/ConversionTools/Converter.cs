@@ -107,8 +107,6 @@ namespace ConversionTools
             return false;
         }
 
-
-
         /// <summary>
         /// Method to call another method with a timeout
         /// </summary>
