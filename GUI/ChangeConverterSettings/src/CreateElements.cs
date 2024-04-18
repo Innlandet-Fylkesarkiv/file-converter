@@ -253,7 +253,6 @@ public class CreateElements
     /// </summary>
     /// <param name="sender"> The ComboBox being changed </param>
     /// <param name="e"> provides data about whats being changed, such as what it was before the change </param>
-
     private void FormatDropDown_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         string previousSelection = "";
