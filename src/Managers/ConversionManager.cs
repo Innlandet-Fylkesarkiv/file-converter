@@ -230,6 +230,7 @@ namespace Managers
 			Task combineTask = Task.Run(() => SendToCombineFiles(mergingFiles));           //Combine files 
 
 			//Set max threads for the thread pool based on global variables
+			ThreadPool.SetMinThreads(maxThreads, maxThreads);
 			ThreadPool.SetMaxThreads(maxThreads, maxThreads);
 			Console.WriteLine("Starting conversion...");
 			//Repeat until all files have been converted/checked or there was no change during last run

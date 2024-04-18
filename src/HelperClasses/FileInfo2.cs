@@ -39,7 +39,6 @@ namespace HelperClasses.FileInfo2
         public Guid Parent { get; set; }                            // The unique identifier of the parent file
         public bool IsDeleted { get; set; } = false;                // True if file is deleted
 
-
         /// <summary>
         /// Constroctor for FileInfo that takes a path and a FileInfo object as input. This sets all original values to the values of the input FileInfo object and the path to the input path.
         /// </summary>
@@ -59,27 +58,6 @@ namespace HelperClasses.FileInfo2
             OriginalMime = f.OriginalMime;
             OriginalSize = f.OriginalSize;
             Parent = f.Id;
-        }
-
-        /// <summary>
-        /// Constructor for FileInfo
-        /// </summary>
-        /// <param name="output"> The raw output string from Siegfried</param>
-        /// <param name="path"> The relative path for file</param>
-        public FileInfo2(string output, string path)
-        {
-            FilePath = path;
-            ParseOutput(output);
-            //Get checksum
-            switch (GlobalVariables.checksumHash)
-            {
-                case HashAlgorithms.MD5:
-                    OriginalChecksum = CalculateFileChecksum(MD5.Create());
-                    break;
-                default:
-                    OriginalChecksum = CalculateFileChecksum(SHA256.Create());
-                    break;
-            }
         }
 
         public FileInfo2(SiegfriedFile siegfriedFile)
@@ -160,66 +138,6 @@ namespace HelperClasses.FileInfo2
         public void AddConversionTool(string tool)
         {
             ConversionTools.Add(tool);
-        }
-
-        /// <summary>
-        /// Parses the output from Siegfried and sets the properties of the FileInfo object
-        /// </summary>
-        /// <param name="output"> The raw output string from Siegfried</param>
-        void ParseOutput(string output)
-        {
-            if (FilePath != null)
-                OriginalFilePath = FilePath.Split('\\').Last();
-            else
-                OriginalFilePath = "N/A";
-
-            Regex fileSizeRegex = new Regex(@"filesize : (\d+)");
-            Match fileSizeMatch = fileSizeRegex.Match(output);
-            if (fileSizeMatch.Success)
-            {
-                OriginalSize = long.Parse(fileSizeMatch.Groups[1].Value);
-            }
-
-            Regex idRegex = new Regex(@"id\s+:\s+'([^']+)'");
-            Match idMatch = idRegex.Match(output);
-            if (idMatch.Success)
-            {
-                OriginalPronom = idMatch.Groups[1].Value;
-            }
-
-            Regex formatRegex = new Regex(@"format\s+:\s+'([^']+)'");
-            Match formatMatch = formatRegex.Match(output);
-            if (formatMatch.Success)
-            {
-                OriginalFormatName = formatMatch.Groups[1].Value;
-            }
-
-            Regex mimeRegex = new Regex(@"mime\s+:\s+'([^']+)'");
-            Match mimeMatch = mimeRegex.Match(output);
-            if (mimeMatch.Success)
-            {
-                OriginalMime = mimeMatch.Groups[1].Value;
-            }
-        }
-
-        /// <summary>
-        /// Calculates checksum of file
-        /// </summary>
-        /// <param name="algorithm">What algorithm should be used for hashing</param>
-        /// <returns></returns>
-        string CalculateFileChecksum(HashAlgorithm algorithm)
-        {
-            using (var conversionMethod = algorithm)
-            {
-                try
-                {
-                    using (var stream = File.OpenRead(OriginalFilePath))
-                    {
-                        return BitConverter.ToString(conversionMethod.ComputeHash(stream)).Replace("-", "").ToLower();
-                    }
-                }
-                catch { return "Not found"; }
-            }
         }
     }
 }

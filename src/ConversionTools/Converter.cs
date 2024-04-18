@@ -66,16 +66,15 @@ namespace ConversionTools
         /// </summary>
         /// <param name="file">File that should be converted</param>
         async virtual public Task ConvertFile(FileToConvert file)
-        {
-            await ConvertFile(file, file.Route.First());
-            /*
+        {            
             var timeout = TimeSpan.FromMinutes(GlobalVariables.timeout);
             try
             {
                 if (ConversionContainsLock(file))
                 {
-                    await semaphore.WaitAsync();
+                    semaphore.Wait();
                 }
+
                 await ConvertFileWithTimeout(file, timeout);
             }
             catch (TimeoutException)
@@ -89,7 +88,7 @@ namespace ConversionTools
                     semaphore.Release();
                 }
             }
-            return;*/
+            return;
         }
 
         /// <summary>
@@ -140,7 +139,7 @@ namespace ConversionTools
         /// <returns>True if it contains a locked section</returns>
         bool ConversionContainsLock(FileToConvert file)
         {
-            if (BlockingConversions.ContainsKey(file.Route.First()))
+            if (BlockingConversions.ContainsKey(file.CurrentPronom))
             {
                 return BlockingConversions[file.CurrentPronom].Contains(file.Route.First());
             }

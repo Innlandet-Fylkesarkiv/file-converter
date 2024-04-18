@@ -109,12 +109,12 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="file">The file to be converted</param>
         /// <param name="pronom">The file format to convert to</param>
-        async public override Task ConvertFile(FileToConvert file)
+        async public override Task ConvertFile(FileToConvert file, string pronom)
         {
             try
             {
-                PdfVersion pdfVersion = GetPDFVersion(file.Route.First());
-                PdfAConformanceLevel? conformanceLevel = GetPdfAConformanceLevel(file.Route.First());
+                PdfVersion pdfVersion = GetPDFVersion(pronom);
+                PdfAConformanceLevel? conformanceLevel = GetPdfAConformanceLevel(pronom);
 
                 if (HTMLPronoms.Contains(file.CurrentPronom))
                 {

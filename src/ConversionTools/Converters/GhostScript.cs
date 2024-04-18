@@ -97,11 +97,9 @@ namespace ConversionTools.Converters
             else
             {
                 // Define a regular expression pattern to match the version number
-                string pattern = @"\d+\.\d+\.\d+";
-
-                // Create a Regex object
-                Regex regex = new Regex(pattern);
-
+                string pattern = @"\d+.\d+.\d+";
+                // Create a Regex object with a timeout of 1 second
+                Regex regex = new Regex(pattern, RegexOptions.None, TimeSpan.FromSeconds(1));
                 // Match the pattern against the input string
                 Match match = regex.Match(output);
 
