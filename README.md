@@ -37,6 +37,7 @@ This application provides a framework for different conversion libraries/softwar
   - [Documentation and logging](#documentation-and-logging)
   - [Adding a new converter or conversion path](#adding-a-new-converter-or-conversion-path)
 - [Use cases](#use-cases)
+- [Further Development](#further-development)
 - [Acknowledgments](#-acknowledgments)
 - [Contributing](#-contributing)
 - [Licensing](#-licensing)
@@ -349,6 +350,9 @@ Questions regarding README:
 + Did you encounter any instructions in the README that weren't correct?
 + Were there any sections you found vague/unhelpful?
 + Are there some sections you would have liked that weren't here?
+
+# Further Development
+The PronomHelper.cs class has a static method ```string PronomToFullName(string pronom)``` to retrieve the full name of file formats based on data in the [British National Archives PRONOM lookup tool](https://www.nationalarchives.gov.uk/PRONOM/Format/proFormatSearch.aspx?status=new). That method was created using a small C++ program. As the British National Archives publish more PRONOM PUIDs that method would need to be updated. The program is located [here](https://github.com/larsmhaugland/PRONOM-helper-creator), see the README in that repo for usage.
 
 # 🌟 Acknowledgments
 Our application makes use of several **external libraries and software** under their respective licenses, for further information see [External libraries and software](#external-libraries-and-software).
