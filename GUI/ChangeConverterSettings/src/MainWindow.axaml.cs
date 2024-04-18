@@ -63,9 +63,9 @@ namespace ChangeConverterSettings
         /// </summary>
         public MainWindow()
         {
-            while (!File.Exists("Settings.xml") && Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()) != Directory.GetCurrentDirectory())
+            while (!File.Exists("ConversionSettings.xml") && Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()) != Directory.GetCurrentDirectory())
                 Directory.SetCurrentDirectory("../");
-            GlobalVariables.defaultSettingsPath = Directory.GetCurrentDirectory() + "/Settings.xml";
+            GlobalVariables.defaultSettingsPath = Directory.GetCurrentDirectory() + "/ConversionSettings.xml";
             InitializeComponent();
             Settings settings = Settings.Instance;
             settings.ReadAllSettings(GlobalVariables.defaultSettingsPath);

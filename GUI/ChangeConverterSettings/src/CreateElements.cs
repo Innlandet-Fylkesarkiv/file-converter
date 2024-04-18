@@ -17,6 +17,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.LogicalTree;
 using System.Globalization;
 using Avalonia.Input;
+using FileConverter.HelperClasses;
 public class CreateElements
 {
     private readonly MainWindow mainWindow;
