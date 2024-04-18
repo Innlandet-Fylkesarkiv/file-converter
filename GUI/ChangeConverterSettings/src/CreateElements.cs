@@ -116,8 +116,8 @@ public class CreateElements
         formatDropDown.Items.Add(fileSettings.FormatName);
         ComponentLists.outputTracker.Add(fileSettings.FormatName, (fileSettings.DefaultType, isChecked));
         formatDropDown.SelectedIndex = 0;
-
     }
+
     /// <summary>
     /// Finds the last row in the grid
     /// </summary>
@@ -246,9 +246,6 @@ public class CreateElements
 
             GlobalVariables.FileSettings[index].DoNotConvert = !GlobalVariables.FileSettings[index].DoNotConvert;
         }
-            
-
- 
     }
 
 
@@ -325,8 +322,6 @@ public class CreateElements
         int index = mainGrid.Children.IndexOf((TextBox)sender) + 1;
         TextBox? readOnlyTextBox = (TextBox)mainGrid.Children[index];
         if (!String.IsNullOrEmpty(newText) && readOnlyTextBox != null)
-            readOnlyTextBox.Text = PronomHelper.PronomToFullName(newText);
-         
+            readOnlyTextBox.Text = PronomHelper.PronomToFullName(newText);   
     }
 }
-

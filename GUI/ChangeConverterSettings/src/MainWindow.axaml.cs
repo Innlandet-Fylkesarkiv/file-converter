@@ -73,7 +73,7 @@ namespace ChangeConverterSettings
             Console.WriteLine(GlobalVariables.FileSettings);
             FolderOverride folderOverride = new FolderOverride(this);
             folderOverride.WriteFolderOverrideToScreen();
-            folderOverride.SetUpInnerGrid();
+            folderOverride.SetUpInnerGrid("");
         }
 
         /// <summary>
@@ -108,8 +108,7 @@ namespace ChangeConverterSettings
                 }
             }
             folderOverride.WriteFolderOverrideToScreen();
-            folderOverride.SetUpInnerGrid();
-
+            folderOverride.SetUpInnerGrid("");
         }
 
         /// <summary>
@@ -228,9 +227,6 @@ namespace ChangeConverterSettings
             {
                 maxFileSizeTextBox.Text = GlobalVariables.maxFileSize;
             }
-
-
-
 
             // Fills the checksum ComboBox with values from the settings file
             ComboBox? checksumComboBox = this.FindControl<ComboBox>("Checksum");

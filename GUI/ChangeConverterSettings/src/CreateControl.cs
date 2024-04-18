@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls.Shapes;
 
-
 public static class CreateControl
 {
     /// <summary>
@@ -126,4 +125,3 @@ public static class CreateControl
         };
     }
 }
-

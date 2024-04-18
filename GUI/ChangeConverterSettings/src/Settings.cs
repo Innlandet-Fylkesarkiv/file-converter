@@ -271,7 +271,6 @@ class Settings
             logger.SetUpRunTimeLogMessage(ex.Message, true);
         }
     }
-
     
     /// <summary>
     /// Sets up and writes the xml file with the settings
@@ -302,7 +301,7 @@ class Settings
             .ToList();
 
         string lastClassName = ""; // to keep track of the last class name when writing FileTypes
-        XmlElement fileClass = null; // used to add to the previous fileClass if this setting has the same class name
+        XmlElement? fileClass = null; // used to add to the previous fileClass if this setting has the same class name
 
         // Goes through all settings in Filesettings, creates a FileTypes Node and
         // either adds it to a new FileClass or to the previous FileClass if this setting has the same class name as the previous one
@@ -316,6 +315,7 @@ class Settings
                 AddXmlElement(xmlDoc, fileClass, "Default", setting.ClassDefault);
                 lastClassName = setting.ClassName;
             }
+
             if (fileClass != null)
             {
                 XmlElement fileTypes = xmlDoc.CreateElement("FileTypes");
@@ -332,8 +332,8 @@ class Settings
                 }
                 fileTypes.AppendChild(defaultElement);
             }
-            
         }
+
         if(GlobalVariables.FolderOverride.Count > 0)
         {
             foreach (KeyValuePair<string, SettingsData> entry in GlobalVariables.FolderOverride)
@@ -372,5 +372,3 @@ class Settings
         parentElement.AppendChild(element);
     }
 }
-
-
