@@ -8,179 +8,184 @@ using System.Diagnostics;
 using iText.Commons.Utils;
 using iText.Kernel.Pdf;
 
-class LinuxSetup
+namespace LinuxSpecifics
 {
-    //Specific Linux distro
-    public static string LinuxDistro = GetLinuxDistro();
-    public static string PathRunningProgram = "/bin/bash";
+    class LinuxSetup
+    {
+        //Specific Linux distro
+        public static string LinuxDistro = GetLinuxDistro();
+        public static string PathRunningProgram = "/bin/bash";
 
-    //Map for external converters to check if they are downloaded.
-    static Dictionary<List<string>, string> converterArguments = new Dictionary<List<string>, string>()
+        //Map for external converters to check if they are downloaded.
+        static Dictionary<List<string>, string> converterArguments = new Dictionary<List<string>, string>()
     {
         {new List<string> { "\"-c \\\" \" + \"gs -version\" + \" \\\"\"", "GPL Ghostscript",  "LinuxSpecifics\\ghostscript.txt"}, "GhostScript"},
         {new List<string>{"\"-c \\\" \" + \"libreoffice --version\" + \" \\\"\"", "LibreOffice", "LinuxSpecifics\\libreoffice.txt"}, "LibreOffice" }
     };
 
-    /// <summary>
-    /// Main set-up function for Linux
-    /// </summary>
-    public static void Setup()
-    {
-        Console.WriteLine("Running on Linux");
-        checkInstallSiegfried();
-    }
-
-    /// <summary>
-    /// Runs a process with the given filename and arguments
-    /// </summary>
-    /// <param name="configure"> The start info of the process </param>
-    /// <returns>Either output from process or empty string</returns>
-    private static string RunProcess( Action<ProcessStartInfo> configure) 
-    {
-        ProcessStartInfo startInfo = new ProcessStartInfo();
-        startInfo.RedirectStandardOutput = true;
-        startInfo.UseShellExecute = false;
-        startInfo.CreateNoWindow = true;
-        startInfo.RedirectStandardError = true;
-        configure(startInfo);
-
-        try
+        /// <summary>
+        /// Main set-up function for Linux
+        /// </summary>
+        public static void Setup()
         {
-            Process process = new Process();
-            process.StartInfo = startInfo;
-            process.Start();
-            process.WaitForExit();
-
-            return process.StandardOutput.ReadToEnd();
+            Console.WriteLine("Running on Linux");
+            checkInstallSiegfried();
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            return "";
-        }
-    }
 
-    /// <summary>
-    /// Checks if Siegfried is installed, if not, asks the user if they want to install it
-    /// </summary>
-    private static void checkInstallSiegfried() 
-    {
-        string output = RunProcess(startInfo =>
-        { startInfo.FileName = PathRunningProgram;
-           startInfo.Arguments = "-c \" " + "sf -version" + " \"";
-        });
-
-        if (!output.Contains("siegfried"))
+        /// <summary>
+        /// Runs a process with the given filename and arguments
+        /// </summary>
+        /// <param name="configure"> The start info of the process </param>
+        /// <returns>Either output from process or empty string</returns>
+        private static string RunProcess(Action<ProcessStartInfo> configure)
         {
-            Console.WriteLine("Siegfried is not installed. In order to install Siegfried your user must have sudo privileges.");
-            Console.WriteLine("For more info on Siegfried see: https://www.itforarchivists.com/siegfried/");
-            Console.WriteLine("Prompt for sudo password will appear after accepting the installation process.");
-            Console.WriteLine("Do you want to install it? (Y/n)");
-            string? r = Console.ReadLine();
-            r = r?.ToUpper() ?? " ";
-            if (r == "Y")
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.RedirectStandardOutput = true;
+            startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = true;
+            startInfo.RedirectStandardError = true;
+            configure(startInfo);
+
+            try
             {
-                Console.Write("Installing Siegfried...");
-                Console.Write("This may take a while");
-                InstallSiegfried();
+                Process process = new Process();
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit();
+
+                return process.StandardOutput.ReadToEnd();
             }
-            else 
+            catch (Exception e)
             {
-                Console.WriteLine("Siegfried is not installed. Without Siegfried the program cannot run properly. Exiting program.");
-                Environment.Exit(0);
+                Console.WriteLine(e.Message);
+                return "";
             }
         }
-    }
 
-    /// <summary>
-    /// Install siegfried based on the linux distro
-    /// </summary>
-    private static void InstallSiegfried()
-    {
-        string checkDependencies;   //Result from running terminal process to check if dependencies are installed
-        string output;              //Result from running terminal process to install Siegfried
+        /// <summary>
+        /// Checks if Siegfried is installed, if not, asks the user if they want to install it
+        /// </summary>
+        private static void checkInstallSiegfried()
+        {
+            string output = RunProcess(startInfo =>
+            {
+                startInfo.FileName = PathRunningProgram;
+                startInfo.Arguments = "-c \" " + "sf -version" + " \"";
+            });
+
+            if (!output.Contains("siegfried"))
+            {
+                Console.WriteLine("Siegfried is not installed. In order to install Siegfried your user must have sudo privileges.");
+                Console.WriteLine("For more info on Siegfried see: https://www.itforarchivists.com/siegfried/");
+                Console.WriteLine("Prompt for sudo password will appear after accepting the installation process.");
+                Console.WriteLine("Do you want to install it? (Y/n)");
+                string? r = Console.ReadLine();
+                r = r?.ToUpper() ?? " ";
+                if (r == "Y")
+                {
+                    Console.Write("Installing Siegfried...");
+                    Console.Write("This may take a while");
+                    InstallSiegfried();
+                }
+                else
+                {
+                    Console.WriteLine("Siegfried is not installed. Without Siegfried the program cannot run properly. Exiting program.");
+                    Environment.Exit(0);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Install siegfried based on the linux distro
+        /// </summary>
+        private static void InstallSiegfried()
+        {
+            string checkDependencies;   //Result from running terminal process to check if dependencies are installed
+            string output;              //Result from running terminal process to install Siegfried
             //Download methods for different distros can be found at https://www.github.com/richardlehane/siegfried
-            switch(LinuxDistro)
+            switch (LinuxDistro)
             {
-            case "debian":
-                  checkDependencies = RunProcess(startInfo =>
-                  {
-                      startInfo.FileName = PathRunningProgram;
-                      startInfo.Arguments = "-c \" " + "curl" + " \"";
-                  });
+                case "debian":
+                    checkDependencies = RunProcess(startInfo =>
+                    {
+                        startInfo.FileName = PathRunningProgram;
+                        startInfo.Arguments = "-c \" " + "curl" + " \"";
+                    });
 
-                if (checkDependencies.Contains(""))
-                {
-                   output = RunProcess(startInfo =>
+                    if (checkDependencies.Contains(""))
+                    {
+                        output = RunProcess(startInfo =>
+                         {
+                             startInfo.FileName = PathRunningProgram;
+                             startInfo.Arguments = $"-c \"curl -sL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x20F802FE798E6857' | gpg --dearmor | sudo tee /usr/share/keyrings/siegfried-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/siegfried-archive-keyring.gpg] https://www.itforarchivists.com/ buster main' | sudo tee -a /etc/apt/sources.list.d/siegfried.list && sudo apt-get update && sudo apt-get install siegfried\"";
+                         });
+                        Console.WriteLine(output);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Siegfried needs curl to install properly. Please install curl and try again.");
+                        Environment.Exit(0);
+                    }
+                    break;
+                case "fedora":
+                case "arch":
+                    checkDependencies = RunProcess(startInfo =>
                     {
                         startInfo.FileName = PathRunningProgram;
-                        startInfo.Arguments = $"-c \"curl -sL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x20F802FE798E6857' | gpg --dearmor | sudo tee /usr/share/keyrings/siegfried-archive-keyring.gpg && echo 'deb [signed-by=/usr/share/keyrings/siegfried-archive-keyring.gpg] https://www.itforarchivists.com/ buster main' | sudo tee -a /etc/apt/sources.list.d/siegfried.list && sudo apt-get update && sudo apt-get install siegfried\"";
+                        startInfo.Arguments = "-c \" " + "brew help" + " \"";
                     });
-                    Console.WriteLine(output);
-                }
-                else
-                {
-                    Console.WriteLine("Siegfried needs curl to install properly. Please install curl and try again.");
-                    Environment.Exit(0);
-                }
-               break;
-            case "fedora":
-            case "arch":
-                checkDependencies = RunProcess(startInfo =>
-                {
-                    startInfo.FileName = PathRunningProgram;
-                    startInfo.Arguments = "-c \" " + "brew help" + " \"";
-                });
-                if (checkDependencies.Contains("brew config"))
-                {
-                   RunProcess(startInfo =>
+                    if (checkDependencies.Contains("brew config"))
                     {
-                        startInfo.FileName = PathRunningProgram;
-                        startInfo.Arguments = $"-c \"brew install richardlehane/digipres/siegfried  \"";
-                    });
-                }
-                else
-                {
-                    Console.WriteLine("Siegfried needs homebrew to install properly. Please install homebrew and try again. See https://brew.sh for information about installation.");
-                    Environment.Exit(0);
-                }
-                break;
+                        RunProcess(startInfo =>
+                         {
+                             startInfo.FileName = PathRunningProgram;
+                             startInfo.Arguments = $"-c \"brew install richardlehane/digipres/siegfried  \"";
+                         });
+                    }
+                    else
+                    {
+                        Console.WriteLine("Siegfried needs homebrew to install properly. Please install homebrew and try again. See https://brew.sh for information about installation.");
+                        Environment.Exit(0);
+                    }
+                    break;
             }
-    }
-
-    /// <summary>
-    /// Get the linux distro
-    /// </summary>
-    /// <returns> A string with the distro name</returns>
-   private static string GetLinuxDistro() {
-        string distro = "";
-        //Check which distro the user is running
-        string output = RunProcess(startInfo =>
-        {
-            startInfo.FileName = "/bin/bash";
-            startInfo.Arguments = "-c \" " + "cat /etc/*-release" + " \"";
-        });
-
-        switch (output)
-        {
-            case var o when o.Contains("Ubuntu") || o.Contains("Debian"):
-                Console.WriteLine("Running on Debian based distro");
-                distro = "debian";
-                break;
-            case var o when o.Contains("Fedora"):
-                Console.WriteLine("Running on Fedora based distro");
-                distro = "fedora";
-                break;
-            case var o when o.Contains("Arch"):
-                Console.WriteLine("Running on Arch based distro");
-                distro = "arch";
-                break;
-            default:
-                Console.WriteLine("Distro not supported. Exiting program.");
-                Environment.Exit(0);
-                break;
         }
 
-        return distro;
+        /// <summary>
+        /// Get the linux distro
+        /// </summary>
+        /// <returns> A string with the distro name</returns>
+        private static string GetLinuxDistro()
+        {
+            string distro = "";
+            //Check which distro the user is running
+            string output = RunProcess(startInfo =>
+            {
+                startInfo.FileName = "/bin/bash";
+                startInfo.Arguments = "-c \" " + "cat /etc/*-release" + " \"";
+            });
+
+            switch (output)
+            {
+                case var o when o.Contains("Ubuntu") || o.Contains("Debian"):
+                    Console.WriteLine("Running on Debian based distro");
+                    distro = "debian";
+                    break;
+                case var o when o.Contains("Fedora"):
+                    Console.WriteLine("Running on Fedora based distro");
+                    distro = "fedora";
+                    break;
+                case var o when o.Contains("Arch"):
+                    Console.WriteLine("Running on Arch based distro");
+                    distro = "arch";
+                    break;
+                default:
+                    Console.WriteLine("Distro not supported. Exiting program.");
+                    Environment.Exit(0);
+                    break;
+            }
+
+            return distro;
+        }
     }
 }
