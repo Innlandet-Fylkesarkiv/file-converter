@@ -221,7 +221,7 @@ $ .\example --output "C:\Users\user\Downloads
 ```
 
 ### Set custom settings file 
-<br>Default: *Settings.xml*
+<br>Default: *ConversionSettings.xml*
 ```
 $ .\example -s "C:\Users\user\custom_settings.xml"
 $ .\example --settings "C:\Users\user\custom_settings.xml"
@@ -336,7 +336,7 @@ Here are the use cases, please reflect and write something down for each use cas
 
 Use case tasks:
 + Add a new conversion path route that converts a document from Word to PDF to PDF-A.
-+ Change the settings, using the ```settings.xml``` so that Word documents get converted to PDF-A.
++ Change the settings, using the ```ConversionSettings.xml``` so that Word documents get converted to PDF-A.
 + Change the settings, using the GUI, so that Word documents get converted to PDF-A.
 + Run the program in CLI with the proper options to specify the input and output directory.
 + Try to combine a set of images into one PDF.
