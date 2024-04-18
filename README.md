@@ -67,7 +67,7 @@ make build_linux #Build for Linux (not stable, use Windows build)
 ```
 
 > [!WARNING]
-> If you want to build using ```dotnet build``` or an IDE you need to build **both** ```file-converter-prog2900.csproj``` and ```GUI/ChangeConverterConversionSettings/ChangeConverterConversionSettings.csproj```.
+> If you want to build using ```dotnet build``` or an IDE you need to build **both** ```file-converter-prog2900.csproj``` and ```GUI/ChangeConverterSettings/ChangeConverterSettings.csproj```.
 
 
 > [!NOTE]
@@ -98,7 +98,7 @@ make build_linux #Build for Linux (not stable, use Windows build)
 #### :window: Windows
 Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```, but the entry needs to be ```"C:\Program Files\LibreOffice\program"```.
 
-1. Open *ConversionSettings* -> *Home* -> *About* (scroll down on the left) -> *Advanced system ConversionSettings* (on the right) -> *Environment variables.*
+1. Open *Settings* -> *Home* -> *About* (scroll down on the left) -> *Advanced system Settings* (on the right) -> *Environment variables.*
 > [!TIP]
 > Alternatively use the ```Windows key + R``` on the keyboard, then type in ```"sysdm.cpl"``` and hit enter. Thereafter, press *Advanced* and then *Environment variables.*
 2. Locate the ```PATH``` variable and highlight it. Press *Edit* -> *New* -> copy the path to the program folder -> press *Ok*. This adds it to the users environment variables.
