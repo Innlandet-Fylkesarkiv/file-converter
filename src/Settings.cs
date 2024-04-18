@@ -1,4 +1,8 @@
 ﻿using System.Xml;
+using HelperClasses.FileInfo2;
+using HelperClasses.Logger;
+using Managers;
+
 public class SettingsData
 {
     // List of input pronom codes
@@ -238,7 +242,10 @@ class Settings
                     else
                     {
 						if (Directory.Exists(inputFolder + "/" + folderPath) && folderPath != null) 
-						{ 
+						{
+							// Ensure that the folder path is valid on all operating systems
+							folderPath = folderPath.Replace('\\', Path.DirectorySeparatorChar);
+							folderPath = folderPath.Replace('/', Path.DirectorySeparatorChar);
 							GlobalVariables.FolderOverride.Add(folderPath,settings);
 							List<string> subfolders = GetSubfolderPaths(folderPath);
 							if (subfolders.Count > 0)
@@ -280,8 +287,6 @@ class Settings
             if (Directory.Exists(targetFolderPath))
             {
                 // Add current folder to subfolders list
-                // TODO: Is this not needed?, as the folder is already added in the SetUpFolderOverride function
-                subfolders.Add(relativePath); 
 
                 // Add immediate subfolders
                 foreach (string subfolder in Directory.GetDirectories(targetFolderPath))
@@ -304,7 +309,7 @@ class Settings
 		return subfolders;
 	}
 
-	public static string? GetTargetPronom(FileInfo f)
+	public static string? GetTargetPronom(FileInfo2 f)
 	{
 		if (f.IsPartOfSplit)
 		{
@@ -333,7 +338,7 @@ class Settings
 	/// </summary>
 	/// <param name="f">The file that should be checked</param>
 	/// <returns>True if it should be merged, otherwise False</returns>
-	public static bool ShouldMerge(FileInfo f)
+	public static bool ShouldMerge(FileInfo2 f)
 	{
 		var parentDir = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.parsedOptions.Output, f.FilePath));
 		if (parentDir != null && GlobalVariables.FolderOverride.ContainsKey(parentDir))

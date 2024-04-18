@@ -4,6 +4,9 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using HelperClasses.FileInfo2;
+using HelperClasses.ProgressBar;
+using HelperClasses.Logger;
 
 public class SiegfriedJSON
 {
@@ -60,7 +63,7 @@ public class Siegfried
 	private string PronomSignatureFile = "default.sig";		 //"pronom64k.sig";
     private static readonly object lockObject = new object();
 	public List<List<string>> CompressedFolders;
-	public ConcurrentBag<FileInfo> Files = new ConcurrentBag<FileInfo>();
+	public ConcurrentBag<FileInfo2> Files = new ConcurrentBag<FileInfo2>();
 	public static Siegfried Instance
 	{
 		get
@@ -213,7 +216,7 @@ public class Siegfried
 
 				foreach (var f in parsedData.files)
 				{
-					instance.Files.Add(new FileInfo(f));
+                    instance.Files.Add(new FileInfo2(f));
 				}
 			}
 		}
@@ -288,10 +291,10 @@ public class Siegfried
 	/// </summary>
 	/// <param name="paths">Array of file paths to </param>
 	/// <returns>Pronom id or null</returns>
-	public List<FileInfo>? IdentifyList(string[] paths)
+	public List<FileInfo2>? IdentifyList(string[] paths)
 	{
 		Logger logger = Logger.Instance;
-		var files = new List<FileInfo>();
+		var files = new List<FileInfo2>();
 
 		if(paths.Length < 1)
 		{
@@ -386,7 +389,7 @@ public class Siegfried
 		}
 		for (int i = 0; i < parsedData.files.Length; i++)
 		{
-			var file = new FileInfo(parsedData.files[i]);
+			var file = new FileInfo2(parsedData.files[i]);
 			file.FilePath = paths[i];
 			file.OriginalFilePath = Path.GetFileName(file.FilePath);
             var pathWithoutInput = file.FilePath.Replace(GlobalVariables.parsedOptions.Input, "");
@@ -406,10 +409,10 @@ public class Siegfried
 	/// </summary>
 	/// <param name="input">Path to root folder for search</param>
 	/// <returns>A List of identified files</returns>
-	public Task<List<FileInfo>>? IdentifyFilesIndividually(string input)
+	public Task<List<FileInfo2>>? IdentifyFilesIndividually(string input)
 	{
 		Logger logger = Logger.Instance;
-		var files = new ConcurrentBag<FileInfo>();
+		var files = new ConcurrentBag<FileInfo2>();
 		List<string> filePaths = new List<string>(Directory.GetFiles(input, "*.*", SearchOption.AllDirectories));
 		ConcurrentBag<string[]> filePathGroups = new ConcurrentBag<string[]>(GroupPaths(filePaths));
 
@@ -437,10 +440,10 @@ public class Siegfried
     /// </summary>
     /// <param name="input">Path to root folder for search</param>
     /// <returns>A List of identified files</returns>
-    public Task<List<FileInfo>>? IdentifyFilesIndividually(List<FileInfo> inputFiles)
+    public Task<List<FileInfo2>>? IdentifyFilesIndividually(List<FileInfo2> inputFiles)
     {
         Logger logger = Logger.Instance;
-        var files = new ConcurrentBag<FileInfo>();
+        var files = new ConcurrentBag<FileInfo2>();
 
         Parallel.ForEach(inputFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, file =>
         {
@@ -455,7 +458,7 @@ public class Siegfried
                 logger.SetUpRunTimeLogMessage("SF IdentifyFilesIndividually: could not identify file", true, filename: file.FilePath);
                 return; //Skip current file
             }
-			var newFile = new FileInfo(result);
+			var newFile = new FileInfo2(result);
 			newFile.Id = file.Id;
             files.Add(newFile);
         });
@@ -479,11 +482,11 @@ public class Siegfried
 		return filePathGroups;
 	}
 
-	public List<FileInfo> IdentifyCompressedFilesJSON(string input)
+	public List<FileInfo2> IdentifyCompressedFilesJSON(string input)
 	{
 		Logger logger = Logger.Instance;
 		UnpackCompressedFolders();
-		var fileBag = new ConcurrentBag<FileInfo>();
+		var fileBag = new ConcurrentBag<FileInfo2>();
 		
 		//For eaccompressed folder, identify all files
 		Parallel.ForEach(CompressedFolders, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, folders =>
@@ -500,7 +503,7 @@ public class Siegfried
 					var files = IdentifyList(paths);
 					if (files != null)
 					{
-						foreach (FileInfo file in files)
+						foreach (FileInfo2 file in files)
 						{
 							fileBag.Add(file);
 						}

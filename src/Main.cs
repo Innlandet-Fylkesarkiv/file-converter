@@ -1,6 +1,11 @@
 ﻿using CommandLine;
 using Org.BouncyCastle.Asn1;
 using System.Diagnostics;
+using HelperClasses.FileInfo2;
+using HelperClasses.PrintHelper;
+using HelperClasses.Logger;
+using LinuxSpecifics;
+using Managers;
 
 public enum PrintSortBy
 {
@@ -155,10 +160,11 @@ class Program
 
         char input = ' ';
 		string validInput = "YyNnRrGg";
-		string prevInputFolder = GlobalVariables.parsedOptions.Input;
-		do
+		string prevInputFolder = GlobalVariables.parsedOptions.Input; ;
+
+        do
 		{
-			if (prevInputFolder != GlobalVariables.parsedOptions.Input)
+            if (prevInputFolder != GlobalVariables.parsedOptions.Input)
 			{
 				PrintHelper.PrintLn("Input folder changed, reidentifying files...", GlobalVariables.WARNING_COL);
 				InitFiles();
@@ -177,14 +183,15 @@ class Program
 				input = char.ToUpper(input);
 			}
 			Console.WriteLine();
-			switch (input)
+            prevInputFolder = GlobalVariables.parsedOptions.Input;
+            switch (input)
 			{
 				case 'Y':	//Proceed with conversion
                     break;
 				case 'N':	//Exit program
 					goto END;
 				case 'R':	//Change settings and reload manually
-                    Console.WriteLine("Change settings file and hit enter when finished (Remember to save file)");
+                    Console.WriteLine("Edit settings file and hit enter when finished (Remember to save file)");
                     Console.ReadLine();
                     settings.ReadSettings(settingsPath);
                     settings.SetUpFolderOverride(settingsPath);
@@ -202,7 +209,7 @@ class Program
         try
 		{
 			fileManager.CheckForNamingConflicts();
-            Console.WriteLine("Converting files...");
+            Console.WriteLine("Starting Conversion manager...");
             cm.ConvertFiles();
 			//Delete siegfrieds json files
 			sf.ClearOutputFolder();
@@ -285,8 +292,8 @@ class Program
 	/// <summary>
 	/// Method to get the path of the GUI executable
 	/// </summary>
-	/// <returns>Path to GUI executable</returns>
-	static string GetGUIPath()
+	/// <returns>Path to GUI executable or null if not found</returns>
+	static string? GetGUIPath()
 	{
 		string filename = OperatingSystem.IsLinux() ? "ChangeConverterSettings.dll": "ChangeConverterSettings.exe";
 		string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), filename, SearchOption.AllDirectories);
@@ -294,52 +301,71 @@ class Program
 		{
             return files[0];
         }
-		return "";
+		return null;
 	}
 
 	/// <summary>
 	/// Method to start and await the GUI process
 	/// </summary>
-	/// <returns>Task</returns>
+	/// <returns>Awaitable Task</returns>
 	async static Task AwaitGUI()
 	{
 		ProcessStartInfo startInfo = new ProcessStartInfo();
-		
-		startInfo.FileName = OperatingSystem.IsLinux() ? "dotnet " + GetGUIPath() : GetGUIPath();
-		startInfo.Arguments = "";
-        if (startInfo.FileName == "" || startInfo.FileName == "dotnet ")
+		try
 		{
-            Console.WriteLine("Could not find GUI executable");
-            return;
-        }
-		var process = Process.Start(startInfo);
-		Console.WriteLine("Press any key in terminal or close window to continue");
-
-        // Discard any existing input in the console buffer
-        while (Console.KeyAvailable)
-        {
-            Console.ReadKey(intercept: true); // Read and discard each character
-        }
-
-        // Monitor user input and process status
-        while (process != null && !process.HasExited)
-        {
-			// Check if a key is available (user typed a character)
-			if (Console.KeyAvailable)
+			var GUIPath = GetGUIPath();
+			if (GUIPath == null)
 			{
-				// Read the key without blocking
-				ConsoleKeyInfo key = Console.ReadKey(intercept: true);
+                Console.WriteLine("Could not find GUI executable");
+                return;
+            }
+			if (OperatingSystem.IsLinux())
+			{
+                startInfo.FileName = "dotnet";
+                startInfo.Arguments = GUIPath;
+            }
+            else
+			{
+                startInfo.FileName = GUIPath;
+            }
 
-				if (key.Key != ConsoleKey.Escape)
-				{
-					// Exit the loop and return from the method
-					process.Kill();
-					process.WaitForExit();
-					break;
-				}
+			if (startInfo.FileName == "" || startInfo.FileName == "dotnet ")
+			{
+				Console.WriteLine("Could not find GUI executable");
+				return;
 			}
-            // Delay for a short duration (e.g., 100 milliseconds)
-            await Task.Delay(100);
-        }
+			var process = Process.Start(startInfo);
+			Console.WriteLine("Press any key in terminal or close GUI window to continue");
+
+			// Discard any existing input in the console buffer
+			while (Console.KeyAvailable)
+			{
+				Console.ReadKey(intercept: true); // Read and discard each character
+			}
+
+			// Monitor user input and process status
+			while (process != null && !process.HasExited)
+			{
+				// Check if a key is available (user typed a character)
+				if (Console.KeyAvailable)
+				{
+					// Read the key without blocking
+					ConsoleKeyInfo key = Console.ReadKey(intercept: true);
+
+					if (key.Key != ConsoleKey.Escape)
+					{
+						// Exit the loop and return from the method
+						process.Kill();
+						process.WaitForExit();
+						break;
+					}
+				}
+				// Delay for a short duration
+				await Task.Delay(100);
+			}
+		} catch (Exception e)
+		{
+			Console.WriteLine("Error while starting GUI: " + e.Message);
+		}
     }
 }
