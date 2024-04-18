@@ -32,7 +32,7 @@ This application provides a framework for different conversion libraries/softwar
   - [CLI](#cli)
   - [Arguments](#arguments)
   - [GUI](#gui)
-  - [Settings](#settings)
+  - [ConversionSettings](#ConversionSettings)
   - [Currently supported file formats](#currently-supported-file-formats)
   - [Documentation and logging](#documentation-and-logging)
   - [Adding a new converter or conversion path](#adding-a-new-converter-or-conversion-path)
@@ -67,7 +67,7 @@ make build_linux #Build for Linux (not stable, use Windows build)
 ```
 
 > [!WARNING]
-> If you want to build using ```dotnet build``` or an IDE you need to build **both** ```file-converter-prog2900.csproj``` and ```GUI/ChangeConverterSettings/ChangeConverterSettings.csproj```.
+> If you want to build using ```dotnet build``` or an IDE you need to build **both** ```file-converter-prog2900.csproj``` and ```GUI/ChangeConverterConversionSettings/ChangeConverterConversionSettings.csproj```.
 
 
 > [!NOTE]
@@ -98,7 +98,7 @@ make build_linux #Build for Linux (not stable, use Windows build)
 #### :window: Windows
 Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```, but the entry needs to be ```"C:\Program Files\LibreOffice\program"```.
 
-1. Open *Settings* -> *Home* -> *About* (scroll down on the left) -> *Advanced system settings* (on the right) -> *Environment variables.*
+1. Open *ConversionSettings* -> *Home* -> *About* (scroll down on the left) -> *Advanced system ConversionSettings* (on the right) -> *Environment variables.*
 > [!TIP]
 > Alternatively use the ```Windows key + R``` on the keyboard, then type in ```"sysdm.cpl"``` and hit enter. Thereafter, press *Advanced* and then *Environment variables.*
 2. Locate the ```PATH``` variable and highlight it. Press *Edit* -> *New* -> copy the path to the program folder -> press *Ok*. This adds it to the users environment variables.
@@ -223,8 +223,8 @@ $ .\example --output "C:\Users\user\Downloads
 ### Set custom settings file 
 <br>Default: *ConversionSettings.xml*
 ```
-$ .\example -s "C:\Users\user\custom_settings.xml"
-$ .\example --settings "C:\Users\user\custom_settings.xml"
+$ .\example -s "C:\Users\user\custom_ConversionSettings.xml"
+$ .\example --settings "C:\Users\user\custom_ConversionSettings.xml"
 ```
 
 ### Accept all queries in CLI
@@ -236,14 +236,14 @@ $ .\example --yes
 ## GUI
 ![gui](https://github.com/larsmhaugland/file-converter/assets/117298604/0fd96cea-d84c-4b83-91b6-737c74ba8baf)
 <div align="center">
-	<i>GUI-version of Settings</i>
+	<i>GUI-version of ConversionSettings</i>
 	<br>
 </div>
 
-The GUI provides a more user-friendly way of editing the settings of the application (see [Settings](#settings) for further information). Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default``` PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
+The GUI provides a more user-friendly way of editing the ConversionSettings of the application (see [ConversionSettings](#ConversionSettings) for further information). Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default``` PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
 
-## Settings
-Settings can be manually set in an ```xml``` file.
+## ConversionSettings
+ConversionSettings can be manually set in an ```xml``` file.
 
 ### Setting run time arguments
 ```xml  
@@ -258,10 +258,10 @@ Settings can be manually set in an ```xml``` file.
 ```
 
 The first part of the XML file concerns arguments needed to run the program. The second part allows you to set up two things:
-1. Global settings stating that file format ```x``` should be converted to file format ```y```.
-2. Folder settings stating that file format ```x``` should be converted to file format ```y``` in the specific folder ```folder```.
+1. Global ConversionSettings stating that file format ```x``` should be converted to file format ```y```.
+2. Folder ConversionSettings stating that file format ```x``` should be converted to file format ```y``` in the specific folder ```folder```.
 
-### Global settings
+### Global ConversionSettings
 ```xml
 <FileClass>
     <ClassName>pdf</ClassName>
@@ -276,7 +276,7 @@ The first part of the XML file concerns arguments needed to run the program. The
 </FileClass>
 ```
 
-### Folder settings
+### Folder ConversionSettings
 ```xml
 <FolderOverride>
 	<FolderPath>apekatter</FolderPath>      <!-- Path after input folder example: /documents -->

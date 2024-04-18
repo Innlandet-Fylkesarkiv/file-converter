@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using System.Security.Cryptography;
-using Managers;
+using FileConverter.Managers;
 
-namespace HelperClasses.FileInfo2
+namespace FileConverter.HelperClasses
 {
     public enum HashAlgorithms
     {
@@ -153,7 +153,7 @@ namespace HelperClasses.FileInfo2
             }
             catch (Exception e)
             {
-                Logger.Logger.Instance.SetUpRunTimeLogMessage("RenameFile: " + e.Message, true);
+                Logger.Instance.SetUpRunTimeLogMessage("RenameFile: " + e.Message, true);
             }
         }
 

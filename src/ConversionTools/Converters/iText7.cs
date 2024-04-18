@@ -7,9 +7,8 @@ using iText.Kernel.Pdf.Canvas;
 using iText.Commons.Actions;
 using iText.Kernel.Geom;
 using Path = System.IO.Path;
-using HelperClasses.FileInfo2;
-using HelperClasses.Logger;
-using Managers;
+using FileConverter.Managers;
+using FileConverter.HelperClasses;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>

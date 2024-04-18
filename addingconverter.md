@@ -53,7 +53,7 @@ All subclasses of ```Converter``` follow the same commenting scheme for consiste
 /// </summary>
 ```
 
-To add the converter to the list of converters, add the line ```converters.Add(new NameOfConverter());``` in the ```AddConverter``` class. Assuming that the source code written for the converter is correct, and the settings are set correctly, the application should now use the new converter for the conversions it supports. 
+To add the converter to the list of converters, add the line ```converters.Add(new NameOfConverter());``` in the ```AddConverter``` class. Assuming that the source code written for the converter is correct, and the ConversionSettings are set correctly, the application should now use the new converter for the conversions it supports. 
 ```csharp
     public List<Converter> GetConverters()
     {

@@ -6,7 +6,7 @@ using System.Threading;
 /// An ASCII progress bar
 /// </summary>
 /// 
-namespace HelperClasses.ProgressBar
+namespace FileConverter.HelperClasses
 {
 	public class ProgressBar : IDisposable, IProgress<double>
 	{
