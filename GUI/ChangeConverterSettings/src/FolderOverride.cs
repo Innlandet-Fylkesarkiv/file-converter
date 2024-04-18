@@ -13,7 +13,6 @@ using System.Reflection;
 using Avalonia.Layout;
 using Avalonia.Media;
 
-
 public class FolderOverride
 {
     Window mainWindow;
@@ -57,14 +56,15 @@ public class FolderOverride
         }
         if (IsLast(mainGrid, innerGrid))
         {
-            SetUpInnerGrid();
+            SetUpInnerGrid("");
         }
     }
 
     /// <summary>
     /// Sets up a inner grid and a separator for the folder override
     /// </summary>
-    public void SetUpInnerGrid()
+    /// <param name="foldername"> the folder name </param>
+    public void SetUpInnerGrid(string foldername)
     {
         Grid? mainGrid = mainWindow.FindControl<Grid>("FolderOverrideGrid");
         if (mainGrid == null)
@@ -115,7 +115,6 @@ public class FolderOverride
         mainGrid.Children.Add(separator);
     }
 
-
     /// <summary>
     /// When the folder button is clicked, it opens a folder picker dialog
     /// </summary>
@@ -143,17 +142,21 @@ public class FolderOverride
         {
             return;
         }
+
         Grid? innerGrid = caller.Parent as Grid;
         Grid? mainGrid = mainWindow.FindControl<Grid>("FolderOverrideGrid");
         if (innerGrid == null || mainGrid == null)
         {
             return;
         }
+
         int index = mainGrid.Children.IndexOf(innerGrid);
+
         if (IsLast(mainGrid, innerGrid))
         {
-            SetUpInnerGrid();
+            SetUpInnerGrid("");
         }
+
         // remove the folder from the dictionary
         foreach (var child in innerGrid.Children)
         {
@@ -233,60 +236,16 @@ public class FolderOverride
             }
         }
     }
+
     /// <summary>
     /// Reads the folder override from settings and writes the content to the screen
     /// as multiple segments
     /// </summary>
     public void WriteFolderOverrideToScreen()
     {
-        Grid? mainGrid = mainWindow.FindControl<Grid>("FolderOverrideGrid");
-        if (mainGrid == null)
-        {
-            return;
-        }
         foreach (var folder in GlobalVariables.FolderOverride)
         {
-            int index = mainGrid.Children.Count / 2 + 1;
-            mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            Grid innerGrid = CreateControl.CreateFolderOverrideGrids(index);
-            Grid.SetRow(innerGrid, index);
-            mainGrid.Children.Add(innerGrid);
-
-            TextBlock folderName = CreateControl.CreateTextBlock(folder.Key);
-            Grid.SetColumn(folderName, innerGrid.Children.Count);
-            innerGrid.Children.Add(folderName);
-
-            TextBox inputPRONOMs = CreateControl.CreateTextBox(string.Join(", ", folder.Value.PronomsList), index, false);
-            inputPRONOMs.Name = "InputPRONOMs" + index;
-            inputPRONOMs.Watermark = "Input PRONOM codes in a list format \n e.g \"fmt/1, fmt/2\"";
-            Grid.SetColumn(inputPRONOMs, innerGrid.Children.Count);
-            innerGrid.Children.Add(inputPRONOMs);
-
-            TextBox outputPRONOMs = CreateControl.CreateTextBox(folder.Value.DefaultType, index, false);
-            outputPRONOMs.Name = "OutputPRONOMs" + index;
-            outputPRONOMs.Watermark = "PRONOM code of they should be converted to";
-            Grid.SetColumn(outputPRONOMs, innerGrid.Children.Count);
-            innerGrid.Children.Add(outputPRONOMs);
-
-            CheckBox mergeFiles = CreateControl.CreateCheckBox("Merge Files");
-            mergeFiles.IsChecked = folder.Value.Merge;
-            Grid.SetColumn(mergeFiles, innerGrid.Children.Count);
-            innerGrid.Children.Add(mergeFiles);
-
-            Button folderButton = CreateControl.CreateButton("Select Folders", index);
-            Grid.SetColumn(folderButton, innerGrid.Children.Count);
-            folderButton.Click += (sender, e) => FolderButton_Click(folderButton, e);
-            innerGrid.Children.Add(folderButton);
-
-            Button removeButton = CreateControl.CreateButton("Remove Override", index);
-            removeButton.Click += (sender, e) => RemoveButton_Click(removeButton, e);
-            Grid.SetColumn(removeButton, innerGrid.Children.Count);
-            innerGrid.Children.Add(removeButton);
-
-            Avalonia.Controls.Shapes.Rectangle separator = CreateControl.CreateSeparator();
-            Grid.SetRow(separator, index);
-            mainGrid.Children.Add(separator);
+            SetUpInnerGrid(folder.Key);
         }
     }
 }
-

@@ -1,8 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using System.Security.Cryptography;
-using Managers;
+using FileConverter.Managers;
+using SF = FileConverter.Siegfried;
 
-namespace HelperClasses.FileInfo2
+namespace FileConverter.HelperClasses
 {
     public enum HashAlgorithms
     {
@@ -60,7 +61,7 @@ namespace HelperClasses.FileInfo2
             Parent = f.Id;
         }
 
-        public FileInfo2(SiegfriedFile siegfriedFile)
+        public FileInfo2(SF.SiegfriedFile siegfriedFile)
         {
             OriginalSize = siegfriedFile.filesize;
             OriginalFilePath = Path.GetFileName(siegfriedFile.filename);
@@ -76,7 +77,7 @@ namespace HelperClasses.FileInfo2
 
         public FileInfo2(FileToConvert f)
         {
-            var result = Siegfried.Instance.IdentifyFile(f.FilePath, true);
+            var result = Siegfried.Siegfried.Instance.IdentifyFile(f.FilePath, true);
             if (result != null)
             {
                 OriginalChecksum = NewChecksum = result.hash;
@@ -131,7 +132,7 @@ namespace HelperClasses.FileInfo2
             }
             catch (Exception e)
             {
-                Logger.Logger.Instance.SetUpRunTimeLogMessage("RenameFile: " + e.Message, true);
+                Logger.Instance.SetUpRunTimeLogMessage("RenameFile: " + e.Message, true);
             }
         }
 

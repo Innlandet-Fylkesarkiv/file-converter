@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using HelperClasses.FileInfo2;
-using Managers;
-using HelperClasses.Logger;
+using FileConverter.HelperClasses;
+using FileConverter.Managers;
+using SF = FileConverter.Siegfried;
 
 /// <summary>
 /// Converts EML and MSG to pdf. Also allows for converting MSG to EML.
@@ -58,7 +58,7 @@ namespace ConversionTools.Converters
         /// <param name="pronom">The file format to convert to</param>
         async public override Task ConvertFile(FileToConvert file, string pronom)
         {
-            string inputFolder = GlobalVariables.parsedOptions.Input;
+            string inputFolder =  GlobalVariables.parsedOptions.Input;
             string outputFolder = GlobalVariables.parsedOptions.Output;
 
             // Get the full path to the input directory and output directory 
@@ -277,13 +277,13 @@ namespace ConversionTools.Converters
         /// <returns></returns>
         public async Task addAttachementFilesToWorkingSet(string inputFilePath, string folderWithAttachments)
         {
-            List<FileInfo2>? attachementFiles = await Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments)!;
+            List<FileInfo2>? attachementFiles = await SF.Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments)!;
             foreach (FileInfo2 newFile in attachementFiles)
             {
                 Guid id = Guid.NewGuid();
                 newFile.Id = id;
                 var newFileToConvert = new FileToConvert(newFile);
-                newFileToConvert.TargetPronom = Settings.GetTargetPronom(newFile)!;
+                newFileToConvert.TargetPronom = FileConverter.ConversionSettings.GetTargetPronom(newFile)!;
                 newFile.AddConversionTool(NameAndVersion);
 
                 //Use current and target pronom to create a key for the conversion map

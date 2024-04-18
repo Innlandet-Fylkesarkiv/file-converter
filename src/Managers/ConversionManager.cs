@@ -2,12 +2,10 @@ using SharpCompress;
 using System.Collections.Concurrent;
 using ConversionTools.Converters;
 using ConversionTools;
-using HelperClasses.FileInfo2;
-using HelperClasses.PrintHelper;
-using HelperClasses.ProgressBar;
-using HelperClasses.Logger;
+using FileConverter.HelperClasses;
+using SF = FileConverter.Siegfried;
 
-namespace Managers
+namespace FileConverter.Managers
 {
 	public class FileToConvert
 	{
@@ -24,7 +22,7 @@ namespace Managers
 		{
 			FilePath = file.FilePath;
 			CurrentPronom = file.OriginalPronom;
-			TargetPronom = Settings.GetTargetPronom(file) ?? CurrentPronom;
+			TargetPronom = ConversionSettings.GetTargetPronom(file) ?? CurrentPronom;
 			Route = new List<string>();
 			Id = file.Id;
 		}
@@ -67,19 +65,19 @@ namespace Managers
 			foreach (FileInfo2 file in Managers.FileManager.Instance.Files.Values)
 			{
 				// MSG to PDFA-2B via eml and PDF 1.4
-				if (Settings.GetTargetPronom(file) == pdfA2B && emailConverter.MSGPronoms.Contains(file.OriginalPronom)
+				if (ConversionSettings.GetTargetPronom(file) == pdfA2B && emailConverter.MSGPronoms.Contains(file.OriginalPronom)
 																		&& supportedConversionsEmail.Contains(file.OriginalPronom))
 				{
 					ConversionMap.TryAdd(new KeyValuePair<string, string>(file.OriginalPronom, pdfA2B), [emlConversionPronom, pdfPronomForEmail, pdfA2B]);
 				}
 				// MSG to PDF 1.4 via eml
-				if (Settings.GetTargetPronom(file) == pdfPronomForEmail && emailConverter.MSGPronoms.Contains(file.OriginalPronom)
+				if (ConversionSettings.GetTargetPronom(file) == pdfPronomForEmail && emailConverter.MSGPronoms.Contains(file.OriginalPronom)
 																		&& supportedConversionsEmail.Contains(file.OriginalPronom))
 				{
 					ConversionMap.TryAdd(new KeyValuePair<string, string>(file.OriginalPronom, pdfPronomForEmail), [emlConversionPronom, pdfPronomForEmail]);
 				}
 				//EML to PDFA-2B via PDF 1.4
-				if (Settings.GetTargetPronom(file) == pdfA2B && emailConverter.EMLPronoms.Contains(file.OriginalPronom)
+				if (ConversionSettings.GetTargetPronom(file) == pdfA2B && emailConverter.EMLPronoms.Contains(file.OriginalPronom)
 																		&& supportedConversionsEmail.Contains(file.OriginalPronom))
 				{
 					ConversionMap.TryAdd(new KeyValuePair<string, string>(file.OriginalPronom, pdfA2B), [pdfPronomForEmail, pdfA2B]);
@@ -186,7 +184,7 @@ namespace Managers
 		{
 			var files = Managers.FileManager.Instance.Files.Values.ToList();
 			//Run siegfried on all files
-			var f = Siegfried.Instance.IdentifyFilesIndividually(files)?.Result;
+			var f = SF.Siegfried.Instance.IdentifyFilesIndividually(files)?.Result;
 
 			//If siegfried fails, log error message and return
 			if (f == null)
@@ -203,11 +201,7 @@ namespace Managers
 				if (fDict.ContainsKey(file.Id))
 				{
 					file.UpdateSelf(fDict[file.Id]);
-					file.IsConverted = Settings.GetTargetPronom(file) == file.NewPronom;
-				}
-				else
-				{
-					Console.BackgroundColor = Console.BackgroundColor;
+					file.IsConverted = ConversionSettings.GetTargetPronom(file) == file.NewPronom;
 				}
 			});
 		}
@@ -215,7 +209,7 @@ namespace Managers
 		/// <summary>
 		/// Responsible for managing the convertion and combining of all files
 		/// </summary>
-		public async void ConvertFiles()
+		public async Task ConvertFiles()
 		{
 			int maxThreads = GlobalVariables.maxThreads;
 			Dictionary<string, List<FileInfo2>> mergingFiles = new Dictionary<string, List<FileInfo2>>();
@@ -285,7 +279,7 @@ namespace Managers
 		}
 
 		/// <summary>
-		/// Initialises the working set with files to be converted based on settings
+		/// Initialises the working set with files to be converted based on ConversionSettings
 		/// </summary>
 		/// <param name="ws">Working set to add files to</param>
 		/// <param name="mf">Files that should be combined</param>

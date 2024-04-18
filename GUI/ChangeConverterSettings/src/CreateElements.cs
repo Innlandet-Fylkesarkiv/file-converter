@@ -17,6 +17,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.LogicalTree;
 using System.Globalization;
 using Avalonia.Input;
+using FileConverter.HelperClasses;
 public class CreateElements
 {
     private readonly MainWindow mainWindow;
@@ -116,8 +117,8 @@ public class CreateElements
         formatDropDown.Items.Add(fileSettings.FormatName);
         ComponentLists.outputTracker.Add(fileSettings.FormatName, (fileSettings.DefaultType, isChecked));
         formatDropDown.SelectedIndex = 0;
-
     }
+
     /// <summary>
     /// Finds the last row in the grid
     /// </summary>
@@ -230,7 +231,6 @@ public class CreateElements
         }
         if (selected.ToString() == "Default")
         {
-
             index = GlobalVariables.FileSettings.FindIndex(x => x.ClassName == textBlock.Text);
             for (int i = 0; i < comboBox.Items.Count; i++)
             {
@@ -246,19 +246,13 @@ public class CreateElements
 
             GlobalVariables.FileSettings[index].DoNotConvert = !GlobalVariables.FileSettings[index].DoNotConvert;
         }
-            
-
- 
     }
-
-
 
     /// <summary>
     /// When the selection of the ComboBox is changed, the output tracker is updated and the widths are recalculated
     /// </summary>
     /// <param name="sender"> The ComboBox being changed </param>
     /// <param name="e"> provides data about whats being changed, such as what it was before the change </param>
-
     private void FormatDropDown_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         string previousSelection = "";
@@ -325,8 +319,6 @@ public class CreateElements
         int index = mainGrid.Children.IndexOf((TextBox)sender) + 1;
         TextBox? readOnlyTextBox = (TextBox)mainGrid.Children[index];
         if (!String.IsNullOrEmpty(newText) && readOnlyTextBox != null)
-            readOnlyTextBox.Text = PronomHelper.PronomToFullName(newText);
-         
+            readOnlyTextBox.Text = PronomHelper.PronomToFullName(newText);   
     }
 }
-

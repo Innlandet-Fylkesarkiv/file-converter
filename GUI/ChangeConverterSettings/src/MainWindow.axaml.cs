@@ -17,7 +17,6 @@ using Avalonia.Threading;
 using System.Linq;
 using Avalonia.Controls.Shapes;
 
-
 namespace ChangeConverterSettings
 {
     /// <summary>
@@ -36,7 +35,8 @@ namespace ChangeConverterSettings
         public static string? requester = null;
         public static string? converter = null;
         public static string? timeout = null;
-        public static string? maxFileSize = (1*1024).ToString();
+        public static string? maxFileSize = (1 * 1024).ToString();
+
         public static string defaultText = "Default";
         public static List<string> supportedHashes = new List<string> { "MD5", "SHA256" };
         public static string defaultSettingsPath = "../Settings.xml";
@@ -63,9 +63,9 @@ namespace ChangeConverterSettings
         /// </summary>
         public MainWindow()
         {
-            while (!File.Exists("Settings.xml") && Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()) != Directory.GetCurrentDirectory())
+            while (!File.Exists("ConversionSettings.xml") && Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()) != Directory.GetCurrentDirectory())
                 Directory.SetCurrentDirectory("../");
-            GlobalVariables.defaultSettingsPath = Directory.GetCurrentDirectory() + "/Settings.xml";
+            GlobalVariables.defaultSettingsPath = Directory.GetCurrentDirectory() + "/ConversionSettings.xml";
             InitializeComponent();
             Settings settings = Settings.Instance;
             settings.ReadAllSettings(GlobalVariables.defaultSettingsPath);
@@ -73,7 +73,7 @@ namespace ChangeConverterSettings
             Console.WriteLine(GlobalVariables.FileSettings);
             FolderOverride folderOverride = new FolderOverride(this);
             folderOverride.WriteFolderOverrideToScreen();
-            folderOverride.SetUpInnerGrid();
+            folderOverride.SetUpInnerGrid("");
         }
 
         /// <summary>
@@ -108,8 +108,7 @@ namespace ChangeConverterSettings
                 }
             }
             folderOverride.WriteFolderOverrideToScreen();
-            folderOverride.SetUpInnerGrid();
-
+            folderOverride.SetUpInnerGrid("");
         }
 
         /// <summary>
@@ -144,6 +143,8 @@ namespace ChangeConverterSettings
             TextBox? threadsTextBox = this.FindControl<TextBox>("MaxThreads");
             if (threadsTextBox != null && int.TryParse(threadsTextBox.Text, out _))
                 GlobalVariables.maxThreads = int.Parse(threadsTextBox.Text);
+            else if (threadsTextBox != null && String.IsNullOrEmpty(threadsTextBox.Text))
+                GlobalVariables.maxThreads = null;
             ComboBox? checksumComboBox = this.FindControl<ComboBox>("Checksum");
             if (checksumComboBox != null && checksumComboBox.SelectedItem != null)
                 GlobalVariables.checksumHash = checksumComboBox.SelectedItem.ToString();
@@ -157,6 +158,9 @@ namespace ChangeConverterSettings
                 {
                     fileSize = fileSize * 1024 * 1024;
                     GlobalVariables.maxFileSize = fileSize.ToString();
+                } else
+                {
+                    GlobalVariables.maxFileSize = "";
                 }
             }
 
@@ -228,9 +232,6 @@ namespace ChangeConverterSettings
             {
                 maxFileSizeTextBox.Text = GlobalVariables.maxFileSize;
             }
-
-
-
 
             // Fills the checksum ComboBox with values from the settings file
             ComboBox? checksumComboBox = this.FindControl<ComboBox>("Checksum");

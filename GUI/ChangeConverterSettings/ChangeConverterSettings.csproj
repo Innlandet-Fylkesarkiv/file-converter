@@ -27,6 +27,6 @@
 
 
   <ItemGroup>
-    <Content Include="..\..\Settings.xml" Link="Settings.xml" />
+    <Content Include="..\..\ConversionSettings.xml" Link="ConversionSettings.xml" />
   </ItemGroup>
 </Project>

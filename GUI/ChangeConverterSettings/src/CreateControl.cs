@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls.Shapes;
 
-
 public static class CreateControl
 {
     /// <summary>
@@ -115,6 +114,11 @@ public static class CreateControl
         };
     }
 
+    /// <summary>
+    /// Creates a CheckBox
+    /// </summary>
+    /// <param name="text"> title above the textbox </param>
+    /// <returns></returns>
     public static CheckBox CreateCheckBox(string text)
     {
         return new CheckBox
@@ -126,4 +130,3 @@ public static class CreateControl
         };
     }
 }
-

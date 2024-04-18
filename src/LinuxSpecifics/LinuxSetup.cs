@@ -1,3 +1,4 @@
+
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Diagnostics;
 using iText.Commons.Utils;
 using iText.Kernel.Pdf;
 
-namespace LinuxSpecifics
+namespace FileConverter.LinuxSpecifics
 {
     class LinuxSetup
     {

@@ -1,12 +1,10 @@
 ﻿using ConversionTools;
 using SharpCompress;
 using System.Collections.Concurrent;
-using HelperClasses.FileInfo2;
-using HelperClasses.PrintHelper;
-using HelperClasses.PronomHelper;
-using HelperClasses.Logger;
+using FileConverter.HelperClasses;
+using SF = FileConverter.Siegfried;
 
-namespace Managers
+namespace FileConverter.Managers
 {
     public class FileManager
     {
@@ -53,11 +51,11 @@ namespace Managers
         {
             lock (identifyingFiles)
             {
-                Siegfried sf = Siegfried.Instance;
+                SF.Siegfried sf2 = SF.Siegfried.Instance;
                 Logger logger = Logger.Instance;
                 //TODO: Can maybe run both individually and compressed files at the same time
                 //Identifying all uncompressed files
-                List<FileInfo2>? files = sf.IdentifyFilesIndividually(GlobalVariables.parsedOptions.Input)!.Result; //Search for files in output folder since they are copied there from input folder
+                List<FileInfo2>? files = sf2.IdentifyFilesIndividually(GlobalVariables.parsedOptions.Input)!.Result; //Search for files in output folder since they are copied there from input folder
                 if (files != null)
                 {
                     //TODO: Should be more robust
@@ -77,7 +75,7 @@ namespace Managers
                 }
 
                 //Identifying all compressed files
-                List<FileInfo2>? compressedFiles = sf.IdentifyCompressedFilesJSON(GlobalVariables.parsedOptions.Input)!;
+                List<FileInfo2>? compressedFiles = sf2.IdentifyCompressedFilesJSON(GlobalVariables.parsedOptions.Input)!;
 
                 foreach (var file in compressedFiles)
                 {
@@ -276,7 +274,7 @@ namespace Managers
                     .Count(x => Path.GetFileNameWithoutExtension(x.FilePath) == Path.GetFileNameWithoutExtension(f.FilePath)) == 1); //TODO: Should check if the files are in the same directory
             });
             //Remove the keys that have no values
-            filteredFiles.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value);
+            _ = filteredFiles.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value);
         }
 
         /// <summary>
@@ -380,7 +378,7 @@ namespace Managers
             foreach (FileInfo2 file in Files.Values)
             {
                 //Skip files that should be merged or should not be displayed
-                if (Settings.ShouldMerge(file))
+                if (ConversionSettings.ShouldMerge(file))
                 {
                     continue;
                 }
@@ -390,7 +388,7 @@ namespace Managers
                 }
 
                 string currentPronom = file.NewPronom != "" ? file.NewPronom : file.OriginalPronom;
-                string? targetPronom = Settings.GetTargetPronom(file);
+                string? targetPronom = ConversionSettings.GetTargetPronom(file);
                 bool supported = false;
 
                 if (file.OriginalPronom == "fmt/523" || file.OriginalPronom == "fmt/487" || file.OriginalPronom == "fmt/445")
@@ -475,7 +473,7 @@ namespace Managers
             //Sort list
             switch (GlobalVariables.SortBy)
             {
-                //Sort by the count of files with the same settings
+                //Sort by the count of files with the same ConversionSettings
                 //TODO: Ask archive if they want the not set and not supported files to be at the bottom or in between the other files
                 case PrintSortBy.Count:
                     formatList = formatList.OrderBy(x => x.TargetPronom == notSetString || x.TargetFormatName.Contains(notSupportedString))

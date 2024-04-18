@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.DirectoryServices.AccountManagement;
 
-namespace HelperClasses.Logger
+namespace FileConverter.HelperClasses
 {
-	public class Logger
+    public class Logger
 	{
 		private static Logger? instance;
 		private static readonly object LockObject = new object();
@@ -33,7 +33,7 @@ namespace HelperClasses.Logger
 		}
 
 		/// <summary>
-		/// Data for the documentation file when a file is supported and target PRONOM is set in settings
+		/// Data for the documentation file when a file is supported and target PRONOM is set in ConversionSettings
 		/// </summary>
 		public class JsonData
 		{
@@ -51,7 +51,7 @@ namespace HelperClasses.Logger
 		}
 
 		/// <summary>
-		/// Class that holds the data for files that are not set in settings
+		/// Class that holds the data for files that are not set in ConversionSettings
 		/// </summary>
 		public class JsonDataOutputNotSet
 		{
@@ -100,10 +100,10 @@ namespace HelperClasses.Logger
 			string path = Path.Combine(currentDirectory, "logs");
 			switch (GlobalVariables.checksumHash)
 			{
-				case FileInfo2.HashAlgorithms.SHA256:
+				case HashAlgorithms.SHA256:
 					JsonRoot.Hashing = "SHA256";
 					break;
-				case FileInfo2.HashAlgorithms.MD5:
+				case HashAlgorithms.MD5:
 					JsonRoot.Hashing = "MD5";
 					break;
 			}
@@ -186,7 +186,7 @@ namespace HelperClasses.Logger
 		/// Sets up how the final documentation file should be printed
 		/// </summary>
 		/// <param name="files"> list containing fileinfo about all files </param>
-		public void SetUpDocumentation(List<FileInfo2.FileInfo2> files)
+		public void SetUpDocumentation(List<FileInfo2> files)
 		{
 			//TODO: Comment: Maybe find better place to put the file and set docPath earlier
 			string path = GlobalVariables.parsedOptions.Output + "/";
@@ -195,7 +195,7 @@ namespace HelperClasses.Logger
 			{
 				outputFile.WriteAsync("\n");
 			}
-			foreach (FileInfo2.FileInfo2 file in files)
+			foreach (FileInfo2 file in files)
 			{
 				if (file.ShouldMerge)
 				{
@@ -239,7 +239,7 @@ namespace HelperClasses.Logger
 						OriginalPronom = file.OriginalPronom,
 						OriginalChecksum = file.OriginalChecksum,
 						OriginalSize = file.OriginalSize,
-						TargetPronom = Settings.GetTargetPronom(file)
+						TargetPronom = ConversionSettings.GetTargetPronom(file)
 					};
 					JsonNotSupportedFiles.Add(jsonData);
 				}
@@ -262,7 +262,7 @@ namespace HelperClasses.Logger
 						OriginalPronom = file.OriginalPronom,
 						OriginalChecksum = file.OriginalChecksum,
 						OriginalSize = file.OriginalSize,
-						TargetPronom = Settings.GetTargetPronom(file),
+						TargetPronom = ConversionSettings.GetTargetPronom(file),
 						NewPronom = file.NewPronom,
 						NewChecksum = file.NewChecksum,
 						NewSize = file.NewSize,
@@ -305,7 +305,7 @@ namespace HelperClasses.Logger
 		}
 
 		/// <summary>
-		/// Asks the user about the requester and converter if they are not set in the settings
+		/// Asks the user about the requester and converter if they are not set in the ConversionSettings
 		/// </summary>
 		public void AskAboutReqAndConv()
 		{
@@ -318,7 +318,7 @@ namespace HelperClasses.Logger
 				}
 				if (!GlobalVariables.parsedOptions.AcceptAll)
 				{
-					Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as requester in the documentation? (Y/N)", requester);
+					Console.WriteLine("No data found in ConversionSettings and username '{0}' was detected, do you want to set it as requester in the documentation? (Y/N)", requester);
 					var response = GlobalVariables.parsedOptions.AcceptAll ? "Y" : Console.ReadLine()!;
 					if (response.ToUpper() == "Y")
 					{
@@ -345,7 +345,7 @@ namespace HelperClasses.Logger
 				}
 				if (!GlobalVariables.parsedOptions.AcceptAll)
 				{
-					Console.WriteLine("No data found in settings and username '{0}' was detected, do you want to set it as converter in the documentation? (Y/N)", converter);
+					Console.WriteLine("No data found in ConversionSettings and username '{0}' was detected, do you want to set it as converter in the documentation? (Y/N)", converter);
 					var response = Console.ReadLine()!;
 					if (response.ToUpper() == "Y")
 					{

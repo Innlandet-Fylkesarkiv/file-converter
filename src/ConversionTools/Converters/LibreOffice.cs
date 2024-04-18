@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
-using Managers;
-using HelperClasses.Logger;
+using FileConverter.Managers;
+using FileConverter.HelperClasses;
+
 
 /// <summary>
 /// Libreoffice supports the following conversions for both Linux and Windows:
@@ -21,7 +22,7 @@ using HelperClasses.Logger;
 /// 
 namespace ConversionTools.Converters
 {
-	public class LibreOfficeConverter : Converter
+    public class LibreOfficeConverter : Converter
 	{
 		readonly Logger log = Logger.Instance;
 		private static readonly object locker = new object();
