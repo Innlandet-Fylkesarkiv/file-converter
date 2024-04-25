@@ -1,0 +1,285 @@
+﻿<root>
+	<Requester>Larsarn</Requester>  <!-- Who Requests the conversion-->
+	<Converter>Larsern</Converter>  <!-- Person executing the conversion-->
+	<InputFolder>input</InputFolder> 
+	<OutputFolder>output</OutputFolder>
+	<MaxThreads></MaxThreads>	    <!-- Higher number of threads = faster execution, but takes more of the computers resources-->
+									<!-- Default is number of CPU threads times 2 -->
+	<ChecksumHashing>SHA256</ChecksumHashing> <!-- Hashing algorithm for the checksum options are: MD5 and SHA256 -->
+	<Timeout></Timeout>				<!-- Minutes before conversion is stopped for each file-->
+
+	<!-- When converting to XLSX only fmt/214 is supported 
+         When converting to ODS only fmt/1755 is supported
+		 When converting to PDF only fmt/477 is supported for Windows and fmt/20 for Linux
+	-->
+	<FileClass>
+		<ClassName>EXCEL</ClassName>
+		<Default>fmt/477</Default>   <!-- Default format to convert to for all Excel documents, can be overridden by providing-->
+		<FileTypes>					 <!-- a defualt pronom for specific format (see xls for example)-->
+			<Filename>csv</Filename>
+			<Pronoms>x-fmt/18</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>xls</Filename>
+			<Pronoms>fmt/55, fmt/56, fmt/57, fmt/61, fmt/62, fmt/59</Pronoms>
+			<Default> fmt/214</Default> <!-- xls will now be converted to XLSX-->
+		</FileTypes>
+		<FileTypes>
+			<Filename>xlsm</Filename>
+			<Pronoms>fmt/445</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>xlsx</Filename>
+			<Pronoms>fmt/214, fmt/1828</Pronoms>
+			<Default> fmt/1755</Default>           <!-- xslx will now be converted to ODS -->
+		</FileTypes>
+	</FileClass>
+	<FileClass>
+		<ClassName>Hypertext Markup Language</ClassName>
+		<Default>fmt/15</Default>
+		<FileTypes>
+			<Filename>HTML</Filename>
+			<Pronoms>fmt/103, fmt/102, fmt/96, fmt/97, fmt/98, fmt/99, fmt/100, fmt/471</Pronoms>
+			<Default />
+		</FileTypes>
+	</FileClass>
+	<FileClass>
+		<ClassName>images</ClassName>
+		<Default>fmt/477</Default>
+		<FileTypes>
+			<Filename>gif</Filename>
+			<Pronoms>fmt/3, fmt/4</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>jpg</Filename>
+			<Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398, x-fmt/390, x-fmt/391, fmt/645, fmt/1507, fmt/112, fmt/367</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>png</Filename>
+			<Pronoms>fmt/11, fmt/12, fmt/13, fmt/935</Pronoms>
+			<Default />
+		</FileTypes>
+	</FileClass>
+	<!--   When converting to XLSX only fmt/214 is supported 
+	       When converting to DOCX only fmt/412 is supported
+		   When converting to PPTX only fmt/215 is supported
+		   When converting to PDF only fmt/477 is supported for Windows and fmt/20 for Linux
+	-->
+	<FileClass>
+		<ClassName>Open Document</ClassName>
+		<Default>fmt/477</Default> 
+		<FileTypes>
+			<Filename>ODP</Filename>
+			<Pronoms>fmt/1754, fmt/138, fmt/292, fmt/293</Pronoms>
+			<Default>fmt/215</Default> <!-- ODP will now be converter to PPTX -->
+		</FileTypes>
+		<FileTypes>
+			<Filename>ODS</Filename>
+			<Pronoms>fmt/1755, fmt/137, fmt/294, fmt/295</Pronoms>
+			<Default>fmt/214</Default> <!-- ODS will now be converterd to XLSX-->
+		</FileTypes>
+		<FileTypes>
+			<Filename>ODT</Filename>
+			<Pronoms>x-fmt/3, fmt/1756, fmt/136, fmt/290, fmt/291</Pronoms>
+			<Default>fmt/214</Default> <!-- ODT will now be converterd to DOCX-->
+		</FileTypes>
+	</FileClass>
+	<FileClass>
+		<ClassName>pdf</ClassName>
+		<Default>fmt/477</Default>
+		<FileTypes>
+			<Filename>pdf 1.0</Filename>
+			<Pronoms>fmt/14</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf 1.1</Filename>
+			<Pronoms>fmt/15</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf 1.2</Filename>
+			<Pronoms>fmt/16</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf 1.3</Filename>
+			<Pronoms>fmt/17</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf 1.4</Filename>
+			<Pronoms>fmt/18</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf 1.5</Filename>
+			<Pronoms>fmt/19</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf 1.6</Filename>
+			<Pronoms>fmt/20</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf 1.7</Filename>
+			<Pronoms>fmt/276</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf 2.0</Filename>
+			<Pronoms>fmt/1129</Pronoms>
+			<Default />
+		</FileTypes>
+	</FileClass>
+	<FileClass>
+		<ClassName>pdf/A</ClassName>
+		<Default>fmt/477</Default>
+		<FileTypes>
+			<Filename>pdf/A-1a</Filename>
+			<Pronoms>fmt/95</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf/A-1b</Filename>
+			<Pronoms>fmt/354</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf/A-2a</Filename>
+			<Pronoms>fmt/476</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf/A-2b</Filename>
+			<Pronoms>fmt/477</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf/A-2u</Filename>
+			<Pronoms>fmt/478</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf/A-3a</Filename>
+			<Pronoms>fmt/479</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pdf/A-3b</Filename>
+			<Pronoms>fmt/480</Pronoms>
+			<Default />
+		</FileTypes>
+	</FileClass>
+	<FileClass>
+		<ClassName>PostScript</ClassName>
+		<Default>fmt/15</Default>
+		<FileTypes>
+			<Filename>ps</Filename>
+			<Pronoms>fmt/124, x-fmt/91, x-fmt/406, x-fmt/407, x-fmt/408, fmt/501</Pronoms>
+			<Default />
+		</FileTypes>
+	</FileClass>
+
+	<!--   When converting to PPTX only fmt/215 is supported 
+	       When converting to ODP only fmt/1754 is supported
+		   When converting to PDF only fmt/477 is supported for Windows and fmt/20 for Linux
+	 -->
+	<FileClass>
+		<ClassName>PowerPoint</ClassName>
+		<Default>fmt/477</Default>
+		<FileTypes>
+			<Filename>ppt</Filename>
+			<Pronoms>fmt/1537, fmt/1866, fmt/181, fmt/1867, fmt/179, fmt/1747, fmt/1748, x-fmt/88, fmt/125, fmt/126, </Pronoms>
+			<Default> fmt/215</Default> <!-- PPT will now be converted to PPTX-->
+		</FileTypes>
+		<FileTypes>
+			<Filename>pptm</Filename>
+			<Pronoms>fmt/487</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>pptx</Filename>
+			<Pronoms>fmt/215, fmt/1829, fmt/494</Pronoms>
+			<Default>fmt/1754</Default> <!-- PPTX will now be converted to ODP-->
+		</FileTypes>
+	</FileClass>
+	<FileClass>
+		<ClassName>Rich Text Format</ClassName>
+		<Default>fmt/477</Default>
+		<FileTypes>
+			<Filename>RTF</Filename>
+			<Pronoms>fmt/969, fmt/45, fmt/50, fmt/52, fmt/53, fmt/355</Pronoms>
+			<Default />
+		</FileTypes>
+	</FileClass>
+
+	<!-- When converting to ODT only fmt/1756 is supported 
+	     When converting to DOCX only fmt/412 is supported
+		 When converting to PDF only fmt/477 is supported for Windows and fmt/20 for Linux
+	-->
+	<FileClass>
+		<ClassName>Word</ClassName>
+		<Default>fmt/477</Default>
+		<FileTypes>
+			<Filename>doc</Filename>
+			<Pronoms>x-fmt/329, fmt/609, fmt/39, x-fmt/274, x-fmt/275, x-fmt/276, fmt/1688, fmt/37, fmt/38, fmt/1282, fmt/1283, x-fmt/131, x-fmt/42, x-fmt/43, fmt/40, x-fmt/44, x-fmt/393, x-fmt/394, fmt/892</Pronoms>
+			<Default> fmt/1756</Default> <!-- DOC will now be converted to ODT-->
+		</FileTypes>
+		<FileTypes>
+			<Filename>docm</Filename>
+			<Pronoms>fmt/523</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>docx</Filename>
+			<Pronoms>fmt/473, fmt/1827, fmt/412</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>dot</Filename>
+			<Pronoms>x-fmt/45, fmt/755</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>dotm</Filename>
+			<Pronoms>fmt/599</Pronoms>
+			<Default />
+		</FileTypes>
+		<FileTypes>
+			<Filename>dotx</Filename>
+			<Pronoms>fmt/597</Pronoms>
+			<Default />
+		</FileTypes>
+	</FileClass>
+	
+	<FileClass>
+		<ClassName>Mail</ClassName>
+		<Default>fmt/477</Default>
+		<FileTypes>
+			<Filename>eml</Filename>
+			<Pronoms>fmt/278, fmt/950</Pronoms>
+			<Default></Default>
+		</FileTypes>
+		<FileTypes>
+			<Filename>msg</Filename>
+			<Pronoms>x-fmt/430, fmt/1144</Pronoms>
+			<Default></Default>
+		</FileTypes>
+
+
+	</FileClass>
+	<FolderOverride>
+		<FolderPath>apekatter\noeKult</FolderPath>
+		<!-- Path relative to input folder example: documents/word -->
+		<Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398</Pronoms>
+		<ConvertTo>fmt/14</ConvertTo>
+		<MergeImages>Yes</MergeImages>
+		<!-- Yes, No -->
+	</FolderOverride>
+</root>
