@@ -79,7 +79,7 @@ public class FolderOverride
         Grid.SetRow(innerGrid, index);
         mainGrid.Children.Add(innerGrid);
 
-        TextBlock folderName = CreateControl.CreateTextBlock("");
+        TextBlock folderName = CreateControl.CreateTextBlock(foldername);
         folderName.Name = "FolderName" + index;
         Grid.SetColumn(innerGrid, innerGrid.Children.Count);
         innerGrid.Children.Add(folderName);

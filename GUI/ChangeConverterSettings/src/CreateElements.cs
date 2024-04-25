@@ -189,6 +189,12 @@ public class CreateElements
         var readOnlyTextBox = (TextBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 3];
         var doNotConvertCheckBox = (CheckBox)grid.Children[rowIndex * grid.ColumnDefinitions.Count + 4];
 
+        if (textBlock.Text == null || textBox.Text == null || doNotConvertCheckBox.IsChecked == null)
+        {
+            Logger.Instance.SetUpRunTimeLogMessage("missing elements", true);
+            return;
+        }
+
         string newType = textBox.Text.Trim();
         bool isChecked = (bool)doNotConvertCheckBox.IsChecked;
         var newPair = (newType, isChecked);
@@ -216,6 +222,11 @@ public class CreateElements
     private static void DoNotConvertCheckBox_Checked(object sender, RoutedEventArgs e)
     {
         CheckBox? checkBox = (CheckBox)sender;
+        if (checkBox.Parent == null)
+        {
+            Logger.Instance.SetUpRunTimeLogMessage("MainGrid is null", true);
+            return;
+        }
         Grid? mainGrid = (Grid)checkBox.Parent;
         int rowIndex = Grid.GetRow(checkBox);
         var textBlock = (TextBlock)mainGrid.Children[rowIndex * mainGrid.ColumnDefinitions.Count];
