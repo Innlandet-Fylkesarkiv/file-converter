@@ -22,23 +22,96 @@
       "properties": {
         "ConvertedFiles": {
           "type": "array",
-          "items": { "$ref": "#/definitions/FileItem" }
+          "items": {
+            "$ref": "#/definitions/SharedFileItem",
+            "properties": {
+              "NewPronom": {
+                "type": "string"
+              },
+              "NewChecksum": {
+                "type": "string"
+              },
+              "NewSize": {
+                "type": "integer"
+              },
+              "Converter": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "IsConverted": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "NewPronom",
+              "NewChecksum",
+              "NewSize",
+              "Converter",
+              "IsConverted"
+            ]
+          }
         },
         "NotSupported": {
           "type": "array",
-          "items": { "$ref": "#/definitions/FileItem" }
+          "items": {
+            "$ref": "#/definitions/SharedFileItem",
+            "properties": {
+              "TargetPronom": {
+                "type": "string"
+              }
+            },
+            "required": ["TargetPronom"]
+          }
         },
         "OutputNotSet": {
           "type": "array",
-          "items": { "$ref": "#/definitions/FileItem" }
-        }
+          "items": { "$ref": "#/definitions/SharedFileItem" }
+        },
+        "MergedFiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "Filename": {
+                "type": "string"
+              },
+              "Pronom": {
+                "type": "string"
+              },
+              "Checksum": {
+                "type": "string"
+              },
+              "Size": {
+                "type": "integer
+                },
+              "Tool": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "ShouldMerge": {
+                "type": "boolean"
+              },
+              "IsMerged": { 
+                "type": "boolean"
+              },
+              "MergedTo": {
+                "type": "string"
+              }
+            },
+            "required": ["Filename", "Pronom", "Checksum", "Size", "Tool", "ShouldMerge", "IsMerged", "MergedTo"]
+          }
+          }
       },
-      "required": ["ConvertedFiles", "NotSupported", "OutputNotSet"]
+      "required": ["ConvertedFiles", "NotSupported", "OutputNotSet","MergedFiles"]
     }
   },
   "required": ["Metadata", "Files"],
   "definitions": {
-    "FileItem": {
+    "SharedFileItem": {
       "type": "object",
       "properties": {
         "Filename": {
@@ -52,39 +125,14 @@
         },
         "OriginalSize": {
           "type": "integer"
-        },
-        "NewPronom": {
-          "type": ["string", "null"]
-        },
-        "NewChecksum": {
-          "type": ["string", "null"]
-        },
-        "NewSize": {
-          "type": "integer"
-        },
-        "Converter": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "IsConverted": {
-          "type": "boolean"
         }
       },
       "required": [
         "Filename",
         "OriginalPronom",
         "OriginalChecksum",
-        "OriginalSize",
-        "NewPronom",
-        "NewChecksum",
-        "NewSize",
-        "Converter",
-        "IsConverted"
+        "OriginalSize"
       ]
     }
   }
 }
-
-  
