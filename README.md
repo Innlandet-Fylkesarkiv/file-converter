@@ -32,11 +32,11 @@ This application provides a framework for different conversion libraries/softwar
   - [CLI](#cli)
   - [Arguments](#arguments)
   - [GUI](#gui)
-  - [ConversionSettings](#ConversionSettings)
+  - [Settings](#settings)
   - [Currently supported file formats](#currently-supported-file-formats)
   - [Documentation and logging](#documentation-and-logging)
-  - [Adding a new converter or conversion path](#adding-a-new-converter-or-conversion-path)
-- [Use cases](#use-cases)
+  - [Adding a new converter](#adding-a-new-converter)
+  - [Adding a new conversion path (Multistep conversion)](#adding-a-new-conversion-path-multistep-conversion)
 - [Further Development](#further-development)
 - [Acknowledgments](#-acknowledgments)
 - [Contributing](#-contributing)
@@ -48,7 +48,7 @@ This project is part of a collaboration with **[Innlandet County Archive](https:
 
 In Norway, the act of archiving is regulated by the Archives Act, which states that public bodies have a duty to register and preserve documents that are created as part of their activity [^1]. As society is becoming more digitized so is information, and the documents that were previously physical and stored physically are now digital and stored digitally. Innlandet County Archive is an inter-municipal archive cooperation, that registers and preserves documents from 48 municipalities. However, not all file types they receive are suitable for archiving as they run a risk of becoming obsolete. (For further reading see: [Obsolescence: File Formats and Software](https://dpworkshop.org/dpm-eng/oldmedia/obsolescence1.html)) Innlandet County Archive wished to streamline its conversion process into one application that could deal with a vast array of file formats. Furthermore, archiving is based on the principles of accessibility, accountability and integrity, which is why this application also provides documentation of all changes made to files.
 
-Much like programmers and software developers, archivists believe in an open source world. Therefore it would only be right for this program to be open source. 
+Much like programmers and software developers, archivists believe in an open-source world. Therefore it would only be right for this program to be open source. 
 
 [^1]: Kultur- og likestillingsdepartementet. *Lov om arkiv [arkivlova].* URL: https://lovdata.no/dokument/NL/lov/1992-12-04-126?q=arkivloven (visited on 17th Jan. 2024).
 
@@ -196,11 +196,11 @@ The program is mostly tested in Windows, so Linux specific issues may not appear
   	- Office conversion using LibreOffice does not work correctly
   
 ## CLI
-Cover options and common usage
+To run in CLI navigate to the path of the executable in the terminal and run:
 ```
-$ cd C:\PathToFolder\bin\Debug\net8.0
-$ .\file-converter-prog2900.exe 
+$ .\file-converter-prog2900.exe
 ```
+Alternatively, one can run the program using ```dotnet run```
 
 ## Arguments
 > [!NOTE]
@@ -221,10 +221,10 @@ $ .\example --output "C:\Users\user\Downloads
 ```
 
 ### Set custom settings file 
-<br>Default: *ConversionSettings.xml*
+<br>Default: *Settings.xml*
 ```
-$ .\example -s "C:\Users\user\custom_ConversionSettings.xml"
-$ .\example --settings "C:\Users\user\custom_ConversionSettings.xml"
+$ .\example -s "C:\Users\user\custom_Settings.xml"
+$ .\example --settings "C:\Users\user\custom_Settings.xml"
 ```
 
 ### Accept all queries in CLI
@@ -236,14 +236,14 @@ $ .\example --yes
 ## GUI
 ![gui](https://github.com/larsmhaugland/file-converter/assets/117298604/0fd96cea-d84c-4b83-91b6-737c74ba8baf)
 <div align="center">
-	<i>GUI-version of ConversionSettings</i>
+	<i>GUI-version of settings</i>
 	<br>
 </div>
 
-The GUI provides a more user-friendly way of editing the ConversionSettings of the application (see [ConversionSettings](#ConversionSettings) for further information). Here one can set all the metadata for running the program and set what PRONOM files should be converted to. A formats ```Default``` PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
+The GUI provides a more user-friendly way of editing the settings of the application (see [Settings](#settings) for further information). Here one can set all the metadata for running the program and what PRONOM files should be converted to. A formats ```Default``` PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
 
-## ConversionSettings
-ConversionSettings can be manually set in an ```xml``` file.
+## Settings
+Settings can be manually set in an ```xml``` file.
 
 ### Setting run time arguments
 ```xml  
@@ -258,10 +258,10 @@ ConversionSettings can be manually set in an ```xml``` file.
 ```
 
 The first part of the XML file concerns arguments needed to run the program. The second part allows you to set up two things:
-1. Global ConversionSettings stating that file format ```x``` should be converted to file format ```y```.
-2. Folder ConversionSettings stating that file format ```x``` should be converted to file format ```y``` in the specific folder ```folder```.
+1. Global Settings stating that file format ```x``` should be converted to file format ```y```.
+2. Folder Settings stating that file format ```x``` should be converted to file format ```y``` in the specific folder ```folder```.
 
-### Global ConversionSettings
+### Global Settings
 ```xml
 <FileClass>
     <ClassName>pdf</ClassName>
@@ -276,7 +276,7 @@ The first part of the XML file concerns arguments needed to run the program. The
 </FileClass>
 ```
 
-### Folder ConversionSettings
+### Folder Settings
 ```xml
 <FolderOverride>
 	<FolderPath>apekatter</FolderPath>      <!-- Path after input folder example: /documents -->
@@ -328,38 +328,95 @@ Additionally, a ```documentation.json``` file is created which lists all files a
     }]}
 ```
 
-## Adding a new converter or conversion path
-Adding new external converters or conversion paths is described in detail in the **[Adding a new converter](https://github.com/larsmhaugland/file-converter/blob/main/addingconverter.md) guide.**
+## Adding a new converter
+All source code for external converters is based on the same parent ```Converter``` class, located in ```\ConversionTools\Converter.cs```.
 
-# Use cases
-Here are the use cases, please reflect and write something down for each use case about how understandable the README/source code was and how manageable it was to do the task.
+**Converter class**
+```csharp
+	public string? Name { get; set; } // Name of the converter
+	public string? Version { get; set; } // Version of the converter
+	public string? NameAndVersion { get; set;}
+	public bool DependenciesExists { get; set;}
+	public Dictionary<string, List<string>>? SupportedConversions { get; set; }
+	public List<string> SupportedOperatingSystems { get; set; } = new List<string>();
 
-Use case tasks:
-+ Add a new conversion path route that converts a document from Word to PDF to PDF-A.
-+ Change the settings, using the ```ConversionSettings.xml``` so that Word documents get converted to PDF-A.
-+ Change the settings, using the GUI, so that Word documents get converted to PDF-A.
-+ Run the program in CLI with the proper options to specify the input and output directory.
-+ Try to combine a set of images into one PDF.
+	public virtual void ConvertFile(string fileinfo, string pronom){ }
+	public virtual void CombineFiles(string []files, string pronom){ }
+```
 
-Questions regarding use cases:
-+ Were there any tasks you weren't able to complete? Was it because of a lack of understanding or due to a bug in the program?
-+ Were there any tasks that you feel could be simplified?
+All fields shown in the code block above **must** be included in the subclass for the new external converter to work properly. If you are adding a *library-based* converter we would suggest having a look at ```iText7.cs``` for examples on how to structure the subclass.
+For external converters where you want to *parse arguments and use an executable in CLI* we would suggest looking at ```GhostScript.cs```.
 
-Questions regarding README:
-+ Was it clear how to download, install and build the program?
-+ Did you encounter any instructions in the README that weren't correct?
-+ Were there any sections you found vague/unhelpful?
-+ Are there some sections you would have liked that weren't here?
+> [!TIP]
+> If you are adding an **executable** file that you want to use it needs to be included in the ```.csproj``` file as such to be loaded properly at runtime:
+>```xml
+><ItemGroup>
+>	<None Update="PathToExecutableFile">
+>	   <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+>	</None>
+></ItemGroup>
+>```
+>This will make the executable file available at the path ```file-converter\bin\Debug\net8.0\PathToExecutableFile```.
+
+All subclasses of ```Converter``` follow the same commenting scheme for consistency and ease when maintaining/debugging the application. It should state that it is a subclass of the ```Converter```class and which conversions it supports. Other functionalities of the converter, such as combining images, can be added after.
+
+**Commenting scheme**
+```csharp
+/// <summary>
+/// iText7 is a subclass of the Converter class.                                                     <br></br>
+///                                                                                                  <br></br>
+/// iText7 supports the following conversions:                                                       <br></br>
+/// - Image (jpg, png, gif, tiff, bmp) to PDF 1.0-2.0                                                <br></br>
+/// - Image (jpg, png, gif, tiff, bmp) to PDF-A 1A-3B                                                <br></br>
+/// - HTML to PDF 1.0-2.0                                                                            <br></br>
+/// - PDF 1.0-2.0 to PDF-A 1A-3B                                                                     <br></br>                                                                          
+///                                                                                                  <br></br>
+/// iText7 can also combine the following file formats into one PDF (1.0-2.0) or PDF-A (1A-3B):      <br></br>
+/// - Image (jpg, png, gif, tiff, bmp)                                                               <br></br>
+///                                                                                                  <br></br>
+/// </summary>
+```
+
+To add the converter to the list of converters, add the line ```converters.Add(new NameOfConverter());``` in the ```AddConverter``` class. Assuming that the source code written for the converter is correct, and the settings are set correctly, the application should now use the new converter for the conversions it supports. 
+```csharp
+    public List<Converter> GetConverters()
+    {
+        List<Converter> converters = new List<Converter>();
+        converters.Add(new iText7());
+        converters.Add(new GhostscriptConverter());
+        converters.Add(new LibreOfficeConverter());
+	/*Add a new converter here!*/
+        var currentOS = Environment.OSVersion.Platform.ToString();
+        converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
+                                  !c.SupportedOperatingSystems.Contains(currentOS));
+        return converters;
+    }
+```
+## Adding a new conversion path (Multistep conversion)
+Multistep conversion means that one can combine the functionality of several converters to convert a file to a file type that would not have been possible if you were using only one of the converters. For example, LibreOffice can convert Word documents to PDF and iText7 can convert PDF documents to PDF-A. Multistep conversion means that the functionalities can be combined so that a Word document can be converted to a PDF-A document. 
+
+To add a new multistep conversion you need to add a route in the ```initMap``` function in ```ConversionManager.cs``` following this convention:
+
+```csharp
+foreach (string pronom in ListOfPronoms)
+{
+	foreach (string otherpronom in ListOfPronoms)
+	{
+		if (pronom != otherpronom){
+			ConversionMap.Add(new KeyValuePair<string, string>(pronom, otherpronom), [pronom, helppronom , otherpronom]); 
+	}}
+```
+```pronom``` is the pronom you want to convert from, while ```otherpronom``` is the pronom you want to convert to. ```ConversionMap``` works as a route so any ```helppronom``` is a stepping stone in that route from ```pronom``` to ```otherpronom```. You can add as many stepping stones as you want but they have to be added in the correct order from left to right.
 
 # Further Development
-The PronomHelper.cs class has a static method ```string PronomToFullName(string pronom)``` to retrieve the full name of file formats based on data in the [British National Archives PRONOM lookup tool](https://www.nationalarchives.gov.uk/PRONOM/Format/proFormatSearch.aspx?status=new). That method was created using a small C++ program. As the British National Archives publish more PRONOM PUIDs that method would need to be updated. The program is located [here](https://github.com/larsmhaugland/PRONOM-helper-creator), see the README in that repo for usage.
+The ```PronomHelper.cs``` class has a static method ```string PronomToFullName(string pronom)``` to retrieve the full name of file formats based on data in the [British National Archives PRONOM lookup tool](https://www.nationalarchives.gov.uk/PRONOM/Format/proFormatSearch.aspx?status=new). The method was created using a small C++ program. As the British National Archives publishes more PRONOM PUIDs the method must be updated. The program is located [here](https://github.com/larsmhaugland/PRONOM-helper-creator), see the README in the repo for usage.
 
 # 🌟 Acknowledgments
 Our application makes use of several **external libraries and software** under their respective licenses, for further information see [External libraries and software](#external-libraries-and-software).
 <br><br>
 We would like to thank the **[Innlandet County Archive](https://www.visarkiv.no/)** for giving us such an interesting task for our bachelor thesis. You have provided clear guidelines and invaluable feedback to us in the beta phase of our application.
 <br><br>
-Our bachelor thesis would also not have been possible without our **[supervisor Giorgio Trumpy](https://www.ntnu.no/ansatte/giorgio.trumpy)**. Thank you for keeping us on track, taking initiative in connecting us with archivists and librarians and for delivering meaningful and constructive feedback.
+Our bachelor thesis would also not have been possible without our **[supervisor Giorgio Trumpy](https://www.ntnu.no/ansatte/giorgio.trumpy)**. Thank you for keeping us on track, taking the initiative to connect us with archivists and librarians and delivering meaningful and constructive feedback.
 
 
 # 🌍 Contributing
