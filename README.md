@@ -65,6 +65,7 @@ Build it using ```mingw32 make``` (For further instructions see: [mingw Tutorial
 make build_win #Build for Windows
 make build_linux #Build for Linux (not stable, use Windows build)
 ```
+The resulting binaries will be located in a new "Windows" or "Linux" directory.
 
 > [!WARNING]
 > If you want to build using ```dotnet build``` or an IDE you need to build **both** ```file-converter-prog2900.csproj``` and ```GUI/ChangeConverterSettings/ChangeConverterSettings.csproj```.
