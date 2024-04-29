@@ -1,8 +1,8 @@
 # Project details
 MAINPROJ = file-converter-prog2900.csproj
-GUIPROJ = GUI\ChangeConverterConversionSettings\ChangeConverterConversionSettings.csproj
+GUIPROJ = GUI\ChangeConverterSettings\ChangeConverterSettings.csproj
 MAINPROJ_SLN = file-converter-prog2900.sln
-GUIPROJ_SLN = GUI\ChangeConverterConversionSettings.sln
+GUIPROJ_SLN = GUI\ChangeConverterSettings.sln
 
 WIN_OUTPUT_DIR = Windows
 WIN_OUTPUT_GUI = ../../Windows/GUI
@@ -27,8 +27,8 @@ sign_main:
 	signtool sign /f "Cert.pfx" /fd SHA1 /p prog2900 /t http://timestamp.digicert.com /v "$(LIN_OUTPUT_DIR)\file-converter-prog2900.dll"
 
 sign_GUI:
-	signtool sign /f "Cert.pfx" /fd SHA1 /p prog2900 /t http://timestamp.digicert.com /v "Windows/GUI/ChangeConverterConversionSettings.exe"
-	signtool sign /f "Cert.pfx" /fd SHA1 /p prog2900 /t http://timestamp.digicert.com /v "Linux/GUI/ChangeConverterConversionSettings.dll"
+	signtool sign /f "Cert.pfx" /fd SHA1 /p prog2900 /t http://timestamp.digicert.com /v "Windows/GUI/ChangeConverterSettings.exe"
+	signtool sign /f "Cert.pfx" /fd SHA1 /p prog2900 /t http://timestamp.digicert.com /v "Linux/GUI/ChangeConverterSettings.dll"
 
 build_win:
 	dotnet restore $(MAINPROJ_SLN)

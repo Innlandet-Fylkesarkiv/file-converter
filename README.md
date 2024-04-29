@@ -65,6 +65,7 @@ Build it using ```mingw32 make``` (For further instructions see: [mingw Tutorial
 make build_win #Build for Windows
 make build_linux #Build for Linux (not stable, use Windows build)
 ```
+The resulting binaries will be located in a new "Windows" or "Linux" directory.
 
 > [!WARNING]
 > If you want to build using ```dotnet build``` or an IDE you need to build **both** ```file-converter-prog2900.csproj``` and ```GUI/ChangeConverterSettings/ChangeConverterSettings.csproj```.
@@ -133,10 +134,10 @@ To add it as an environment variable:
 - **[Siegfried](https://www.itforarchivists.com/siegfried/)** under the Apache License 2.0.
 
 ## 🪟 Installation for Windows 
-Download a pre-built binary from the [Releases](https://github.com/larsmhaugland/file-converter/releases) page and unzip to a location in your system.
+Download a pre-built binary from the [Releases](https://github.com/larsmhaugland/file-converter/releases) page and unzip to a location in your system. It is also possible to build your own binaries, (see [Install](#-install))
 
 ## 🐧 Installation for Linux 
-The application can be used for Linux by downloading from source code. (see [Install](#-install))
+Download a pre-built binary from the [Releases](https://github.com/larsmhaugland/file-converter/releases) page and unzip to a location in your system. It is also possible to build your own binaries, (see [Install](#-install))
 
 The application has been tested on the following Linux images:
 - Debian "bookworm" 12
@@ -180,16 +181,8 @@ If you are **not** using one of these distros please see the **[Siegfried GitHub
 ## 🔨 Beta
 Since the program is still in beta, there are some **limitations** or **bugs** in the software. This section will be updated throughout the development process as we fix or find problems.
 The program is mostly tested in Windows, so Linux specific issues may not appear in list. 
-- (Landscape oriented PDF or PDF/A -> PDF/A or other PDF version)
-  	- There is a bug where iText7 doesn't recognize that a document is landscape oriented when converting from PDF->PDF/A. This results in the content of the file being cropped to portrait.
-  	- UPDATE: May be resolved, more testing required.
 - Parsing siegfried data from incomplete run
-  	- The current version of the program cannot successfully recover siegfried data from an incomplete run
-  	  
-- (Compressed files)
-  	- Zip is the only tested format, but .tar .gz .7z and .rar is also supported in the current version. It seems stable, but it is best to double check results.
-- HTML -> PDF
-  	- This conversion does not work, even though the program may think it did based on the output file's pronom. Output file will be empty.
+  	- The current version of the program cannot successfully recover siegfried data from an incomplete run 
 - GUI
   	- Starting GUI from main program will crash the program on Linux
 - Office conversion (Linux)
