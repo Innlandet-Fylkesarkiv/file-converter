@@ -24,3 +24,4 @@
 /GUI/ChangeConverterSettings/bin
 /GUI/ChangeConverterSettings/obj
 /GUI/.vs
+/ConversionSettings.xml
