@@ -1,0 +1,10 @@
+One, or more, dependencies for the email converter are not installed.
+These dependencies include:
+- Java JDK (or JRE)
+	For Debian/Ubuntu: sudo apt-get install default-jre
+	For other distros see: https://www.oracle.com/java/technologies/downloads/ 
+- wkhtmltopdf 
+	See https://wkhtmltopdf.org/downloads.html for download options.
+- MSGConvert
+	For Debian/Ubuntu: sudo apt-get install libemail-outlook-message-perl
+	For other distros see: https://www.matijs.net/software/msgconv/

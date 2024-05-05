@@ -16,12 +16,16 @@ namespace FileConverter.LinuxSpecifics
         //Specific Linux distro
         public static string LinuxDistro = GetLinuxDistro();
         public static string PathRunningProgram = "/bin/bash";
+        bool JavaInstalled = false;
 
         //Map for external converters to check if they are downloaded.
         static Dictionary<List<string>, string> converterArguments = new Dictionary<List<string>, string>()
     {
         {new List<string> { "\"-c \\\" \" + \"gs -version\" + \" \\\"\"", "GPL Ghostscript",  "LinuxSpecifics\\ghostscript.txt"}, "GhostScript"},
-        {new List<string>{"\"-c \\\" \" + \"libreoffice --version\" + \" \\\"\"", "LibreOffice", "LinuxSpecifics\\libreoffice.txt"}, "LibreOffice" }
+        {new List<string>{"\"-c \\\" \" + \"libreoffice --version\" + \" \\\"\"", "LibreOffice", "LinuxSpecifics\\libreoffice.txt"}, "LibreOffice" } ,
+        {new List<string>{ "\"-c \\\" \" + \"javac -version\" + \" \\\"\"", "javac", "LinuxSpecifics\\email.txt"}, "Java JRE"},
+        {new List<string>{ "\"-c \\\" \" + \"java -version\" + \" \\\"\"", "openjdk", "LinuxSpecifics\\email.txt"}, "Java JDE"},
+        {new List<string>{ "\"-c \\\" \" + \"msgconvert --help\" + \" \\\"\"", "msgconvert", "LinuxSpecifics\\email.txt"}, "MSGConvert"}
     };
 
         /// <summary>
@@ -30,6 +34,9 @@ namespace FileConverter.LinuxSpecifics
         public static void Setup()
         {
             Console.WriteLine("Running on Linux");
+            foreach(var converter in converterArguments){
+                checkInstallConverter(converter.Key[0], converter.Key[1], converter.Key[2]);
+            };
             checkInstallSiegfried();
         }
 
@@ -149,6 +156,25 @@ namespace FileConverter.LinuxSpecifics
                         Environment.Exit(0);
                     }
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Checks whether the given converter is installed
+        /// </summary>
+        /// <param name="arguments"> CLI arguments to be run</param>
+        /// <param name="expectedOutput"> Expected output from CLI arguments </param>
+        /// <param name="consoleMessage"> Message to write if converter is not installed </param>
+        private static void checkInstallConverter(string arguments, string expectedOutput, string consoleMessage)
+        {
+            string output = RunProcess(startInfo =>
+            {
+                startInfo.FileName = PathRunningProgram;
+                startInfo.Arguments = $"{arguments} | cat {consoleMessage}";
+            });
+            if (!output.Contains(expectedOutput))
+            {
+                Console.WriteLine(output);
             }
         }
 
