@@ -6,9 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 namespace FileConverter.HelperClasses
 {
-    class PronomHelper
+    static class PronomHelper
     {
-        PronomHelper() { }
         /// <summary>
         /// Returns the full name of a file type from its pronom code <br></br>
         /// Data fetched from https://www.nationalarchives.gov.uk/PRONOM/Format/proFormatSearch.aspx?status=new at 2024-02-21

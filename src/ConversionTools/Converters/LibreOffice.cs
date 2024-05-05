@@ -411,24 +411,11 @@ namespace ConversionTools.Converters
 					// Set the new filename and check if the document was converted correctly
 					file.FilePath = newFileName;
 					string? currPronom = GetPronom(newFileName);
-					if (currPronom == null)
-					{
-						throw new Exception("Could not get pronom for file");
-					}
 					//Convert to another PDF format if LibreOffice's standard output format is not the desired one
-					if (currPronom != pronom && PDFPronoms.Contains(pronom) && iTextFound)
+					if (currPronom != null && currPronom != pronom && PDFPronoms.Contains(pronom) && iTextFound)
 					{
 						file.Route.Add(pronom);
 						pronom = currPronom;    //Override target pronom since the final PDF conversion will be done in iText7
-						/*
-						var converter = new iText7();
-						// Add iText7 to the list of conversion tools
-						var FileInfoMap = ConversionManager.Instance.FileInfoMap;
-						if (FileInfoMap.TryGetValue(file.Id, out var fileInfo) && !fileInfo.ConversionTools.Contains(converter.NameAndVersion))
-						{
-							fileInfo.ConversionTools.Add(converter.NameAndVersion);
-						}
-						converter.convertFromPDFToPDF(file);*/
 					}
 					converted = CheckConversionStatus(newFileName, pronom);
 				} while (!converted && ++count < GlobalVariables.MAX_RETRIES);
