@@ -25,36 +25,18 @@ namespace ConversionTools.Converters
         private static readonly object lockobject = new object();
 
         //NOTE: GhostScript only supports PDF to Image for these specific Image PRONOMs
-        private string _pngPronom = "fmt/12";
-        private string _jpgPronom = "fmt/43";
-        private string _tiffPronom = "fmt/353";
-        private string _bmpPronom = "fmt/116";
 
-        public string BMPPronom
-        {
-            get { return _bmpPronom; }
-            set { _bmpPronom = value; }
-        }
+        public string BMPPronom { get; set; } = "fmt/116";
 
-        public string TIFFPronom
-        {
-            get { return _tiffPronom; }
-            set { _tiffPronom = value; }
-        }
+        public string TIFFPronom { get; set; } = "fmt/353";
 
-        public string JPGPronom
-        {
-            get { return _jpgPronom; }
-            set { _jpgPronom = value; }
-        }
-        public string PNGPronom
-        {
-            get { return _pngPronom; }
-            set { _pngPronom = value; }
-        }
+        public string JPGPronom { get; set; } = "fmt/43";
 
-        public string gsWindowsExecutable = "";
-        public string gsWindowsLibrary = "";
+        public string PNGPronom { get; set; } = "fmt/12";
+
+        public string gsWindowsExecutable { get; set; } = "";
+
+        public string gsWindowsLibrary { get; set; } = "";
         public GhostscriptConverter()
         {
             Name = "Ghostscript";
