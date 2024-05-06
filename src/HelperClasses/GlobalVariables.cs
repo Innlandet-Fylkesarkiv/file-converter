@@ -39,7 +39,7 @@ namespace FileConverter.HelperClasses
             FolderOverride.Clear();
             //Set to default values (will be overwritten in ConversionSettings.cs if specified by user)
             ChecksumHash = HashAlgorithms.SHA256;
-            maxThreads = Environment.ProcessorCount * 2;
+            MaxThreads = Environment.ProcessorCount * 2;
             timeout = 5;
         }
     }
