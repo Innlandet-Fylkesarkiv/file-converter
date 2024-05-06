@@ -427,22 +427,6 @@ namespace FileConverter.Managers
 			}
 		}
 
-		public bool ExecuteWithTimeout(Action action, TimeSpan timeout)
-		{
-			// Create a task to execute the action
-			var task = Task.Run(action);
-
-			// Wait for the task with a timeout
-			if (!task.Wait(timeout))
-			{
-				// Handle timeout (task did not complete within the specified time)
-				Logger.Instance.SetUpRunTimeLogMessage("Operation timed out", true);
-
-				return false;
-			}
-			return true;
-		}
-
 		/// <summary>
 		/// Waits for all CountdownEvents in a dictionary to be signaled
 		/// </summary>

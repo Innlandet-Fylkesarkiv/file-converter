@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FileConverter.HelperClasses;
-using SharpCompress;
+
 namespace FileConverter.Siegfried
 {
 	public class SiegfriedJSON
@@ -97,14 +97,12 @@ namespace FileConverter.Siegfried
 				if (!found)
 				{
 					Console.WriteLine("Cannot find Siegfried executable");
-					throw new FileNotFoundException("Cannot find Siegfried executable");
 				}
 				found = Path.Exists(HomeFolder + PronomSignatureFile);
 				logger.SetUpRunTimeLogMessage($"SF Pronom signature file '{PronomSignatureFile}' " + (found ? "" : "not ") + "found", !found);
 				if (!found)
 				{
 					Console.WriteLine("Cannot find Pronom signature file");
-					throw new FileNotFoundException("Cannot find Pronom signature file");
 				}
 			}
 			else if (OperatingSystem.IsLinux())
@@ -365,8 +363,8 @@ namespace FileConverter.Siegfried
 			};
 
 			string error = "";
-			//try
-			//{
+			try
+			{
 				// Create the process
 				using (Process process = new Process { StartInfo = psi })
 				{
@@ -387,11 +385,11 @@ namespace FileConverter.Siegfried
 						process.WaitForExit();
 					}
 				}
-			//}
-            //catch (Exception e)
-			//{
-            //    Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: " + e.Message, true);
-            //}
+			}
+            catch (Exception e)
+			{
+                Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: " + e.Message, true);
+            }
 			//TODO: Check error and possibly continue
 			if (error.Length > 0)
 			{
@@ -486,7 +484,7 @@ namespace FileConverter.Siegfried
 			return Task.FromResult(files.ToList());
 		}
 
-		List<string[]> GroupPaths(List<string> paths)
+		public List<string[]> GroupPaths(List<string> paths)
 		{
 			var filePathGroups = new List<string[]>();
 			var tmpGroup = new List<string>();
@@ -548,7 +546,7 @@ namespace FileConverter.Siegfried
 			return fileBag.ToList();
 		}
 
-		SiegfriedJSON? ParseJSONOutput(string json, bool readFromFile)
+		public SiegfriedJSON? ParseJSONOutput(string json, bool readFromFile)
 		{
 			try
 			{
@@ -594,7 +592,7 @@ namespace FileConverter.Siegfried
 			}
 		}
 
-		static SiegfriedFile ParseSiegfriedFile(JsonElement fileElement)
+		public static SiegfriedFile ParseSiegfriedFile(JsonElement fileElement)
 		{
 			string hashMethod = HashEnumToString(GlobalVariables.checksumHash);
 			JsonElement jsonElement;
@@ -612,7 +610,7 @@ namespace FileConverter.Siegfried
 			};
 		}
 
-		static SiegfriedMatches ParseSiegfriedMatches(JsonElement matchElement)
+		public static SiegfriedMatches ParseSiegfriedMatches(JsonElement matchElement)
 		{
 			return new SiegfriedMatches
 			{
