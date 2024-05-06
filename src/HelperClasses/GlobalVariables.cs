@@ -10,41 +10,18 @@ namespace FileConverter.HelperClasses
     }
     public static class GlobalVariables
     {
-        private static Options parsedOptions = new Options();
+        public static Options ParsedOptions { get; set; } = new Options();
 
-        public static Options ParsedOptions
-        {
-            get { return parsedOptions; }
-            set { parsedOptions = value; }
-        }
         //Map with all specified conversion formats, to and from
-        private static Dictionary<string, string> fileConversionSettings = new Dictionary<string, string>(); // the key is pronom code 
-        public static Dictionary<string, string> FileConversionSettings   // Map with info about what folders have overrides for specific formats
-        {
-            get { return fileConversionSettings; }
-            set { fileConversionSettings = value; }
-        } 
+        public static Dictionary<string, string> FileConversionSettings { get; set; } = new Dictionary<string, string>(); // the key is pronom code 
+                                                                                    // Map with info about what folders have overrides for specific formats
 
-        public static Dictionary<string, ConversionSettingsData> folderOverride = new Dictionary<string, ConversionSettingsData>(); // the key is a foldername
-        public static Dictionary<string, ConversionSettingsData> FolderOverride
-        {
-            get { return folderOverride; }
-            set {  folderOverride = value; }
-        }
+        public static Dictionary<string, ConversionSettingsData> FolderOverride { get; set; } 
+                                                            = new Dictionary<string, ConversionSettingsData>(); // the key is a foldername
 
-        private static HashAlgorithms checksumHash = HashAlgorithms.SHA256;
-        public static HashAlgorithms ChecksumHash
-        {
-            get { return checksumHash; }
-            set { checksumHash = value; }
-        }
+        public static HashAlgorithms ChecksumHash { get; set; } = HashAlgorithms.SHA256;
 
-        private static int maxThreads = Environment.ProcessorCount * 2;
-        public static int MaxThreads
-        {
-            get { return maxThreads; }
-            set { maxThreads = value; }
-        }
+        public static int MaxThreads { get; set; } = Environment.ProcessorCount * 2;
 
         public static int timeout = 20;
         public static double maxFileSize = 1 * 1024 * 1024 * 1024;      //1GB
@@ -61,8 +38,8 @@ namespace FileConverter.HelperClasses
             FileConversionSettings.Clear();
             FolderOverride.Clear();
             //Set to default values (will be overwritten in ConversionSettings.cs if specified by user)
-            checksumHash = HashAlgorithms.SHA256;
-            maxThreads = Environment.ProcessorCount * 2;
+            ChecksumHash = HashAlgorithms.SHA256;
+            MaxThreads = Environment.ProcessorCount * 2;
             timeout = 5;
         }
     }
