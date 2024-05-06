@@ -8,8 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="file-converter-prog2900Tests\**" />
     <Compile Remove="GUI\**" />
+    <EmbeddedResource Remove="file-converter-prog2900Tests\**" />
     <EmbeddedResource Remove="GUI\**" />
+    <None Remove="file-converter-prog2900Tests\**" />
     <None Remove="GUI\**" />
   </ItemGroup>
 

@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\file-converter\file-converter-prog2900.csproj" />
+    <ProjectReference Include="..\file-converter-prog2900.csproj" />
   </ItemGroup>
 
   <ItemGroup>
