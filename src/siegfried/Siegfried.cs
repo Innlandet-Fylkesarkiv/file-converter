@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FileConverter.HelperClasses;
+using SharpCompress;
 namespace FileConverter.Siegfried
 {
 	public class SiegfriedJSON
@@ -60,6 +61,8 @@ namespace FileConverter.Siegfried
 		private string ExecutableName = OperatingSystem.IsLinux() ? "sf" : "sf.exe";
 		private string HomeFolder = "siegfried/";
 		private string PronomSignatureFile = "default.sig";      //"pronom64k.sig";
+		public int Multi = 64;
+		public int groupSize = 256;
 		private static readonly object lockObject = new object();
 		public List<List<string>> CompressedFolders;
 		public ConcurrentBag<FileInfo2> Files = new ConcurrentBag<FileInfo2>();
@@ -258,16 +261,23 @@ namespace FileConverter.Siegfried
 
 			string error = "";
 			string output = "";
-			// Create the process
-			using (Process process = new Process { StartInfo = psi })
+			try
 			{
-				process.Start();
+				// Create the process
+				using (Process process = new Process { StartInfo = psi })
+				{
+					process.Start();
 
-				output = process.StandardOutput.ReadToEnd();
-				error = process.StandardError.ReadToEnd();
+					output = process.StandardOutput.ReadToEnd();
+					error = process.StandardError.ReadToEnd();
 
-				process.WaitForExit();
+					process.WaitForExit();
+				}
 			}
+            catch (Exception e)
+			{
+                Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyFile: " + e.Message, true);
+            }
 			//TODO: Check error and possibly continue
 			if (error.Length > 0)
 			{
@@ -312,14 +322,14 @@ namespace FileConverter.Siegfried
 			string options;
 			if (OperatingSystem.IsWindows())
 			{
-				options = String.Format("-home {0} -json {1} -sig {2} ", HomeFolder, "-hash " + HashEnumToString(GlobalVariables.checksumHash), PronomSignatureFile);
+				options = String.Format("-home {0} -json {1} -sig {2} -multi {3} ", HomeFolder, "" /*"-hash " + HashEnumToString(GlobalVariables.checksumHash)*/, PronomSignatureFile, Multi);
 			}
 			else
 			{
 				options = String.Format("-json {0}", "-hash " + HashEnumToString(GlobalVariables.checksumHash));
 			}
 
-			string outputFile = Path.Combine(OutputFolder, Guid.NewGuid().ToString(), ".json");
+			string outputFile = Path.Combine(OutputFolder, Guid.NewGuid().ToString() + ".json");
 			string? parentDir = Directory.GetParent(outputFile)?.FullName;
 
 			//Create output file
@@ -342,7 +352,7 @@ namespace FileConverter.Siegfried
 			{
 				Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: could not create output file " + e.Message, true);
 			}
-
+			
 			ProcessStartInfo psi = new ProcessStartInfo
 			{
 				FileName = $"{ExecutableName}", // or any other command you want to run
@@ -355,26 +365,33 @@ namespace FileConverter.Siegfried
 			};
 
 			string error = "";
-			// Create the process
-			using (Process process = new Process { StartInfo = psi })
-			{
-				// Create the StreamWriter to write to the file
-				using (StreamWriter sw = new StreamWriter(outputFile))
+			//try
+			//{
+				// Create the process
+				using (Process process = new Process { StartInfo = psi })
 				{
-					// Set the output stream for the process
-					process.OutputDataReceived += (sender, e) => { if (e.Data != null) sw.WriteLine(e.Data); };
+					// Create the StreamWriter to write to the file
+					using (StreamWriter sw = new StreamWriter(outputFile))
+					{
+						// Set the output stream for the process
+						process.OutputDataReceived += (sender, e) => { if (e.Data != null) sw.WriteLine(e.Data); };
 
-					// Start the process
-					process.Start();
+						// Start the process
+						process.Start();
 
-					// Begin asynchronous read operations for output and error streams
-					process.BeginOutputReadLine();
-					error = process.StandardError.ReadToEnd();
+						// Begin asynchronous read operations for output and error streams
+						process.BeginOutputReadLine();
+						error = process.StandardError.ReadToEnd();
 
-					// Wait for the process to exit
-					process.WaitForExit();
+						// Wait for the process to exit
+						process.WaitForExit();
+					}
 				}
-			}
+			//}
+            //catch (Exception e)
+			//{
+            //    Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: " + e.Message, true);
+            //}
 			//TODO: Check error and possibly continue
 			if (error.Length > 0)
 			{
@@ -471,17 +488,27 @@ namespace FileConverter.Siegfried
 
 		List<string[]> GroupPaths(List<string> paths)
 		{
-			int groupSize = 128; //Number of files to be identified in each group
-			int groupCount = paths.Count / groupSize;
 			var filePathGroups = new List<string[]>();
-			if (paths.Count % groupSize != 0)
+			var tmpGroup = new List<string>();
+			var currLength = 0;
+			var currNumFiles = 0;
+			foreach ( var path in paths)
 			{
-				groupCount++;
+				if(currLength > 13600 || currNumFiles >= groupSize)
+				{
+					filePathGroups.Add(tmpGroup.ToArray());
+					tmpGroup.Clear();
+					currLength = 0;
+					currNumFiles = 0;
+				}
+				tmpGroup.Add(path);
+				currLength += path.Length;
+				currNumFiles++;
 			}
-			for (int i = 0; i < groupCount; i++)
+			if (tmpGroup.Count > 0)
 			{
-				filePathGroups.Add(paths.GetRange(i * groupSize, Math.Min(groupSize, paths.Count - i * groupSize)).ToArray());
-			}
+                filePathGroups.Add(tmpGroup.ToArray());
+            }
 			return filePathGroups;
 		}
 

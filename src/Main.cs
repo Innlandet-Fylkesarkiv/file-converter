@@ -5,6 +5,7 @@ using FileConverter.HelperClasses;
 using FileConverter.LinuxSpecifics;
 using FileConverter.Managers;
 using SF = FileConverter.Siegfried;
+using FileConverter.Siegfried;
 
 namespace FileConverter
 {
@@ -24,7 +25,6 @@ namespace FileConverter
 	{
 		static void Main(string[] args)
 		{
-
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			PrintHelper.OldCol = Console.ForegroundColor;
@@ -32,7 +32,7 @@ namespace FileConverter
 			{
 				Console.WriteLine("Running in debug mode...");
 			}
-
+			
 			Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
 			{
 				GlobalVariables.parsedOptions = options;
@@ -60,10 +60,9 @@ namespace FileConverter
 			Console.WriteLine("Reading ConversionSettings from '{0}'...", ConversionSettingsPath);
 			ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 
-			//Check if input and output folders exist
-			while (!Directory.Exists(GlobalVariables.parsedOptions.Input))
+            //Check if input and output folders exist
+            while (!Directory.Exists(GlobalVariables.parsedOptions.Input))
 			{
-
 				PrintHelper.PrintLn("Input folder '{0}' not found!", GlobalVariables.ERROR_COL, GlobalVariables.parsedOptions.Input);
 				var exit = ResolveInputNotFound();
 				ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
@@ -75,7 +74,7 @@ namespace FileConverter
 
 			if (!Directory.Exists(GlobalVariables.parsedOptions.Output))
 			{
-				Console.WriteLine("Output folder '{0}' not found! Creating...", GlobalVariables.parsedOptions.Output);
+				PrintHelper.PrintLn("Output folder '{0}' not found! Creating...", GlobalVariables.WARNING_COL,GlobalVariables.parsedOptions.Output);
 				Directory.CreateDirectory(GlobalVariables.parsedOptions.Output);
 			}
 
@@ -85,19 +84,19 @@ namespace FileConverter
 			Logger logger = Logger.Instance;
 
 			FileManager fileManager = FileManager.Instance;
-			SF.Siegfried sf2 = SF.Siegfried.Instance;
+			SF.Siegfried sf = SF.Siegfried.Instance;
 			//TODO: Check for malicous input files
 			try
 			{
 				//Check if user wants to use files from previous run
 				//sf.AskReadFiles();
 				//Check if files were added from previous run
-				if (!sf2.Files.IsEmpty)
+				if (!sf.Files.IsEmpty)
 				{
 					//Import files from previous run
 					Console.WriteLine("Checking files from previous run...");
-					fileManager.ImportFiles(sf2.Files.ToList());
-					var compressedFiles = sf2.IdentifyCompressedFilesJSON(GlobalVariables.parsedOptions.Input);
+					fileManager.ImportFiles(sf.Files.ToList());
+					var compressedFiles = sf.IdentifyCompressedFilesJSON(GlobalVariables.parsedOptions.Input);
 					fileManager.ImportCompressedFiles(compressedFiles);
 				}
 				else
@@ -175,11 +174,12 @@ namespace FileConverter
 			ConversionManager cm = ConversionManager.Instance;
 			try
 			{
+				Console.WriteLine("Checking for naming conflicts...");
 				fileManager.CheckForNamingConflicts();
 				Console.WriteLine("Starting Conversion manager...");
 				cm.ConvertFiles();
 				//Delete siegfrieds json files
-				sf2.ClearOutputFolder();
+				sf.ClearOutputFolder();
 			}
 			catch (Exception e)
 			{
@@ -195,7 +195,7 @@ namespace FileConverter
 				fileManager.DocumentFiles();
 			}
 			Console.WriteLine("Compressing folders...");
-			sf2.CompressFolders();
+			sf.CompressFolders();
 
 			if (Logger.Instance.ErrorHappened)
 			{
@@ -213,8 +213,8 @@ namespace FileConverter
 			Console.ReadKey();  //Keep console open
 		}
 
-		static bool ResolveInputNotFound()
-		{
+        static bool ResolveInputNotFound()
+        {
 			PrintHelper.PrintLn("Input folder not found / Input folder empty!", GlobalVariables.ERROR_COL);
 			Console.WriteLine("Do you want to:  N (Exit program) / R (Reload ConversionSettings file) / G (Change ConversionSettings in GUI)");
 			char input = ' ';

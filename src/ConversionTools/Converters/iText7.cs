@@ -274,7 +274,7 @@ namespace ConversionTools.Converters
                 {
                     using (FileStream iccFileStream = new FileStream(GetICCFilePath(), FileMode.Open))
                     {
-                        outputIntent = new PdfOutputIntent("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
+                        outputIntent = new PdfOutputIntent("Custom", "", "https://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
                     }
                 }
                 do
@@ -334,6 +334,7 @@ namespace ConversionTools.Converters
             {
                 dotindex = filename.Length - 3;
             }
+            List<int> editedPages = new List<int>();
             string name = filename.Substring(0, dotindex);
             string newfilename = String.Format("{0}_{1}.pdf", name, "TEMP");
             try
@@ -362,7 +363,7 @@ namespace ConversionTools.Converters
                             if (pdfStream.ContainsKey(PdfName.Interpolate))
                             {
                                 pdfStream.Remove(PdfName.Interpolate);
-                                Logger.Instance.SetUpRunTimeLogMessage("Interpolation removed from PDF to comply with PDF/A standards on page " + pageNum, true, filename: filename);
+                                editedPages.Add(pageNum);
                             }
                         }
                     }
@@ -374,6 +375,10 @@ namespace ConversionTools.Converters
             {
                 // Handle any exceptions during processing.
                 Console.WriteLine($"Unable to process file: {filename}. Exception: {e}");
+            }
+            if(editedPages.Count > 0)
+            { 
+                Logger.Instance.SetUpRunTimeLogMessage("Interpolation removed from PDF to comply with PDF/A standards on page(s) " + editedPages.Distinct().ToList(), true, filename: filename);
             }
             return newfilename;
         }
@@ -512,7 +517,13 @@ namespace ConversionTools.Converters
                     pdfDocument.SetTagged();
                     foreach (var file in files)
                     {
-                        string filename = Path.Combine(file.FilePath);
+                        bool isWrapped = file.FilePath.StartsWith('"') && file.FilePath.EndsWith('"');
+                        string filename = isWrapped ? file.FilePath : String.Format("\"{0}\"",file.FilePath);
+                        if (!File.Exists(filename))
+                        {
+                            Logger.Instance.SetUpRunTimeLogMessage("MergeFiles - File not found: " + file.FilePath, true);
+                            continue;
+                        }
                         var filestream = File.ReadAllBytes(filename);
                         var imageData = ImageDataFactory.Create(filestream, false);
                         iText.Layout.Element.Image image = new iText.Layout.Element.Image(imageData);
