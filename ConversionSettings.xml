@@ -6,6 +6,7 @@
   <MaxThreads>1</MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
   <Timeout></Timeout>
+  <MaxFileSize>1073741824</MaxFileSize>
   <FileClass>
     <ClassName>EXCEL</ClassName>
     <Default>fmt/477</Default>
