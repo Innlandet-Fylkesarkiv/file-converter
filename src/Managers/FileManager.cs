@@ -55,7 +55,7 @@ namespace FileConverter.Managers
                 Logger logger = Logger.Instance;
                 //TODO: Can maybe run both individually and compressed files at the same time
                 //Identifying all uncompressed files
-                List<FileInfo2>? files = sf2.IdentifyFilesIndividually(GlobalVariables.parsedOptions.Input)!.Result; //Search for files in output folder since they are copied there from input folder
+                List<FileInfo2>? files = sf2.IdentifyFilesIndividually(GlobalVariables.ParsedOptions.Input)!.Result; //Search for files in output folder since they are copied there from input folder
                 if (files != null)
                 {
                     //TODO: Should be more robust
@@ -63,7 +63,7 @@ namespace FileConverter.Managers
                     foreach (FileInfo2 file in files)
                     {
                         //Replace first occurence of input path with output path
-                        file.FilePath = file.FilePath.Replace(GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
+                        file.FilePath = file.FilePath.Replace(GlobalVariables.ParsedOptions.Input, GlobalVariables.ParsedOptions.Output);
                         Guid id = Guid.NewGuid();
                         file.Id = id;
                         Files.TryAdd(id, file);
@@ -75,7 +75,7 @@ namespace FileConverter.Managers
                 }
 
                 //Identifying all compressed files
-                List<FileInfo2>? compressedFiles = sf2.IdentifyCompressedFilesJSON(GlobalVariables.parsedOptions.Input)!;
+                List<FileInfo2>? compressedFiles = sf2.IdentifyCompressedFilesJSON(GlobalVariables.ParsedOptions.Input)!;
 
                 foreach (var file in compressedFiles)
                 {
@@ -105,15 +105,15 @@ namespace FileConverter.Managers
                 //Remove files that no longer exist
                 files.RemoveAll(file => !File.Exists(file.FilePath));
                 //Remove files that are not in the input directory
-                files.RemoveAll(file => !FileExistsInDirectory(GlobalVariables.parsedOptions.Input, file.FilePath));
+                files.RemoveAll(file => !FileExistsInDirectory(GlobalVariables.ParsedOptions.Input, file.FilePath));
                 //Remove all duplicates in file list
                 files = files.Distinct().ToList();
 
                 files.ForEach(file =>
                 {
-                    if (!FileExistsInDirectory(GlobalVariables.parsedOptions.Output, file.FilePath))
+                    if (!FileExistsInDirectory(GlobalVariables.ParsedOptions.Output, file.FilePath))
                     {
-                        var newPath = Path.Combine(GlobalVariables.parsedOptions.Output, Path.GetFileName(file.FilePath));
+                        var newPath = Path.Combine(GlobalVariables.ParsedOptions.Output, Path.GetFileName(file.FilePath));
                         File.Copy(file.FilePath, newPath);
                     }
                     Guid id = Guid.NewGuid();
@@ -165,7 +165,7 @@ namespace FileConverter.Managers
         private static bool FileExistsInDirectory(string directoryPath, string fileName)
         {
             // Get the relative path of the file
-            int index = fileName.Contains(GlobalVariables.parsedOptions.Input) ? fileName.IndexOf(GlobalVariables.parsedOptions.Input) : fileName.IndexOf(GlobalVariables.parsedOptions.Output);
+            int index = fileName.Contains(GlobalVariables.ParsedOptions.Input) ? fileName.IndexOf(GlobalVariables.ParsedOptions.Input) : fileName.IndexOf(GlobalVariables.ParsedOptions.Output);
             string path = fileName.Substring(index);
             try
             {
@@ -434,7 +434,7 @@ namespace FileConverter.Managers
 
             if (macroDetected)
             {
-                PrintHelper.PrintLn("One or more macro files detected in '{0}' folder.", GlobalVariables.WARNING_COL, GlobalVariables.parsedOptions.Input);
+                PrintHelper.PrintLn("One or more macro files detected in '{0}' folder.", GlobalVariables.WARNING_COL, GlobalVariables.ParsedOptions.Input);
             }
 
             var formatList = new List<FileInfoGroup>();
@@ -558,7 +558,7 @@ namespace FileConverter.Managers
                     Console.WriteLine("Some folders will be merged (output pronom):");
                     foreach (var dir in dirsToBeMerged)
                     {
-                        var relPath = Path.Combine(GlobalVariables.parsedOptions.Output, dir.Item1);
+                        var relPath = Path.Combine(GlobalVariables.ParsedOptions.Output, dir.Item1);
                         var totalFiles = Directory.Exists(relPath) ? Directory.GetFiles(relPath).Length : -1;
                         Console.WriteLine("\t{0,-" + maxLength + "} | {1} files ({2})", dir.Item1, totalFiles, dir.Item2);
                     }
@@ -568,7 +568,7 @@ namespace FileConverter.Managers
                     List<string> mergedDirs = new List<string>();
                     foreach (var file in Files.Values)
                     {
-                        var parent = Path.GetRelativePath(GlobalVariables.parsedOptions.Output, Directory.GetParent(file.FilePath)?.ToString() ?? "");
+                        var parent = Path.GetRelativePath(GlobalVariables.ParsedOptions.Output, Directory.GetParent(file.FilePath)?.ToString() ?? "");
                         //Check if file was merged, only add the parent directory once
                         if (!mergedDirs.Contains(parent) && dirsToBeMerged.Any(tuple => tuple.Item1 == parent) && file.IsMerged)
                         {

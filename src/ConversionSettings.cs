@@ -87,17 +87,17 @@ namespace FileConverter
 				string? output = outputNode?.InnerText.Trim();
 				if (!String.IsNullOrEmpty(input))
 				{
-					GlobalVariables.parsedOptions.Input = input;
+					GlobalVariables.ParsedOptions.Input = input;
 				}
 				if (!String.IsNullOrEmpty(output))
 				{
-					GlobalVariables.parsedOptions.Output = output;
+					GlobalVariables.ParsedOptions.Output = output;
 				}
 
 				string? inputMaxThreads = maxThreadsNode?.InnerText;
 				if (!String.IsNullOrEmpty(inputMaxThreads) && int.TryParse(inputMaxThreads, out int maxThreads))
 				{
-					GlobalVariables.maxThreads = maxThreads;
+					GlobalVariables.MaxThreads = maxThreads;
 				}
 
 				string? inputTimeout = timeoutNode?.InnerText;
@@ -118,8 +118,8 @@ namespace FileConverter
 					checksumHashing = checksumHashing.ToUpper().Trim();
 					switch (checksumHashing)
 					{
-						case "MD5": GlobalVariables.checksumHash = HashAlgorithms.MD5; break;
-						default: GlobalVariables.checksumHash = HashAlgorithms.SHA256; break;
+						case "MD5": GlobalVariables.ChecksumHash = HashAlgorithms.MD5; break;
+						default: GlobalVariables.ChecksumHash = HashAlgorithms.SHA256; break;
 					}
 				}
 
@@ -202,7 +202,7 @@ namespace FileConverter
 			Logger logger = Logger.Instance;
 			try
 			{
-				string inputFolder = GlobalVariables.parsedOptions.Input;
+				string inputFolder = GlobalVariables.ParsedOptions.Input;
 				// Load the XML document from a file
 				XmlDocument xmlDoc = new XmlDocument();
 				xmlDoc.Load(pathToConversionSettings);
@@ -277,7 +277,7 @@ namespace FileConverter
 		/// <returns>list with paths to all subfolders</returns>
 		private static List<string> GetSubfolderPaths(string folderName)
 		{
-			string outputPath = GlobalVariables.parsedOptions.Output;
+			string outputPath = GlobalVariables.ParsedOptions.Output;
 			List<string> subfolders = new List<string>();
 
 			try
@@ -316,7 +316,7 @@ namespace FileConverter
 				f = FileManager.Instance.GetFile(f.Parent) ?? f;
 			}
 			//Get the parent directory of the file
-			var parentDir = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.parsedOptions.Output, f.FilePath));
+			var parentDir = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.ParsedOptions.Output, f.FilePath));
             //If the file is in a folder that has a folder override, check if the file is at the correct output format for that folder
             if (parentDir != null && GlobalVariables.FolderOverride.TryGetValue(parentDir, out var folderOverride) &&
 				folderOverride.PronomsList.Contains(f.OriginalPronom))
@@ -338,7 +338,7 @@ namespace FileConverter
         /// <returns>True if it should be merged, otherwise False</returns>
         public static bool ShouldMerge(FileInfo2 f)
         {
-            var parentDir = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.parsedOptions.Output, f.FilePath));
+            var parentDir = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.ParsedOptions.Output, f.FilePath));
             if (parentDir != null && GlobalVariables.FolderOverride.TryGetValue(parentDir, out var folderOverride))
             {
                 return folderOverride.Merge;

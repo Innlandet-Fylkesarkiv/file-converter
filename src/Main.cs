@@ -35,9 +35,9 @@ namespace FileConverter
 			
 			Parser.Default.ParseArguments<Options>(args).WithParsed(options =>
 			{
-				GlobalVariables.parsedOptions = options;
+				GlobalVariables.ParsedOptions = options;
 			});
-			string ConversionSettingsPath = GlobalVariables.parsedOptions.ConversionSettings;
+			string ConversionSettingsPath = GlobalVariables.ParsedOptions.ConversionSettings;
 			if (!OperatingSystem.IsLinux())
 			{
 				//Look for ConversionSettings file in parent directories as long as ConversionSettings file is not found and we are not in the root directory
@@ -61,9 +61,9 @@ namespace FileConverter
             FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 
             //Check if input and output folders exist
-            while (!Directory.Exists(GlobalVariables.parsedOptions.Input))
+            while (!Directory.Exists(GlobalVariables.ParsedOptions.Input))
 			{
-				PrintHelper.PrintLn("Input folder '{0}' not found!", GlobalVariables.ERROR_COL, GlobalVariables.parsedOptions.Input);
+				PrintHelper.PrintLn("Input folder '{0}' not found!", GlobalVariables.ERROR_COL, GlobalVariables.ParsedOptions.Input);
 				var exit = ResolveInputNotFound();
                 FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 				if (exit)
@@ -72,10 +72,10 @@ namespace FileConverter
 				}
 			}
 
-			if (!Directory.Exists(GlobalVariables.parsedOptions.Output))
+			if (!Directory.Exists(GlobalVariables.ParsedOptions.Output))
 			{
-				PrintHelper.PrintLn("Output folder '{0}' not found! Creating...", GlobalVariables.WARNING_COL,GlobalVariables.parsedOptions.Output);
-				Directory.CreateDirectory(GlobalVariables.parsedOptions.Output);
+				PrintHelper.PrintLn("Output folder '{0}' not found! Creating...", GlobalVariables.WARNING_COL,GlobalVariables.ParsedOptions.Output);
+				Directory.CreateDirectory(GlobalVariables.ParsedOptions.Output);
 			}
 
 			//Only maximize and center the console window if the OS is Windows
@@ -96,7 +96,7 @@ namespace FileConverter
 					//Import files from previous run
 					Console.WriteLine("Checking files from previous run...");
 					fileManager.ImportFiles(sf.Files.ToList());
-					var compressedFiles = sf.IdentifyCompressedFilesJSON(GlobalVariables.parsedOptions.Input);
+					var compressedFiles = sf.IdentifyCompressedFilesJSON(GlobalVariables.ParsedOptions.Input);
 					fileManager.ImportCompressedFiles(compressedFiles);
 				}
 				else
@@ -126,20 +126,20 @@ namespace FileConverter
 
 			char input = ' ';
 			string validInput = "YyNnRrGg";
-			string prevInputFolder = GlobalVariables.parsedOptions.Input; ;
+			string prevInputFolder = GlobalVariables.ParsedOptions.Input; ;
 
 			do
 			{
-				if (prevInputFolder != GlobalVariables.parsedOptions.Input)
+				if (prevInputFolder != GlobalVariables.ParsedOptions.Input)
 				{
 					PrintHelper.PrintLn("Input folder changed, reidentifying files...", GlobalVariables.WARNING_COL);
 					InitFiles();
 				}
-				input = GlobalVariables.parsedOptions.AcceptAll ? 'Y' : 'X';
+				input = GlobalVariables.ParsedOptions.AcceptAll ? 'Y' : 'X';
 				logger.AskAboutReqAndConv();
 				fileManager.DisplayFileList();
 				PrintHelper.PrintLn("Requester: {0}\nConverter: {1}\nMaxThreads: {2}\nTimeout in minutes: {3}",
-					GlobalVariables.INFO_COL, Logger.JsonRoot.Requester, Logger.JsonRoot.Converter, GlobalVariables.maxThreads, GlobalVariables.timeout);
+					GlobalVariables.INFO_COL, Logger.JsonRoot.Requester, Logger.JsonRoot.Converter, GlobalVariables.MaxThreads, GlobalVariables.timeout);
 
 				Console.Write("Do you want to proceed with these Settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
 				while (!validInput.Contains(input))
@@ -149,7 +149,7 @@ namespace FileConverter
 					input = char.ToUpper(input);
 				}
 				Console.WriteLine();
-				prevInputFolder = GlobalVariables.parsedOptions.Input;
+				prevInputFolder = GlobalVariables.ParsedOptions.Input;
 				switch (input)
 				{
 					case 'Y':   //Proceed with conversion
@@ -248,9 +248,9 @@ namespace FileConverter
 			FileManager.Instance.Files.Clear();
 			SF.Siegfried.Instance.Files.Clear();
 			SF.Siegfried.Instance.CompressedFolders.Clear();
-			Console.WriteLine("Copying files from {0} to {1}...", GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
+			Console.WriteLine("Copying files from {0} to {1}...", GlobalVariables.ParsedOptions.Input, GlobalVariables.ParsedOptions.Output);
 			//Copy files
-			SF.Siegfried.Instance.CopyFiles(GlobalVariables.parsedOptions.Input, GlobalVariables.parsedOptions.Output);
+			SF.Siegfried.Instance.CopyFiles(GlobalVariables.ParsedOptions.Input, GlobalVariables.ParsedOptions.Output);
 			Console.WriteLine("Identifying files...");
 			//Identify and unpack files
 			FileManager.Instance.IdentifyFiles();

@@ -92,8 +92,8 @@ namespace ConversionTools.Converters
 		async public override Task ConvertFile(FileToConvert file, string pronom)
 		{
 			// Get correct folders and properties required for conversion
-			string inputFolder = GlobalVariables.parsedOptions.Input;
-			string outputFolder = GlobalVariables.parsedOptions.Output;
+			string inputFolder = GlobalVariables.ParsedOptions.Input;
+			string outputFolder = GlobalVariables.ParsedOptions.Output;
 
 			string outputDir = Directory.GetParent(file.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";
 			string inputDirectory = Directory.GetParent(file.FilePath)?.ToString() ?? "";
