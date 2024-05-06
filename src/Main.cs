@@ -58,14 +58,14 @@ namespace FileConverter
 
 			ConversionSettings ConversionSettings = ConversionSettings.Instance;
 			Console.WriteLine("Reading ConversionSettings from '{0}'...", ConversionSettingsPath);
-			ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
+            FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 
             //Check if input and output folders exist
             while (!Directory.Exists(GlobalVariables.parsedOptions.Input))
 			{
 				PrintHelper.PrintLn("Input folder '{0}' not found!", GlobalVariables.ERROR_COL, GlobalVariables.parsedOptions.Input);
 				var exit = ResolveInputNotFound();
-				ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
+                FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 				if (exit)
 				{
 					goto END;
@@ -120,7 +120,7 @@ namespace FileConverter
 				{
 					goto END;
 				}
-				ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
+                FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 				InitFiles();
 			}
 
@@ -159,12 +159,12 @@ namespace FileConverter
 					case 'R':   //Change ConversionSettings and reload manually
 						Console.WriteLine("Edit ConversionSettings file and hit enter when finished (Remember to save file)");
 						Console.ReadLine();
-						ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
+                        FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 						ConversionSettings.SetUpFolderOverride(ConversionSettingsPath);
 						break;
 					case 'G':   //Change ConversionSettings and reload in GUI
 						AwaitGUI().Wait();
-						ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
+                        FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 						ConversionSettings.SetUpFolderOverride(ConversionSettingsPath);
 						break;
 					default: break;

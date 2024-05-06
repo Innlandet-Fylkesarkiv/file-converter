@@ -47,7 +47,7 @@ namespace FileConverter
 		/// Reads ConversionSettings from file
 		/// </summary>
 		/// <param name="pathToConversionSettings"> the path to the ConversionSettings file from working directory </param>
-		public void ReadConversionSettings(string pathToConversionSettings)
+		public static void ReadConversionSettings(string pathToConversionSettings)
 		{
 			Logger logger = Logger.Instance;
 			//Reset the global variables
@@ -128,7 +128,6 @@ namespace FileConverter
 				if (classNodes == null) { logger.SetUpRunTimeLogMessage("Could not find any classNodes", true, filename: pathToConversionSettings); return; }
 				foreach (XmlNode classNode in classNodes)
 				{
-					string? className = classNode?.SelectSingleNode("ClassName")?.InnerText;
 					string? defaultType = classNode?.SelectSingleNode("Default")?.InnerText;
 
 					if (defaultType == null)
@@ -198,7 +197,7 @@ namespace FileConverter
 		/// Sets up the FolderOverride Dictionary
 		/// </summary>
 		/// <param name="pathToConversionSettings"> relative path to ConversionSettings file from working directory </param>
-		public void SetUpFolderOverride(string pathToConversionSettings)
+		public static void SetUpFolderOverride(string pathToConversionSettings)
 		{
 			Logger logger = Logger.Instance;
 			try
@@ -243,7 +242,7 @@ namespace FileConverter
 						}
 						else
 						{
-							if (Directory.Exists(inputFolder + "/" + folderPath) && folderPath != null)
+							if (Directory.Exists(Path.Combine(inputFolder, folderPath)))
 							{
 								// Ensure that the folder path is valid on all operating systems
 								folderPath = folderPath.Replace('\\', Path.DirectorySeparatorChar);
@@ -284,7 +283,6 @@ namespace FileConverter
 			try
 			{
 				string targetFolderPath = Path.Combine(outputPath, folderName);
-				string relativePath = Path.GetRelativePath(outputPath, targetFolderPath); // Calculate the relative path for the current folder
 
 				if (Directory.Exists(targetFolderPath))
 				{
@@ -319,35 +317,33 @@ namespace FileConverter
 			}
 			//Get the parent directory of the file
 			var parentDir = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.parsedOptions.Output, f.FilePath));
-			//If the file is in a folder that has a folder override, check if the file is at the correct output format for that folder
-			if (parentDir != null && GlobalVariables.FolderOverride.ContainsKey(parentDir))
-			{
-				if (GlobalVariables.FolderOverride[parentDir].PronomsList.Contains(f.OriginalPronom))
-				{
-					return GlobalVariables.FolderOverride[parentDir].DefaultType;
-				}
-			}
-			//Otherwise, check if the new type matches the global ConversionSettings for the input format
-			if (GlobalVariables.FileConversionSettings.ContainsKey(f.OriginalPronom))
-			{
-				return GlobalVariables.FileConversionSettings[f.OriginalPronom];
-			}
-			return null;
-		}
+            //If the file is in a folder that has a folder override, check if the file is at the correct output format for that folder
+            if (parentDir != null && GlobalVariables.FolderOverride.TryGetValue(parentDir, out var folderOverride) &&
+				folderOverride.PronomsList.Contains(f.OriginalPronom))
+            {
+                return folderOverride.DefaultType;
+            }
+            //Otherwise, check if the new type matches the global ConversionSettings for the input format
+            if (GlobalVariables.FileConversionSettings.TryGetValue(f.OriginalPronom, out var conversionSetting))
+            {
+                return conversionSetting;
+            }
+            return null;
+        }
 
-		/// <summary>
-		/// Checks if a file should be merged
-		/// </summary>
-		/// <param name="f">The file that should be checked</param>
-		/// <returns>True if it should be merged, otherwise False</returns>
-		public static bool ShouldMerge(FileInfo2 f)
-		{
-			var parentDir = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.parsedOptions.Output, f.FilePath));
-			if (parentDir != null && GlobalVariables.FolderOverride.ContainsKey(parentDir))
-			{
-				return GlobalVariables.FolderOverride[parentDir].Merge;
-			}
-			return false;
-		}
-	}
+        /// <summary>
+        /// Checks if a file should be merged
+        /// </summary>
+        /// <param name="f">The file that should be checked</param>
+        /// <returns>True if it should be merged, otherwise False</returns>
+        public static bool ShouldMerge(FileInfo2 f)
+        {
+            var parentDir = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.parsedOptions.Output, f.FilePath));
+            if (parentDir != null && GlobalVariables.FolderOverride.TryGetValue(parentDir, out var folderOverride))
+            {
+                return folderOverride.Merge;
+            }
+            return false;
+        }
+    }
 }
