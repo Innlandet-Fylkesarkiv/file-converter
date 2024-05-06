@@ -22,9 +22,7 @@ namespace ConversionTools.Converters
     public class EmailConverter : Converter
     {
         public readonly OperatingSystem currentOS;
-        private List<string> emlPronoms = new List<string> { "fmt/278", "fmt/950" };
-        private List<string> msgPronoms = new List<string> { "x-fmt/430", "fmt/1144" };
-        readonly List<string> PDFPronoms = new List<string> { "fmt/18" };
+        readonly List<string> PDFPronoms = ["fmt/18"];
 
         /// <summary>
         /// Constructor setting important properties for the class.
@@ -40,17 +38,9 @@ namespace ConversionTools.Converters
             DependenciesExists = checkDependencies();
         }
 
-        public List<string> EMLPronoms
-        {
-            get { return emlPronoms; }
-            set { emlPronoms = value; }
-        }
-
-        public List<string> MSGPronoms
-        {
-            get { return msgPronoms; }
-            set { msgPronoms = value; }
-        }
+        public List<string> EMLPronoms { get; set; } = ["fmt/278", "fmt/950"];
+        public List<string> MSGPronoms { get; set; } = ["x-fmt/430", "fmt/1144"];
+        
         /// <summary>
         /// Converts the file sent to a new target format
         /// </summary>
@@ -58,8 +48,8 @@ namespace ConversionTools.Converters
         /// <param name="pronom">The file format to convert to</param>
         async public override Task ConvertFile(FileToConvert file, string pronom)
         {
-            string inputFolder =  GlobalVariables.parsedOptions.Input;
-            string outputFolder = GlobalVariables.parsedOptions.Output;
+            string inputFolder =  GlobalVariables.ParsedOptions.Input;
+            string outputFolder = GlobalVariables.ParsedOptions.Output;
 
             // Get the full path to the input directory and output directory 
             string outputDir = Directory.GetParent(file.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";

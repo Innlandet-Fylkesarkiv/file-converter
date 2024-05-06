@@ -238,11 +238,11 @@ namespace FileConverter.Siegfried
 
 			if (OperatingSystem.IsWindows())
 			{
-				options = String.Format("-coe -home {0} -json {1} -sig {2} ", HomeFolder, hash ? "-hash " + HashEnumToString(GlobalVariables.checksumHash) : "", PronomSignatureFile);
+				options = String.Format("-coe -home {0} -json {1} -sig {2} ", HomeFolder, hash ? "-hash " + HashEnumToString(GlobalVariables.ChecksumHash) : "", PronomSignatureFile);
 			}
 			else
 			{
-				options = String.Format("-coe -json {0}", hash ? "-hash " + HashEnumToString(GlobalVariables.checksumHash) : "");
+				options = String.Format("-coe -json {0}", hash ? "-hash " + HashEnumToString(GlobalVariables.ChecksumHash) : "");
 			}
 
 			// Define the process start info
@@ -324,7 +324,7 @@ namespace FileConverter.Siegfried
 			}
 			else
 			{
-				options = String.Format("-json {0}", "-hash " + HashEnumToString(GlobalVariables.checksumHash));
+				options = String.Format("-json {0}", "-hash " + HashEnumToString(GlobalVariables.ChecksumHash));
 			}
 
 			string outputFile = Path.Combine(OutputFolder, Guid.NewGuid().ToString() + ".json");
@@ -410,8 +410,8 @@ namespace FileConverter.Siegfried
 				var file = new FileInfo2(parsedData.files[i]);
 				file.FilePath = paths[i];
 				file.OriginalFilePath = Path.GetFileName(file.FilePath);
-				var pathWithoutInput = file.FilePath.Replace(GlobalVariables.parsedOptions.Input, "");
-				file.ShortFilePath = Path.Combine(pathWithoutInput.Replace(GlobalVariables.parsedOptions.Output, ""));
+				var pathWithoutInput = file.FilePath.Replace(GlobalVariables.ParsedOptions.Input, "");
+				file.ShortFilePath = Path.Combine(pathWithoutInput.Replace(GlobalVariables.ParsedOptions.Output, ""));
 				while (file.ShortFilePath[0] == '\\')
 				{
 					//Remove leading backslashes
@@ -434,7 +434,7 @@ namespace FileConverter.Siegfried
 			List<string> filePaths = new List<string>(Directory.GetFiles(input, "*.*", SearchOption.AllDirectories));
 			ConcurrentBag<string[]> filePathGroups = new ConcurrentBag<string[]>(GroupPaths(filePaths));
 
-			Parallel.ForEach(filePathGroups, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, filePaths =>
+			Parallel.ForEach(filePathGroups, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.MaxThreads }, filePaths =>
 			{
 				var output = IdentifyList(filePaths);
 				if (output == null)
@@ -463,7 +463,7 @@ namespace FileConverter.Siegfried
 			Logger logger = Logger.Instance;
 			var files = new ConcurrentBag<FileInfo2>();
 
-			Parallel.ForEach(inputFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, file =>
+			Parallel.ForEach(inputFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.MaxThreads }, file =>
 			{
 				//Skip files that should be merged (they may not exist anymore and are documented in other methods)
 				if (file.ShouldMerge || file.IsDeleted)
@@ -517,7 +517,7 @@ namespace FileConverter.Siegfried
 			var fileBag = new ConcurrentBag<FileInfo2>();
 
 			//For eaccompressed folder, identify all files
-			Parallel.ForEach(CompressedFolders, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, folders =>
+			Parallel.ForEach(CompressedFolders, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.MaxThreads }, folders =>
 			{
 				foreach (string folder in folders)
 				{
@@ -526,7 +526,7 @@ namespace FileConverter.Siegfried
 					var paths = Directory.GetFiles(pathWithoutExt, "*.*", SearchOption.TopDirectoryOnly);
 					var filePathGroups = GroupPaths(new List<string>(paths));
 					//Identify all files in each group
-					Parallel.ForEach(filePathGroups, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, paths =>
+					Parallel.ForEach(filePathGroups, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.MaxThreads }, paths =>
 					{
 						var files = IdentifyList(paths);
 						if (files != null)
@@ -594,7 +594,7 @@ namespace FileConverter.Siegfried
 
 		public static SiegfriedFile ParseSiegfriedFile(JsonElement fileElement)
 		{
-			string hashMethod = HashEnumToString(GlobalVariables.checksumHash);
+			string hashMethod = HashEnumToString(GlobalVariables.ChecksumHash);
 			JsonElement jsonElement;
 			return new SiegfriedFile
 			{
@@ -634,7 +634,7 @@ namespace FileConverter.Siegfried
 		{
 			string[] files = Directory.GetFiles(source, "*.*", SearchOption.AllDirectories);
 			List<string> retryFiles = new List<string>();
-			Parallel.ForEach(files, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, file =>
+			Parallel.ForEach(files, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.MaxThreads }, file =>
 			// (string file in files)
 			{
 				string relativePath = file.Replace(source, "");
@@ -664,7 +664,7 @@ namespace FileConverter.Siegfried
 			{
 				Console.WriteLine("Some files could not be copied, close the processes using them and hit enter");
 				Console.ReadLine();
-				Parallel.ForEach(retryFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, file =>
+				Parallel.ForEach(retryFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.MaxThreads }, file =>
 				{
 					string relativePath = file.Replace(source, "");
 					string outputPath = destination + relativePath;
@@ -731,21 +731,21 @@ namespace FileConverter.Siegfried
 		public void UnpackCompressedFolders()
 		{
 			//Identify all files in output directory
-			var compressedFoldersOutput = GetCompressedFolders(GlobalVariables.parsedOptions.Output);
-			var compressedFoldersInput = GetCompressedFolders(GlobalVariables.parsedOptions.Input);
+			var compressedFoldersOutput = GetCompressedFolders(GlobalVariables.ParsedOptions.Output);
+			var compressedFoldersInput = GetCompressedFolders(GlobalVariables.ParsedOptions.Input);
 
 			// Remove root path from all paths in compressedFoldersInput
 			var inputWithoutRoot = compressedFoldersInput.Select(file =>
 			{
-				int index = file.IndexOf(GlobalVariables.parsedOptions.Input);
-				return index >= 0 ? file.Substring(0, index) + file.Substring(index + GlobalVariables.parsedOptions.Input.Length) : file;
+				int index = file.IndexOf(GlobalVariables.ParsedOptions.Input);
+				return index >= 0 ? file.Substring(0, index) + file.Substring(index + GlobalVariables.ParsedOptions.Input.Length) : file;
 			}).ToList();
 
 			// Remove root path from all paths in compressedFoldersOutput
 			var outputWithoutRoot = compressedFoldersOutput.Select(file =>
 			{
-				int index = file.IndexOf(GlobalVariables.parsedOptions.Output);
-				return index >= 0 ? file.Substring(0, index) + file.Substring(index + GlobalVariables.parsedOptions.Output.Length) : file;
+				int index = file.IndexOf(GlobalVariables.ParsedOptions.Output);
+				return index >= 0 ? file.Substring(0, index) + file.Substring(index + GlobalVariables.ParsedOptions.Output.Length) : file;
 			}).ToList();
 
 			//Remove all folders that are not in input directory
@@ -753,7 +753,7 @@ namespace FileConverter.Siegfried
 			{
 				if (!inputWithoutRoot.Contains(folder))
 				{
-					compressedFoldersOutput.Remove(GlobalVariables.parsedOptions.Output + folder);
+					compressedFoldersOutput.Remove(GlobalVariables.ParsedOptions.Output + folder);
 				}
 			}
 

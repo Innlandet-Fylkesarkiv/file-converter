@@ -87,8 +87,15 @@ namespace ConversionTools
                     semaphore.Release();
                 }
             }
-            return;
         }
+
+        /// <summary>
+        /// Convert a file to a new format
+        /// </summary>
+        /// <param name="fileinfo">The file to be converted</param>
+        /// <param name="pronom">The file format to convert to</param>
+        async public virtual Task ConvertFile(FileToConvert file, string pronom)
+        { }
 
         /// <summary>
         /// Checks if the converter supports the conversion of a file from one format to another
@@ -138,20 +145,12 @@ namespace ConversionTools
         /// <returns>True if it contains a locked section</returns>
         bool ConversionContainsLock(FileToConvert file)
         {
-            if (BlockingConversions.ContainsKey(file.CurrentPronom))
+            if (BlockingConversions.TryGetValue(file.CurrentPronom, out var conversionLocks))
             {
-                return BlockingConversions[file.CurrentPronom].Contains(file.Route.First());
+                return conversionLocks.Contains(file.Route.First());
             }
             return false;
         }
-
-        /// <summary>
-        /// Convert a file to a new format
-        /// </summary>
-        /// <param name="fileinfo">The file to be converted</param>
-        /// <param name="pronom">The file format to convert to</param>
-        async public virtual Task ConvertFile(FileToConvert file, string pronom)
-        { }
 
         /// <summary>
         /// Combine multiple files into one file
@@ -231,7 +230,7 @@ namespace ConversionTools
         /// <param name="filePath"> Full path of the file </param>
         /// <param name="pronom"> The specific PRONOM code of the file </param>
         /// <returns> True or false depending on if conversion is done </returns>
-        public bool CheckConversionStatus(string filePath, string pronom)
+        static public bool CheckConversionStatus(string filePath, string pronom)
         {
             try
             {

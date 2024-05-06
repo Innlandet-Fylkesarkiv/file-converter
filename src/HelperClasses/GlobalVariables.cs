@@ -10,13 +10,19 @@ namespace FileConverter.HelperClasses
     }
     public static class GlobalVariables
     {
-        public static Options parsedOptions = new Options();
+        public static Options ParsedOptions { get; set; } = new Options();
+
         //Map with all specified conversion formats, to and from
-        public static Dictionary<string, string> FileConversionSettings = new Dictionary<string, string>(); // the key is pronom code 
-                                                                                                  // Map with info about what folders have overrides for specific formats
-        public static Dictionary<string, ConversionSettingsData> FolderOverride = new Dictionary<string, ConversionSettingsData>(); // the key is a foldername
-        public static HashAlgorithms checksumHash = HashAlgorithms.SHA256;
-        public static int maxThreads = Environment.ProcessorCount * 2;
+        public static Dictionary<string, string> FileConversionSettings { get; set; } = new Dictionary<string, string>(); // the key is pronom code 
+                                                                                    // Map with info about what folders have overrides for specific formats
+
+        public static Dictionary<string, ConversionSettingsData> FolderOverride { get; set; } 
+                                                            = new Dictionary<string, ConversionSettingsData>(); // the key is a foldername
+
+        public static HashAlgorithms ChecksumHash { get; set; } = HashAlgorithms.SHA256;
+
+        public static int MaxThreads { get; set; } = Environment.ProcessorCount * 2;
+
         public static int timeout = 20;
         public static double maxFileSize = 1 * 1024 * 1024 * 1024;      //1GB
         public const int MAX_RETRIES = 3; //Maximum number of attempts in case of a failed conversion
@@ -32,8 +38,8 @@ namespace FileConverter.HelperClasses
             FileConversionSettings.Clear();
             FolderOverride.Clear();
             //Set to default values (will be overwritten in ConversionSettings.cs if specified by user)
-            checksumHash = HashAlgorithms.SHA256;
-            maxThreads = Environment.ProcessorCount * 2;
+            ChecksumHash = HashAlgorithms.SHA256;
+            MaxThreads = Environment.ProcessorCount * 2;
             timeout = 5;
         }
     }
