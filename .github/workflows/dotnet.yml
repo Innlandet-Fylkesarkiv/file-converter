@@ -25,4 +25,4 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test file-converter-prog2900Tests\file-converter-prog2900Tests.csproj --verbosity normal
+      run: dotnet test file-converter-prog2900Tests/file-converter-prog2900Tests.csproj --verbosity normal
