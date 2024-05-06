@@ -58,8 +58,8 @@ namespace ConversionTools.Converters
         /// <param name="pronom">The file format to convert to</param>
         async public override Task ConvertFile(FileToConvert file, string pronom)
         {
-            string inputFolder =  GlobalVariables.parsedOptions.Input;
-            string outputFolder = GlobalVariables.parsedOptions.Output;
+            string inputFolder =  GlobalVariables.ParsedOptions.Input;
+            string outputFolder = GlobalVariables.ParsedOptions.Output;
 
             // Get the full path to the input directory and output directory 
             string outputDir = Directory.GetParent(file.FilePath.Replace(inputFolder, outputFolder))?.ToString() ?? "";

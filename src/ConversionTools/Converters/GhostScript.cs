@@ -379,7 +379,7 @@ namespace ConversionTools.Converters
                     files = new List<FileInfo2>(); //Clear list of files
                                                   //Create folder for images with original name
                     string folder = Path.GetFileNameWithoutExtension(file.FilePath);
-                    string folderPath = Path.Combine(GlobalVariables.parsedOptions.Output, folder);
+                    string folderPath = Path.Combine(GlobalVariables.ParsedOptions.Output, folder);
                     if (Directory.Exists(folderPath))
                     {
                         //Clear folder if it already exists

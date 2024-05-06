@@ -99,7 +99,7 @@ namespace FileConverter.Managers
 		void FilterConversionMap()
 		{
 			var toDelete = new List<KeyValuePair<string, string>>();
-			Parallel.ForEach(ConversionMap, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, entry =>
+			Parallel.ForEach(ConversionMap, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.MaxThreads }, entry =>
 			{
 				bool supported = false;
 				var route = entry.Value;
@@ -211,7 +211,7 @@ namespace FileConverter.Managers
 		/// </summary>
 		public async Task ConvertFiles()
 		{
-			int maxThreads = GlobalVariables.maxThreads;
+			int maxThreads = GlobalVariables.MaxThreads;
 			Dictionary<string, List<FileInfo2>> mergingFiles = new Dictionary<string, List<FileInfo2>>();
 			Console.WriteLine("Setting up working set...");
 			//Initialize working set
@@ -473,7 +473,7 @@ namespace FileConverter.Managers
 		{
 			try
 			{
-				Parallel.ForEach(mergingFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.maxThreads }, entry =>
+				Parallel.ForEach(mergingFiles, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.MaxThreads }, entry =>
 				{
 					var converter = new IText7();
 					var outputPronom = GlobalVariables.FolderOverride[entry.Key].DefaultType;
@@ -502,7 +502,7 @@ namespace FileConverter.Managers
 		bool CheckInOverride(FileInfo2 file, FileToConvert newFile, Dictionary<string, List<FileInfo2>> mergingFiles)
 		{
 			//Check if the file is in a folder that should be overridden
-			string? parentDirName = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.parsedOptions.Output, file.FilePath));
+			string? parentDirName = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.ParsedOptions.Output, file.FilePath));
 			if (parentDirName == null || !GlobalVariables.FolderOverride.ContainsKey(parentDirName))
 			{
 				return true;

@@ -459,7 +459,7 @@ namespace ConversionTools.Converters
                 DateTime currentDateTime = DateTime.Now;
                 string formattedDateTime = currentDateTime.ToString("yyyy-MM-dd");
                 string baseName = Path.GetDirectoryName(files.First().FilePath)!.Split('\\').Last() ?? "combined";
-                string outputDirectory = Path.GetDirectoryName(files.First().FilePath) ?? GlobalVariables.parsedOptions.Output;
+                string outputDirectory = Path.GetDirectoryName(files.First().FilePath) ?? GlobalVariables.ParsedOptions.Output;
                 string filename = Path.Combine(outputDirectory, baseName + "_" + formattedDateTime);
 
                 List<FileInfo2> group = new List<FileInfo2>();

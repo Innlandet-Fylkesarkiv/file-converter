@@ -98,7 +98,7 @@ namespace FileConverter.HelperClasses
 		{
 			string currentDirectory = Directory.GetCurrentDirectory();
 			string path = Path.Combine(currentDirectory, "logs");
-			switch (GlobalVariables.checksumHash)
+			switch (GlobalVariables.ChecksumHash)
 			{
 				case HashAlgorithms.SHA256:
 					JsonRoot.Hashing = "SHA256";
@@ -189,7 +189,7 @@ namespace FileConverter.HelperClasses
 		public void SetUpDocumentation(List<FileInfo2> files)
 		{
 			//TODO: Comment: Maybe find better place to put the file and set docPath earlier
-			string path = GlobalVariables.parsedOptions.Output + "/";
+			string path = GlobalVariables.ParsedOptions.Output + "/";
 			DocPath = path + "documentation.json";
 			using (StreamWriter outputFile = new StreamWriter(DocPath))
 			{
@@ -316,10 +316,10 @@ namespace FileConverter.HelperClasses
 				{
 					requester = UserPrincipal.Current.DisplayName;
 				}
-				if (!GlobalVariables.parsedOptions.AcceptAll)
+				if (!GlobalVariables.ParsedOptions.AcceptAll)
 				{
 					Console.WriteLine("No data found in ConversionSettings and username '{0}' was detected, do you want to set it as requester in the documentation? (Y/N)", requester);
-					var response = GlobalVariables.parsedOptions.AcceptAll ? "Y" : Console.ReadLine()!;
+					var response = GlobalVariables.ParsedOptions.AcceptAll ? "Y" : Console.ReadLine()!;
 					if (response.ToUpper() == "Y")
 					{
 						JsonRoot.Requester = requester;
@@ -343,7 +343,7 @@ namespace FileConverter.HelperClasses
 				{
 					converter = UserPrincipal.Current.DisplayName;
 				}
-				if (!GlobalVariables.parsedOptions.AcceptAll)
+				if (!GlobalVariables.ParsedOptions.AcceptAll)
 				{
 					Console.WriteLine("No data found in ConversionSettings and username '{0}' was detected, do you want to set it as converter in the documentation? (Y/N)", converter);
 					var response = Console.ReadLine()!;
