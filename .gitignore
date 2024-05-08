@@ -24,3 +24,5 @@
 /GUI/ChangeConverterSettings/bin
 /GUI/ChangeConverterSettings/obj
 /GUI/.vs
+/file-converter-prog2900Tests/obj
+/file-converter-prog2900Tests/bin/Release/net8.0

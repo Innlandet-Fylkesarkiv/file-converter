@@ -7,8 +7,7 @@ namespace FileConverter.HelperClasses
 	{
 		private static Logger? instance;
 		private static readonly object LockObject = new object();
-		string LogPath;         // Path to log file
-		string DocPath;         // Path to documentation file
+		readonly string LogPath;         // Path to log file
 
 		List<JsonData> JsonFiles = new List<JsonData>();
 		Dictionary<string, Dictionary<string, List<JsonDataMerge>>> JsonMergedFiles = new Dictionary<string, Dictionary<string, List<JsonDataMerge>>>();
@@ -149,7 +148,7 @@ namespace FileConverter.HelperClasses
 		/// </summary>
 		/// <param name="message"> The message to be logged </param>
 		/// <param name="filepath"> The filepath to the logfile </param>
-		private void WriteLog(string message, string filepath)
+		static private void WriteLog(string message, string filepath)
 		{
 			lock (LockObject)
 			{
@@ -175,7 +174,7 @@ namespace FileConverter.HelperClasses
 		/// <returns> returns the message in the correct format </returns>
 		public void SetUpRunTimeLogMessage(string message, bool error, string pronom = "N/A", string mime = "N/A", string filename = "N/A")
 		{
-			ErrorHappened = ErrorHappened ? true : error;
+			ErrorHappened =  error;
 			string errorM = "Message: ";
 			if (error) { errorM = "Error: "; }
 			string formattedMessage = errorM + " | " + message + " | " + pronom + " | " + mime + " | " + filename + "\n";
@@ -188,10 +187,9 @@ namespace FileConverter.HelperClasses
 		/// <param name="files"> list containing fileinfo about all files </param>
 		public void SetUpDocumentation(List<FileInfo2> files)
 		{
-			//TODO: Comment: Maybe find better place to put the file and set docPath earlier
-			string path = GlobalVariables.ParsedOptions.Output + "/";
-			DocPath = path + "documentation.json";
-			using (StreamWriter outputFile = new StreamWriter(DocPath))
+            string path = Path.Combine(GlobalVariables.ParsedOptions.Output, "");
+            string docPath = path + "documentation.json";
+			using (StreamWriter outputFile = new StreamWriter(docPath))
 			{
 				outputFile.WriteAsync("\n");
 			}
@@ -212,19 +210,19 @@ namespace FileConverter.HelperClasses
 					};
 					var parentDir = Path.GetDirectoryName(file.FilePath) ?? "";
 
-					if (JsonMergedFiles.ContainsKey(parentDir))
-					{
-						if (JsonMergedFiles[parentDir].ContainsKey(jsonData.MergedTo))
-						{
-							JsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
-						}
-						else
-						{
-							JsonMergedFiles[parentDir].Add(jsonData.MergedTo, new List<JsonDataMerge>());
-							JsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
-						}
-					}
-					else
+                    if (JsonMergedFiles.TryGetValue(parentDir, out var mergedFiles))
+                    {
+                        if (mergedFiles.TryGetValue(jsonData.MergedTo, out var dataList))
+                        {
+                            dataList.Add(jsonData);
+                        }
+                        else
+                        {
+                            mergedFiles.Add(jsonData.MergedTo, new List<JsonDataMerge>());
+                            mergedFiles[jsonData.MergedTo].Add(jsonData);
+                        }
+                    }
+                    else
 					{
 						JsonMergedFiles.Add(parentDir, new Dictionary<string, List<JsonDataMerge>>());
 						JsonMergedFiles[parentDir].Add(jsonData.MergedTo, new List<JsonDataMerge>());
@@ -301,7 +299,7 @@ namespace FileConverter.HelperClasses
 			string json = JsonSerializer.Serialize(jsonDataWrapper, Options);
 
 			// Send it to writelog to print it out there
-			WriteLog(json, DocPath);
+			WriteLog(json, docPath);
 		}
 
 		/// <summary>
@@ -320,8 +318,8 @@ namespace FileConverter.HelperClasses
 				{
 					Console.WriteLine("No data found in ConversionSettings and username '{0}' was detected, do you want to set it as requester in the documentation? (Y/N)", requester);
 					var response = GlobalVariables.ParsedOptions.AcceptAll ? "Y" : Console.ReadLine()!;
-					if (response.ToUpper() == "Y")
-					{
+                    if (response.Equals("Y", StringComparison.OrdinalIgnoreCase))
+                    {
 						JsonRoot.Requester = requester;
 					}
 					else
@@ -347,10 +345,10 @@ namespace FileConverter.HelperClasses
 				{
 					Console.WriteLine("No data found in ConversionSettings and username '{0}' was detected, do you want to set it as converter in the documentation? (Y/N)", converter);
 					var response = Console.ReadLine()!;
-					if (response.ToUpper() == "Y")
-					{
-						JsonRoot.Converter = converter;
-					}
+                    if (response.Equals("Y", StringComparison.OrdinalIgnoreCase))
+                    {
+                        JsonRoot.Converter = converter;
+                    }
 					else
 					{
 						Console.WriteLine("Who is requesting the converting?");

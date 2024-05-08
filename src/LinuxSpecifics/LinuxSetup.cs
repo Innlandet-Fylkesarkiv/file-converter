@@ -14,9 +14,8 @@ namespace FileConverter.LinuxSpecifics
     class LinuxSetup
     {
         //Specific Linux distro
-        public static string LinuxDistro = GetLinuxDistro();
-        public static string PathRunningProgram = "/bin/bash";
-        bool JavaInstalled = false;
+        private static string LinuxDistro = GetLinuxDistro();
+        private static string PathRunningProgram = "/bin/bash";
 
         //Map for external converters to check if they are downloaded.
         static Dictionary<List<string>, string> converterArguments = new Dictionary<List<string>, string>()
