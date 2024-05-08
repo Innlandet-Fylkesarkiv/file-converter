@@ -66,7 +66,7 @@ namespace ConversionTools
         /// <param name="file">File that should be converted</param>
         async virtual public Task ConvertFile(FileToConvert file)
         {            
-            var timeout = TimeSpan.FromMinutes(GlobalVariables.timeout);
+            var timeout = TimeSpan.FromMinutes(GlobalVariables.Timeout);
             try
             {
                 if (ConversionContainsLock(file))

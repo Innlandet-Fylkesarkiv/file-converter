@@ -100,17 +100,17 @@ namespace FileConverter
                     GlobalVariables.MaxThreads = maxThreads;
                 }
 
-                string? inputTimeout = timeoutNode?.InnerText;
-                if (!String.IsNullOrEmpty(inputTimeout) && int.TryParse(inputTimeout, out int timeout))
-                {
-                    GlobalVariables.timeout = timeout;
-                }
+				string? inputTimeout = timeoutNode?.InnerText;
+				if (!String.IsNullOrEmpty(inputTimeout) && int.TryParse(inputTimeout, out int timeout))
+				{
+					GlobalVariables.Timeout = timeout;
+				}
 
-                string? inputMaxFileSize = maxFileSizeNode?.InnerText;
-                if (!String.IsNullOrEmpty(inputMaxFileSize) && double.TryParse(inputMaxFileSize, out double maxFileSize))
-                {
-                    GlobalVariables.maxFileSize = maxFileSize;
-                }
+				string? inputMaxFileSize = maxFileSizeNode?.InnerText;
+				if (!String.IsNullOrEmpty(inputMaxFileSize) && double.TryParse(inputMaxFileSize, out double maxFileSize))
+				{
+					GlobalVariables.MaxFileSize = maxFileSize;
+				}
 
                 string? checksumHashing = root?.SelectSingleNode("ChecksumHashing")?.InnerText;
                 if (checksumHashing != null)

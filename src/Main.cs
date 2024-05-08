@@ -28,7 +28,7 @@ namespace FileConverter
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			PrintHelper.OldCol = Console.ForegroundColor;
-			if (GlobalVariables.debug)
+			if (GlobalVariables.Debug)
 			{
 				Console.WriteLine("Running in debug mode...");
 			}
@@ -139,7 +139,7 @@ namespace FileConverter
 				logger.AskAboutReqAndConv();
 				fileManager.DisplayFileList();
 				PrintHelper.PrintLn("Requester: {0}\nConverter: {1}\nMaxThreads: {2}\nTimeout in minutes: {3}",
-					GlobalVariables.INFO_COL, Logger.JsonRoot.Requester, Logger.JsonRoot.Converter, GlobalVariables.MaxThreads, GlobalVariables.timeout);
+					GlobalVariables.INFO_COL, Logger.JsonRoot.Requester, Logger.JsonRoot.Converter, GlobalVariables.MaxThreads, GlobalVariables.Timeout);
 
 				Console.Write("Do you want to proceed with these Settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
 				while (!validInput.Contains(input))
