@@ -149,7 +149,7 @@ namespace ConversionTools.Converters
                             if (Directory.Exists(folderWithAttachments))
                             {
                                 // Attachements found, add them to the working set for further conversion
-                                await addAttachementFilesToWorkingSet(inputFilePath, folderWithAttachments);
+                                await addAttachementFilesToWorkingSet(folderWithAttachments);
                             }
                             // Delete copy in ouputfolder if converted successfully
                             DeleteOriginalFileFromOutputDirectory(inputFilePath);
@@ -265,7 +265,7 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="inputFilePath"></param>
         /// <returns></returns>
-        public async Task addAttachementFilesToWorkingSet(string inputFilePath, string folderWithAttachments)
+        public async Task addAttachementFilesToWorkingSet(string folderWithAttachments)
         {
             List<FileInfo2>? attachementFiles = await SF.Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments)!;
             foreach (FileInfo2 newFile in attachementFiles)
