@@ -10,13 +10,10 @@ namespace FileConverter.Managers
     {
         private static FileManager? instance;
         private static readonly object lockObject = new object();
-        private ConcurrentDictionary<Guid, FileInfo2> _files = new ConcurrentDictionary<Guid, FileInfo2>();
         private static readonly object identifyingFiles = new object(); // True if files are being identified
-        private bool _conversionFinished = false;
-
         public bool ConversionFinished { get; set; }
-
         public ConcurrentDictionary<Guid, FileInfo2> Files { get; set; }
+
         private FileManager()
         {
             Files = new ConcurrentDictionary<Guid, FileInfo2>();
@@ -45,12 +42,11 @@ namespace FileConverter.Managers
             {
                 SF.Siegfried sf2 = SF.Siegfried.Instance;
                 Logger logger = Logger.Instance;
-                //TODO: Can maybe run both individually and compressed files at the same time
+                
                 //Identifying all uncompressed files
                 List<FileInfo2>? files = sf2.IdentifyFilesIndividually(GlobalVariables.ParsedOptions.Input)!.Result; //Search for files in output folder since they are copied there from input folder
                 if (files != null)
                 {
-                    //TODO: Should be more robust
                     //Change path from input to output directory
                     foreach (FileInfo2 file in files)
                     {
@@ -201,15 +197,15 @@ namespace FileConverter.Managers
                                                 g => g.Select(kv => kv.Value).ToList()
                                             );
 
-            filterNonDuplicates(directoriesWithFiles);
+            var filteredList = filterNonDuplicates(directoriesWithFiles);
 
             //If no filenames are duplicates, no need to check more
-            if (directoriesWithFiles.Count == 0)
+            if (filteredList.Count == 0)
             {
                 return;
             }
 
-            foreach (var fileGroup in directoriesWithFiles.Values)
+            foreach (var fileGroup in filteredList.Values)
             {
                 foreach (var file in fileGroup)
                 {
@@ -224,15 +220,16 @@ namespace FileConverter.Managers
                     file.RenameFile(newName);
                 }
             }
-            filterNonDuplicates(directoriesWithFiles);
+
+            filteredList = filterNonDuplicates(filteredList);
             //If no filenames are duplicates, no need to check more
-            if (directoriesWithFiles.Count == 0)
+            if (filteredList.Count == 0)
             {
                 return;
             }
 
             //Add number to the file name
-            foreach (var fileGroup in directoriesWithFiles.Values)
+            foreach (var fileGroup in filteredList.Values)
             {
                 foreach (var file in fileGroup)
                 {
@@ -252,7 +249,7 @@ namespace FileConverter.Managers
         /// 
         /// </summary>
         /// <param name="dict"></param>
-        static private void filterNonDuplicates(Dictionary<string, List<FileInfo2>> dict)
+        static private Dictionary<string,List<FileInfo2>> filterNonDuplicates (Dictionary<string, List<FileInfo2>> dict)
         {
             // Remove groups with only one file name
             var filteredFiles = dict
@@ -263,10 +260,11 @@ namespace FileConverter.Managers
             filteredFiles.ForEach(kv =>
             {
                 kv.Value.RemoveAll(f => kv.Value
-                    .Count(x => Path.GetFileNameWithoutExtension(x.FilePath) == Path.GetFileNameWithoutExtension(f.FilePath)) == 1); //TODO: Should check if the files are in the same directory
+                    .Count(x => Path.GetFileNameWithoutExtension(x.FilePath) == Path.GetFileNameWithoutExtension(f.FilePath)) == 1);
             });
-            //Remove the keys that have no values
-            _ = filteredFiles.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value);
+
+            //Remove the keys that have no values and return the filtered dictionary
+            return filteredFiles.Where(kv => kv.Value.Count > 0).ToDictionary(kv => kv.Key, kv => kv.Value);
         }
 
         /// <summary>
@@ -360,21 +358,48 @@ namespace FileConverter.Managers
                 PrintHelper.PrintLn("No files found", GlobalVariables.ERROR_COL);
                 return;
             }
-            //Get converters supported formats
-            var converters = AddConverters.Instance.GetConverters();
-            bool macroDetected = false;
 
             string notSupportedString = " (Not supported)"; //Needs to have a space in front to extract the pronom code from the string
             string notSetString = "Not set";
+            
+            var fileCount = MakeConversionCountDict(notSupportedString, notSetString);
+
+            var formatList = FormatFileInfoGroups(fileCount, notSupportedString, notSetString, out int currentMax, out int targetMax);
+
+            var oldColor = Console.ForegroundColor;
+            PrintFileGroups(currentMax, targetMax, formatList, notSupportedString, notSetString);
+
+            //Sum total from all entries in fileCount where key. is not "Not set" or "Not supported"
+            int total = formatList.Where(x => x.TargetPronom != notSetString && !x.TargetFormatName.Contains(notSupportedString)).Sum(x => x.Count);
+            //Sum total from all entries in fileCount where the input pronom is the same as the output pronom
+            int totalFinished = formatList.Where(x => x.CurrentPronom == x.TargetPronom).Sum(x => x.Count);
+            //Print totals to user
+            Console.ForegroundColor = GlobalVariables.INFO_COL;
+            Console.WriteLine("\n{0, 6} file{1}", Files.Count, Files.Count > 1 ? "s" : "");
+            Console.WriteLine("{0, 6} file{1} with supported output format specified", total, total > 1 ? "s" : "");
+            Console.WriteLine("{0, 6} file{1} not at target format", total - totalFinished, total - totalFinished > 1 ? "s" : "");
+
+            PrintMergeFiles();
+            Console.ForegroundColor = oldColor;
+        }
+
+        /// <summary>
+        /// Creates a dictionary with the count of files for each conversion from the original pronom to the target pronom. <br></br>
+        /// </summary>
+        /// <param name="notSupportedString">string to append for formats that are not supported</param>
+        /// <param name="notSetString">string for formats that do not have a target format</param>
+        /// <returns>A dictionary for count of conversions</returns>
+        private Dictionary<KeyValuePair<string, string>, int> MakeConversionCountDict(string notSupportedString, string notSetString)
+        {
+            //Get converters supported formats
+            var converters = AddConverters.Instance.GetConverters();
+            bool macroDetected = false;
             Dictionary<KeyValuePair<string, string>, int> fileCount = new Dictionary<KeyValuePair<string, string>, int>();
+
             foreach (FileInfo2 file in Files.Values)
             {
                 //Skip files that should be merged or should not be displayed
-                if (ConversionSettings.ShouldMerge(file))
-                {
-                    continue;
-                }
-                else if (!file.Display)
+                if (ConversionSettings.ShouldMerge(file) || !file.Display)
                 {
                     continue;
                 }
@@ -413,6 +438,7 @@ namespace FileConverter.Managers
                 }
                 //Add new entry in dictionary or add to count if entry already exists
                 KeyValuePair<string, string> key = new KeyValuePair<string, string>(currentPronom, targetPronom);
+                
                 if (fileCount.TryGetValue(key, out var count))
                 {
                     fileCount[key] = count + 1;
@@ -427,67 +453,17 @@ namespace FileConverter.Managers
             {
                 PrintHelper.PrintLn("One or more macro files detected in '{0}' folder.", GlobalVariables.WARNING_COL, GlobalVariables.ParsedOptions.Input);
             }
+            return fileCount;
+        }
 
-            var formatList = new List<FileInfoGroup>();
-            foreach (KeyValuePair<KeyValuePair<string, string>, int> entry in fileCount)
-            {
-                formatList.Add(new FileInfoGroup { CurrentPronom = entry.Key.Key, TargetPronom = entry.Key.Value, Count = entry.Value });
-            }
-
-            //Find the longest format name for current and target formats
-            int currentMax = 0;
-            int targetMax = 0;
-            foreach (var format in formatList)
-            {
-                format.CurrentFormatName = PronomHelper.PronomToFullName(format.CurrentPronom);
-                format.TargetFormatName = PronomHelper.PronomToFullName(format.TargetPronom);
-                if (format.TargetPronom.Contains(notSupportedString))
-                {
-                    var split = format.TargetPronom.Split(" ")[0];
-                    format.TargetFormatName = PronomHelper.PronomToFullName(split) + notSupportedString;
-                    format.TargetPronom = split;
-                }
-                if (format.CurrentFormatName.Length > currentMax)
-                {
-                    currentMax = format.CurrentFormatName.Length;
-                }
-                if (format.TargetFormatName.Length > targetMax)
-                {
-                    targetMax = format.TargetFormatName.Length;
-                }
-            }
-
-            //Adjust length to be at least as big as the column name
-            currentMax = Math.Max(currentMax, "Full name".Length);
-            targetMax = Math.Max(targetMax, "Full name".Length);
-
-            //Sort list
-            switch (GlobalVariables.SortBy)
-            {
-                //Sort by the count of files with the same ConversionSettings
-                //TODO: Ask archive if they want the not set and not supported files to be at the bottom or in between the other files
-                case PrintSortBy.Count:
-                    formatList = formatList.OrderBy(x => x.TargetPronom == notSetString || x.TargetFormatName.Contains(notSupportedString))
-                        .ThenByDescending(x => x.Count)
-                        .ThenBy(x => ParsePronom(x.CurrentPronom))
-                        .ToList();
-                    break;
-                //Sort by the current or target pronom code with count as a tiebreaker
-                case PrintSortBy.CurrentPronom:
-                case PrintSortBy.TargetPronom:
-                    bool current = GlobalVariables.SortBy == PrintSortBy.CurrentPronom; //True if sorting by current pronom
-                    formatList = formatList
-                        .OrderBy(x => ParsePronom(current ? x.CurrentPronom : x.TargetPronom))
-                        .ThenByDescending(x => x.Count) //Tiebreaker is count
-                        .ToList();
-                    break;
-            }
-
+        private void PrintFileGroups(int currentMax, int targetMax, List<FileInfoGroup> formatList, string notSupportedString, string notSetString)
+        {
             var firstFormatTitle = ConversionFinished ? "Actual pronom" : "Input pronom";
             var secondFormatTitle = ConversionFinished ? "Target pronom" : "Output pronom";
+            var oldColor = Console.ForegroundColor;
 
             //Print the number of files per pronom code
-            var oldColor = Console.ForegroundColor;
+
             Console.ForegroundColor = GlobalVariables.INFO_COL;
             Console.WriteLine("\n{0,13} - {1,-" + currentMax + "} | {2,13} - {3,-" + targetMax + "} | {4,6}", firstFormatTitle, "Full name", secondFormatTitle, "Full name", "Count");
 
@@ -499,7 +475,7 @@ namespace FileConverter.Managers
                 {
                     Console.ForegroundColor = GlobalVariables.ERROR_COL;
                 }
-                else if (format.TargetPronom == "Not set")
+                else if (format.TargetPronom == notSetString)
                 {
                     Console.ForegroundColor = GlobalVariables.WARNING_COL;
                 }
@@ -513,16 +489,10 @@ namespace FileConverter.Managers
                     PrintStrikeThrough(format, currentMax, targetMax);
                 }
             }
+        }
 
-            //Sum total from all entries in fileCount where key. is not "Not set" or "Not supported"
-            int total = formatList.Where(x => x.TargetPronom != notSetString && !x.TargetFormatName.Contains(notSupportedString)).Sum(x => x.Count);
-            //Sum total from all entries in fileCount where the input pronom is the same as the output pronom
-            int totalFinished = formatList.Where(x => x.CurrentPronom == x.TargetPronom).Sum(x => x.Count);
-            //Print totals to user
-            Console.ForegroundColor = GlobalVariables.INFO_COL;
-            Console.WriteLine("\n{0, 6} file{1}", Files.Count, Files.Count > 1 ? "s" : "");
-            Console.WriteLine("{0, 6} file{1} with supported output format specified", total, total > 1 ? "s" : "");
-            Console.WriteLine("{0, 6} file{1} not at target format", total - totalFinished, total - totalFinished > 1 ? "s" : "");
+        private void PrintMergeFiles()
+        {
             //Get a list of all directories that will be merged
             List<(string, string)> dirsToBeMerged = new List<(string, string)>();
             foreach (var entry in GlobalVariables.FolderOverride)
@@ -582,26 +552,72 @@ namespace FileConverter.Managers
                     }
                 }
             }
-            Console.ForegroundColor = oldColor;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public List<FileInfo2> GetFiles()
+        private static List<FileInfoGroup> FormatFileInfoGroups(Dictionary<KeyValuePair<string, string>, int> fileCount, string notSupportedString, string notSetString, out int currentMax, out int targetMax)
         {
-            lock (identifyingFiles)
+            var formatList = new List<FileInfoGroup>();
+
+            foreach (KeyValuePair<KeyValuePair<string, string>, int> entry in fileCount)
             {
-                return Files.Values.ToList();
+                formatList.Add(new FileInfoGroup { CurrentPronom = entry.Key.Key, TargetPronom = entry.Key.Value, Count = entry.Value });
             }
+
+            //Find the longest format name for current and target formats
+            currentMax = 0;
+            targetMax = 0;
+            foreach (var format in formatList)
+            {
+                format.CurrentFormatName = PronomHelper.PronomToFullName(format.CurrentPronom);
+                format.TargetFormatName = PronomHelper.PronomToFullName(format.TargetPronom);
+                if (format.TargetPronom.Contains(notSupportedString))
+                {
+                    var split = format.TargetPronom.Split(" ")[0];
+                    format.TargetFormatName = PronomHelper.PronomToFullName(split) + notSupportedString;
+                    format.TargetPronom = split;
+                }
+                if (format.CurrentFormatName.Length > currentMax)
+                {
+                    currentMax = format.CurrentFormatName.Length;
+                }
+                if (format.TargetFormatName.Length > targetMax)
+                {
+                    targetMax = format.TargetFormatName.Length;
+                }
+            }
+
+            //Adjust length to be at least as big as the column name
+            currentMax = Math.Max(currentMax, "Full name".Length);
+            targetMax = Math.Max(targetMax, "Full name".Length);
+
+            //Sort list
+            switch (GlobalVariables.SortBy)
+            {
+                //Sort by the count of files with the same ConversionSettings
+                case PrintSortBy.Count:
+                    formatList = formatList.OrderBy(x => x.TargetPronom == notSetString || x.TargetFormatName.Contains(notSupportedString))
+                        .ThenByDescending(x => x.Count)
+                        .ThenBy(x => ParsePronom(x.CurrentPronom))
+                        .ToList();
+                    break;
+                //Sort by the current or target pronom code with count as a tiebreaker
+                case PrintSortBy.CurrentPronom:
+                case PrintSortBy.TargetPronom:
+                    bool current = GlobalVariables.SortBy == PrintSortBy.CurrentPronom; //True if sorting by current pronom
+                    formatList = formatList
+                        .OrderBy(x => ParsePronom(current ? x.CurrentPronom : x.TargetPronom))
+                        .ThenByDescending(x => x.Count) //Tiebreaker is count
+                        .ToList();
+                    break;
+            }
+            return formatList;
         }
 
         /// <summary>
-        /// 
+        /// Get a specific file based on its id
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">The id of the file</param>
+        /// <returns>FileInfo2 object or null</returns>
         public FileInfo2? GetFile(Guid id)
         {
             if (Files.TryGetValue(id, out var file))
