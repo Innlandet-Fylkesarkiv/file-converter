@@ -84,7 +84,7 @@
                 "type": "string"
               },
               "Size": {
-                "type": "integer
+                "type": "integer"
                 },
               "Tool": {
                 "type": "array",

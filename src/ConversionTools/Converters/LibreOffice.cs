@@ -28,8 +28,8 @@ namespace ConversionTools.Converters
 		private static readonly object locker = new object();
 		readonly OperatingSystem currentOS;
 		bool iTextFound = false;
-		string sofficePathLinux = "/usr/lib/libreoffice/program/soffice";
-		string sofficePathWindows = "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
+		readonly string sofficePathLinux = "/usr/lib/libreoffice/program/soffice";
+		readonly string sofficePathWindows = "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
 
 		/// <summary>
 		/// Constructor setting important properties for the class.
@@ -89,7 +89,9 @@ namespace ConversionTools.Converters
 		/// </summary>
 		/// <param name="filePath">The file to be converted</param>
 		/// <param name="pronom">The file format to convert to</param>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 		async public override Task ConvertFile(FileToConvert file, string pronom)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 		{
 			// Get correct folders and properties required for conversion
 			string inputFolder = GlobalVariables.ParsedOptions.Input;
@@ -100,8 +102,8 @@ namespace ConversionTools.Converters
 			string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(file.FilePath));
 			string executableName = currentOS.Platform == PlatformID.Unix ? "soffice" : "soffice.exe";
 
-			bool sofficePathWindows = CheckPathVariableWindows(executableName);
-			bool sofficePathLinux = CheckPathVariableLinux(executableName);
+			bool sofficePathWindowsExists = CheckPathVariableWindows(executableName);
+			bool sofficePathLinuxExists = CheckPathVariableLinux(executableName);
 
 			string targetFormat = GetConversionExtension(pronom);
 
@@ -112,14 +114,14 @@ namespace ConversionTools.Converters
 				// be converted without the lock
 				lock (locker)
 				{
-					RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathWindows, targetFormat, file);
+					RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathWindowsExists, targetFormat, file);
 				}
 			}
 			else if (executableName == "soffice")
 			{
 				lock (locker)
 				{
-					RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathLinux, targetFormat, file);
+					RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathLinuxExists, targetFormat, file);
 				}
 			}
 			else
@@ -158,7 +160,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(XLSPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[XLSPronom] = pronomList;
 				}
 				pronomList.AddRange(XLSXPronoms);
@@ -170,7 +172,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(XLSXPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[XLSXPronom] = pronomList;
 				}
 				pronomList.AddRange(ODSPronoms);
@@ -181,7 +183,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(XLSMPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[XLSMPronom] = pronomList;
 				}
 				pronomList.AddRange(XLSXPronoms);
@@ -193,7 +195,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(XLTXPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[XLTXPronom] = pronomList;
 				}
 				pronomList.AddRange(XLSXPronoms);
@@ -205,7 +207,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(docPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[docPronom] = pronomList;
 				}
 				pronomList.AddRange(DOCXPronoms);
@@ -218,7 +220,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(docxPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[docxPronom] = pronomList;
 				}
 				pronomList.AddRange(ODTPronoms);
@@ -230,7 +232,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(docmPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[docmPronom] = pronomList;
 				}
 				pronomList.AddRange(DOCXPronoms);
@@ -242,30 +244,31 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(dotxPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[dotxPronom] = pronomList;
 				}
 				pronomList.AddRange(DOCXPronoms);
 				pronomList.AddRange(PDFPronoms);
 				pronomList.AddRange(ODTPronoms);
 			}
-			// PPT to PPTX, ODP and PDF
-			foreach (string pptPronom in PPTPronoms)
-			{
-				if (!supportedConversions.ContainsKey(pptPronom))
-				{
-					supportedConversions[pptPronom] = new List<string>();
-				}
-				supportedConversions[pptPronom].AddRange(PDFPronoms);
-				supportedConversions[pptPronom].AddRange(ODPPronoms);
-				supportedConversions[pptPronom].AddRange(PPTXPronoms);
-			}
-			// PPTX to ODP and PDF
-			foreach (string pptxPronom in PPTXPronoms)
+            // PPT to PPTX, ODP and PDF
+            foreach (string pptPronom in PPTPronoms)
+            {
+                if (!supportedConversions.TryGetValue(pptPronom, out var conversionList))
+                {
+                    conversionList = [];
+                    supportedConversions[pptPronom] = conversionList;
+                }
+                conversionList.AddRange(PDFPronoms);
+                conversionList.AddRange(ODPPronoms);
+                conversionList.AddRange(PPTXPronoms);
+            }
+            // PPTX to ODP and PDF
+            foreach (string pptxPronom in PPTXPronoms)
 			{
 				if (!supportedConversions.TryGetValue(pptxPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[pptxPronom] = pronomList;
 				}
 				pronomList.AddRange(PDFPronoms);
@@ -442,7 +445,7 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="sofficePath"> Bool - Indicating if is in the PATH of the environment</param>
         /// <returns></returns>
-        static string GetSofficePath(bool sofficePath)
+        string GetSofficePath(bool sofficePath)
 		{
 			string sofficePathString;
 			if (sofficePath)
@@ -451,11 +454,11 @@ namespace ConversionTools.Converters
 			}
 			else if (Environment.OSVersion.Platform == PlatformID.Unix)
 			{
-				sofficePathString = "/usr/lib/libreoffice/program/soffice";
+				sofficePathString = sofficePathLinux;
 			}
 			else
 			{
-				sofficePathString = "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
+				sofficePathString = sofficePathWindows;
 			}
 
 			return sofficePathString;

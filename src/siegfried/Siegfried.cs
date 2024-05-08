@@ -151,7 +151,7 @@ namespace FileConverter.Siegfried
 		public void AskReadFiles()
 		{
 			//Check if json files exist
-			if (Directory.Exists(OutputFolder) && Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories).Any())
+			if (Directory.Exists(OutputFolder) && Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories).Length > 0)
 			{
 				char input;
 				do
@@ -196,11 +196,7 @@ namespace FileConverter.Siegfried
 
 		private void ReadFromFiles()
 		{
-			if (instance == null)
-			{
-				instance = new Siegfried();
-			}
-			//TODO: Compressed files are not handled correctly here
+						
 			var paths = Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories);
 			using (ProgressBar progressBar = new ProgressBar(paths.Length))
 			{
@@ -208,17 +204,17 @@ namespace FileConverter.Siegfried
 				{
 					var parsedData = ParseJSONOutput(paths[i], true);
 					if (parsedData == null)
-						return; //TODO: Check error and possibly continue
+						return;
 
-					if (instance.Version == null || instance.ScanDate == null)
+					if (Version == null || ScanDate == null)
 					{
-						instance.Version = parsedData.siegfriedVersion;
-						instance.ScanDate = parsedData.scandate;
+						Version = parsedData.siegfriedVersion;
+						ScanDate = parsedData.scandate;
 					}
 
 					foreach (var f in parsedData.files)
 					{
-						instance.Files.Add(new FileInfo2(f));
+						Files.Add(new FileInfo2(f));
 					}
 				}
 			}
@@ -276,7 +272,7 @@ namespace FileConverter.Siegfried
 			{
                 Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyFile: " + e.Message, true);
             }
-			//TODO: Check error and possibly continue
+			
 			if (error.Length > 0)
 			{
 				Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyFile: " + error, true);
@@ -312,7 +308,6 @@ namespace FileConverter.Siegfried
 			// Wrap the file paths in quotes
 			for (int i = 0; i < paths.Length; i++)
 			{
-				//tempPaths[i] = Path.GetFullPath(paths[i]);
 				tempPaths[i] = "\"" + paths[i] + "\"";
 			}
 			string wrappedPaths = String.Join(" ", tempPaths);
@@ -389,7 +384,7 @@ namespace FileConverter.Siegfried
 			{
                 Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: " + e.Message, true);
             }
-			//TODO: Check error and possibly continue
+			
 			if (error.Length > 0)
 			{
 				//Remove \n from error message
@@ -398,7 +393,7 @@ namespace FileConverter.Siegfried
 			}
 			var parsedData = ParseJSONOutput(outputFile, true);
 			if (parsedData == null)
-				return null; //TODO: Check error and possibly continue
+				return null; 
 			if (Version == null || ScanDate == null)
 			{
 				Version = parsedData.siegfriedVersion;
@@ -441,8 +436,7 @@ namespace FileConverter.Siegfried
 					logger.SetUpRunTimeLogMessage("SF IdentifyFilesIndividually: could not identify files", true);
 					return; //Skip current group
 				}
-				//TODO: Check if all files were identified
-
+				
 				foreach (var f in output)
 				{
 					files.Add(f);
@@ -521,7 +515,7 @@ namespace FileConverter.Siegfried
 				foreach (string folder in folders)
 				{
 					//Identify all file paths in compressed folder and group them
-					var pathWithoutExt = folder.LastIndexOf('.') > 0 ? folder.Substring(0, folder.LastIndexOf('.')) : folder;
+					var pathWithoutExt = folder.LastIndexOf('.') > -1 ? folder.Substring(0, folder.LastIndexOf('.')) : folder;
 					var paths = Directory.GetFiles(pathWithoutExt, "*.*", SearchOption.TopDirectoryOnly);
 					var filePathGroups = GroupPaths(new List<string>(paths));
 					//Identify all files in each group
@@ -545,7 +539,7 @@ namespace FileConverter.Siegfried
 			return fileBag.ToList();
 		}
 
-		public SiegfriedJSON? ParseJSONOutput(string json, bool readFromFile)
+		public static SiegfriedJSON? ParseJSONOutput(string json, bool readFromFile)
 		{
 			try
 			{
@@ -629,7 +623,7 @@ namespace FileConverter.Siegfried
 		/// </summary>
 		/// <param name="source">source directory</param>
 		/// <param name="destination">destination directory</param>
-		public void CopyFiles(string source, string destination)
+		public static void CopyFiles(string source, string destination)
 		{
 			string[] files = Directory.GetFiles(source, "*.*", SearchOption.AllDirectories);
 			List<string> retryFiles = new List<string>();
@@ -639,7 +633,7 @@ namespace FileConverter.Siegfried
 				string relativePath = file.Replace(source, "");
 				string outputPath = destination + relativePath;
 				string outputFolder = outputPath.Substring(0, outputPath.LastIndexOf(Path.DirectorySeparatorChar));
-				//TODO: THIS BEHAVIOUR SHOULD BE DOCUMENTED
+				
 				//If file already exists in target destination, skip it
 				if (File.Exists(outputPath))
 				{
@@ -737,14 +731,14 @@ namespace FileConverter.Siegfried
 			var inputWithoutRoot = compressedFoldersInput.Select(file =>
 			{
 				int index = file.IndexOf(GlobalVariables.ParsedOptions.Input);
-				return index >= 0 ? file.Substring(0, index) + file.Substring(index + GlobalVariables.ParsedOptions.Input.Length) : file;
+				return index >= 0 ? string.Concat(file.AsSpan(0, index), file.AsSpan(index + GlobalVariables.ParsedOptions.Input.Length)) : file;
 			}).ToList();
 
 			// Remove root path from all paths in compressedFoldersOutput
 			var outputWithoutRoot = compressedFoldersOutput.Select(file =>
 			{
 				int index = file.IndexOf(GlobalVariables.ParsedOptions.Output);
-				return index >= 0 ? file.Substring(0, index) + file.Substring(index + GlobalVariables.ParsedOptions.Output.Length) : file;
+				return index >= 0 ? string.Concat(file.AsSpan(0, index), file.AsSpan(index + GlobalVariables.ParsedOptions.Output.Length)) : file;
 			}).ToList();
 
 			//Remove all folders that are not in input directory
@@ -769,14 +763,14 @@ namespace FileConverter.Siegfried
 			}
 		}
 
-		private List<string> UnpackRecursively(string root)
+		private static List<string> UnpackRecursively(string root)
 		{
 			List<string> unpackedFolders = new List<string>();
 
 			UnpackFolder(root);
 			unpackedFolders.Add(root);
 
-			var extractedFolder = root.LastIndexOf('.') > 0 ? root.Substring(0, root.LastIndexOf('.')) : root;
+			var extractedFolder = root.LastIndexOf('.') > -1 ? root.Substring(0, root.LastIndexOf('.')) : root;
 			var subFolders = GetCompressedFolders(extractedFolder);
 			foreach (string folder in subFolders)
 			{
@@ -786,7 +780,7 @@ namespace FileConverter.Siegfried
 			return unpackedFolders;
 		}
 
-		private List<string> GetCompressedFolders(string dir)
+		private static List<string> GetCompressedFolders(string dir)
 		{
 			if (!Directory.Exists(dir))
 			{
@@ -802,12 +796,13 @@ namespace FileConverter.Siegfried
 		/// </summary>
 		/// <param name="archiveType">Format for compression</param>
 		/// <param name="path">Path to folder to be compressed</param>
-		private void CompressFolder(string path, ArchiveType archiveType)
+		private static void CompressFolder(string path, ArchiveType archiveType)
 		{
 			try
 			{
 				string fileExtension = Path.GetExtension(path);
-				string pathWithoutExtension = path.Replace(fileExtension, ""); //TODO: This might not work for paths with multiple file extensions
+				int lastIndexOf = path.LastIndexOf(fileExtension);
+				string pathWithoutExtension = lastIndexOf > -1 ? path.Substring(0, lastIndexOf) : path;
 				using (var archive = ArchiveFactory.Create(archiveType))
 				{
 					archive.AddAllFromDirectory(pathWithoutExtension);
@@ -826,40 +821,34 @@ namespace FileConverter.Siegfried
 		/// Unpacks a compressed folder regardless of format
 		/// </summary>
 		/// <param name="path">Path to compressed folder</param>
-		private void UnpackFolder(string path)
+		private static void UnpackFolder(string path)
 		{
+			
+			// Get path to folder without extention
+			string pathWithoutExtension = path.LastIndexOf('.') > -1 ? path.Substring(0, path.LastIndexOf('.')) : path;
+			// Ensure the extraction directory exists
+			if (!Directory.Exists(pathWithoutExtension))
+			{
+				Directory.CreateDirectory(pathWithoutExtension);
+			}
 			try
 			{
-				// Get path to folder without extention
-				string pathWithoutExtension = path.LastIndexOf('.') > 0 ? path.Substring(0, path.LastIndexOf('.')) : path;
-				// Ensure the extraction directory exists
-				if (!Directory.Exists(pathWithoutExtension))
+				// Extract the contents of the compressed file
+				using (var archive = ArchiveFactory.Open(path))
 				{
-					Directory.CreateDirectory(pathWithoutExtension);
-				}
-				try
-				{
-					// Extract the contents of the compressed file
-					using (var archive = ArchiveFactory.Open(path))
+					foreach (var entry in archive.Entries)
 					{
-						foreach (var entry in archive.Entries)
+						if (!entry.IsDirectory)
 						{
-							if (!entry.IsDirectory)
-							{
-								entry.WriteToDirectory(pathWithoutExtension, new ExtractionOptions { ExtractFullPath = true, Overwrite = true });
-							}
+							entry.WriteToDirectory(pathWithoutExtension, new ExtractionOptions { ExtractFullPath = true, Overwrite = true });
 						}
 					}
-					File.Delete(path);
 				}
-				catch (CryptographicException)
-				{
-					Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + path + " is encrypted", true);
-				}
-				catch (Exception e)
-				{
-					Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + e.Message, true);
-				}//TODO: Delete the compressed folder
+				File.Delete(path);
+			}
+			catch (CryptographicException)
+			{
+				Logger.Instance.SetUpRunTimeLogMessage("SF UnpackFolder " + path + " is encrypted", true);
 			}
 			catch (Exception e)
 			{
