@@ -40,13 +40,13 @@ namespace FileConverter.Managers
 
 	public class ConversionManager
 	{
-		public ConcurrentDictionary<KeyValuePair<string, string>, List<string>> ConversionMap = new ConcurrentDictionary<KeyValuePair<string, string>, List<string>>();
-		public ConcurrentDictionary<Guid, FileInfo2> FileInfoMap = new ConcurrentDictionary<Guid, FileInfo2>();
-		public ConcurrentDictionary<Guid, FileToConvert> WorkingSet = new ConcurrentDictionary<Guid, FileToConvert>();
-		public Dictionary<string, string> WorkingSetMap = new Dictionary<string, string>();
+		public ConcurrentDictionary<KeyValuePair<string, string>, List<string>> ConversionMap { get; set; } = new ConcurrentDictionary<KeyValuePair<string, string>, List<string>>();
+		public ConcurrentDictionary<Guid, FileInfo2> FileInfoMap { get; set; } = new ConcurrentDictionary<Guid, FileInfo2>();
+		public ConcurrentDictionary<Guid, FileToConvert> WorkingSet { get; set; } = new ConcurrentDictionary<Guid, FileToConvert>();
+		public Dictionary<string, string> WorkingSetMap { get; set; } = new Dictionary<string, string>();
 		private static ConversionManager? instance;
 		private static readonly object lockObject = new object();
-		List<Converter> Converters;
+		readonly List<Converter> Converters;
 
 		/// <summary>
 		/// initializes the map for how to reach each format
@@ -55,10 +55,8 @@ namespace FileConverter.Managers
 		{
 			LibreOfficeConverter converter = new LibreOfficeConverter();
 			EmailConverter emailConverter = new EmailConverter();
-			List<string> supportedConversionsLibreOffice = new List<string>(converter.SupportedConversions?.Keys);
-			List<string> supportedConversionsEmail = new List<string>(emailConverter.SupportedConversions?.Keys);
+            List<string> supportedConversionsEmail = new List<string>(emailConverter.SupportedConversions?.Keys ?? Enumerable.Empty<string>());
 			string pdfA2B = "fmt/477";
-			string pdfPronom = OperatingSystem.IsLinux() ? "fmt/20" : "fmt/276";
 			string pdfPronomForEmail = "fmt/18";
 			string emlConversionPronom = "fmt/950";
 
@@ -106,15 +104,8 @@ namespace FileConverter.Managers
 				var prev = entry.Key.Key;
 				foreach (var pronom in route)
 				{
-					supported = false;
-					foreach (Converter c in Converters)
-					{
-						if (c.SupportsConversion(prev, pronom))
-						{
-							supported = true;
-						}
-					}
-					if (!supported)
+                    supported = Converters.Any(c => c.SupportsConversion(prev, pronom));
+                    if (!supported)
 					{
 						toDelete.Add(entry.Key);
 						return;

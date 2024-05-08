@@ -21,7 +21,7 @@ namespace FileConverter
 		[Option('y', "yes", Required = false, HelpText = "Accept all queries", Default = false)]
 		public bool AcceptAll { get; set; } = false;
 	}
-	class Program
+    static class Program
 	{
 		static void Main(string[] args)
 		{
@@ -56,7 +56,6 @@ namespace FileConverter
 				LinuxSetup.Setup();
 			}
 
-			ConversionSettings ConversionSettings = ConversionSettings.Instance;
 			Console.WriteLine("Reading ConversionSettings from '{0}'...", ConversionSettingsPath);
             FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 
@@ -85,7 +84,6 @@ namespace FileConverter
 
 			FileManager fileManager = FileManager.Instance;
 			SF.Siegfried sf = SF.Siegfried.Instance;
-			//TODO: Check for malicous input files
 			try
 			{
 				//Check if user wants to use files from previous run
@@ -113,8 +111,8 @@ namespace FileConverter
 
 			//Set up folder override after files have been copied over
 			ConversionSettings.SetUpFolderOverride(ConversionSettingsPath);
-			while (fileManager.Files.Count < 1)
-			{
+            while (fileManager.Files.IsEmpty)
+            {
 				var exit = ResolveInputNotFound();
 				if (exit)
 				{
@@ -126,7 +124,7 @@ namespace FileConverter
 
 			char input = ' ';
 			string validInput = "YyNnRrGg";
-			string prevInputFolder = GlobalVariables.ParsedOptions.Input; ;
+			string prevInputFolder = GlobalVariables.ParsedOptions.Input;
 
 			do
 			{
@@ -169,7 +167,7 @@ namespace FileConverter
 						break;
 					default: break;
 				}
-			} while (input != 'Y' || fileManager.Files.Count == 0);
+			} while (input != 'Y' || fileManager.Files.IsEmpty);
 
 			ConversionManager cm = ConversionManager.Instance;
 			try
