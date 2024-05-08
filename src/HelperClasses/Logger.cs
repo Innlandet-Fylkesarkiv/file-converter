@@ -10,13 +10,13 @@ namespace FileConverter.HelperClasses
 		readonly string LogPath;         // Path to log file
 
 		List<JsonData> JsonFiles = new List<JsonData>();
-		Dictionary<string, Dictionary<string, List<JsonDataMerge>>> JsonMergedFiles = new Dictionary<string, Dictionary<string, List<JsonDataMerge>>>();
-		List<JsonDataOutputNotSupported> JsonNotSupportedFiles = new List<JsonDataOutputNotSupported>();
-		List<JsonDataOutputNotSet> JsonOutputNotSetFiles = new List<JsonDataOutputNotSet>();
+		readonly Dictionary<string, Dictionary<string, List<JsonDataMerge>>> JsonMergedFiles = new Dictionary<string, Dictionary<string, List<JsonDataMerge>>>();
+		readonly List<JsonDataOutputNotSupported> JsonNotSupportedFiles = new List<JsonDataOutputNotSupported>();
+		readonly List<JsonDataOutputNotSet> JsonOutputNotSetFiles = new List<JsonDataOutputNotSet>();
 
 		public bool ErrorHappened { get; set; }             // True if an error message has been written
 															// Configure JSON serializer options for pretty-printing
-		JsonSerializerOptions Options = new JsonSerializerOptions
+		readonly JsonSerializerOptions Options = new JsonSerializerOptions
 		{
 			WriteIndented = true,
 		};
@@ -187,8 +187,7 @@ namespace FileConverter.HelperClasses
 		/// <param name="files"> list containing fileinfo about all files </param>
 		public void SetUpDocumentation(List<FileInfo2> files)
 		{
-            string path = Path.Combine(GlobalVariables.ParsedOptions.Output, "");
-            string docPath = path + "documentation.json";
+            string docPath = GlobalVariables.ParsedOptions.Output + Path.DirectorySeparatorChar + "documentation.json";
 			using (StreamWriter outputFile = new StreamWriter(docPath))
 			{
 				outputFile.WriteAsync("\n");
@@ -305,7 +304,7 @@ namespace FileConverter.HelperClasses
 		/// <summary>
 		/// Asks the user about the requester and converter if they are not set in the ConversionSettings
 		/// </summary>
-		public void AskAboutReqAndConv()
+		public static void AskAboutReqAndConv()
 		{
 			if (JsonRoot.Requester == null || JsonRoot.Requester == "")
 			{

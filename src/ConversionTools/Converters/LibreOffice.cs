@@ -160,7 +160,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(XLSPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[XLSPronom] = pronomList;
 				}
 				pronomList.AddRange(XLSXPronoms);
@@ -172,7 +172,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(XLSXPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[XLSXPronom] = pronomList;
 				}
 				pronomList.AddRange(ODSPronoms);
@@ -183,7 +183,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(XLSMPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[XLSMPronom] = pronomList;
 				}
 				pronomList.AddRange(XLSXPronoms);
@@ -195,7 +195,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(XLTXPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[XLTXPronom] = pronomList;
 				}
 				pronomList.AddRange(XLSXPronoms);
@@ -207,7 +207,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(docPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[docPronom] = pronomList;
 				}
 				pronomList.AddRange(DOCXPronoms);
@@ -220,7 +220,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(docxPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[docxPronom] = pronomList;
 				}
 				pronomList.AddRange(ODTPronoms);
@@ -232,7 +232,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(docmPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[docmPronom] = pronomList;
 				}
 				pronomList.AddRange(DOCXPronoms);
@@ -244,7 +244,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(dotxPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[dotxPronom] = pronomList;
 				}
 				pronomList.AddRange(DOCXPronoms);
@@ -256,7 +256,7 @@ namespace ConversionTools.Converters
             {
                 if (!supportedConversions.TryGetValue(pptPronom, out var conversionList))
                 {
-                    conversionList = new List<string>();
+                    conversionList = [];
                     supportedConversions[pptPronom] = conversionList;
                 }
                 conversionList.AddRange(PDFPronoms);
@@ -268,7 +268,7 @@ namespace ConversionTools.Converters
 			{
 				if (!supportedConversions.TryGetValue(pptxPronom, out var pronomList))
 				{
-					pronomList = new List<string>();
+					pronomList = [];
 					supportedConversions[pptxPronom] = pronomList;
 				}
 				pronomList.AddRange(PDFPronoms);

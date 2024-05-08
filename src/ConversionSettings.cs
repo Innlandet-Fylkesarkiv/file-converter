@@ -45,6 +45,9 @@ namespace FileConverter
                 return instance;
             }
         }
+
+        internal static readonly char[] separator = [','];
+
         /// <summary>
         /// Reads ConversionSettings from file
         /// </summary>
@@ -181,10 +184,10 @@ namespace FileConverter
             }
 
             // Remove whitespace and split pronoms string by commas into a list of strings
-            List<string> pronomsList = new List<string>();
+            List<string> pronomsList = [];
             if (!string.IsNullOrEmpty(pronoms))
             {
-                pronomsList.AddRange(pronoms.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                pronomsList.AddRange(pronoms.Split(separator, StringSplitOptions.RemoveEmptyEntries)
                                              .Select(pronom => pronom.Trim()));
             }
             ConversionSettingsData ConversionSettings = new ConversionSettingsData
@@ -216,7 +219,7 @@ namespace FileConverter
             try
             {
                 // Load the XML document from a file
-                XmlDocument xmlDoc = new XmlDocument();
+                XmlDocument xmlDoc = new();
                 xmlDoc.Load(pathToConversionSettings);
 
                 if (xmlDoc.DocumentElement == null) { logger.SetUpRunTimeLogMessage("Could not find ConversionSettings file", true, filename: pathToConversionSettings); return; }
@@ -252,7 +255,7 @@ namespace FileConverter
             List<string> pronomsList = new List<string>();
             if (!string.IsNullOrEmpty(pronoms))
             {
-                pronomsList.AddRange(pronoms.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                pronomsList.AddRange(pronoms.Split(separator, StringSplitOptions.RemoveEmptyEntries)
                                                 .Select(pronom => pronom.Trim()));
             }
 
@@ -290,7 +293,7 @@ namespace FileConverter
         private static List<string> GetSubfolderPaths(string folderName)
         {
             string outputPath = GlobalVariables.ParsedOptions.Output;
-            List<string> subfolders = new List<string>();
+            List<string> subfolders = [];
 
             try
             {
