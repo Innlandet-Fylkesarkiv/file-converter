@@ -224,7 +224,7 @@ namespace ConversionTools.Converters
         void ConvertToImagesWindows(FileToConvert file, string outputFileName, string extension)
         {
             Logger log = Logger.Instance;
-            if (!System.OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+            if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {
                 log.SetUpRunTimeLogMessage("GhostScript is not supported on this version of Windows (minimum 6.1 required). File is not converted.", true, filename: file.FilePath);
                 return;
@@ -258,26 +258,24 @@ namespace ConversionTools.Converters
                     using (var rasterizer = new GhostscriptRasterizer())
                     {
                         GhostscriptVersionInfo versionInfo = new GhostscriptVersionInfo(new Version(), gsWindowsLibrary, string.Empty, GhostscriptLicense.GPL);
-                        using (var stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read))
+                        using var stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read);
+                        rasterizer.Open(stream, versionInfo, false);
+                        ImageFormat? imageFormat = GetImageFormat(extension);
+                        if (imageFormat != null)
                         {
-                            rasterizer.Open(stream, versionInfo, false);
-                            ImageFormat? imageFormat = GetImageFormat(extension);
-                            if (imageFormat != null)
+                            for (int pageNumber = 1; pageNumber <= rasterizer.PageCount; pageNumber++)
                             {
-                                for (int pageNumber = 1; pageNumber <= rasterizer.PageCount; pageNumber++)
+                                string pageOutputFileName = String.Format("{0}{1}{2}_{3}{4}", folderPath, Path.DirectorySeparatorChar, outputFileName, pageNumber.ToString(), extension);
+                                using (var image = rasterizer.GetPage(300, pageNumber))
                                 {
-                                    string pageOutputFileName = String.Format("{0}{1}{2}_{3}{4}", folderPath, Path.DirectorySeparatorChar, outputFileName, pageNumber.ToString(), extension);
-                                    using (var image = rasterizer.GetPage(300, pageNumber))
-                                    {
-                                        image.Save(pageOutputFileName, imageFormat);
-                                    }
-
-                                    var newFile = new FileInfo2(pageOutputFileName, originalFileInfo);
-                                    newFile.IsPartOfSplit = true;
-                                    newFile.AddConversionTool(NameAndVersion);
-                                    newFile.UpdateSelf(new FileInfo2(SF.Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!));
-                                    files.Add(newFile);
+                                    image.Save(pageOutputFileName, imageFormat);
                                 }
+
+                                var newFile = new FileInfo2(pageOutputFileName, originalFileInfo);
+                                newFile.IsPartOfSplit = true;
+                                newFile.AddConversionTool(NameAndVersion);
+                                newFile.UpdateSelf(new FileInfo2(SF.Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!));
+                                files.Add(newFile);
                             }
                         }
                     }
