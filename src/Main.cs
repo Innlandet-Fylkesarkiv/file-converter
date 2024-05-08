@@ -6,6 +6,7 @@ using FileConverter.LinuxSpecifics;
 using FileConverter.Managers;
 using SF = FileConverter.Siegfried;
 using FileConverter.Siegfried;
+using System.Runtime.CompilerServices;
 
 namespace FileConverter
 {
@@ -255,7 +256,7 @@ namespace FileConverter
 			SF.Siegfried.Instance.CompressedFolders.Clear();
 			Console.WriteLine("Copying files from {0} to {1}...", GlobalVariables.ParsedOptions.Input, GlobalVariables.ParsedOptions.Output);
 			//Copy files
-			SF.Siegfried.Instance.CopyFiles(GlobalVariables.ParsedOptions.Input, GlobalVariables.ParsedOptions.Output);
+			SF.Siegfried.CopyFiles(GlobalVariables.ParsedOptions.Input, GlobalVariables.ParsedOptions.Output);
 			Console.WriteLine("Identifying files...");
 			//Identify and unpack files
 			FileManager.Instance.IdentifyFiles();

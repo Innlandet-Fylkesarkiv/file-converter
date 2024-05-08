@@ -33,7 +33,7 @@ namespace FileConverter.Siegfried.Tests
 
 
             // Act
-            var siegfriedJSON = siegfried.ParseJSONOutput(json, readFromFile: false);
+            var siegfriedJSON = Siegfried.ParseJSONOutput(json, readFromFile: false);
 
             // Assert
             Assert.IsNotNull(siegfriedJSON);
