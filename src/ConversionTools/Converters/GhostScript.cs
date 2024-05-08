@@ -460,26 +460,8 @@ namespace ConversionTools.Converters
                         exeProcess?.WaitForExit();
                     }
 
-                    string? currPronom = GetPronom(outputFilePath);
-                    if (currPronom == null)
-                    {
-                        throw new Exception("Could not get pronom for file");
-                    }
-                    //Convert to another PDF format if Ghostscript's standard output format is not the desired one
-                    if (currPronom != file.Route.First() &&
-                            (PDFPronoms.Contains(file.Route.First()) || PDFAPronoms.Contains(file.Route.First())))
-                    {
-                        // Set the new filename
-                        ReplaceFileInList(outputFilePath, file);
-                        var converter = new IText7();
-                        // Add iText7 to the list of conversion tools
-                        var FileInfoMap = ConversionManager.Instance.FileInfoMap;
-                        if (FileInfoMap.TryGetValue(file.Id, out var fileInfo) && !fileInfo.ConversionTools.Contains(converter.NameAndVersion))
-                        {
-                            fileInfo.ConversionTools.Add(converter.NameAndVersion);
-                        }
-                        converter.convertFromPDFToPDF(file);
-                    }
+                    string? currPronom = GetPronom(outputFilePath) ?? throw new Exception("Could not get pronom for file");
+                    ConvertToNonStandardPDF(file, currPronom, outputFilePath);
                     converted = CheckConversionStatus(outputFilePath, file.Route.First());
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 file.Failed = !CheckConversionStatus(outputFilePath, file.Route.First(), file);
@@ -487,6 +469,29 @@ namespace ConversionTools.Converters
             catch (Exception e)
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Error when converting file with GhostScript. Error message: " + e.Message, true, filename: file.FilePath);
+            }
+        }
+        /// <summary>
+        /// Convert to another PDF format if Ghostscript's standard output format is not the desired one
+        /// </summary>
+        /// <param name="file"> File to convert </param>
+        /// <param name="currPronom"> current PRONOM of the file to convert </param>
+        /// <param name="outputFilePath"> filepath of the file after conversion </param>
+        private void ConvertToNonStandardPDF(FileToConvert file, string currPronom, string outputFilePath)
+        {   
+            if (currPronom != file.Route.First() &&
+                    (PDFPronoms.Contains(file.Route.First()) || PDFAPronoms.Contains(file.Route.First())))
+            {
+                // Set the new filename
+                ReplaceFileInList(outputFilePath, file);
+                var converter = new IText7();
+                // Add iText7 to the list of conversion tools
+                var FileInfoMap = ConversionManager.Instance.FileInfoMap;
+                if (FileInfoMap.TryGetValue(file.Id, out var fileInfo) && !fileInfo.ConversionTools.Contains(converter.NameAndVersion))
+                {
+                    fileInfo.ConversionTools.Add(converter.NameAndVersion);
+                }
+                converter.convertFromPDFToPDF(file);
             }
         }
 
