@@ -151,7 +151,7 @@ namespace FileConverter.Siegfried
 		public void AskReadFiles()
 		{
 			//Check if json files exist
-			if (Directory.Exists(OutputFolder) && Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories).Any())
+			if (Directory.Exists(OutputFolder) && Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories).Length > 0)
 			{
 				char input;
 				do
@@ -731,14 +731,14 @@ namespace FileConverter.Siegfried
 			var inputWithoutRoot = compressedFoldersInput.Select(file =>
 			{
 				int index = file.IndexOf(GlobalVariables.ParsedOptions.Input);
-				return index >= 0 ? string.Concat(file.Substring(0, index), file.Substring(index + GlobalVariables.ParsedOptions.Input.Length)) : file;
+				return index >= 0 ? string.Concat(file.AsSpan(0, index), file.AsSpan(index + GlobalVariables.ParsedOptions.Input.Length)) : file;
 			}).ToList();
 
 			// Remove root path from all paths in compressedFoldersOutput
 			var outputWithoutRoot = compressedFoldersOutput.Select(file =>
 			{
 				int index = file.IndexOf(GlobalVariables.ParsedOptions.Output);
-				return index >= 0 ? string.Concat(file.Substring(0, index), file.Substring(index + GlobalVariables.ParsedOptions.Output.Length)) : file;
+				return index >= 0 ? string.Concat(file.AsSpan(0, index), file.AsSpan(index + GlobalVariables.ParsedOptions.Output.Length)) : file;
 			}).ToList();
 
 			//Remove all folders that are not in input directory
@@ -763,14 +763,14 @@ namespace FileConverter.Siegfried
 			}
 		}
 
-		private List<string> UnpackRecursively(string root)
+		private static List<string> UnpackRecursively(string root)
 		{
 			List<string> unpackedFolders = new List<string>();
 
 			UnpackFolder(root);
 			unpackedFolders.Add(root);
 
-			var extractedFolder = root.LastIndexOf('.') > 0 ? root.Substring(0, root.LastIndexOf('.')) : root;
+			var extractedFolder = root.LastIndexOf('.') > -1 ? root.Substring(0, root.LastIndexOf('.')) : root;
 			var subFolders = GetCompressedFolders(extractedFolder);
 			foreach (string folder in subFolders)
 			{

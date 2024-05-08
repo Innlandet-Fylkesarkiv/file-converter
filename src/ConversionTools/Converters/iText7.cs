@@ -110,7 +110,9 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="file">The file to be converted</param>
         /// <param name="pronom">The file format to convert to</param>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         async public override Task ConvertFile(FileToConvert file, string pronom)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             try
             {

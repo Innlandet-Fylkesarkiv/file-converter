@@ -89,7 +89,9 @@ namespace ConversionTools.Converters
 		/// </summary>
 		/// <param name="filePath">The file to be converted</param>
 		/// <param name="pronom">The file format to convert to</param>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 		async public override Task ConvertFile(FileToConvert file, string pronom)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 		{
 			// Get correct folders and properties required for conversion
 			string inputFolder = GlobalVariables.ParsedOptions.Input;
@@ -252,7 +254,7 @@ namespace ConversionTools.Converters
             // PPT to PPTX, ODP and PDF
             foreach (string pptPronom in PPTPronoms)
             {
-                if (!supportedConversions.TryGetValue(pptPronom, out List<string> conversionList))
+                if (!supportedConversions.TryGetValue(pptPronom, out var conversionList))
                 {
                     conversionList = new List<string>();
                     supportedConversions[pptPronom] = conversionList;

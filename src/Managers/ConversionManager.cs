@@ -200,7 +200,9 @@ namespace FileConverter.Managers
 		/// <summary>
 		/// Responsible for managing the convertion and combining of all files
 		/// </summary>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 		public async Task ConvertFiles()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 		{
 			int maxThreads = GlobalVariables.MaxThreads;
 			Dictionary<string, List<FileInfo2>> mergingFiles = new Dictionary<string, List<FileInfo2>>();

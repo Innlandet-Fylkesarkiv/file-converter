@@ -172,7 +172,6 @@ namespace FileConverter
         /// <param name="defaultType">default type for FileClass</param>
         static void HandleFileTypeNode(XmlNode fileTypeNode, string defaultType)
         {
-            string? extension = fileTypeNode.SelectSingleNode("Filename")?.InnerText;
             string? pronoms = fileTypeNode.SelectSingleNode("Pronoms")?.InnerText;
             string? innerDefault = fileTypeNode.SelectSingleNode("Default")?.InnerText;
             string? doNotConvert = fileTypeNode.SelectSingleNode("DoNotConvert")?.InnerText.ToUpper().Trim();

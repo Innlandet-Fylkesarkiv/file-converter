@@ -171,7 +171,9 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="file"> FileToConvert object with the specific file to be converted </param>
         /// <param name="pronom"> Only added to match virtual method (Not used) </param>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         async public override Task ConvertFile(FileToConvert file, string pronom)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             string outputFileName = Path.GetFileNameWithoutExtension(file.FilePath);
             string? extension = GetExtension(file.Route.First());
