@@ -14,17 +14,9 @@ namespace FileConverter.Managers
         private static readonly object identifyingFiles = new object(); // True if files are being identified
         private bool _conversionFinished = false;
 
-        public bool ConversionFinished
-        {
-            get { return _conversionFinished; }
-            set { _conversionFinished = value; }
-        }
+        public bool ConversionFinished { get; set; }
 
-        public ConcurrentDictionary<Guid, FileInfo2> Files
-        {
-            get { return _files; }
-            set { _files = value; }
-        }
+        public ConcurrentDictionary<Guid, FileInfo2> Files { get; set; }
         private FileManager()
         {
             Files = new ConcurrentDictionary<Guid, FileInfo2>();
@@ -405,7 +397,6 @@ namespace FileConverter.Managers
                         if (c.SupportsConversion(currentPronom, targetPronom) || Managers.ConversionManager.Instance.SupportsConversion(currentPronom, targetPronom))
                         {
                             supported = true;
-                            return;
                         }
                     });
                 }
