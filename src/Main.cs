@@ -6,6 +6,7 @@ using FileConverter.LinuxSpecifics;
 using FileConverter.Managers;
 using SF = FileConverter.Siegfried;
 using FileConverter.Siegfried;
+using System.Runtime.CompilerServices;
 
 namespace FileConverter
 {
