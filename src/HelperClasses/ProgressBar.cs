@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
-
+	
 /// <summary>
 /// An ASCII progress bar
 /// </summary>
@@ -15,14 +15,16 @@ namespace FileConverter.HelperClasses
 		private const string animation = @"|/-\";
 
 		private readonly Timer timer;
+        private readonly object lockObject = new object();
+        private readonly object disposeLock = new object();
 
-		private double currentProgress = 0;
+        private double currentProgress = 0;
 		private int currentDone = 0;
 		private TimeSpan elapsed = TimeSpan.FromSeconds(0);
 		private string currentText = string.Empty;
 		private bool disposed = false;
 		private int animationIndex = 0;
-		private int totalJobs = 0;
+		private readonly int totalJobs = 0;
 		public ProgressBar(int totalItems)
 		{
 			timer = new Timer(TimerHandler!);
@@ -36,8 +38,11 @@ namespace FileConverter.HelperClasses
 			}
 		}
 
-		public void Report(double value) { }
-		public void Report(double value, int currentJob, TimeSpan ts)
+		public void Report(double value) 
+		{
+            // Interface member method that must be present, but is not utilized
+        }
+        public void Report(double value, int currentJob, TimeSpan ts)
 		{
 			// Make sure value is in [0..1] range
 			value = Math.Max(0, Math.Min(1, value));
@@ -48,7 +53,7 @@ namespace FileConverter.HelperClasses
 
 		private void TimerHandler(object state)
 		{
-			lock (timer)
+			lock (lockObject)
 			{
 				if (disposed) return;
 
@@ -93,11 +98,11 @@ namespace FileConverter.HelperClasses
 			StringBuilder outputBuilder = new StringBuilder();
 			outputBuilder.Append('\b', currentText.Length - commonPrefixLength);
 
-			// Output new suffix
-			outputBuilder.Append(text.Substring(commonPrefixLength));
+            // Output new suffix
+            outputBuilder.Append(text.AsSpan(commonPrefixLength));
 
-			// If the new text is shorter than the old one: delete overlapping characters
-			int overlapCount = currentText.Length - text.Length;
+            // If the new text is shorter than the old one: delete overlapping characters
+            int overlapCount = currentText.Length - text.Length;
 			if (overlapCount > 0)
 			{
 				outputBuilder.Append(' ', overlapCount);
@@ -113,13 +118,17 @@ namespace FileConverter.HelperClasses
 			timer.Change(animationInterval, TimeSpan.FromMilliseconds(-1));
 		}
 
-		public void Dispose()
-		{
-			lock (timer)
-			{
-				disposed = true;
-				UpdateText(string.Empty);
-			}
-		}
-	}
+        public void Dispose()
+        {
+            lock (disposeLock) // Use a separate object for locking
+            {
+                if (!disposed)
+                {
+                    disposed = true;
+                    UpdateText(string.Empty);
+                }
+            }
+            GC.SuppressFinalize(this); // Suppress the finalization
+        }
+    }
 }

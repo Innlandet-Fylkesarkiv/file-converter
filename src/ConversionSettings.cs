@@ -66,10 +66,11 @@ namespace FileConverter
                 // Access the root element
                 XmlNode? root = xmlDoc.SelectSingleNode("/root");
                 if (root == null) { logger.SetUpRunTimeLogMessage("Could not find root", true, filename: pathToConversionSettings); return; }
-                
+
                 SetUpMetadata(root);
-                
-                XmlNodeList? classNodes = root.SelectNodes("FileClass");
+
+                // Access elements and attributes
+                XmlNodeList? classNodes = root?.SelectNodes("FileClass");
                 if (classNodes == null) { logger.SetUpRunTimeLogMessage("Could not find any classNodes", true, filename: pathToConversionSettings); return; }
                 
                 foreach (XmlNode classNode in classNodes)
@@ -143,13 +144,13 @@ namespace FileConverter
             string? inputTimeout = timeoutNode?.InnerText;
             if (!String.IsNullOrEmpty(inputTimeout) && int.TryParse(inputTimeout, out int timeout))
             {
-                GlobalVariables.timeout = timeout;
+                GlobalVariables.Timeout = timeout;
             }
 
             string? inputMaxFileSize = maxFileSizeNode?.InnerText;
             if (!String.IsNullOrEmpty(inputMaxFileSize) && double.TryParse(inputMaxFileSize, out double maxFileSize))
             {
-                GlobalVariables.maxFileSize = maxFileSize;
+                GlobalVariables.MaxFileSize = maxFileSize;
             }
 
             string? checksumHashing = root?.SelectSingleNode("ChecksumHashing")?.InnerText;

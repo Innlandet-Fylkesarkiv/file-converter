@@ -22,16 +22,15 @@ namespace FileConverter.HelperClasses
         public static HashAlgorithms ChecksumHash { get; set; } = HashAlgorithms.SHA256;
 
         public static int MaxThreads { get; set; } = Environment.ProcessorCount * 2;
-
-        public static int timeout = 20;
-        public static double maxFileSize = 1 * 1024 * 1024 * 1024;      //1GB
+        public static int Timeout { get; set; } = 20;
+        public static double MaxFileSize { get; set; } = 1 * 1024 * 1024 * 1024;      //1GB
         public const int MAX_RETRIES = 3; //Maximum number of attempts in case of a failed conversion
         public const ConsoleColor INFO_COL = ConsoleColor.Cyan;
         public const ConsoleColor ERROR_COL = ConsoleColor.Red;
         public const ConsoleColor WARNING_COL = ConsoleColor.Yellow;
         public const ConsoleColor SUCCESS_COL = ConsoleColor.Green;
         public static readonly PrintSortBy SortBy = PrintSortBy.Count;
-        public static bool debug = false;
+        public static bool Debug { get; set; } = false;
 
         public static void Reset()
         {
@@ -40,7 +39,7 @@ namespace FileConverter.HelperClasses
             //Set to default values (will be overwritten in ConversionSettings.cs if specified by user)
             ChecksumHash = HashAlgorithms.SHA256;
             MaxThreads = Environment.ProcessorCount * 2;
-            timeout = 5;
+            Timeout = 5;
         }
     }
 }

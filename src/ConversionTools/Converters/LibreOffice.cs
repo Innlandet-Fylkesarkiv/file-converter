@@ -28,8 +28,8 @@ namespace ConversionTools.Converters
 		private static readonly object locker = new object();
 		readonly OperatingSystem currentOS;
 		bool iTextFound = false;
-		string sofficePathLinux = "/usr/lib/libreoffice/program/soffice";
-		string sofficePathWindows = "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
+		readonly string sofficePathLinux = "/usr/lib/libreoffice/program/soffice";
+		readonly string sofficePathWindows = "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
 
 		/// <summary>
 		/// Constructor setting important properties for the class.
@@ -100,8 +100,8 @@ namespace ConversionTools.Converters
 			string inputFilePath = Path.Combine(inputDirectory, Path.GetFileName(file.FilePath));
 			string executableName = currentOS.Platform == PlatformID.Unix ? "soffice" : "soffice.exe";
 
-			bool sofficePathWindows = CheckPathVariableWindows(executableName);
-			bool sofficePathLinux = CheckPathVariableLinux(executableName);
+			bool sofficePathWindowsExists = CheckPathVariableWindows(executableName);
+			bool sofficePathLinuxExists = CheckPathVariableLinux(executableName);
 
 			string targetFormat = GetConversionExtension(pronom);
 
@@ -112,14 +112,14 @@ namespace ConversionTools.Converters
 				// be converted without the lock
 				lock (locker)
 				{
-					RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathWindows, targetFormat, file);
+					RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathWindowsExists, targetFormat, file);
 				}
 			}
 			else if (executableName == "soffice")
 			{
 				lock (locker)
 				{
-					RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathLinux, targetFormat, file);
+					RunOfficeToPdfConversion(inputFilePath, outputDir, pronom, sofficePathLinuxExists, targetFormat, file);
 				}
 			}
 			else
@@ -249,19 +249,20 @@ namespace ConversionTools.Converters
 				pronomList.AddRange(PDFPronoms);
 				pronomList.AddRange(ODTPronoms);
 			}
-			// PPT to PPTX, ODP and PDF
-			foreach (string pptPronom in PPTPronoms)
-			{
-				if (!supportedConversions.ContainsKey(pptPronom))
-				{
-					supportedConversions[pptPronom] = new List<string>();
-				}
-				supportedConversions[pptPronom].AddRange(PDFPronoms);
-				supportedConversions[pptPronom].AddRange(ODPPronoms);
-				supportedConversions[pptPronom].AddRange(PPTXPronoms);
-			}
-			// PPTX to ODP and PDF
-			foreach (string pptxPronom in PPTXPronoms)
+            // PPT to PPTX, ODP and PDF
+            foreach (string pptPronom in PPTPronoms)
+            {
+                if (!supportedConversions.TryGetValue(pptPronom, out List<string> conversionList))
+                {
+                    conversionList = new List<string>();
+                    supportedConversions[pptPronom] = conversionList;
+                }
+                conversionList.AddRange(PDFPronoms);
+                conversionList.AddRange(ODPPronoms);
+                conversionList.AddRange(PPTXPronoms);
+            }
+            // PPTX to ODP and PDF
+            foreach (string pptxPronom in PPTXPronoms)
 			{
 				if (!supportedConversions.TryGetValue(pptxPronom, out var pronomList))
 				{
@@ -442,7 +443,7 @@ namespace ConversionTools.Converters
 		/// </summary>
 		/// <param name="sofficePath"> Bool - Indicating if is in the PATH of the environment</param>
 		/// <returns></returns>
-		static string GetSofficePath(bool sofficePath)
+		string GetSofficePath(bool sofficePath)
 		{
 			string sofficePathString;
 			if (sofficePath)
@@ -451,11 +452,11 @@ namespace ConversionTools.Converters
 			}
 			else if (Environment.OSVersion.Platform == PlatformID.Unix)
 			{
-				sofficePathString = "/usr/lib/libreoffice/program/soffice";
+				sofficePathString = sofficePathLinux;
 			}
 			else
 			{
-				sofficePathString = "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
+				sofficePathString = sofficePathWindows;
 			}
 
 			return sofficePathString;

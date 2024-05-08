@@ -40,13 +40,13 @@ namespace FileConverter.Managers
 
 	public class ConversionManager
 	{
-		public ConcurrentDictionary<KeyValuePair<string, string>, List<string>> ConversionMap = new ConcurrentDictionary<KeyValuePair<string, string>, List<string>>();
-		public ConcurrentDictionary<Guid, FileInfo2> FileInfoMap = new ConcurrentDictionary<Guid, FileInfo2>();
-		public ConcurrentDictionary<Guid, FileToConvert> WorkingSet = new ConcurrentDictionary<Guid, FileToConvert>();
-		public Dictionary<string, string> WorkingSetMap = new Dictionary<string, string>();
+		public ConcurrentDictionary<KeyValuePair<string, string>, List<string>> ConversionMap { get; set; } = new ConcurrentDictionary<KeyValuePair<string, string>, List<string>>();
+		public ConcurrentDictionary<Guid, FileInfo2> FileInfoMap { get; set; } = new ConcurrentDictionary<Guid, FileInfo2>();
+		public ConcurrentDictionary<Guid, FileToConvert> WorkingSet { get; set; } = new ConcurrentDictionary<Guid, FileToConvert>();
+		public Dictionary<string, string> WorkingSetMap { get; set; } = new Dictionary<string, string>();
 		private static ConversionManager? instance;
 		private static readonly object lockObject = new object();
-		List<Converter> Converters;
+		readonly List<Converter> Converters;
 
 		/// <summary>
 		/// initializes the map for how to reach each format
@@ -55,10 +55,8 @@ namespace FileConverter.Managers
 		{
 			LibreOfficeConverter converter = new LibreOfficeConverter();
 			EmailConverter emailConverter = new EmailConverter();
-			List<string> supportedConversionsLibreOffice = new List<string>(converter.SupportedConversions?.Keys);
-			List<string> supportedConversionsEmail = new List<string>(emailConverter.SupportedConversions?.Keys);
+            List<string> supportedConversionsEmail = new List<string>(emailConverter.SupportedConversions?.Keys ?? Enumerable.Empty<string>());
 			string pdfA2B = "fmt/477";
-			string pdfPronom = OperatingSystem.IsLinux() ? "fmt/20" : "fmt/276";
 			string pdfPronomForEmail = "fmt/18";
 			string emlConversionPronom = "fmt/950";
 
@@ -106,15 +104,8 @@ namespace FileConverter.Managers
 				var prev = entry.Key.Key;
 				foreach (var pronom in route)
 				{
-					supported = false;
-					foreach (Converter c in Converters)
-					{
-						if (c.SupportsConversion(prev, pronom))
-						{
-							supported = true;
-						}
-					}
-					if (!supported)
+                    supported = Converters.Any(c => c.SupportsConversion(prev, pronom));
+                    if (!supported)
 					{
 						toDelete.Add(entry.Key);
 						return;
@@ -180,7 +171,7 @@ namespace FileConverter.Managers
 		/// <summary>
 		/// Updates the FileInfo list with new data after conversion
 		/// </summary>
-		void CheckConversion()
+		static void CheckConversion()
 		{
 			var files = Managers.FileManager.Instance.Files.Values.ToList();
 			//Run siegfried on all files
@@ -198,12 +189,12 @@ namespace FileConverter.Managers
 			//Update FileInfoMap with new data
 			files.ForEach(file =>
 			{
-				if (fDict.ContainsKey(file.Id))
-				{
-					file.UpdateSelf(fDict[file.Id]);
-					file.IsConverted = ConversionSettings.GetTargetPronom(file) == file.NewPronom;
-				}
-			});
+                if (fDict.TryGetValue(file.Id, out var dictValue))
+                {
+                    file.UpdateSelf(dictValue);
+                    file.IsConverted = ConversionSettings.GetTargetPronom(file) == file.NewPronom;
+                }
+            });
 		}
 
 		/// <summary>
@@ -228,7 +219,7 @@ namespace FileConverter.Managers
 			ThreadPool.SetMaxThreads(maxThreads, maxThreads);
 			Console.WriteLine("Starting conversion...");
 			//Repeat until all files have been converted/checked or there was no change during last run
-			while (WorkingSet.Count > 0)
+			while (!WorkingSet.IsEmpty)
 			{
 				ConcurrentDictionary<Guid, CountdownEvent> countdownEvents = new ConcurrentDictionary<Guid, CountdownEvent>();
 				//Reset the working set map for the next run
@@ -253,7 +244,7 @@ namespace FileConverter.Managers
 				});
 
 				//Wait for all threads to finish
-				AwaitConversion(countdownEvents, totalQueued);
+				AwaitConversion(countdownEvents);
 				try
 				{
 					//Remove files that are finished on and update the rest
@@ -285,7 +276,6 @@ namespace FileConverter.Managers
 		/// <param name="mf">Files that should be combined</param>
 		void SetupWorkingSet(ConcurrentDictionary<Guid, FileToConvert> ws, Dictionary<string, List<FileInfo2>> mf)
 		{
-			//TODO: Should we parallelize this?
 			foreach (FileInfo2 file in Managers.FileManager.Instance.Files.Values)
 			{
 				//Create a new FileToConvert object
@@ -297,13 +287,13 @@ namespace FileConverter.Managers
 				//Use current and target pronom to create a key for the conversion map
 				var key = new KeyValuePair<string, string>(newFile.CurrentPronom, newFile.TargetPronom);
 
-				//If the conversion map contains the key, set the route to the value of the key
-				if (ConversionMap.ContainsKey(key))
-				{
-					newFile.Route = new List<string>(ConversionMap[key]);
-				}
-				//If the conversion map does not contain the key, set the route to the target pronom
-				else if (newFile.CurrentPronom != newFile.TargetPronom)
+                //If the conversion map contains the key, set the route to the value of the key
+                if (ConversionMap.TryGetValue(key, out var value))
+                {
+                    newFile.Route = new List<string>(value);
+                }
+                //If the conversion map does not contain the key, set the route to the target pronom
+                else if (newFile.CurrentPronom != newFile.TargetPronom)
 				{
 					newFile.Route.Add(newFile.TargetPronom);
 				}
@@ -329,7 +319,7 @@ namespace FileConverter.Managers
 		/// Updates the data in the working set and removes files that are done or failed conversion after 3 attempts
 		/// </summary>
 		/// <param name="ws">Workingset to be updated</param>
-		void UpdateWorkingSet(ConcurrentDictionary<Guid, FileToConvert> ws)
+		static void UpdateWorkingSet(ConcurrentDictionary<Guid, FileToConvert> ws)
 		{
 			ConcurrentBag<Guid> filesToRemove = new ConcurrentBag<Guid>();
 
@@ -432,9 +422,9 @@ namespace FileConverter.Managers
 		/// </summary>
 		/// <param name="threads">The dictionary of ThreadInfos that should be waited for</param>
 		/// <param name="total">The total number of thread jobs queued</param>
-		void AwaitConversion(ConcurrentDictionary<Guid, CountdownEvent> countdownEvents, int total)
+		static void AwaitConversion(ConcurrentDictionary<Guid, CountdownEvent> countdownEvents)
 		{
-			total = countdownEvents.Count;
+			int total = countdownEvents.Count;
 			var startTime = DateTime.Now;
 			using (ProgressBar pb = new ProgressBar(total))
 			{
@@ -453,7 +443,7 @@ namespace FileConverter.Managers
 		/// Sends files to be combined
 		/// </summary>
 		/// <param name="mergingFiles">Dictionary with a List of all files that should be combined</param>
-		Task SendToCombineFiles(Dictionary<string, List<FileInfo2>> mergingFiles)
+		static Task SendToCombineFiles(Dictionary<string, List<FileInfo2>> mergingFiles)
 		{
 			try
 			{
@@ -483,16 +473,16 @@ namespace FileConverter.Managers
 		/// <param name="newFile"></param>
 		/// <param name="mergingFiles"></param>
 		/// <returns>True if the file should be converted, False if it should be merged</returns>
-		bool CheckInOverride(FileInfo2 file, FileToConvert newFile, Dictionary<string, List<FileInfo2>> mergingFiles)
+		static bool CheckInOverride(FileInfo2 file, FileToConvert newFile, Dictionary<string, List<FileInfo2>> mergingFiles)
 		{
 			//Check if the file is in a folder that should be overridden
 			string? parentDirName = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.ParsedOptions.Output, file.FilePath));
-			if (parentDirName == null || !GlobalVariables.FolderOverride.ContainsKey(parentDirName))
-			{
-				return true;
-			}
+            if (parentDirName == null || !GlobalVariables.FolderOverride.TryGetValue(parentDirName, out _))
+            {
+                return true;
+            }
 
-			foreach (string pronom in GlobalVariables.FolderOverride[parentDirName].PronomsList)
+            foreach (string pronom in GlobalVariables.FolderOverride[parentDirName].PronomsList)
 			{
 				if (file.OriginalPronom != pronom)
 				{
@@ -504,13 +494,13 @@ namespace FileConverter.Managers
 				}
 				else
 				{
-					// Check if the key exists in the dictionary
-					if (!mergingFiles.ContainsKey(parentDirName))
-					{
-						// If the key does not exist, add it along with a new list
-						mergingFiles[parentDirName] = new List<FileInfo2>();
-					}
-					file.ShouldMerge = true;
+                    // Check if the key exists in the dictionary
+                    if (!mergingFiles.TryGetValue(parentDirName, out _))
+                    {
+                        // If the key does not exist, add it along with a new list
+                        mergingFiles[parentDirName] = new List<FileInfo2>();
+                    }
+                    file.ShouldMerge = true;
 					// Add the file to the list associated with the key
 					mergingFiles[parentDirName].Add(file);
 					return false;
@@ -519,7 +509,7 @@ namespace FileConverter.Managers
 			return true;
 		}
 
-		List<string> WordPronoms = [
+		/*List<string> WordPronoms = [
 			"x-fmt/329",
 			"fmt/609",
 			"fmt/39",
@@ -710,6 +700,6 @@ namespace FileConverter.Managers
 			"x-fmt/264",
 			"fmt/411",
 			"fmt/613"
-		];
+		];*/
 	}
 }

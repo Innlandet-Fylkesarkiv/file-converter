@@ -477,7 +477,7 @@ namespace ConversionTools.Converters
                     group.Add(file);
                     sentPaths.Add(file.FilePath);
                     groupSize += file.OriginalSize;
-                    if (groupSize > GlobalVariables.maxFileSize)
+                    if (groupSize > GlobalVariables.MaxFileSize)
                     {
                         Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom).Wait());
                         group.Clear();

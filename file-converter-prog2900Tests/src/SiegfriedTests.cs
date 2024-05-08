@@ -62,6 +62,7 @@ namespace FileConverter.Siegfried.Tests
 
             // Assert
             Assert.AreEqual(1, filePathGroups.Count);
+
             CollectionAssert.AreEqual(new[] { "path1/file1.txt", "path2/file2.txt", "path3/file3.txt", "path4/file4.txt", "path5/file5.txt" }, filePathGroups[0]);
         }
 
