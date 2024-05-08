@@ -48,7 +48,7 @@ namespace FileConverter
 				if (!File.Exists(ConversionSettingsPath))
 				{
 					PrintHelper.PrintLn("Could not find ConversionSettings file. Please make sure that the ConversionSettings file is in the root directory of the program.", GlobalVariables.ERROR_COL);
-					goto END;
+					ExitProgram(1);
 				}
 			}
 			else
@@ -68,7 +68,7 @@ namespace FileConverter
                 FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 				if (exit)
 				{
-					goto END;
+					ExitProgram(0);
 				}
 			}
 
@@ -78,7 +78,6 @@ namespace FileConverter
 				Directory.CreateDirectory(GlobalVariables.ParsedOptions.Output);
 			}
 
-			//Only maximize and center the console window if the OS is Windows
 			Console.Title = "FileConverter";
 
 			Logger logger = Logger.Instance;
@@ -89,7 +88,8 @@ namespace FileConverter
 			try
 			{
 				//Check if user wants to use files from previous run
-				//sf.AskReadFiles();
+				//sf.AskReadFiles(); Removed for stability
+
 				//Check if files were added from previous run
 				if (!sf.Files.IsEmpty)
 				{
@@ -108,7 +108,7 @@ namespace FileConverter
 			{
 				PrintHelper.PrintLn("[FATAL] Could not identify files: " + e.Message, GlobalVariables.ERROR_COL);
 				logger.SetUpRunTimeLogMessage("Main: Error when copying/unpacking/identifying files: " + e.Message, true);
-				goto END;
+				ExitProgram(1);
 			}
 
 			//Set up folder override after files have been copied over
@@ -118,8 +118,8 @@ namespace FileConverter
 				var exit = ResolveInputNotFound();
 				if (exit)
 				{
-					goto END;
-				}
+                    ExitProgram(0);
+                }
                 FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
 				InitFiles();
 			}
@@ -155,7 +155,8 @@ namespace FileConverter
 					case 'Y':   //Proceed with conversion
 						break;
 					case 'N':   //Exit program
-						goto END;
+						ExitProgram(0);
+						break;
 					case 'R':   //Change ConversionSettings and reload manually
 						Console.WriteLine("Edit ConversionSettings file and hit enter when finished (Remember to save file)");
 						Console.ReadLine();
@@ -177,7 +178,7 @@ namespace FileConverter
 				Console.WriteLine("Checking for naming conflicts...");
 				fileManager.CheckForNamingConflicts();
 				Console.WriteLine("Starting Conversion manager...");
-				cm.ConvertFiles();
+				cm.ConvertFiles().Wait();
 				//Delete siegfrieds json files
 				sf.ClearOutputFolder();
 			}
@@ -205,13 +206,19 @@ namespace FileConverter
 			{
 				PrintHelper.PrintLn("No errors happened during runtime. See documentation.json file in output dir.", GlobalVariables.SUCCESS_COL);
 			}
-
-		END:
-			sw.Stop();
-			Console.WriteLine("Time elapsed: {0}", sw.Elapsed);
-			Console.WriteLine("Press any key to exit...");
-			Console.ReadKey();  //Keep console open
+			ExitProgram(0);
 		}
+
+		/// <summary>
+		/// Function to wait for input and then exit program with a specified exit code
+		/// </summary>
+		/// <param name="exitCode">Exit code to return</param>
+		static void ExitProgram(int exitCode)
+		{
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();  //Keep console open
+			Environment.Exit(exitCode);
+        }
 
         static bool ResolveInputNotFound()
         {
