@@ -279,6 +279,10 @@ The first part of the XML file concerns arguments needed to run the program. The
 </FolderOverride>
 ```
 
+> [!WARNING]
+> If a file from the input directory exists in the output directory it will not be copied and the output directory file is converted. If you have updated the file in the input folder you need to delete it from the output directory.
+
+
 ## Currently supported file formats 
 <div align=center>
 <img width="900" src="https://github.com/larsmhaugland/file-converter/assets/117298604/92f26f2b-2ad4-4179-ac6f-07fb4f7dc1ba">
