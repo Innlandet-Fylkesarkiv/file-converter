@@ -11,61 +11,61 @@ namespace FileConverter.Siegfried
 	public class SiegfriedJSON
 	{
 		[JsonPropertyName("siegfried")]
-		public string siegfriedVersion = "";
+		public string siegfriedVersion { get; set; } = "";
 		[JsonPropertyName("scandate")]
-		public string scandate = "";
+		public string scandate { get; set; } = "";
 		[JsonPropertyName("files")]
-		public SiegfriedFile[] files = [];
+		public SiegfriedFile[] files { get; set; } = [];
 	}
 
 	public class SiegfriedFile
 	{
 		[JsonPropertyName("filename")]
-		public string filename = "";
+		public string filename { get; set; } = "";
 		[JsonPropertyName("filesize")]
-		public long filesize = 0;
+		public long filesize { get; set; } = 0;
 		[JsonPropertyName("modified")]
-		public string modified = "";
+		public string modified { get; set; } = "";
 		[JsonPropertyName("errors")]
-		public string errors = "";
-		public string hash = "";
+		public string errors { get; set; } = "";
+		public string hash { get; set; } = "";
 		[JsonPropertyName("matches")]
-		public SiegfriedMatches[] matches = [];
+		public SiegfriedMatches[] matches { get; set; } = [];
 	}
 	public class SiegfriedMatches
 	{
 		[JsonPropertyName("ns")]
-		public string ns = "";
+		public string ns { get; set; } = "";
 		[JsonPropertyName("id")]
-		public string id = "";
+		public string id { get; set; } = "";
 		[JsonPropertyName("format")]
-		public string format = "";
+		public string format { get; set; } = "";
 		[JsonPropertyName("version")]
-		public string version = "";
+		public string version { get; set; } = "";
 		[JsonPropertyName("mime")]
-		public string mime = "";
+		public string mime { get; set; } = "";
 		[JsonPropertyName("class")]
-		public string class_ = "";
+		public string class_ { get; set; } = "";
 		[JsonPropertyName("basis")]
-		public string basis = "";
+		public string basis { get; set; } = "";
 		[JsonPropertyName("warning")]
-		public string warning = "";
+		public string warning { get; set; } = "";
 	}
 
 	public class Siegfried
 	{
 		private static Siegfried? instance;
-		public string? Version = null;
-		public string? ScanDate = null;
-		public string OutputFolder = "siegfried/JSONoutput";
+		public string? Version { get; set; } = null;
+		public string? ScanDate { get; set; } = null;
+		public string OutputFolder { get; set; } = "siegfried/JSONoutput";
 		private string ExecutableName = OperatingSystem.IsLinux() ? "sf" : "sf.exe";
 		private string HomeFolder = "siegfried/";
-		private string PronomSignatureFile = "default.sig";      //"pronom64k.sig";
-		public int Multi = 64;
-		public int groupSize = 256;
+		private readonly string PronomSignatureFile = "default.sig";      //"pronom64k.sig";
+		public int Multi { get; set; } = 64;
+		public int groupSize { get; set; } = 256;
 		private static readonly object lockObject = new object();
-		public List<List<string>> CompressedFolders;
-		public ConcurrentBag<FileInfo2> Files = new ConcurrentBag<FileInfo2>();
+		public List<List<string>> CompressedFolders { get; set; }
+		public ConcurrentBag<FileInfo2> Files { get; set; } = new ConcurrentBag<FileInfo2>();
 		public static Siegfried Instance
 		{
 			get
@@ -151,7 +151,7 @@ namespace FileConverter.Siegfried
 		public void AskReadFiles()
 		{
 			//Check if json files exist
-			if (Directory.Exists(OutputFolder) && Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories).Count() > 0)
+			if (Directory.Exists(OutputFolder) && Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories).Any())
 			{
 				char input;
 				do
@@ -302,7 +302,6 @@ namespace FileConverter.Siegfried
 		/// <returns>Pronom id or null</returns>
 		public List<FileInfo2>? IdentifyList(string[] paths)
 		{
-			Logger logger = Logger.Instance;
 			var files = new List<FileInfo2>();
 
 			if (paths.Length < 1)
