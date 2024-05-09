@@ -439,13 +439,13 @@ namespace ConversionTools.Converters
 			}
 		}
 
-		/// <summary>
-		/// Gets the path to the soffice executable unless it is added to the systems PATH
-		/// then it just returns "soffice" which the name of the executable
-		/// </summary>
-		/// <param name="sofficePath"> Bool - Indicating if is in the PATH of the environment</param>
-		/// <returns></returns>
-		string GetSofficePath(bool sofficePath)
+        /// <summary>
+        /// Gets the path to the soffice executable unless it is added to the systems PATH
+        /// then it just returns "soffice" which the name of the executable
+        /// </summary>
+        /// <param name="sofficePath"> Bool - Indicating if is in the PATH of the environment</param>
+        /// <returns></returns>
+        string GetSofficePath(bool sofficePath)
 		{
 			string sofficePathString;
 			if (sofficePath)

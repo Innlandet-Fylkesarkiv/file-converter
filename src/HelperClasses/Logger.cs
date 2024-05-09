@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.DirectoryServices.AccountManagement;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace FileConverter.HelperClasses
 {
@@ -306,59 +307,56 @@ namespace FileConverter.HelperClasses
 		/// </summary>
 		public static void AskAboutReqAndConv()
 		{
-			if (JsonRoot.Requester == null || JsonRoot.Requester == "")
+            if (JsonRoot.Requester == null || JsonRoot.Requester == "")
 			{
-				string requester = Environment.UserName;
-				if (OperatingSystem.IsWindows())
-				{
-					requester = UserPrincipal.Current.DisplayName;
-				}
-				if (!GlobalVariables.ParsedOptions.AcceptAll)
-				{
-					Console.WriteLine("No data found in ConversionSettings and username '{0}' was detected, do you want to set it as requester in the documentation? (Y/N)", requester);
-					var response = GlobalVariables.ParsedOptions.AcceptAll ? "Y" : Console.ReadLine()!;
-                    if (response.Equals("Y", StringComparison.OrdinalIgnoreCase))
-                    {
-						JsonRoot.Requester = requester;
-					}
-					else
-					{
-						Console.WriteLine("Who is requesting the converting?");
-						JsonRoot.Requester = Console.ReadLine()!;
-					}
-				}
-				else
-				{
-					JsonRoot.Requester = requester;
-				}
+				AskRequesterOrConverter(true);
 			}
-
 			if (JsonRoot.Converter == null || JsonRoot.Converter == "")
 			{
-				string converter = Environment.UserName;
-				if (OperatingSystem.IsWindows())
-				{
-					converter = UserPrincipal.Current.DisplayName;
-				}
-				if (!GlobalVariables.ParsedOptions.AcceptAll)
-				{
-					Console.WriteLine("No data found in ConversionSettings and username '{0}' was detected, do you want to set it as converter in the documentation? (Y/N)", converter);
-					var response = Console.ReadLine()!;
-                    if (response.Equals("Y", StringComparison.OrdinalIgnoreCase))
-                    {
-                        JsonRoot.Converter = converter;
-                    }
-					else
-					{
-						Console.WriteLine("Who is requesting the converting?");
-						JsonRoot.Converter = Console.ReadLine()!;
-					}
-				}
-				else
-				{
-					JsonRoot.Converter = converter;
-				}
-			}
+                AskRequesterOrConverter(false);
+            }
 		}
+
+		/// <summary>
+		/// Asks the user about the requester or converter 
+		/// </summary>
+		/// <param name="Requester"> if it is about requester or converter </param>
+		private static void AskRequesterOrConverter(bool Requester)
+		{
+			string person = Requester ? "requester" : "converter";
+			string requesterOrConverter;
+            string user = Environment.UserName;
+            if (OperatingSystem.IsWindows())
+            {
+                user = UserPrincipal.Current.DisplayName;
+            }
+            if (!GlobalVariables.ParsedOptions.AcceptAll)
+            {
+                Console.WriteLine("No data found in ConversionSettings and username '{0}' was detected, do you want to set it as '{1}' in the documentation? (Y/N)", user, person);
+                var response = GlobalVariables.ParsedOptions.AcceptAll ? "Y" : Console.ReadLine()!;
+                if (response.Equals("Y", StringComparison.OrdinalIgnoreCase))
+                {
+                    requesterOrConverter = user;
+                }
+                else
+                {
+                    Console.WriteLine("Who is requesting the converting?");
+                    requesterOrConverter = Console.ReadLine()!;
+                }
+            }
+            else
+            {
+                requesterOrConverter = user;
+            }
+
+			if (Requester)
+			{
+                JsonRoot.Requester = requesterOrConverter;
+            }
+            else
+			{
+                JsonRoot.Converter = requesterOrConverter;
+            }
+        }
 	}
 }

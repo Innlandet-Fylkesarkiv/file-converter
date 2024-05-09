@@ -314,7 +314,7 @@ namespace FileConverter.Siegfried
 			string options;
 			if (OperatingSystem.IsWindows())
 			{
-				options = String.Format("-home {0} -json {1} -sig {2} -multi {3} ", HomeFolder, "" /*"-hash " + HashEnumToString(GlobalVariables.checksumHash)*/, PronomSignatureFile, Multi);
+				options = String.Format("-home \"{0}\" -json {1} -sig {2} -multi {3} ", HomeFolder, "" /*"-hash " + HashEnumToString(GlobalVariables.checksumHash)*/, PronomSignatureFile, Multi);
 			}
 			else
 			{
@@ -347,7 +347,7 @@ namespace FileConverter.Siegfried
 			
 			ProcessStartInfo psi = new ProcessStartInfo
 			{
-				FileName = $"{ExecutableName}", // or any other command you want to run
+				FileName = $"{ExecutableName}", 
 				Arguments = options + wrappedPaths,
 				RedirectStandardInput = false,
 				RedirectStandardOutput = true,
