@@ -380,7 +380,8 @@ namespace ConversionTools.Converters
             }
             if(editedPages.Count > 0)
             { 
-                Logger.Instance.SetUpRunTimeLogMessage("Interpolation removed from PDF to comply with PDF/A standards on page(s) " + editedPages.Distinct().ToList(), true, filename: filename);
+                string pageList = string.Join(", ", editedPages.Distinct().ToList());
+                Logger.Instance.SetUpRunTimeLogMessage("Interpolation removed from PDF to comply with PDF/A standards on page(s) " + pageList, true, filename: filename);
             }
             return newfilename;
         }
@@ -516,6 +517,7 @@ namespace ConversionTools.Converters
                 using (var pdfDocument = new PdfDocument(pdfWriter))
                 using (var document = new iText.Layout.Document(pdfDocument))
                 {
+                    int filesNotFound = 0;
                     pdfDocument.SetTagged();
                     foreach (var file in files)
                     {
@@ -523,13 +525,17 @@ namespace ConversionTools.Converters
                         string filename = isWrapped ? file.FilePath : String.Format("\"{0}\"",file.FilePath);
                         if (!File.Exists(filename))
                         {
-                            Logger.Instance.SetUpRunTimeLogMessage("MergeFiles - File not found: " + file.FilePath, true);
+                            filesNotFound++;
                             continue;
                         }
                         var filestream = File.ReadAllBytes(filename);
                         var imageData = ImageDataFactory.Create(filestream, false);
                         iText.Layout.Element.Image image = new iText.Layout.Element.Image(imageData);
                         document.Add(image);
+                    }
+                    if (filesNotFound > 0)
+                    {
+                        Logger.Instance.SetUpRunTimeLogMessage($"MergeFiles - {filesNotFound} files not found", true);
                     }
                 }
 
