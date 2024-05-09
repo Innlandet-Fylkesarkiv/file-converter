@@ -11,7 +11,7 @@ using iText.Kernel.Pdf;
 
 namespace FileConverter.LinuxSpecifics
 {
-    class LinuxSetup
+    static class LinuxSetup
     {
         //Specific Linux distro
         private static string LinuxDistro = GetLinuxDistro();
@@ -35,7 +35,7 @@ namespace FileConverter.LinuxSpecifics
             Console.WriteLine("Running on Linux");
             foreach(var converter in converterArguments){
                 checkInstallConverter(converter.Key[0], converter.Key[1], converter.Key[2]);
-            };
+            }
             checkInstallSiegfried();
         }
 
