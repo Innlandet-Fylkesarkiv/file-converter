@@ -250,12 +250,7 @@ namespace ConversionTools.Converters
                     string relPath = Path.GetRelativePath(Directory.GetCurrentDirectory(), file.FilePath);
 
                     string folderPath = relPath.Substring(0, relPath.LastIndexOf('.'));
-                    if (Directory.Exists(folderPath))
-                    {
-                        //Clear folder if it already exists
-                        Directory.Delete(folderPath, true);
-                    }
-                    Directory.CreateDirectory(folderPath);
+                    CreateFolder(folderPath);
 
                     using (var rasterizer = new GhostscriptRasterizer())
                     {
@@ -281,15 +276,7 @@ namespace ConversionTools.Converters
                             }
                         }
                     }
-                    foreach (var newFile in files)
-                    {
-                        converted = CheckConversionStatus(newFile.FilePath, file.Route.First());
-                        //It is only relevant to check if at least one file is not converted, rest will be checked at the end of conversion
-                        if (!converted)
-                        {
-                            break;
-                        }
-                    }
+                    converted = CheckFilesConversionStatus(files, file.Route.First());
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 FileManager.Instance.AddFiles(files);
                 if (converted)
@@ -306,6 +293,39 @@ namespace ConversionTools.Converters
             {
                 log.SetUpRunTimeLogMessage("Error when converting file with GhostScript. Error message: " + e.Message, true, filename: file.FilePath);
             }
+        }
+
+        /// <summary>
+        /// Checks if all pages have been converted to images
+        /// </summary>
+        /// <param name="files"> list of image-files created from pdf </param>
+        /// <param name="targetPronom"> PRONOM code that the file wants to convert to </param>
+        /// <returns> if every page has been converted to an image </returns>
+        private static bool CheckFilesConversionStatus(List<FileInfo2> files, string targetPronom)
+        {
+            //It is only relevant to check if at least one file is not converted, rest will be checked at the end of conversion
+            foreach (var newFile in files)
+            {
+                if (!CheckConversionStatus(newFile.FilePath, targetPronom))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Creates a folder if one does not exist at the specified path
+        /// </summary>
+        /// <param name="folderPath"> the path for to the folder </param>
+        private static void CreateFolder(string folderPath)
+        {
+            if (Directory.Exists(folderPath))
+            {
+                //Clear folder if it already exists
+                Directory.Delete(folderPath, true);
+            }
+            Directory.CreateDirectory(folderPath);
         }
 
         /// <summary>
@@ -362,12 +382,7 @@ namespace ConversionTools.Converters
                                                   //Create folder for images with original name
                     string folder = Path.GetFileNameWithoutExtension(file.FilePath);
                     string folderPath = Path.Combine(GlobalVariables.ParsedOptions.Output, folder);
-                    if (Directory.Exists(folderPath))
-                    {
-                        //Clear folder if it already exists
-                        Directory.Delete(folderPath, true);
-                    }
-                    Directory.CreateDirectory(folderPath);
+                    CreateFolder(folderPath);
 
                     string command = $"gs -sDEVICE={sDevice} -o {folderPath}{outputFileName}%d{extension} {file.FilePath}";  // %d adds page number to filename, i.e outputFileName1.png outputFileName2.png
 
