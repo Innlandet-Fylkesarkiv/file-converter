@@ -438,7 +438,7 @@ namespace FileConverter.Managers
             return fileCount;
         }
 
-        private bool IsConversionSupported(List<Converter> converters, string currentPronom, string? targetPronom)
+        static private bool IsConversionSupported(List<Converter> converters, string currentPronom, string? targetPronom)
         {
             bool supported = false;
             if (targetPronom != null)
@@ -454,7 +454,7 @@ namespace FileConverter.Managers
             }
             return supported;
         }
-        private string? SetOverrideFormat(string? targetPronom, string notSetString, string notSupportedString, bool supported, string currentPronom, FileInfo2 file)
+        static private string? SetOverrideFormat(string? targetPronom, string notSetString, string notSupportedString, bool supported, string currentPronom, FileInfo2 file)
         {
             if (targetPronom == null)
             {
@@ -534,7 +534,7 @@ namespace FileConverter.Managers
             }
         }
 
-        private List<(string, string)> GetDirsToBeMerged()
+        static private List<(string, string)> GetDirsToBeMerged()
         {
             var dirsToBeMerged = new List<(string, string)>();
             foreach (var entry in GlobalVariables.FolderOverride)
@@ -546,7 +546,7 @@ namespace FileConverter.Managers
             }
             return dirsToBeMerged;
         }
-        private void PrintMergePlan(List<(string, string)> dirsToBeMerged, int maxLength)
+        static private void PrintMergePlan(List<(string, string)> dirsToBeMerged, int maxLength)
         {
             Console.WriteLine("Some folders will be merged (output pronom):");
             foreach (var dir in dirsToBeMerged)
@@ -569,7 +569,7 @@ namespace FileConverter.Managers
             }
             return mergedDirs;
         }
-        private void printResultOfMerge(List<string> mergedDirs, List<(string, string)> dirsToBeMerged, List<(string, string)> notMerged)
+        static private void printResultOfMerge(List<string> mergedDirs, List<(string, string)> dirsToBeMerged, List<(string, string)> notMerged)
         {
             Console.WriteLine("{0}/{1} folders were merged:", mergedDirs.Count, dirsToBeMerged.Count);
             Console.ForegroundColor = GlobalVariables.SUCCESS_COL;

@@ -430,7 +430,7 @@ namespace FileConverter.Siegfried
 		/// </summary>
 		/// <param name="parentDir"> the directory the file is to be created in </param>
 		/// <param name="outputFile"> the JSON output file</param>
-		private void CreateJSONOutputFile(string? parentDir, string outputFile)
+		static private void CreateJSONOutputFile(string? parentDir, string outputFile)
 		{
             try
             {

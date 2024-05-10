@@ -147,7 +147,7 @@ namespace ConversionTools.Converters
         private void CheckAndRemovePDFAPronoms()
         {
             var converters = AddConverters.Instance.GetConverters();
-            bool iTextFound = converters.Any(converter => converter.Name == new IText7().Name);
+            iTextFound = converters.Any(converter => converter.Name == new IText7().Name);
 
             if (!iTextFound)
             {
@@ -185,7 +185,7 @@ namespace ConversionTools.Converters
 			// CSV
 			AddConversions(CSVPronoms, PDFPronoms, emptyList, emptyList, supportedConversions);
         }
-        private void AddConversions(List<string> sourceFormats, List<string> targetFormats1, List<string> targetFormats2, List<string> targetFormats3, Dictionary<string, List<string>> supportedConversions)
+        static private void AddConversions(List<string> sourceFormats, List<string> targetFormats1, List<string> targetFormats2, List<string> targetFormats3, Dictionary<string, List<string>> supportedConversions)
         {
             foreach (string sourceFormat in sourceFormats)
             {
