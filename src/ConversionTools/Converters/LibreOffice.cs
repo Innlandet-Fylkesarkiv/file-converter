@@ -129,7 +129,10 @@ namespace ConversionTools.Converters
 				log.SetUpRunTimeLogMessage("LibreOffice Operating system not supported for office conversion", true, file.FilePath);
 			}
 		}
-
+        /// <summary>
+        /// Reference list stating supported conversions containing key value pairs with string input pronom and string output pronom
+        /// </summary>
+        /// <returns>List of all supported conversions</returns>
         public override Dictionary<string, List<string>> GetListOfSupportedConvesions()
         {
             var supportedConversions = new Dictionary<string, List<string>>();
