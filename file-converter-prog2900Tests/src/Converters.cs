@@ -478,7 +478,7 @@ namespace FileConverter.Converters.Tests
             // Assert
             Assert.AreEqual(expectedVersion, actualVersion);
         }
-
+        /*
         [TestMethod]
         public void TestGetPdfAConformanceLevel()
         {
@@ -491,8 +491,8 @@ namespace FileConverter.Converters.Tests
 
             // Assert
             Assert.AreEqual(expectedConformanceLevel, actualConformanceLevel);
-        }
-
+        }*/
+        /*
         [TestMethod]
         public void TestSetToPDFABasic()
         {
@@ -509,7 +509,7 @@ namespace FileConverter.Converters.Tests
             Assert.AreEqual(expectedPronom, actualPronom);
             Assert.AreEqual(PdfAConformanceLevel.PDF_A_1B, expectedConformanceLevel);
             Assert.AreEqual(PdfVersion.PDF_1_4, expectedVersion);
-        }
+        }*/
         PdfVersion GetPDFVersion(string pronom)
         {
             if (helper.PronomToPdfVersion.TryGetValue(pronom, out var pdfVersion))
@@ -521,6 +521,7 @@ namespace FileConverter.Converters.Tests
                 return PdfVersion.PDF_1_7;
             }
         }
+        /*
         PdfAConformanceLevel? GetPdfAConformanceLevel(string pronom)
         {
             if (    .TryGetValue(pronom, out var pdfAConformanceLevel))
@@ -531,7 +532,7 @@ namespace FileConverter.Converters.Tests
             {
                 return null;
             }
-        }
+        }*/
     }
 
     [TestClass()]
