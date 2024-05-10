@@ -319,14 +319,8 @@ namespace FileConverter.Siegfried
 			{
 				return null;
 			}
-			string[] tempPaths = new string[paths.Length];
-			// Wrap the file paths in quotes
-			for (int i = 0; i < paths.Length; i++)
-			{
-				tempPaths[i] = "\"" + paths[i] + "\"";
-			}
-			string wrappedPaths = String.Join(" ", tempPaths);
-			string options;
+            string wrappedPaths = WrapPaths(paths);
+            string options;
 			if (OperatingSystem.IsWindows())
 			{
 				options = String.Format("-home \"{0}\" -json {1} -sig {2} -multi {3} ", HomeFolder, "" /*"-hash " + HashEnumToString(GlobalVariables.checksumHash)*/, PronomSignatureFile, Multi);
@@ -338,29 +332,9 @@ namespace FileConverter.Siegfried
 
 			string outputFile = Path.Combine(OutputFolder, Guid.NewGuid().ToString() + ".json");
 			string? parentDir = Directory.GetParent(outputFile)?.FullName;
+			CreateJSONOutputFile(parentDir, outputFile);
 
-			//Create output file
-			try
-			{
-				if (parentDir != null && !Directory.Exists(parentDir))
-				{
-					Directory.CreateDirectory(parentDir);
-				}
-				if (parentDir != null)
-				{
-					File.Create(outputFile).Close();
-				}
-				else
-				{
-					Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: parentDir is null " + outputFile, true);
-				}
-			}
-			catch (Exception e)
-			{
-				Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: could not create output file " + e.Message, true);
-			}
-			
-			ProcessStartInfo psi = new ProcessStartInfo
+            ProcessStartInfo psi = new ProcessStartInfo
 			{
 				FileName = $"{ExecutableName}", 
 				Arguments = options + wrappedPaths,
@@ -434,6 +408,50 @@ namespace FileConverter.Siegfried
 			}
 			return files;
 		}
+
+		/// <summary>
+		/// Wraps paths in quotes and joins them with a space
+		/// </summary>
+		/// <param name="paths"> list of paths to be wrapped </param>
+		/// <returns> a string of all paths each wrapped by quotes and separated by spaces </returns>
+		private static string WrapPaths(string[] paths)
+		{
+            string[] tempPaths = new string[paths.Length];
+            // Wrap the file paths in quotes
+            for (int i = 0; i < paths.Length; i++)
+            {
+                tempPaths[i] = "\"" + paths[i] + "\"";
+            }
+            return String.Join(" ", tempPaths);
+        }
+
+		/// <summary>
+		/// Creates a JSON output file in the specified directory. If the directory does not exist, it is created.
+		/// </summary>
+		/// <param name="parentDir"> the directory the file is to be created in </param>
+		/// <param name="outputFile"> the JSON output file</param>
+		private void CreateJSONOutputFile(string? parentDir, string outputFile)
+		{
+            try
+            {
+                if (parentDir != null && !Directory.Exists(parentDir))
+                {
+                    Directory.CreateDirectory(parentDir);
+                }
+                if (parentDir != null)
+                {
+                    File.Create(outputFile).Close();
+                }
+                else
+                {
+                    Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: parentDir is null " + outputFile, true);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: could not create output file " + e.Message, true);
+            }
+        }
 
 		/// <summary>
 		/// Identifies all files in input directory and returns a List of FileInfo objects.

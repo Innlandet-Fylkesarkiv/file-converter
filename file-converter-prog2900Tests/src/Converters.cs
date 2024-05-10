@@ -1,6 +1,7 @@
 ﻿using ConversionTools.Converters;
 using FileConverter.HelperClasses;
 using FileConverter.Managers;
+using iText.Kernel.Pdf;
 using SF = FileConverter.Siegfried;
 
 
@@ -21,7 +22,7 @@ namespace FileConverter.Converters.Tests
             var actualConversions = libreOffice.GetListOfSupportedConvesions();
 
             // Assert
-            AssertHelper.AreDictionariesEquivalent(expectedConversions, actualConversions);
+            Helper.AreDictionariesEquivalent(expectedConversions, actualConversions);
         }
         [TestMethod()]
         public void TestGetSofficePath_Unix()
@@ -226,7 +227,7 @@ namespace FileConverter.Converters.Tests
             Dictionary<string, List<string>> actualConversions = emailConverter.GetListOfSupportedConvesions();
 
             // Assert
-            AssertHelper.AreDictionariesEquivalent(expectedConversions, actualConversions);
+            Helper.AreDictionariesEquivalent(expectedConversions, actualConversions);
         }
 
         [TestMethod()]
@@ -321,13 +322,13 @@ namespace FileConverter.Converters.Tests
                 targetDirectory = Path.Combine(parentDirectory, folderWithAttachments);
                 if (Directory.Exists(targetDirectory))
                 { 
-                    string currentDirectory2 = Directory.GetCurrentDirectory();
+                    // Get the list of attachement files so they can later be added to the working set
                     attachmentFiles = await SF.Siegfried.Instance.IdentifyFilesIndividually(targetDirectory)!;
                 }
             } 
             else
             {
-                Assert.Fail("Can not find testFIles directory");
+                Assert.Fail("Can not find testFiles directory");
             }
             
             // Act
@@ -393,7 +394,145 @@ namespace FileConverter.Converters.Tests
     [TestClass()]
     public class IText7Tests
     {
+        private IText7 itext7;
+        private Helper helper = new Helper();
+
         
+        public  IText7Tests()
+        {
+            // Initialize the IText7Converter instance
+            itext7 = new IText7();
+        }
+
+        [TestMethod]
+        public void TestGetListOfSupportedConversions()
+        {
+            // Arrange
+            var expectedConversions = new Dictionary<string, List<string>>();
+
+            // Add image conversions
+            foreach (var imagePronom in helper.ImagePronoms)
+            {
+                expectedConversions.Add(imagePronom, helper.PDFPronoms);
+            }
+
+            // Add HTML conversions
+            foreach (var htmlPronom in helper.HTMLPronoms)
+            {
+                expectedConversions.Add(htmlPronom, helper.PDFPronoms);
+            }
+
+            // Add PDF conversions
+            foreach (var pdfPronom in helper.PDFPronoms)
+            {
+                expectedConversions.Add(pdfPronom, helper.PDFPronoms);
+            }
+
+            // Act
+            var actualConversions = itext7.GetListOfSupportedConvesions();
+
+            // Assert
+            Helper.AreDictionariesEquivalent(expectedConversions, actualConversions);
+        }
+
+        [TestMethod]
+        public void TestGetListOfBlockingConversions()
+        {
+            // Arrange
+            var expectedBlockingConversions = new Dictionary<string, List<string>>();
+
+            // Add blocking conversions for image, HTML, and PDF
+            foreach (var pronom in helper.ImagePronoms.Concat(helper.HTMLPronoms).Concat(helper.PDFPronoms))
+            {
+                expectedBlockingConversions.Add(pronom, helper.PDFAPronoms);
+            }
+
+            // Act
+            var actualBlockingConversions = itext7.GetListOfBlockingConversions();
+
+            // Assert
+            CollectionAssert.AreEquivalent(expectedBlockingConversions, actualBlockingConversions);
+        }
+        [TestMethod]
+        public void TestGetSupportedOS()
+        {
+            // Arrange
+            var expectedOS = new List<string> { PlatformID.Win32NT.ToString(), PlatformID.Unix.ToString() };
+
+            // Act
+            var actualOS = itext7.GetSupportedOS();
+
+            // Assert
+            CollectionAssert.AreEquivalent(expectedOS, actualOS);
+        }
+        [TestMethod]
+        public void TestGetPDFVersion()
+        {
+            // Arrange
+            string knownPronom = "fmt/95";
+            PdfVersion expectedVersion = PdfVersion.PDF_1_4;
+
+            // Act
+            PdfVersion actualVersion = GetPDFVersion(knownPronom);
+
+            // Assert
+            Assert.AreEqual(expectedVersion, actualVersion);
+        }
+        /*
+        [TestMethod]
+        public void TestGetPdfAConformanceLevel()
+        {
+            // Arrange
+            string knownPronom = "fmt/479";
+            PdfAConformanceLevel? expectedConformanceLevel = PdfAConformanceLevel.PDF_A_3B;
+
+            // Act
+            PdfAConformanceLevel? actualConformanceLevel = itext7.GetPdfAConformanceLevel(knownPronom);
+
+            // Assert
+            Assert.AreEqual(expectedConformanceLevel, actualConformanceLevel);
+        }*/
+        /*
+        [TestMethod]
+        public void TestSetToPDFABasic()
+        {
+            // Arrange
+            string knownPronom = "fmt/95";
+            PdfAConformanceLevel expectedConformanceLevel;
+            PdfVersion expectedVersion;
+            string expectedPronom = "fmt/354";
+
+            // Act
+            string actualPronom = itext7.SetToPDFABasic(knownPronom, out expectedConformanceLevel, out expectedVersion);
+
+            // Assert
+            Assert.AreEqual(expectedPronom, actualPronom);
+            Assert.AreEqual(PdfAConformanceLevel.PDF_A_1B, expectedConformanceLevel);
+            Assert.AreEqual(PdfVersion.PDF_1_4, expectedVersion);
+        }*/
+        PdfVersion GetPDFVersion(string pronom)
+        {
+            if (helper.PronomToPdfVersion.TryGetValue(pronom, out var pdfVersion))
+            {
+                return pdfVersion;
+            }
+            else
+            {
+                return PdfVersion.PDF_1_7;
+            }
+        }
+        /*
+        PdfAConformanceLevel? GetPdfAConformanceLevel(string pronom)
+        {
+            if (    .TryGetValue(pronom, out var pdfAConformanceLevel))
+            {
+                return pdfAConformanceLevel;
+            }
+            else
+            {
+                return null;
+            }
+        }*/
     }
 
     [TestClass()]
@@ -403,7 +542,7 @@ namespace FileConverter.Converters.Tests
     }
 
     // Created by ChatGPT
-    public static class AssertHelper
+    public class Helper
     {
         public static void AreDictionariesEquivalent<TKey, TValue>(Dictionary<TKey, List<TValue>> expected, Dictionary<TKey, List<TValue>> actual)
         {
@@ -430,5 +569,111 @@ namespace FileConverter.Converters.Tests
                 }
             }
         }
+        public readonly List<string> ImagePronoms = [
+          "fmt/3",
+            "fmt/4",
+            "fmt/11",
+            "fmt/12",
+            "fmt/13",
+            "fmt/935",
+            "fmt/41",
+            "fmt/42",
+            "fmt/43",
+            "fmt/44",
+            "x-fmt/398",
+            "x-fmt/390",
+            "x-fmt/391",
+            "fmt/645",
+            "fmt/1507",
+            "fmt/112",
+            "fmt/367",
+            "fmt/1917",
+            "x-fmt/399",
+            "x-fmt/388",
+            "x-fmt/387",
+            "fmt/155",
+            "fmt/353",
+            "fmt/154",
+            "fmt/153",
+            "fmt/156",
+            "x-fmt/270",
+            "fmt/115",
+            "fmt/118",
+            "fmt/119",
+            "fmt/114",
+            "fmt/116",
+            "fmt/117"
+       ];
+        public readonly List<string> HTMLPronoms = [
+            "fmt/103",
+            "fmt/96",
+            "fmt/97",
+            "fmt/98",
+            "fmt/99",
+            "fmt/100",
+            "fmt/471",
+            "fmt/1132",
+            "fmt/102",
+            "fmt/583"
+        ];
+        public readonly List<string> PDFPronoms = [
+            "fmt/95",       // PDF/A 1A
+            "fmt/354",      // PDF/A 1B
+            "fmt/476",      // PDF/A 2A
+            "fmt/477",      // PDF/A 2B
+            "fmt/478",      // PDF/A 2U
+            "fmt/479",      // PDF/A 3A
+            "fmt/480",      // PDF/A 3B
+            "fmt/481",      // PDF/A 3U
+                            //"fmt/1910",     // PDF/A 4
+                            //"fmt/1911",     // PDF/A 4E
+                            //"fmt/1912",     // PDF/A 4F
+            "fmt/14",       // PDF 1.0
+            "fmt/15",       // PDF 1.1
+            "fmt/16",       // PDF 1.2
+            "fmt/17",       // PDF 1.3
+            "fmt/18",       // PDF 1.4
+            "fmt/19",       // PDF 1.5
+            "fmt/20",       // PDF 1.6
+            "fmt/276",      // PDF 1.7
+            "fmt/1129"      // PDF 2.0
+        ];
+        public readonly List<string> PDFAPronoms = [
+             "fmt/95",       // PDF/A 1A
+            "fmt/354",      // PDF/A 1B
+            "fmt/476",      // PDF/A 2A
+            "fmt/477",      // PDF/A 2B
+            "fmt/478",      // PDF/A 2U
+            "fmt/479",      // PDF/A 3A
+            "fmt/480",      // PDF/A 3B
+            "fmt/481",      // PDF/A 3U
+                            //"fmt/1910",     // PDF/A 4
+                            //"fmt/1911",     // PDF/A 4E
+                            //"fmt/1912",     // PDF/A 4F
+        ];
+        public Dictionary<String, PdfVersion> PronomToPdfVersion = new Dictionary<string, PdfVersion>()
+        {
+            {"fmt/14", PdfVersion.PDF_1_0},
+            {"fmt/15", PdfVersion.PDF_1_1},
+            {"fmt/16", PdfVersion.PDF_1_2},
+            {"fmt/17", PdfVersion.PDF_1_3},
+            {"fmt/18", PdfVersion.PDF_1_4},
+            {"fmt/19", PdfVersion.PDF_1_5},
+            {"fmt/20", PdfVersion.PDF_1_6},
+            {"fmt/276", PdfVersion.PDF_1_7},
+            {"fmt/1129", PdfVersion.PDF_2_0},
+            {"fmt/95", PdfVersion.PDF_1_4 },    //PDF/A 1A
+            {"fmt/354", PdfVersion.PDF_1_4 },   //PDF/A 1B
+            {"fmt/476", PdfVersion.PDF_1_7 },   //PDF/A 2A
+            {"fmt/477", PdfVersion.PDF_1_7 },   //PDF/A 2B
+            {"fmt/478", PdfVersion.PDF_1_7 },   //PDF/A 2U
+            {"fmt/479", PdfVersion.PDF_1_7 },   //PDF/A 3A
+            {"fmt/480", PdfVersion.PDF_1_7 },   //PDF/A 3B
+            {"fmt/481", PdfVersion.PDF_1_7 },   //PDF/A 3U
+            {"fmt/1910", PdfVersion.PDF_2_0 },  //PDF/A 4
+            {"fmt/1911", PdfVersion.PDF_2_0 },  //PDF/A 4E
+            {"fmt/1912", PdfVersion.PDF_2_0 }   //PDF/A 4F
+        };
     }
 }
+
