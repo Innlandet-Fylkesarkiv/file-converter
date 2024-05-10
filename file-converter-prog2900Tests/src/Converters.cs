@@ -204,15 +204,13 @@ namespace FileConverter.Converters.Tests
     public class EmailConverterTests
     {
         EmailConverter emailConverter;
-        string currentDirectory;
         string parentDirectory;
         Siegfried.Siegfried siegfried;
         public EmailConverterTests()
         {
             emailConverter = new EmailConverter();
-            currentDirectory = Directory.GetCurrentDirectory();
-            parentDirectory = Directory.GetParent(currentDirectory)?.Parent?.Parent?.FullName;
-            Directory.SetCurrentDirectory(parentDirectory);
+            Directory.SetCurrentDirectory("../../../");
+            parentDirectory = Directory.GetCurrentDirectory();
             siegfried = Siegfried.Siegfried.Instance; 
         }
 
@@ -451,7 +449,7 @@ namespace FileConverter.Converters.Tests
             var actualBlockingConversions = itext7.GetListOfBlockingConversions();
 
             // Assert
-            CollectionAssert.AreEquivalent(expectedBlockingConversions, actualBlockingConversions);
+            Helper.AreDictionariesEquivalent(expectedBlockingConversions, actualBlockingConversions);
         }
         [TestMethod]
         public void TestGetSupportedOS()
