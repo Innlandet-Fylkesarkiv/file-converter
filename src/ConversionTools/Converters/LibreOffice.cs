@@ -130,235 +130,84 @@ namespace ConversionTools.Converters
 			}
 		}
 
-		/// <summary>
-		/// Reference list stating supported conversions containing key value pairs with string input pronom and string output pronom
-		/// </summary>
-		/// <returns>List of all supported conversions</returns>
-		public override Dictionary<string, List<string>> GetListOfSupportedConvesions()
-		{
-			var supportedConversions = new Dictionary<string, List<string>>();
+        public override Dictionary<string, List<string>> GetListOfSupportedConvesions()
+        {
+            var supportedConversions = new Dictionary<string, List<string>>();
 
-			// Remove PDF/A formats if iText7 is not available
-			var converters = AddConverters.Instance.GetConverters();
-			converters.ForEach(converter =>
-			{
-				if (converter.Name == new IText7().Name)
-				{
-					iTextFound = true;
-				}
-			});
-			if (!iTextFound)
-			{
-				foreach (string pronom in PDFAPronoms)
-				{
-					PDFPronoms.Remove(pronom);
-				}
-			}
+            CheckAndRemovePDFAPronoms();
 
-			// XLS to XLSX, ODS and PDF
-			foreach (string XLSPronom in XLSPronoms)
-			{
-				if (!supportedConversions.TryGetValue(XLSPronom, out var pronomList))
-				{
-					pronomList = [];
-					supportedConversions[XLSPronom] = pronomList;
-				}
-				pronomList.AddRange(XLSXPronoms);
-				pronomList.AddRange(ODSPronoms);
-				pronomList.AddRange(PDFPronoms);
-			}
-			// XLSX to ODS and PDF
-			foreach (string XLSXPronom in XLSXPronoms)
-			{
-				if (!supportedConversions.TryGetValue(XLSXPronom, out var pronomList))
-				{
-					pronomList = [];
-					supportedConversions[XLSXPronom] = pronomList;
-				}
-				pronomList.AddRange(ODSPronoms);
-				pronomList.AddRange(PDFPronoms);
-			}
-			// XLSM to PDF, XLSX and ODS
-			foreach (string XLSMPronom in XLSMPronoms)
-			{
-				if (!supportedConversions.TryGetValue(XLSMPronom, out var pronomList))
-				{
-					pronomList = [];
-					supportedConversions[XLSMPronom] = pronomList;
-				}
-				pronomList.AddRange(XLSXPronoms);
-				pronomList.AddRange(ODSPronoms);
-				pronomList.AddRange(PDFPronoms);
-			}
-			// XLTX to XLSX, ODS and PDf
-			foreach (string XLTXPronom in XLTXPronoms)
-			{
-				if (!supportedConversions.TryGetValue(XLTXPronom, out var pronomList))
-				{
-					pronomList = [];
-					supportedConversions[XLTXPronom] = pronomList;
-				}
-				pronomList.AddRange(XLSXPronoms);
-				pronomList.AddRange(ODSPronoms);
-				pronomList.AddRange(PDFPronoms);
-			}
-			// DOC to ODT, DOCX and PDF
-			foreach (string docPronom in DOCPronoms)
-			{
-				if (!supportedConversions.TryGetValue(docPronom, out var pronomList))
-				{
-					pronomList = [];
-					supportedConversions[docPronom] = pronomList;
-				}
-				pronomList.AddRange(DOCXPronoms);
-				pronomList.AddRange(ODTPronoms);
-				pronomList.AddRange(PDFPronoms);
-			}
+            AddConversionsForMultipleFormats(supportedConversions);
 
-			// DOCX to ODT and PDF
-			foreach (string docxPronom in DOCXPronoms)
-			{
-				if (!supportedConversions.TryGetValue(docxPronom, out var pronomList))
-				{
-					pronomList = [];
-					supportedConversions[docxPronom] = pronomList;
-				}
-				pronomList.AddRange(ODTPronoms);
-				pronomList.AddRange(PDFPronoms);
-				pronomList.AddRange(PPTPronoms);
-			}
-			// DOCM to DOCX, ODT and PDF
-			foreach (string docmPronom in DOCMPronoms)
-			{
-				if (!supportedConversions.TryGetValue(docmPronom, out var pronomList))
-				{
-					pronomList = [];
-					supportedConversions[docmPronom] = pronomList;
-				}
-				pronomList.AddRange(DOCXPronoms);
-				pronomList.AddRange(PDFPronoms);
-				pronomList.AddRange(ODTPronoms);
-			}
-			// DOTX to DOCX, ODT and PDF
-			foreach (string dotxPronom in DOTXPronoms)
-			{
-				if (!supportedConversions.TryGetValue(dotxPronom, out var pronomList))
-				{
-					pronomList = [];
-					supportedConversions[dotxPronom] = pronomList;
-				}
-				pronomList.AddRange(DOCXPronoms);
-				pronomList.AddRange(PDFPronoms);
-				pronomList.AddRange(ODTPronoms);
-			}
-            // PPT to PPTX, ODP and PDF
-            foreach (string pptPronom in PPTPronoms)
+            return supportedConversions;
+        }
+
+        private void CheckAndRemovePDFAPronoms()
+        {
+            var converters = AddConverters.Instance.GetConverters();
+            bool iTextFound = converters.Any(converter => converter.Name == new IText7().Name);
+
+            if (!iTextFound)
             {
-                if (!supportedConversions.TryGetValue(pptPronom, out var conversionList))
+                foreach (string pronom in PDFAPronoms.ToList())
                 {
-                    conversionList = [];
-                    supportedConversions[pptPronom] = conversionList;
+                    PDFPronoms.Remove(pronom);
                 }
-                conversionList.AddRange(PDFPronoms);
-                conversionList.AddRange(ODPPronoms);
-                conversionList.AddRange(PPTXPronoms);
             }
-            // PPTX to ODP and PDF
-            foreach (string pptxPronom in PPTXPronoms)
-			{
-				if (!supportedConversions.TryGetValue(pptxPronom, out var pronomList))
-				{
-					pronomList = [];
-					supportedConversions[pptxPronom] = pronomList;
-				}
-				pronomList.AddRange(PDFPronoms);
-				pronomList.AddRange(ODPPronoms);
-			}
-			// PPTM to PPTX, ODP and PDF
-			foreach (string pptmPronom in PPTMPronoms)
-			{
-				if (!supportedConversions.TryGetValue(pptmPronom, out var pronomList))
-				{
-					pronomList = new List<string>();
-					supportedConversions[pptmPronom] = pronomList;
-				}
-				pronomList.AddRange(PDFPronoms);
-				pronomList.AddRange(ODPPronoms);
-				pronomList.AddRange(PPTXPronoms);
-			}
-			// POTX to PPTX, ODP and PDF
-			foreach (string potxPronom in POTXPronoms)
-			{
-				if (!supportedConversions.TryGetValue(potxPronom, out var pronomList))
-				{
-					pronomList = new List<string>();
-					supportedConversions[potxPronom] = pronomList;
-				}
-				pronomList.AddRange(PDFPronoms);
-				pronomList.AddRange(ODPPronoms);
-				pronomList.AddRange(PPTXPronoms);
-			}
-			// ODP to PPTX and PDF
-			foreach (string odpPronom in ODPPronoms)
-			{
-				if (!supportedConversions.TryGetValue(odpPronom, out var pronomList))
-				{
-					pronomList = new List<string>();
-					supportedConversions[odpPronom] = pronomList;
-				}
-				pronomList.AddRange(PDFPronoms);
-				pronomList.AddRange(PPTXPronoms);
-			}
-			// ODS to XLSX and PDF
-			foreach (string odsPronom in ODSPronoms)
-			{
-				if (!supportedConversions.TryGetValue(odsPronom, out var pronomList))
-				{
-					pronomList = new List<string>();
-					supportedConversions[odsPronom] = pronomList;
-				}
-				pronomList.AddRange(PDFPronoms);
-				pronomList.AddRange(XLSXPronoms);
-			}
-			// ODT to XLSX and PDF
-			foreach (string odtPronom in ODTPronoms)
-			{
-				if (!supportedConversions.TryGetValue(odtPronom, out var pronomList))
-				{
-					pronomList = new List<string>();
-					supportedConversions[odtPronom] = pronomList;
-				}
-				pronomList.AddRange(PDFPronoms);
-				pronomList.AddRange(DOCXPronoms);
-			}
+        }
 
-			// RTF to PDF, DOCX and ODT
-			foreach (string rtfPronom in RTFPronoms)
-			{
-				if (!supportedConversions.TryGetValue(rtfPronom, out var pronomList))
-				{
-					pronomList = new List<string>();
-					supportedConversions[rtfPronom] = pronomList;
-				}
-				pronomList.AddRange(PDFPronoms);
-				pronomList.AddRange(DOCXPronoms);
-				pronomList.AddRange(ODTPronoms);
-			}
-			// CSV to PDF
-			foreach (string csvPronom in CSVPronoms)
-			{
-				if (!supportedConversions.TryGetValue(csvPronom, out var pronomList))
-				{
-					pronomList = new List<string>();
-					supportedConversions[csvPronom] = pronomList;
-				}
-				pronomList.AddRange(PDFPronoms);
-			}
+        private void AddConversionsForMultipleFormats(Dictionary<string, List<string>> supportedConversions)
+        {
+            List<string> emptyList = [];
+			// EXCEL 
+            AddConversions(XLSXPronoms, PDFPronoms, ODSPronoms, emptyList, supportedConversions);
+            AddConversions(XLSPronoms,  PDFPronoms, XLSXPronoms, ODSPronoms, supportedConversions);
+            AddConversions(XLSMPronoms, PDFPronoms, XLSXPronoms, ODSPronoms, supportedConversions);
+            AddConversions(XLTXPronoms, PDFPronoms, XLSXPronoms, ODSPronoms, supportedConversions);
+            // WORD
+            AddConversions(DOCXPronoms, PDFPronoms, ODTPronoms, emptyList, supportedConversions);
+			AddConversions(DOCPronoms,  PDFPronoms, DOCXPronoms, ODTPronoms, supportedConversions);
+            AddConversions(DOCMPronoms, PDFPronoms, DOCXPronoms, ODTPronoms, supportedConversions);
+            AddConversions(DOTXPronoms, PDFPronoms, DOCXPronoms, ODTPronoms, supportedConversions);
+            // PowerPoint
+            AddConversions(PPTXPronoms, PDFPronoms, ODPPronoms, emptyList, supportedConversions);
+            AddConversions(PPTPronoms,  PDFPronoms, PPTXPronoms, ODPPronoms, supportedConversions);
+            AddConversions(PPTMPronoms, PDFPronoms, PPTXPronoms, ODPPronoms, supportedConversions);
+            AddConversions(POTXPronoms, PDFPronoms, PPTXPronoms, ODPPronoms, supportedConversions);
+            // Open Document 
+            AddConversions(ODPPronoms, PDFPronoms, PPTXPronoms, emptyList, supportedConversions);
+            AddConversions(ODTPronoms, PDFPronoms, DOCXPronoms, emptyList, supportedConversions);
+            AddConversions(ODSPronoms, PDFPronoms, XLSXPronoms, emptyList, supportedConversions);
+            // RTF
+            AddConversions(RTFPronoms, PDFPronoms, DOCXPronoms, ODTPronoms, supportedConversions);
+			// CSV
+			AddConversions(CSVPronoms, PDFPronoms, emptyList, emptyList, supportedConversions);
+        }
+        private void AddConversions(List<string> sourceFormats, List<string> targetFormats1, List<string> targetFormats2, List<string> targetFormats3, Dictionary<string, List<string>> supportedConversions)
+        {
+            foreach (string sourceFormat in sourceFormats)
+            {
+                if (!supportedConversions.TryGetValue(sourceFormat, out var pronomList))
+                {
+                    pronomList = new List<string>();
+                    supportedConversions[sourceFormat] = pronomList;
+                }
 
-			return supportedConversions;
-		}
+                if (targetFormats1.Count > 0)
+                {
+                    pronomList.AddRange(targetFormats1);
+                }
+                if (targetFormats2.Count > 0)
+                {
+                    pronomList.AddRange(targetFormats2);
+                }
+                if (targetFormats3.Count > 0)
+                {
+                    pronomList.AddRange(targetFormats3);
+                }
+            }
+        }
 
-		public override Dictionary<string, List<string>> GetListOfBlockingConversions()
+        public override Dictionary<string, List<string>> GetListOfBlockingConversions()
 		{
 			return SupportedConversions;
 		}
