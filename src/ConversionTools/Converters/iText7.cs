@@ -31,7 +31,7 @@ namespace ConversionTools.Converters
     public class IText7 : Converter
     {
         private static readonly object pdfalock = new object();     //PDF-A uses a .icc file when converting, which can not be accessed by multiple threads at the same time
-
+        private static string ICCFilePath = GetICCFilePath();       //Path to the .icc file needed for PDF-A conversion
         public IText7()
         {
             Name = "iText7";
@@ -274,7 +274,7 @@ namespace ConversionTools.Converters
                 // Initialize PdfOutputIntent object
                 lock (pdfalock)
                 {
-                    using (FileStream iccFileStream = new FileStream(GetICCFilePath(), FileMode.Open))
+                    using (FileStream iccFileStream = new FileStream(ICCFilePath, FileMode.Open))
                     {
                         outputIntent = new PdfOutputIntent("Custom", "", "https://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
                     }
@@ -380,7 +380,8 @@ namespace ConversionTools.Converters
             }
             if(editedPages.Count > 0)
             { 
-                Logger.Instance.SetUpRunTimeLogMessage("Interpolation removed from PDF to comply with PDF/A standards on page(s) " + editedPages.Distinct().ToList(), true, filename: filename);
+                string pageList = string.Join(", ", editedPages.Distinct().ToList());
+                Logger.Instance.SetUpRunTimeLogMessage("Interpolation removed from PDF to comply with PDF/A standards on page(s) " + pageList, true, filename: filename);
             }
             return newfilename;
         }
@@ -516,6 +517,7 @@ namespace ConversionTools.Converters
                 using (var pdfDocument = new PdfDocument(pdfWriter))
                 using (var document = new iText.Layout.Document(pdfDocument))
                 {
+                    int filesNotFound = 0;
                     pdfDocument.SetTagged();
                     foreach (var file in files)
                     {
@@ -523,13 +525,17 @@ namespace ConversionTools.Converters
                         string filename = isWrapped ? file.FilePath : String.Format("\"{0}\"",file.FilePath);
                         if (!File.Exists(filename))
                         {
-                            Logger.Instance.SetUpRunTimeLogMessage("MergeFiles - File not found: " + file.FilePath, true);
+                            filesNotFound++;
                             continue;
                         }
                         var filestream = File.ReadAllBytes(filename);
                         var imageData = ImageDataFactory.Create(filestream, false);
                         iText.Layout.Element.Image image = new iText.Layout.Element.Image(imageData);
                         document.Add(image);
+                    }
+                    if (filesNotFound > 0)
+                    {
+                        Logger.Instance.SetUpRunTimeLogMessage($"MergeFiles - {filesNotFound} files not found", true);
                     }
                 }
 
@@ -778,20 +784,5 @@ namespace ConversionTools.Converters
             .Add("fmt/1910", PdfAConformanceLevel.PDF_A_4)
             .Add("fmt/1911", PdfAConformanceLevel.PDF_A_4E)
             .Add("fmt/1912", PdfAConformanceLevel.PDF_A_4F);
-        
-        /*static readonly public Dictionary<String, PdfAConformanceLevel> PronomToPdfAConformanceLevel = new Dictionary<string, PdfAConformanceLevel>()
-        {
-            {"fmt/95",  PdfAConformanceLevel.PDF_A_1A },
-            {"fmt/354", PdfAConformanceLevel.PDF_A_1B },
-            {"fmt/476", PdfAConformanceLevel.PDF_A_2A },
-            {"fmt/477", PdfAConformanceLevel.PDF_A_2B },
-            {"fmt/478", PdfAConformanceLevel.PDF_A_2U },
-            {"fmt/479", PdfAConformanceLevel.PDF_A_3A },
-            {"fmt/480", PdfAConformanceLevel.PDF_A_3B },
-            {"fmt/481", PdfAConformanceLevel.PDF_A_3U },
-            {"fmt/1910", PdfAConformanceLevel.PDF_A_4 },
-            {"fmt/1911", PdfAConformanceLevel.PDF_A_4E},
-            {"fmt/1912", PdfAConformanceLevel.PDF_A_4F}
-        };*/
     }
 }
