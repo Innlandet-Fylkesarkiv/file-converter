@@ -309,8 +309,8 @@ namespace FileConverter.Converters.Tests
         public async Task TestAddAttachmentFilesToWorkingSet()
         {
             // Arrange
-            string folderWithAttachments = "src//testfiles";
-            GlobalVariables.ParsedOptions.Input = "testfiles";
+            string folderWithAttachments = "src//testFiles";
+            GlobalVariables.ParsedOptions.Input = "testFiles";
             GlobalVariables.ParsedOptions.Output = "output";
             List<FileInfo2>? attachmentFiles = new List<FileInfo2?>();
             string targetDirectory = "";
