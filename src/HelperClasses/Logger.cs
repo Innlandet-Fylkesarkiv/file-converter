@@ -303,9 +303,9 @@ namespace FileConverter.HelperClasses
 		}
 
 		/// <summary>
-		/// Asks the user about the requester and converter if they are not set in the ConversionSettings
+		/// Sets the requester and converter if they are not set in the ConversionSettings
 		/// </summary>
-		public static void AskAboutReqAndConv()
+		public static void SetRequesterAndConverter()
 		{
             if (JsonRoot.Requester == null || JsonRoot.Requester == "")
 			{

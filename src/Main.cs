@@ -135,7 +135,7 @@ namespace FileConverter
 					InitFiles();
 				}
 				input = GlobalVariables.ParsedOptions.AcceptAll ? 'Y' : 'X';
-				Logger.AskAboutReqAndConv();
+				Logger.SetRequesterAndConverter();
 				fileManager.DisplayFileList();
 				PrintHelper.PrintLn("Requester: {0}\nConverter: {1}\nMaxThreads: {2}\nTimeout in minutes: {3}",
 					GlobalVariables.INFO_COL, Logger.JsonRoot.Requester, Logger.JsonRoot.Converter, GlobalVariables.MaxThreads, GlobalVariables.Timeout);
