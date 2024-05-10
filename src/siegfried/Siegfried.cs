@@ -153,7 +153,7 @@ namespace FileConverter.Siegfried
 						if (Path.GetDirectoryName(exeFile) == Path.GetDirectoryName(sigFile))
 						{
                             ExecutableName = exeFile;
-                            HomeFolder = Path.GetDirectoryName(ExecutableName) + Path.DirectorySeparatorChar;
+                            HomeFolder = Path.GetDirectoryName(ExecutableName);
                             return;
                         }
 					}

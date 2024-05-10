@@ -4,6 +4,7 @@
 	<InputFolder>input</InputFolder>
 	<OutputFolder>output</OutputFolder>
 	<MaxThreads>
+		20
 	</MaxThreads>
 	<ChecksumHashing>SHA256</ChecksumHashing>
 	<Timeout>
