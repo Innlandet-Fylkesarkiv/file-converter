@@ -141,11 +141,23 @@ namespace FileConverter.Siegfried
 				return;
 			}
 			string filename = "sf.exe";
-			string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), filename, SearchOption.AllDirectories);
-			if (files.Length > 0)
+			string[] executables = Directory.GetFiles(Directory.GetCurrentDirectory(), filename, SearchOption.AllDirectories);
+			string[] sigFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), PronomSignatureFile, SearchOption.AllDirectories);
+
+			if (executables.Length > 0)
 			{
-				ExecutableName = files[0];
-				HomeFolder = Path.GetDirectoryName(ExecutableName) + "/";
+				foreach (string exeFile in executables)
+				{
+					foreach (string sigFile in sigFiles)
+					{
+						if (Path.GetDirectoryName(exeFile) == Path.GetDirectoryName(sigFile))
+						{
+                            ExecutableName = exeFile;
+                            HomeFolder = Path.GetDirectoryName(ExecutableName) + Path.DirectorySeparatorChar;
+                            return;
+                        }
+					}
+                }
 			}
 		}
 		public void AskReadFiles()
@@ -255,6 +267,7 @@ namespace FileConverter.Siegfried
 
 			string error = "";
 			string output = "";
+			bool exception = false;
 			try
 			{
 				// Create the process
@@ -271,12 +284,14 @@ namespace FileConverter.Siegfried
             catch (Exception e)
 			{
                 Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyFile: " + e.Message, true);
+				exception = true;
             }
 			
-			if (error.Length > 0)
+			if (error.Length > 0 && !exception)
 			{
 				Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyFile: " + error, true);
 			}
+
 			var parsedData = ParseJSONOutput(output, false);
 			if (parsedData == null || parsedData.files == null)
 				return null;
@@ -357,6 +372,7 @@ namespace FileConverter.Siegfried
 			};
 
 			string error = "";
+			bool exception = false;
 			try
 			{
 				// Create the process
@@ -382,10 +398,13 @@ namespace FileConverter.Siegfried
 			}
             catch (Exception e)
 			{
+                //Remove \n from error message
+                error = e.Message.Replace("\n", " - ");
                 Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: " + e.Message, true);
+				exception = true;
             }
 			
-			if (error.Length > 0)
+			if (error.Length > 0 && !exception)
 			{
 				//Remove \n from error message
 				error = error.Replace("\n", " - ");
