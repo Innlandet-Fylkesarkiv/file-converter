@@ -261,6 +261,7 @@ namespace ConversionTools.Converters
         /// <param name="conformanceLevel">The type of PDF-A to convert to</param>
         void convertFromPDFToPDFA(FileToConvert file, PdfAConformanceLevel conformanceLevel)
         {
+            
             try
             {
                 string pdfaFileName = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_PDFA.pdf");
@@ -269,7 +270,6 @@ namespace ConversionTools.Converters
                 bool converted = false;
                 string pronom = file.Route.First();
                 PdfOutputIntent outputIntent;
-
                 string tmpFileName = RemoveInterpolation(filename);
                 // Initialize PdfOutputIntent object
                 lock (pdfalock)

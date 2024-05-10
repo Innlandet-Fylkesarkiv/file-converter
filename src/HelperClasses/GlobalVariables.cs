@@ -1,6 +1,4 @@
-﻿using FileConverter;
-
-namespace FileConverter.HelperClasses
+﻿namespace FileConverter.HelperClasses
 {
     public enum PrintSortBy
     {

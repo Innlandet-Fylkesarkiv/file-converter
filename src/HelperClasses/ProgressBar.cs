@@ -3,12 +3,13 @@ using System.Text;
 using System.Threading;
 	
 /// <summary>
-/// An ASCII progress bar
+/// An ASCII progress bar for the console.
+/// It is based of the code from https://gist.github.com/DanielSWolf/0ab6a96899cc5377bf54
 /// </summary>
 /// 
 namespace FileConverter.HelperClasses
 {
-	public class ProgressBar : IDisposable, IProgress<double>
+	public class ProgressBar : IDisposable
 	{
 		private const int blockCount = 10;
 		private readonly TimeSpan animationInterval = TimeSpan.FromSeconds(1.0 / 8);
@@ -38,10 +39,6 @@ namespace FileConverter.HelperClasses
 			}
 		}
 
-		public void Report(double value) 
-		{
-            // Interface member method that must be present, but is not utilized
-        }
         public void Report(double value, int currentJob, TimeSpan ts)
 		{
 			// Make sure value is in [0..1] range
