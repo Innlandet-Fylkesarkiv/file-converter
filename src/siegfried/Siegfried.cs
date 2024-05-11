@@ -150,10 +150,11 @@ namespace FileConverter.Siegfried
 				{
 					foreach (string sigFile in sigFiles)
 					{
-						if (Path.GetDirectoryName(exeFile) == Path.GetDirectoryName(sigFile))
+						var exeDir = Path.GetDirectoryName(exeFile);
+						if (exeDir != null && exeDir == Path.GetDirectoryName(sigFile))
 						{
                             ExecutableName = exeFile;
-                            HomeFolder = Path.GetDirectoryName(ExecutableName);
+                            HomeFolder = exeDir;
                             return;
                         }
 					}
