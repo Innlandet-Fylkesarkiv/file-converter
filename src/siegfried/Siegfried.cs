@@ -153,7 +153,7 @@ namespace FileConverter.Siegfried
 						if (Path.GetDirectoryName(exeFile) == Path.GetDirectoryName(sigFile))
 						{
                             ExecutableName = exeFile;
-							HomeFolder = Path.GetDirectoryName(ExecutableName);// + Path.DirectorySeparatorChar;
+                            HomeFolder = Path.GetDirectoryName(ExecutableName);
                             return;
                         }
 					}
@@ -446,7 +446,7 @@ namespace FileConverter.Siegfried
 		/// </summary>
 		/// <param name="parentDir"> the directory the file is to be created in </param>
 		/// <param name="outputFile"> the JSON output file</param>
-		private void CreateJSONOutputFile(string? parentDir, string outputFile)
+		static private void CreateJSONOutputFile(string? parentDir, string outputFile)
 		{
             try
             {

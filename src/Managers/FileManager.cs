@@ -413,29 +413,11 @@ namespace FileConverter.Managers
                     macroDetected = true;
                 }
 
-                //Check if the conversion is supported by any of the converters
-                if (targetPronom != null)
-                {
-                    converters.ForEach(c =>
-                    {
-                        //Check if the conversion is directly supported by the converter or if it is supported by the ConversionManager through different converters
-                        if (c.SupportsConversion(currentPronom, targetPronom) || Managers.ConversionManager.Instance.SupportsConversion(currentPronom, targetPronom))
-                        {
-                            supported = true;
-                        }
-                    });
-                }
+                supported = IsConversionSupported(converters, currentPronom, targetPronom);
+
                 //If no supported format is found, set the overrideFormat to notSetString
-                if (targetPronom == null)
-                {
-                    targetPronom = notSetString;
-                    file.OutputNotSet = true;
-                }
-                else if (!supported && targetPronom != currentPronom)
-                {
-                    targetPronom = targetPronom + notSupportedString;
-                    file.NotSupported = true;
-                }
+                targetPronom = SetOverrideFormat(targetPronom, notSetString, notSupportedString, supported, currentPronom, file);
+
                 //Add new entry in dictionary or add to count if entry already exists
                 KeyValuePair<string, string> key = new KeyValuePair<string, string>(currentPronom, targetPronom);
                 
@@ -454,6 +436,37 @@ namespace FileConverter.Managers
                 PrintHelper.PrintLn("One or more macro files detected in '{0}' folder.", GlobalVariables.WARNING_COL, GlobalVariables.ParsedOptions.Input);
             }
             return fileCount;
+        }
+
+        static private bool IsConversionSupported(List<Converter> converters, string currentPronom, string? targetPronom)
+        {
+            bool supported = false;
+            if (targetPronom != null)
+            {
+                foreach (var converter in converters)
+                {
+                    if (converter.SupportsConversion(currentPronom, targetPronom) || Managers.ConversionManager.Instance.SupportsConversion(currentPronom, targetPronom))
+                    {
+                        supported = true;
+                        break;
+                    }
+                }
+            }
+            return supported;
+        }
+        static private string? SetOverrideFormat(string? targetPronom, string notSetString, string notSupportedString, bool supported, string currentPronom, FileInfo2 file)
+        {
+            if (targetPronom == null)
+            {
+                targetPronom = notSetString;
+                file.OutputNotSet = true;
+            }
+            else if (!supported && targetPronom != currentPronom)
+            {
+                targetPronom = targetPronom + notSupportedString;
+                file.NotSupported = true;
+            }
+            return targetPronom;
         }
 
         private void PrintFileGroups(int currentMax, int targetMax, List<FileInfoGroup> formatList, string notSupportedString, string notSetString)
@@ -493,15 +506,7 @@ namespace FileConverter.Managers
 
         private void PrintMergeFiles()
         {
-            //Get a list of all directories that will be merged
-            List<(string, string)> dirsToBeMerged = new List<(string, string)>();
-            foreach (var entry in GlobalVariables.FolderOverride)
-            {
-                if (entry.Value.Merge)
-                {
-                    dirsToBeMerged.Add((entry.Key, entry.Value.DefaultType));
-                }
-            }
+            var dirsToBeMerged = GetDirsToBeMerged();
             //Print out the directories that will be or have been merged
             if (dirsToBeMerged.Count > 0)
             {
@@ -516,43 +521,69 @@ namespace FileConverter.Managers
                 //Print plan for merge
                 if (!ConversionFinished)
                 {
-                    Console.WriteLine("Some folders will be merged (output pronom):");
-                    foreach (var dir in dirsToBeMerged)
-                    {
-                        var relPath = Path.Combine(GlobalVariables.ParsedOptions.Output, dir.Item1);
-                        var totalFiles = Directory.Exists(relPath) ? Directory.GetFiles(relPath).Length : -1;
-                        Console.WriteLine("\t{0,-" + maxLength + "} | {1} files ({2})", dir.Item1, totalFiles, dir.Item2);
-                    }
+                    PrintMergePlan(dirsToBeMerged, maxLength);
                 }
                 else    //Check result of merge
                 {
-                    List<string> mergedDirs = new List<string>();
-                    foreach (var file in Files.Values)
-                    {
-                        var parent = Path.GetRelativePath(GlobalVariables.ParsedOptions.Output, Directory.GetParent(file.FilePath)?.ToString() ?? "");
-                        //Check if file was merged, only add the parent directory once
-                        if (!mergedDirs.Contains(parent) && dirsToBeMerged.Any(tuple => tuple.Item1 == parent) && file.IsMerged)
-                        {
-                            mergedDirs.Add(parent);
-                        }
-                    }
+                    List<string> mergedDirs = GetMergedDirs(dirsToBeMerged);
                     //Get the directories that were not merged
                     var notMerged = dirsToBeMerged.Where(tuple => !mergedDirs.Contains(tuple.Item1)).ToList();
                     //Print out the result of the merge
-                    Console.WriteLine("{0}/{1} folders were merged:", mergedDirs.Count, dirsToBeMerged.Count);
-                    Console.ForegroundColor = GlobalVariables.SUCCESS_COL;
-                    foreach (var dir in mergedDirs)
-                    {
-                        Console.WriteLine("\t{0}", dir);
-                    }
-                    Console.ForegroundColor = GlobalVariables.ERROR_COL;
-                    foreach (var dir in notMerged)
-                    {
-                        Console.WriteLine("\t{0}", dir);
-                    }
+                    printResultOfMerge(mergedDirs, dirsToBeMerged, notMerged);
                 }
             }
         }
+
+        static private List<(string, string)> GetDirsToBeMerged()
+        {
+            var dirsToBeMerged = new List<(string, string)>();
+            foreach (var entry in GlobalVariables.FolderOverride)
+            {
+                if (entry.Value.Merge)
+                {
+                    dirsToBeMerged.Add((entry.Key, entry.Value.DefaultType));
+                }
+            }
+            return dirsToBeMerged;
+        }
+        static private void PrintMergePlan(List<(string, string)> dirsToBeMerged, int maxLength)
+        {
+            Console.WriteLine("Some folders will be merged (output pronom):");
+            foreach (var dir in dirsToBeMerged)
+            {
+                var relPath = Path.Combine(GlobalVariables.ParsedOptions.Output, dir.Item1);
+                var totalFiles = Directory.Exists(relPath) ? Directory.GetFiles(relPath).Length : -1;
+                Console.WriteLine("\t{0,-" + maxLength + "} | {1} files ({2})", dir.Item1, totalFiles, dir.Item2);
+            }
+        }
+        private List<string> GetMergedDirs(List<(string, string)> dirsToBeMerged)
+        {
+            var mergedDirs = new List<string>();
+            foreach (var file in Files.Values)
+            {
+                var parent = Path.GetRelativePath(GlobalVariables.ParsedOptions.Output, Directory.GetParent(file.FilePath)?.ToString() ?? "");
+                if (!mergedDirs.Contains(parent) && dirsToBeMerged.Any(tuple => tuple.Item1 == parent) && file.IsMerged)
+                {
+                    mergedDirs.Add(parent);
+                }
+            }
+            return mergedDirs;
+        }
+        static private void printResultOfMerge(List<string> mergedDirs, List<(string, string)> dirsToBeMerged, List<(string, string)> notMerged)
+        {
+            Console.WriteLine("{0}/{1} folders were merged:", mergedDirs.Count, dirsToBeMerged.Count);
+            Console.ForegroundColor = GlobalVariables.SUCCESS_COL;
+            foreach (var dir in mergedDirs)
+            {
+                Console.WriteLine("\t{0}", dir);
+            }
+            Console.ForegroundColor = GlobalVariables.ERROR_COL;
+            foreach (var dir in notMerged)
+            {
+                Console.WriteLine("\t{0}", dir);
+            }
+        }
+
 
         private static List<FileInfoGroup> FormatFileInfoGroups(Dictionary<KeyValuePair<string, string>, int> fileCount, string notSupportedString, string notSetString, out int currentMax, out int targetMax)
         {

@@ -7,6 +7,7 @@ using FileConverter.Managers;
 using SF = FileConverter.Siegfried;
 using FileConverter.Siegfried;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 
 namespace FileConverter
 {
@@ -38,45 +39,10 @@ namespace FileConverter
 			{
 				GlobalVariables.ParsedOptions = options;
 			});
-			string ConversionSettingsPath = GlobalVariables.ParsedOptions.ConversionSettings;
-			if (!OperatingSystem.IsLinux())
-			{
-				//Look for ConversionSettings file in parent directories as long as ConversionSettings file is not found and we are not in the root directory
-				while (!File.Exists(ConversionSettingsPath) && Directory.GetCurrentDirectory() != Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()))
-				{
-					Directory.SetCurrentDirectory("..");
-				}
-				if (!File.Exists(ConversionSettingsPath))
-				{
-					PrintHelper.PrintLn("Could not find ConversionSettings file. Please make sure that the ConversionSettings file is in the root directory of the program.", GlobalVariables.ERROR_COL);
-					ExitProgram(1);
-				}
-			}
-			else
-			{
-				LinuxSetup.Setup();
-			}
 
-			Console.WriteLine("Reading ConversionSettings from '{0}'...", ConversionSettingsPath);
-            FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
-
-            //Check if input and output folders exist
-            while (!Directory.Exists(GlobalVariables.ParsedOptions.Input))
-			{
-				PrintHelper.PrintLn("Input folder '{0}' not found!", GlobalVariables.ERROR_COL, GlobalVariables.ParsedOptions.Input);
-				var exit = ResolveInputNotFound();
-                FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
-				if (exit)
-				{
-					ExitProgram(0);
-				}
-			}
-
-			if (!Directory.Exists(GlobalVariables.ParsedOptions.Output))
-			{
-				PrintHelper.PrintLn("Output folder '{0}' not found! Creating...", GlobalVariables.WARNING_COL,GlobalVariables.ParsedOptions.Output);
-				Directory.CreateDirectory(GlobalVariables.ParsedOptions.Output);
-			}
+			string conversionSettingsPath = GlobalVariables.ParsedOptions.ConversionSettings;
+			CheckConversionSettingsFile(conversionSettingsPath);
+			CheckInputOutputFolders(conversionSettingsPath);
 
 			Console.Title = "FileConverter";
 
@@ -84,34 +50,11 @@ namespace FileConverter
 
 			FileManager fileManager = FileManager.Instance;
 			SF.Siegfried sf = SF.Siegfried.Instance;
-			try
-			{
-				//Check if user wants to use files from previous run
-				//sf.AskReadFiles(); Removed for stability
-
-				//Check if files were added from previous run
-				if (!sf.Files.IsEmpty)
-				{
-					//Import files from previous run
-					Console.WriteLine("Checking files from previous run...");
-					fileManager.ImportFiles(sf.Files.ToList());
-					var compressedFiles = sf.IdentifyCompressedFilesJSON(GlobalVariables.ParsedOptions.Input);
-					fileManager.ImportCompressedFiles(compressedFiles);
-				}
-				else
-				{
-					InitFiles();
-				}
-			}
-			catch (Exception e)
-			{
-				PrintHelper.PrintLn("[FATAL] Could not identify files: " + e.Message, GlobalVariables.ERROR_COL);
-				logger.SetUpRunTimeLogMessage("Main: Error when copying/unpacking/identifying files: " + e.Message, true);
-				ExitProgram(1);
-			}
+			ReloadPreviousRunOrInitNewFiles(sf, fileManager, logger);
+			
 
 			//Set up folder override after files have been copied over
-			ConversionSettings.SetUpFolderOverride(ConversionSettingsPath);
+			ConversionSettings.SetUpFolderOverride(conversionSettingsPath);
             while (fileManager.Files.IsEmpty)
             {
 				var exit = ResolveInputNotFound();
@@ -119,12 +62,11 @@ namespace FileConverter
 				{
                     ExitProgram(0);
                 }
-                FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
+                FileConverter.ConversionSettings.ReadConversionSettings(conversionSettingsPath);
 				InitFiles();
 			}
 
 			char input = ' ';
-			string validInput = "YyNnRrGg";
 			string prevInputFolder = GlobalVariables.ParsedOptions.Input;
 
 			do
@@ -141,59 +83,11 @@ namespace FileConverter
 					GlobalVariables.INFO_COL, Logger.JsonRoot.Requester, Logger.JsonRoot.Converter, GlobalVariables.MaxThreads, GlobalVariables.Timeout);
 
 				Console.Write("Do you want to proceed with these Settings (Y (Yes) / N (Exit program) / R (Reload) / G (Change in GUI): ");
-				while (!validInput.Contains(input))
-				{
-					var r = Console.ReadKey();
-					input = r.KeyChar;
-					input = char.ToUpper(input);
-				}
-				Console.WriteLine();
-				prevInputFolder = GlobalVariables.ParsedOptions.Input;
-				switch (input)
-				{
-					case 'Y':   //Proceed with conversion
-						break;
-					case 'N':   //Exit program
-						ExitProgram(0);
-						break;
-					case 'R':   //Change ConversionSettings and reload manually
-						Console.WriteLine("Edit ConversionSettings file and hit enter when finished (Remember to save file)");
-						Console.ReadLine();
-                        FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
-						ConversionSettings.SetUpFolderOverride(ConversionSettingsPath);
-						break;
-					case 'G':   //Change ConversionSettings and reload in GUI
-						AwaitGUI().Wait();
-                        FileConverter.ConversionSettings.ReadConversionSettings(ConversionSettingsPath);
-						ConversionSettings.SetUpFolderOverride(ConversionSettingsPath);
-						break;
-					default: break;
-				}
+				GetUserInputAndAct(ref input, ref prevInputFolder, conversionSettingsPath);
 			} while (input != 'Y' || fileManager.Files.IsEmpty);
 
 			ConversionManager cm = ConversionManager.Instance;
-			try
-			{
-				Console.WriteLine("Checking for naming conflicts...");
-				fileManager.CheckForNamingConflicts();
-				Console.WriteLine("Starting Conversion manager...");
-				cm.ConvertFiles().Wait();
-				//Delete siegfrieds json files
-				sf.ClearOutputFolder();
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine("Error while converting " + e.Message);
-				logger.SetUpRunTimeLogMessage("Main: Error when converting files: " + e.Message, true);
-			}
-			finally
-			{
-				Console.WriteLine("Conversion finished:");
-				fileManager.ConversionFinished = true;
-				fileManager.DisplayFileList();
-				Console.WriteLine("Documenting conversion...");
-				fileManager.DocumentFiles();
-			}
+			RunConversion(fileManager, cm, sf, logger);
 			Console.WriteLine("Compressing folders...");
 			sf.CompressFolders();
 
@@ -343,5 +237,133 @@ namespace FileConverter
 				Console.WriteLine("Error while starting GUI: " + e.Message);
 			}
 		}
+        static void CheckConversionSettingsFile(string conversionSettingsPath)
+        {
+            if (!OperatingSystem.IsLinux())
+            {
+                while (!File.Exists(conversionSettingsPath) && Directory.GetCurrentDirectory() != Directory.GetDirectoryRoot(Directory.GetCurrentDirectory()))
+                {
+                    Directory.SetCurrentDirectory("..");
+                }
+                if (!File.Exists(conversionSettingsPath))
+                {
+                    PrintHelper.PrintLn("Could not find ConversionSettings file. Please make sure that the ConversionSettings file is in the root directory of the program.", GlobalVariables.ERROR_COL);
+                    ExitProgram(1);
+                }
+            }
+            else
+            {
+                LinuxSetup.Setup();
+            }
+            Console.WriteLine("Reading ConversionSettings from '{0}'...", conversionSettingsPath);
+            FileConverter.ConversionSettings.ReadConversionSettings(conversionSettingsPath);
+        }
+
+
+		static private void CheckInputOutputFolders(string conversionSettingsPath)
+		{
+            //Check if input and output folders exist
+            while (!Directory.Exists(GlobalVariables.ParsedOptions.Input))
+            {
+                PrintHelper.PrintLn("Input folder '{0}' not found!", GlobalVariables.ERROR_COL, GlobalVariables.ParsedOptions.Input);
+                var exit = ResolveInputNotFound();
+                FileConverter.ConversionSettings.ReadConversionSettings(conversionSettingsPath);
+                if (exit)
+                {
+                    ExitProgram(0);
+                }
+            }
+
+            if (!Directory.Exists(GlobalVariables.ParsedOptions.Output))
+            {
+                PrintHelper.PrintLn("Output folder '{0}' not found! Creating...", GlobalVariables.WARNING_COL, GlobalVariables.ParsedOptions.Output);
+                Directory.CreateDirectory(GlobalVariables.ParsedOptions.Output);
+            }
+        }
+		static private void ReloadPreviousRunOrInitNewFiles(SF.Siegfried sf, FileManager fileManager, Logger logger)
+		{
+            try
+            {
+                //Check if user wants to use files from previous run
+                //sf.AskReadFiles(); Removed for stability
+
+                //Check if files were added from previous run
+                if (!sf.Files.IsEmpty)
+                {
+                    //Import files from previous run
+                    Console.WriteLine("Checking files from previous run...");
+                    fileManager.ImportFiles(sf.Files.ToList());
+                    var compressedFiles = sf.IdentifyCompressedFilesJSON(GlobalVariables.ParsedOptions.Input);
+                    fileManager.ImportCompressedFiles(compressedFiles);
+                }
+                else
+                {
+                    InitFiles();
+                }
+            }
+            catch (Exception e)
+            {
+                PrintHelper.PrintLn("[FATAL] Could not identify files: " + e.Message, GlobalVariables.ERROR_COL);
+                logger.SetUpRunTimeLogMessage("Main: Error when copying/unpacking/identifying files: " + e.Message, true);
+                ExitProgram(1);
+            }
+        }
+        static private void RunConversion(FileManager fileManager, ConversionManager cm, SF.Siegfried sf, Logger logger)
+		{
+            try
+            {
+                Console.WriteLine("Checking for naming conflicts...");
+                fileManager.CheckForNamingConflicts();
+                Console.WriteLine("Starting Conversion manager...");
+                cm.ConvertFiles().Wait();
+                //Delete siegfrieds json files
+                sf.ClearOutputFolder();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error while converting " + e.Message);
+                logger.SetUpRunTimeLogMessage("Main: Error when converting files: " + e.Message, true);
+            }
+            finally
+            {
+                Console.WriteLine("Conversion finished:");
+                fileManager.ConversionFinished = true;
+                fileManager.DisplayFileList();
+                Console.WriteLine("Documenting conversion...");
+                fileManager.DocumentFiles();
+            }
+        }
+		static private void GetUserInputAndAct(ref char input, ref string prevInputFolder, string conversionSettingsPath)
+		{
+            string validInput = "YyNnRrGg";
+            while (!validInput.Contains(input))
+            {
+                var r = Console.ReadKey();
+                input = r.KeyChar;
+                input = char.ToUpper(input);
+            }
+            Console.WriteLine();
+            prevInputFolder = GlobalVariables.ParsedOptions.Input;
+            switch (input)
+            {
+                case 'Y':   //Proceed with conversion
+                    break;
+                case 'N':   //Exit program
+                    ExitProgram(0);
+                    break;
+                case 'R':   //Change ConversionSettings and reload manually
+                    Console.WriteLine("Edit ConversionSettings file and hit enter when finished (Remember to save file)");
+                    Console.ReadLine();
+                    FileConverter.ConversionSettings.ReadConversionSettings(conversionSettingsPath);
+                    ConversionSettings.SetUpFolderOverride(conversionSettingsPath);
+                    break;
+                case 'G':   //Change ConversionSettings and reload in GUI
+                    AwaitGUI().Wait();
+                    FileConverter.ConversionSettings.ReadConversionSettings(conversionSettingsPath);
+                    ConversionSettings.SetUpFolderOverride(conversionSettingsPath);
+                    break;
+                default: break;
+            }
+        }
 	}
 }
