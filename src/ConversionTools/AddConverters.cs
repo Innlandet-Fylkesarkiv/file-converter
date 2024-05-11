@@ -19,7 +19,7 @@ namespace ConversionTools
             {
                 Converters = new List<Converter>();
                 // Add the IText7 converter first, since it is used in the constructor of other converters
-                Converters.Add(new IText7()); 
+                Converters.Add(new IText7());
                 Converters.AddRange(new List<Converter>
                 {
                     new GhostscriptConverter(),

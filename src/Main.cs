@@ -100,6 +100,7 @@ namespace FileConverter
 			{
 				PrintHelper.PrintLn("No errors happened during runtime. See documentation.json file in output dir.", GlobalVariables.SUCCESS_COL);
 			}
+			Logger.Instance.SetUpRunTimeLogMessage($"Main: Program finished successfully after: {sw.Elapsed}", false);
 			ExitProgram(0);
 		}
 
@@ -109,6 +110,10 @@ namespace FileConverter
 		/// <param name="exitCode">Exit code to return</param>
 		private static void ExitProgram(int exitCode)
 		{
+			if (Directory.Exists("ICCFiles"))
+			{
+				Directory.Delete("ICCFiles", true);
+			}
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();  //Keep console open
 			Environment.Exit(exitCode);

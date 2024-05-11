@@ -193,7 +193,7 @@ namespace FileConverter.Managers
 			//If siegfried fails, log error message and return
 			if (f == null)
 			{
-				Console.WriteLine("Could not identify files after conversion");
+				PrintHelper.PrintLn("Could not identify files after conversion", GlobalVariables.ERROR_COL);
 				Logger.Instance.SetUpRunTimeLogMessage("CM CheckConversion: Could not identify files", true);
 				return;
 			}
@@ -241,7 +241,6 @@ namespace FileConverter.Managers
 				ConcurrentDictionary<Guid, CountdownEvent> countdownEvents = new ConcurrentDictionary<Guid, CountdownEvent>();
 				//Reset the working set map for the next run
 				WorkingSetMap.Clear();
-				var totalQueued = 0;
 				//Loop through working set
 				WorkingSet.Values.ForEach(file =>
 				{
@@ -253,7 +252,6 @@ namespace FileConverter.Managers
 						{
 							continue;
 						}
-						totalQueued++;
 						//Send file to converter
 						SendToConverter(file, converter, countdownEvents);
 						return;
@@ -451,7 +449,7 @@ namespace FileConverter.Managers
 					numFinished = countdownEvents.Values.Count(c => c.IsSet);
 					var elapsed = DateTime.Now - startTime;
 					pb.Report((float)(numFinished) / (float)total, numFinished, elapsed);
-					Thread.Sleep(1000);
+					Thread.Sleep(100);
 				}
 			}
 		}

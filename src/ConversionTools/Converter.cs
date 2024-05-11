@@ -1,6 +1,7 @@
 using FileConverter.Managers;
 using FileConverter.HelperClasses;
 using SF = FileConverter.Siegfried;
+
 /// <summary>
 /// Parent class for all converters
 /// </summary>
@@ -73,7 +74,6 @@ namespace ConversionTools
                 {
                     semaphore.Wait();
                 }
-
                 await ConvertFileWithTimeout(file, timeout);
             }
             catch (TimeoutException)

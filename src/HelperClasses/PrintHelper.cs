@@ -8,7 +8,7 @@
         /// </summary>
         /// <param name="message"> message to be printed </param>
         /// <param name="c"> the color </param>
-        public static void PrintLn(string message, ConsoleColor c)
+        public static void PrintLn(string message, ConsoleColor c = ConsoleColor.White)
         {
             Console.ForegroundColor = c;
             Console.WriteLine(message);
@@ -20,8 +20,7 @@
         /// </summary>
         /// <param name="format"> message with for example {0} in it</param>
         /// <param name="c"> the color </param>
-        /// <param name="args"> the arguments </param>
-        public static void PrintLn(string format, ConsoleColor c, params object[] args)
+        public static void PrintLn(string format, ConsoleColor c = ConsoleColor.White, params object[] args)
         {
             string formattedString = string.Format(format, args);
             Console.ForegroundColor = c;
@@ -29,12 +28,13 @@
             Console.ForegroundColor = OldCol;
         }
 
+
         /// <summary>
         /// Prints a message in the specified color with Write instead of WriteLine
         /// </summary>
         /// <param name="message"> the message </param>
         /// <param name="c"> the color </param>
-        public static void Print(string message, ConsoleColor c)
+        public static void Print(string message, ConsoleColor c = ConsoleColor.White)
         {
             Console.ForegroundColor = c;
             Console.Write(message);

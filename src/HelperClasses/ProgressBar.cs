@@ -12,7 +12,7 @@ namespace FileConverter.HelperClasses
 	public class ProgressBar : IDisposable
 	{
 		private const int blockCount = 10;
-		private readonly TimeSpan animationInterval = TimeSpan.FromSeconds(1.0 / 8);
+		private readonly TimeSpan animationInterval = TimeSpan.FromSeconds(1.0 / 4);
 		private const string animation = @"|/-\";
 
 		private readonly Timer timer;
@@ -22,6 +22,7 @@ namespace FileConverter.HelperClasses
         private double currentProgress = 0;
 		private int currentDone = 0;
 		private TimeSpan elapsed = TimeSpan.FromSeconds(0);
+		private DateTime lastTickTime = DateTime.Now;
 		private string currentText = string.Empty;
 		private bool disposed = false;
 		private int animationIndex = 0;
@@ -58,6 +59,11 @@ namespace FileConverter.HelperClasses
 			Interlocked.Exchange(ref currentProgress, value); // atomic operation
 			Interlocked.Exchange(ref currentDone, currentJob); // atomic operation
 			elapsed = ts;
+			var timeSinceLastTick = DateTime.Now - lastTickTime;
+			if(timeSinceLastTick.TotalSeconds > 1)
+			{
+				timer.Change(0, -1);
+			}
 		}
 
         /// <summary>
@@ -143,7 +149,18 @@ namespace FileConverter.HelperClasses
 		/// </summary>
 		private void ResetTimer()
 		{
-			timer.Change(animationInterval, TimeSpan.FromMilliseconds(-1));
+            // Calculate the remaining time until the next tick
+            TimeSpan timeSinceLastTick = TimeSpan.FromTicks(DateTime.Now.Ticks - lastTickTime.Ticks);
+            TimeSpan remainingTime = animationInterval - timeSinceLastTick;
+
+            // Ensure the remaining time is not negative
+            remainingTime = TimeSpan.FromTicks(Math.Max(remainingTime.Ticks, TimeSpan.Zero.Ticks));
+			
+            // Reset the timer with the calculated delay
+            timer.Change(remainingTime, TimeSpan.FromMilliseconds(-1));
+
+			// Update the last tick time
+			lastTickTime = DateTime.Now;
 		}
 
 		/// <summary>
