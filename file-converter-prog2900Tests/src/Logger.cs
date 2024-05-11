@@ -13,7 +13,7 @@ namespace file_converter_prog2900Tests.src
     [TestClass()]
     public class LoggerTests
     {
-        Logger logger = Logger.Instance;
+        private readonly Logger logger = Logger.Instance;
         [TestMethod()]
         public void TestSetRequesterAndConverter()
         {

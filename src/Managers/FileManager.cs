@@ -454,7 +454,7 @@ namespace FileConverter.Managers
             }
             return supported;
         }
-        static private string? SetOverrideFormat(string? targetPronom, string notSetString, string notSupportedString, bool supported, string currentPronom, FileInfo2 file)
+        static private string SetOverrideFormat(string? targetPronom, string notSetString, string notSupportedString, bool supported, string currentPronom, FileInfo2 file)
         {
             if (targetPronom == null)
             {

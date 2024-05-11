@@ -158,7 +158,7 @@ namespace ConversionTools.Converters
             }
         }
 
-        private void AddConversionsForMultipleFormats(Dictionary<string, List<string>> supportedConversions)
+        private static void AddConversionsForMultipleFormats(Dictionary<string, List<string>> supportedConversions)
         {
             List<string> emptyList = [];
 			// EXCEL 

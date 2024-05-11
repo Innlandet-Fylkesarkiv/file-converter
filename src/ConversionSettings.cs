@@ -76,6 +76,7 @@ namespace FileConverter
                 XmlNodeList? classNodes = root?.SelectNodes("FileClass");
                 if (classNodes == null) { logger.SetUpRunTimeLogMessage("Could not find any classNodes", true, filename: pathToConversionSettings); return; }
                 
+                // Loop through each class node and handle the file types
                 foreach (XmlNode classNode in classNodes)
                 {
                     string? defaultType = classNode.SelectSingleNode("Default")?.InnerText;
@@ -91,6 +92,7 @@ namespace FileConverter
                         logger.SetUpRunTimeLogMessage("Settings: Could not find any FileType nodes in FileClass", true, filename: pathToConversionSettings);
                         continue;
                     }
+                    // Loop through each file type node and handle them
                     foreach (XmlNode fileTypeNode in fileTypeNodes)
                     {
                         HandleFileTypeNode(fileTypeNode, defaultType);
@@ -160,11 +162,11 @@ namespace FileConverter
             if (checksumHashing != null)
             {
                 checksumHashing = checksumHashing.ToUpper().Trim();
-                switch (checksumHashing)
+                GlobalVariables.ChecksumHash = checksumHashing switch
                 {
-                    case "MD5": GlobalVariables.ChecksumHash = HashAlgorithms.MD5; break;
-                    default: GlobalVariables.ChecksumHash = HashAlgorithms.SHA256; break;
-                }
+                    "MD5" => HashAlgorithms.MD5,
+                    _ => HashAlgorithms.SHA256,
+                };
             }
         }
 
@@ -196,6 +198,7 @@ namespace FileConverter
                 DefaultType = innerDefault,
                 DoNotConvert = doNotConvert == "YES",
             };
+            // Add the beginning and end of routes for the file type
             foreach (string pronom in ConversionSettings.PronomsList)
             {
                 if (ConversionSettings.DoNotConvert)
@@ -301,8 +304,6 @@ namespace FileConverter
 
                 if (Directory.Exists(targetFolderPath))
                 {
-                    // Add current folder to subfolders list
-
                     // Add immediate subfolders
                     foreach (string subfolder in Directory.GetDirectories(targetFolderPath))
                     {
@@ -324,6 +325,11 @@ namespace FileConverter
             return subfolders;
         }
 
+        /// <summary>
+        /// Gets the target PRONOM for a file
+        /// </summary>
+        /// <param name="f"> the file</param>
+        /// <returns> the target PRONOM if it found it </returns>
         public static string? GetTargetPronom(FileInfo2 f)
         {
             if (f.IsPartOfSplit)
