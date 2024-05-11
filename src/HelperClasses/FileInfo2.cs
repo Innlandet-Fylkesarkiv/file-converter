@@ -43,8 +43,8 @@ namespace FileConverter.HelperClasses
         /// <summary>
         /// Constroctor for FileInfo that takes a path and a FileInfo object as input. This sets all original values to the values of the input FileInfo object and the path to the input path.
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="f"></param>
+        /// <param name="path"> outputpath </param>
+        /// <param name="f"> The file </param>
         public FileInfo2(string path, FileInfo2 f)
         {
             if (f == null)
@@ -61,6 +61,10 @@ namespace FileConverter.HelperClasses
             Parent = f.Id;
         }
 
+        /// <summary>
+        /// Standard constructor for FileInfo
+        /// </summary>
+        /// <param name="siegfriedFile"> struct containg data found by siegfried </param>
         public FileInfo2(SF.SiegfriedFile siegfriedFile)
         {
             OriginalSize = siegfriedFile.filesize;
@@ -118,6 +122,10 @@ namespace FileConverter.HelperClasses
             }
         }
 
+        /// <summary>
+        /// Renames a file
+        /// </summary>
+        /// <param name="newName"> the new name of the file </param>
         public void RenameFile(string newName)
         {
             try
@@ -136,6 +144,10 @@ namespace FileConverter.HelperClasses
             }
         }
 
+        /// <summary>
+        /// Adds a conversion tool to the list of conversion tools
+        /// </summary>
+        /// <param name="tool"></param>
         public void AddConversionTool(string tool)
         {
             ConversionTools.Add(tool);

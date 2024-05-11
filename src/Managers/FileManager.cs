@@ -14,10 +14,17 @@ namespace FileConverter.Managers
         public bool ConversionFinished { get; set; }
         public ConcurrentDictionary<Guid, FileInfo2> Files { get; set; }
 
+        /// <summary>
+        /// Singleton constructor
+        /// </summary>
         private FileManager()
         {
             Files = new ConcurrentDictionary<Guid, FileInfo2>();
         }
+
+        /// <summary>
+        /// Makes sure that only one instance of the FileManager is created
+        /// </summary>
         public static FileManager Instance
         {
             get
@@ -36,6 +43,9 @@ namespace FileConverter.Managers
             }
         }
 
+        /// <summary>
+        /// Identifies all files in the input directory and adds them to the list of files
+        /// </summary>
         public void IdentifyFiles()
         {
             lock (identifyingFiles)
@@ -63,7 +73,7 @@ namespace FileConverter.Managers
                 }
 
                 //Identifying all compressed files
-                List<FileInfo2>? compressedFiles = sf2.IdentifyCompressedFilesJSON(GlobalVariables.ParsedOptions.Input)!;
+                List<FileInfo2>? compressedFiles = sf2.IdentifyCompressedFiles();
 
                 foreach (var file in compressedFiles)
                 {
@@ -145,10 +155,10 @@ namespace FileConverter.Managers
         }
 
         /// <summary>
-        /// 
+        /// Checks if a file exists in a directory
         /// </summary>
-        /// <param name="directoryPath"></param>
-        /// <param name="fileName"></param>
+        /// <param name="directoryPath"> path to the directory </param>
+        /// <param name="fileName"> name of the file </param>
         /// <returns></returns>
         private static bool FileExistsInDirectory(string directoryPath, string fileName)
         {
@@ -197,7 +207,7 @@ namespace FileConverter.Managers
                                                 g => g.Select(kv => kv.Value).ToList()
                                             );
 
-            var filteredList = filterNonDuplicates(directoriesWithFiles);
+            var filteredList = FilterNonDuplicates(directoriesWithFiles);
 
             //If no filenames are duplicates, no need to check more
             if (filteredList.Count == 0)
@@ -221,7 +231,7 @@ namespace FileConverter.Managers
                 }
             }
 
-            filteredList = filterNonDuplicates(filteredList);
+            filteredList = FilterNonDuplicates(filteredList);
             //If no filenames are duplicates, no need to check more
             if (filteredList.Count == 0)
             {
@@ -246,10 +256,11 @@ namespace FileConverter.Managers
         }
 
         /// <summary>
-        /// 
+        /// Removes all non-duplicate files from the dictionary and returns the filtered dictionary
         /// </summary>
-        /// <param name="dict"></param>
-        static private Dictionary<string,List<FileInfo2>> filterNonDuplicates (Dictionary<string, List<FileInfo2>> dict)
+        /// <param name="dict">non-filtered dictionary</param>
+        /// <returns>filtered dictionary</returns>
+        private static Dictionary<string,List<FileInfo2>> FilterNonDuplicates (Dictionary<string, List<FileInfo2>> dict)
         {
             // Remove groups with only one file name
             var filteredFiles = dict
@@ -268,26 +279,27 @@ namespace FileConverter.Managers
         }
 
         /// <summary>
-        /// 
+        /// Adds a list of files to the list of files
         /// </summary>
-        /// <param name="files"></param>
+        /// <param name="files">the input list of files </param>
         public void AddFiles(List<FileInfo2> files)
         {
             foreach (var file in files)
             {
-                Guid id = Guid.NewGuid();
-                file.Id = id;
-                Files.TryAdd(id, file);
+                AddFiles( file );
             }
         }
 
         /// <summary>
-        /// 
+        /// Adds a file to the list of files
         /// </summary>
-        /// <param name="file"></param>
+        /// <param name="file">the file to be added</param>
         public void AddFiles(FileInfo2 file)
         {
-            AddFiles(new List<FileInfo2> { file });
+            Guid id = Guid.NewGuid();
+            file.Id = id;
+            Files.TryAdd(id, file);
+            
         }
 
         /// <summary>
@@ -304,11 +316,11 @@ namespace FileConverter.Managers
         }
 
         /// <summary>
-        /// 
+        /// Parses the number from a PRONOM code
         /// </summary>
-        /// <param name="pronom"></param>
-        /// <returns></returns>
-        static int ParsePronom(string pronom)
+        /// <param name="pronom">the PRONOM to be parsed</param>
+        /// <returns>the number or maxvalue if nothing is found</returns>
+        private static int ParsePronom(string pronom)
         {
             if (pronom.Contains('/'))
             {
@@ -349,7 +361,7 @@ namespace FileConverter.Managers
         }
 
         /// <summary>
-        /// 
+        /// Displays a list of all identified input file formats and target file formats with pronom codes and full name.
         /// </summary>
         public void DisplayFileList()
         {
@@ -438,14 +450,21 @@ namespace FileConverter.Managers
             return fileCount;
         }
 
-        static private bool IsConversionSupported(List<Converter> converters, string currentPronom, string? targetPronom)
+        /// <summary>
+        /// Checks if a conversion is supported by any of the converters
+        /// </summary>
+        /// <param name="converters">list of all converters</param>
+        /// <param name="currentPronom">current PRONOM</param>
+        /// <param name="targetPronom">target PRONOM</param>
+        /// <returns>true if supported</returns>
+        private static bool IsConversionSupported(List<Converter> converters, string currentPronom, string? targetPronom)
         {
             bool supported = false;
             if (targetPronom != null)
             {
                 foreach (var converter in converters)
                 {
-                    if (converter.SupportsConversion(currentPronom, targetPronom) || Managers.ConversionManager.Instance.SupportsConversion(currentPronom, targetPronom))
+                    if (converter.SupportsConversion(currentPronom, targetPronom) || ConversionManager.Instance.ConversionMap.ContainsKey(new KeyValuePair<string, string>(currentPronom, targetPronom)))
                     {
                         supported = true;
                         break;
@@ -454,7 +473,18 @@ namespace FileConverter.Managers
             }
             return supported;
         }
-        static private string? SetOverrideFormat(string? targetPronom, string notSetString, string notSupportedString, bool supported, string currentPronom, FileInfo2 file)
+
+        /// <summary>
+        /// Sets the override format for a file
+        /// </summary>
+        /// <param name="targetPronom">target PRONOM</param>
+        /// <param name="notSetString">the string to be set if PRONOM is not found</param>
+        /// <param name="notSupportedString">the string to be set if conversion is not supported</param>
+        /// <param name="supported">if the conversion is supported</param>
+        /// <param name="currentPronom">current PRONOM</param>
+        /// <param name="file">file to set</param>
+        /// <returns>targetPronom, notSetString or targetPronom + notSupportedString</returns>
+        private static string SetOverrideFormat(string? targetPronom, string notSetString, string notSupportedString, bool supported, string currentPronom, FileInfo2 file)
         {
             if (targetPronom == null)
             {
@@ -463,12 +493,20 @@ namespace FileConverter.Managers
             }
             else if (!supported && targetPronom != currentPronom)
             {
-                targetPronom = targetPronom + notSupportedString;
+                targetPronom += notSupportedString;
                 file.NotSupported = true;
             }
             return targetPronom;
         }
 
+        /// <summary>
+        /// Prints out a grouped list of all identified input file formats and target file formats with pronom codes and full name.
+        /// </summary>
+        /// <param name="currentMax">highest amount of characters that the current format column supports </param>
+        /// <param name="targetMax">highest amount of characters that the target format column supports</param>
+        /// <param name="formatList">list of formats to printed</param>
+        /// <param name="notSupportedString">message when format is not supported</param>
+        /// <param name="notSetString">message when format is not set</param>
         private void PrintFileGroups(int currentMax, int targetMax, List<FileInfoGroup> formatList, string notSupportedString, string notSetString)
         {
             var firstFormatTitle = ConversionFinished ? "Actual pronom" : "Input pronom";
@@ -504,6 +542,9 @@ namespace FileConverter.Managers
             }
         }
 
+        /// <summary>
+        /// Prints out files that will be merged and the result of the merge
+        /// </summary>
         private void PrintMergeFiles()
         {
             var dirsToBeMerged = GetDirsToBeMerged();
@@ -529,12 +570,16 @@ namespace FileConverter.Managers
                     //Get the directories that were not merged
                     var notMerged = dirsToBeMerged.Where(tuple => !mergedDirs.Contains(tuple.Item1)).ToList();
                     //Print out the result of the merge
-                    printResultOfMerge(mergedDirs, dirsToBeMerged, notMerged);
+                    PrintResultOfMerge(mergedDirs, dirsToBeMerged, notMerged);
                 }
             }
         }
 
-        static private List<(string, string)> GetDirsToBeMerged()
+        /// <summary>
+        /// Get directories that should be merged
+        /// </summary>
+        /// <returns>list of the directories to be merged</returns>
+        private static List<(string, string)> GetDirsToBeMerged()
         {
             var dirsToBeMerged = new List<(string, string)>();
             foreach (var entry in GlobalVariables.FolderOverride)
@@ -546,7 +591,13 @@ namespace FileConverter.Managers
             }
             return dirsToBeMerged;
         }
-        static private void PrintMergePlan(List<(string, string)> dirsToBeMerged, int maxLength)
+
+        /// <summary>
+        /// Print the plan for merging folders
+        /// </summary>
+        /// <param name="dirsToBeMerged">directories to be merged</param>
+        /// <param name="maxLength">highest amount of characters that the line supports</param>
+        private static void PrintMergePlan(List<(string, string)> dirsToBeMerged, int maxLength)
         {
             Console.WriteLine("Some folders will be merged (output pronom):");
             foreach (var dir in dirsToBeMerged)
@@ -556,6 +607,12 @@ namespace FileConverter.Managers
                 Console.WriteLine("\t{0,-" + maxLength + "} | {1} files ({2})", dir.Item1, totalFiles, dir.Item2);
             }
         }
+
+        /// <summary>
+        /// Get the directories that were merged
+        /// </summary>
+        /// <param name="dirsToBeMerged">list of directories that should have been merged</param>
+        /// <returns>list of successfully merged directories </returns>
         private List<string> GetMergedDirs(List<(string, string)> dirsToBeMerged)
         {
             var mergedDirs = new List<string>();
@@ -569,7 +626,14 @@ namespace FileConverter.Managers
             }
             return mergedDirs;
         }
-        static private void printResultOfMerge(List<string> mergedDirs, List<(string, string)> dirsToBeMerged, List<(string, string)> notMerged)
+
+        /// <summary>
+        /// Prints the result of the merge
+        /// </summary>
+        /// <param name="mergedDirs">directories that were merged</param>
+        /// <param name="dirsToBeMerged">directories that should have been merged</param>
+        /// <param name="notMerged">directories not merged, but should have been</param>
+        private static void PrintResultOfMerge(List<string> mergedDirs, List<(string, string)> dirsToBeMerged, List<(string, string)> notMerged)
         {
             Console.WriteLine("{0}/{1} folders were merged:", mergedDirs.Count, dirsToBeMerged.Count);
             Console.ForegroundColor = GlobalVariables.SUCCESS_COL;
@@ -584,7 +648,15 @@ namespace FileConverter.Managers
             }
         }
 
-
+        /// <summary>
+        /// Formats the list of files to be displayed
+        /// </summary>
+        /// <param name="fileCount">amount of files</param>
+        /// <param name="notSupportedString">message when conversion is not supported</param>
+        /// <param name="notSetString">message when conversion is not set</param>
+        /// <param name="currentMax">Highest amount of characters supported by the current format column</param>
+        /// <param name="targetMax">Highest amount of characters supported by the target format column</param>
+        /// <returns>the formated list</returns>
         private static List<FileInfoGroup> FormatFileInfoGroups(Dictionary<KeyValuePair<string, string>, int> fileCount, string notSupportedString, string notSetString, out int currentMax, out int targetMax)
         {
             var formatList = new List<FileInfoGroup>();
@@ -662,7 +734,7 @@ namespace FileConverter.Managers
         }
 
         /// <summary>
-        /// 
+        /// Documents all files in the list of files
         /// </summary>
         public void DocumentFiles()
         {

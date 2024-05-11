@@ -332,6 +332,7 @@ namespace FileConverter.HelperClasses
             }
             if (!GlobalVariables.ParsedOptions.AcceptAll)
             {
+				// Ask the user for the requester or converter
                 Console.WriteLine("No data found in ConversionSettings and username '{0}' was detected, do you want to set it as '{1}' in the documentation? (Y/N)", user, person);
                 var response = GlobalVariables.ParsedOptions.AcceptAll ? "Y" : Console.ReadLine()!;
                 if (response.Equals("Y", StringComparison.OrdinalIgnoreCase))

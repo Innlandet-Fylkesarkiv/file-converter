@@ -25,7 +25,11 @@ namespace FileConverter
 	}
     static class Program
 	{
-		static void Main(string[] args)
+		/// <summary>
+		/// Main function of the program
+		/// </summary>
+		/// <param name="args">console arguments</param>
+		private static void Main(string[] args)
 		{
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
@@ -50,7 +54,7 @@ namespace FileConverter
 
 			FileManager fileManager = FileManager.Instance;
 			SF.Siegfried sf = SF.Siegfried.Instance;
-			ReloadPreviousRunOrInitNewFiles(sf, fileManager, logger);
+			ReloadPreviousRunOrInitNewFiles();
 			
 
 			//Set up folder override after files have been copied over
@@ -87,7 +91,7 @@ namespace FileConverter
 			} while (input != 'Y' || fileManager.Files.IsEmpty);
 
 			ConversionManager cm = ConversionManager.Instance;
-			RunConversion(fileManager, cm, sf, logger);
+			RunConversion();
 			Console.WriteLine("Compressing folders...");
 			sf.CompressFolders();
 
@@ -107,14 +111,22 @@ namespace FileConverter
 		/// Function to wait for input and then exit program with a specified exit code
 		/// </summary>
 		/// <param name="exitCode">Exit code to return</param>
-		static void ExitProgram(int exitCode)
+		private static void ExitProgram(int exitCode)
 		{
+			if (Directory.Exists("ICCFiles"))
+			{
+				Directory.Delete("ICCFiles", true);
+			}
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();  //Keep console open
 			Environment.Exit(exitCode);
         }
 
-        static bool ResolveInputNotFound()
+		/// <summary>
+		/// Resolve the case where the input folder is not found
+		/// </summary>
+		/// <returns>true if user wants to exit the program</returns>
+        private static bool ResolveInputNotFound()
         {
 			PrintHelper.PrintLn("Input folder not found / Input folder empty!", GlobalVariables.ERROR_COL);
 			Console.WriteLine("Do you want to:  N (Exit program) / R (Reload ConversionSettings file) / G (Change ConversionSettings in GUI)");
@@ -144,7 +156,10 @@ namespace FileConverter
 			return false;
 		}
 
-		static void InitFiles()
+		/// <summary>
+		/// Initialize files by copying them from input to output folder and identifying them
+		/// </summary>
+		private static void InitFiles()
 		{
 			FileManager.Instance.Files.Clear();
 			SF.Siegfried.Instance.Files.Clear();
@@ -162,7 +177,7 @@ namespace FileConverter
 		/// Method to get the path of the GUI executable
 		/// </summary>
 		/// <returns>Path to GUI executable or null if not found</returns>
-		static string? GetGUIPath()
+		private static string? GetGUIPath()
 		{
 			string filename = OperatingSystem.IsLinux() ? "ChangeConverterSettings.dll" : "ChangeConverterSettings.exe";
 			string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), filename, SearchOption.AllDirectories);
@@ -177,7 +192,7 @@ namespace FileConverter
 		/// Method to start and await the GUI process
 		/// </summary>
 		/// <returns>Awaitable Task</returns>
-		async static Task AwaitGUI()
+		private async static Task AwaitGUI()
 		{
 			ProcessStartInfo startInfo = new ProcessStartInfo();
 			try
@@ -238,7 +253,12 @@ namespace FileConverter
 				Console.WriteLine("Error while starting GUI: " + e.Message);
 			}
 		}
-        static void CheckConversionSettingsFile(string conversionSettingsPath)
+
+		/// <summary>
+		/// Check if the ConversionSettings file exists
+		/// </summary>
+		/// <param name="conversionSettingsPath">path to the ConversionSettings</param>
+        private static void CheckConversionSettingsFile(string conversionSettingsPath)
         {
             if (!OperatingSystem.IsLinux())
             {
@@ -260,8 +280,11 @@ namespace FileConverter
             FileConverter.ConversionSettings.ReadConversionSettings(conversionSettingsPath);
         }
 
-
-		static private void CheckInputOutputFolders(string conversionSettingsPath)
+        /// <summary>
+        /// Check if input and output folders exist
+        /// </summary>
+        /// <param name="conversionSettingsPath">path to ConversionSettings</param>
+        private static void CheckInputOutputFolders(string conversionSettingsPath)
 		{
             //Check if input and output folders exist
             while (!Directory.Exists(GlobalVariables.ParsedOptions.Input))
@@ -281,8 +304,15 @@ namespace FileConverter
                 Directory.CreateDirectory(GlobalVariables.ParsedOptions.Output);
             }
         }
-		static private void ReloadPreviousRunOrInitNewFiles(SF.Siegfried sf, FileManager fileManager, Logger logger)
+
+		/// <summary>
+		/// initialize new files (tries to reload files from previous run, but does not work at this time)
+		/// </summary>
+        private static void ReloadPreviousRunOrInitNewFiles()
 		{
+            SF.Siegfried sf = SF.Siegfried.Instance;
+            FileManager fileManager = FileManager.Instance;
+            Logger logger = Logger.Instance;
             try
             {
                 //Check if user wants to use files from previous run
@@ -294,7 +324,7 @@ namespace FileConverter
                     //Import files from previous run
                     Console.WriteLine("Checking files from previous run...");
                     fileManager.ImportFiles(sf.Files.ToList());
-                    var compressedFiles = sf.IdentifyCompressedFilesJSON(GlobalVariables.ParsedOptions.Input);
+                    var compressedFiles = sf.IdentifyCompressedFiles();
                     fileManager.ImportCompressedFiles(compressedFiles);
                 }
                 else
@@ -309,8 +339,16 @@ namespace FileConverter
                 ExitProgram(1);
             }
         }
-        static private void RunConversion(FileManager fileManager, ConversionManager cm, SF.Siegfried sf, Logger logger)
+
+		/// <summary>
+		/// Runs the conversion process
+		/// </summary>
+        private static void RunConversion()
 		{
+            FileManager fileManager = FileManager.Instance;
+			ConversionManager cm = ConversionManager.Instance;
+			SF.Siegfried sf = SF.Siegfried.Instance;
+			Logger logger = Logger.Instance;
             try
             {
                 Console.WriteLine("Checking for naming conflicts...");
@@ -334,6 +372,13 @@ namespace FileConverter
                 fileManager.DocumentFiles();
             }
         }
+
+		/// <summary>
+		/// Get user input and act accordingly
+		/// </summary>
+		/// <param name="input">Input character</param>
+		/// <param name="prevInputFolder">previous input folder</param>
+		/// <param name="conversionSettingsPath">path to ConversionSettings</param>
 		static private void GetUserInputAndAct(ref char input, ref string prevInputFolder, string conversionSettingsPath)
 		{
             string validInput = "YyNnRrGg";

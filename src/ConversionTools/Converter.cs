@@ -1,6 +1,7 @@
 using FileConverter.Managers;
 using FileConverter.HelperClasses;
 using SF = FileConverter.Siegfried;
+
 /// <summary>
 /// Parent class for all converters
 /// </summary>
@@ -64,7 +65,7 @@ namespace ConversionTools
         /// Wrapper for the ConvertFile method that also handles the timeout
         /// </summary>
         /// <param name="file">File that should be converted</param>
-        async virtual public Task ConvertFile(FileToConvert file)
+        public async virtual Task ConvertFile(FileToConvert file)
         {            
             var timeout = TimeSpan.FromMinutes(GlobalVariables.Timeout);
             try
@@ -73,7 +74,6 @@ namespace ConversionTools
                 {
                     semaphore.Wait();
                 }
-
                 await ConvertFileWithTimeout(file, timeout);
             }
             catch (TimeoutException)
@@ -92,10 +92,10 @@ namespace ConversionTools
         /// <summary>
         /// Convert a file to a new format
         /// </summary>
-        /// <param name="fileinfo">The file to be converted</param>
+        /// <param name="file">File to convert</param>
         /// <param name="pronom">The file format to convert to</param>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        async public virtual Task ConvertFile(FileToConvert file, string pronom)
+        public async virtual Task ConvertFile(FileToConvert file, string pronom)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         { }
 
@@ -165,7 +165,7 @@ namespace ConversionTools
         /// Delete an original file, that has been converted, from the output directory
         /// </summary>
         /// <param name="filePath">The specific file to be deleted</param>
-        static public void DeleteOriginalFileFromOutputDirectory(string filePath)
+        public static void DeleteOriginalFileFromOutputDirectory(string filePath)
         {
             try
             {
@@ -185,7 +185,7 @@ namespace ConversionTools
         /// </summary>
         /// <param name="newPath"> The new path of the file </param>
         /// <param name="f"> The specific file </param>
-        static public void ReplaceFileInList(string newPath, FileToConvert f)
+        public static void ReplaceFileInList(string newPath, FileToConvert f)
         {
             f.FilePath = newPath;
             var file = FileManager.Instance.GetFile(f.Id);
@@ -207,7 +207,7 @@ namespace ConversionTools
         /// <param name="newFilepath">Filepath to new file</param>
         /// <param name="newFormat">Target pronom code</param>
         /// <returns>True if the conversion succeeded, otherwise false</returns>
-        static public bool CheckConversionStatus(string newFilepath, string newFormat, FileToConvert file)
+        public static bool CheckConversionStatus(string newFilepath, string newFormat, FileToConvert file)
         {
             try
             {
@@ -232,7 +232,7 @@ namespace ConversionTools
         /// <param name="filePath"> Full path of the file </param>
         /// <param name="pronom"> The specific PRONOM code of the file </param>
         /// <returns> True or false depending on if conversion is done </returns>
-        static public bool CheckConversionStatus(string filePath, string pronom)
+        public static bool CheckConversionStatus(string filePath, string pronom)
         {
             try
             {
@@ -251,7 +251,7 @@ namespace ConversionTools
         /// </summary>
         /// <param name="filepath"> Full path of the file </param>
         /// <returns> String containing PRONOM code or null </returns>
-        static public string? GetPronom(string filepath)
+        public static string? GetPronom(string filepath)
         {
             try
             {

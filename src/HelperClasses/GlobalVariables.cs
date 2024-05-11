@@ -30,6 +30,9 @@
         public static readonly PrintSortBy SortBy = PrintSortBy.Count;
         public static bool Debug { get; set; } = false;
 
+        /// <summary>
+        /// Resets all global variables to default values
+        /// </summary>
         public static void Reset()
         {
             FileConversionSettings.Clear();

@@ -37,6 +37,10 @@ namespace ConversionTools.Converters
         public string gsWindowsExecutable { get; set; } = "";
 
         public string gsWindowsLibrary { get; set; } = "";
+
+        /// <summary>
+        /// Constructor for GhostscriptConverter
+        /// </summary>
         public GhostscriptConverter()
         {
             Name = "Ghostscript";
@@ -101,7 +105,7 @@ namespace ConversionTools.Converters
         /// <summary>
         /// Get the path to the Ghostscript executable depending on the operating system
         /// </summary>
-        void GetExecutablePath()
+        private void GetExecutablePath()
         {
             string fileName = "gswin64c.exe";
             var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, fileName, SearchOption.AllDirectories);
@@ -148,8 +152,13 @@ namespace ConversionTools.Converters
             return supportedConversions;
         }
 
+        /// <summary>
+        /// Get a dictionary of all conversions that blocks multithreading
+        /// </summary>
+        /// <returns> the list </returns>
         public override Dictionary<string, List<string>> GetListOfBlockingConversions()
         {
+            // Ghostcipt blocks all conversions
             return SupportedConversions;
         }
 
@@ -172,7 +181,7 @@ namespace ConversionTools.Converters
         /// <param name="file"> FileToConvert object with the specific file to be converted </param>
         /// <param name="pronom"> Only added to match virtual method (Not used) </param>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        async public override Task ConvertFile(FileToConvert file, string pronom)
+        public async override Task ConvertFile(FileToConvert file, string pronom)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             string outputFileName = Path.GetFileNameWithoutExtension(file.FilePath);
@@ -221,9 +230,8 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="file"> FileToConvert object with the specific file </param>
         /// <param name="outputFileName">The name of the new file</param>
-        /// <param name="sDevice">What format GhostScript will convert to</param>
         /// <param name="extension">Extension type for after the conversion</param>
-        void ConvertToImagesWindows(FileToConvert file, string outputFileName, string extension)
+        private void ConvertToImagesWindows(FileToConvert file, string outputFileName, string extension)
         {
             Logger log = Logger.Instance;
             if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
@@ -333,9 +341,9 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="extension"> A string with the file extension </param>
         /// <returns></returns>
-        static private ImageFormat? GetImageFormat(string extension)
+        private static ImageFormat? GetImageFormat(string extension)
         {
-            if (!System.OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+            if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {
                 Logger.Instance.SetUpRunTimeLogMessage("GhostScript is not supported on this version of Windows (6.1).", true);
                 return null;
@@ -362,7 +370,7 @@ namespace ConversionTools.Converters
         /// <param name="outputFileName"> Filename of the converted file </param>
         /// <param name="sDevice"> Ghostscript variable that determines what conversion it should do </param>
         /// <param name="extension"> Extension for the new file </param>
-        void ConvertToImagesLinux(FileToConvert file, string outputFileName, string sDevice, string extension)
+        private void ConvertToImagesLinux(FileToConvert file, string outputFileName, string sDevice, string extension)
         {
             try
             {
@@ -506,7 +514,7 @@ namespace ConversionTools.Converters
                 {
                     fileInfo.ConversionTools.Add(converter.NameAndVersion);
                 }
-                converter.convertFromPDFToPDF(file);
+                converter.ConvertFromPDFToPDF(file);
             }
         }
 
@@ -515,7 +523,7 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="pronom">Specified output pronom</param>
         /// <returns>The extension as a string</returns>
-        string? GetExtension(string pronom)
+        private string? GetExtension(string pronom)
         {
             switch (pronom)
             {
@@ -539,7 +547,7 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="pronom">Specified output pronom</param>
         /// <returns>String with the device name</returns>
-        string? GetDevice(string pronom)
+        private string? GetDevice(string pronom)
         {
             switch (pronom)
             {
@@ -563,7 +571,7 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="pronom">Specified output pronom</param>
         /// <returns>The PDF version parameter</returns>
-        static string GetPDFVersion(string pronom)
+        private static string GetPDFVersion(string pronom)
         {
             switch (pronom)
             {

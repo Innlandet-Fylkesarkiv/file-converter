@@ -35,18 +35,18 @@ namespace ConversionTools.Converters
             BlockingConversions = GetListOfBlockingConversions();
             SupportedOperatingSystems = GetSupportedOS();
             currentOS = Environment.OSVersion;
-            DependenciesExists = checkDependencies();
+            DependenciesExists = CheckDependencies();
         }
 
         public List<string> EMLPronoms { get; set; } = ["fmt/278", "fmt/950"];
         public List<string> MSGPronoms { get; set; } = ["x-fmt/430", "fmt/1144"];
-        
+
         /// <summary>
         /// Converts the file sent to a new target format
         /// </summary>
-        /// <param name="filePath">The file to be converted</param>
+        /// <param name="file">The file to convert</param>
         /// <param name="pronom">The file format to convert to</param>
-        async public override Task ConvertFile(FileToConvert file, string pronom)
+        public async override Task ConvertFile(FileToConvert file, string pronom)
         {
             string inputFolder =  GlobalVariables.ParsedOptions.Input;
             string outputFolder = GlobalVariables.ParsedOptions.Output;
@@ -67,7 +67,7 @@ namespace ConversionTools.Converters
         /// <param name="destinationDir">Full path to the output directory</param>
         /// <param name="file">The file to convert</param>
         /// <param name="pronom">The target pronom for the conversion</param>
-        async Task RunConversion(string inputFilePath, string destinationDir, FileToConvert file, string pronom)
+        private async Task RunConversion(string inputFilePath, string destinationDir, FileToConvert file, string pronom)
         {
             string workingDirectory = Directory.GetCurrentDirectory();
             string commandToExecute = "";
@@ -149,7 +149,7 @@ namespace ConversionTools.Converters
                             if (Directory.Exists(folderWithAttachments))
                             {
                                 // Attachements found, add them to the working set for further conversion
-                                await addAttachementFilesToWorkingSet(folderWithAttachments);
+                                await AddAttachementFilesToWorkingSet(folderWithAttachments);
                             }
                             // Delete copy in ouputfolder if converted successfully
                             DeleteOriginalFileFromOutputDirectory(inputFilePath);
@@ -197,8 +197,13 @@ namespace ConversionTools.Converters
             return supportedConversions;
         }
 
+        /// <summary>
+        /// Get a dictionary of all conversions that blocks multithreading
+        /// </summary>
+        /// <returns> the list </returns>
         public override Dictionary<string, List<string>> GetListOfBlockingConversions()
         {
+            // No blocking conversions for this converter
             return new Dictionary<string, List<string>>();
         }
 
@@ -208,7 +213,7 @@ namespace ConversionTools.Converters
         /// <param name="inputFilePath">Full path to the input file</param>
         /// <param name="workingDirectory">Working directory for the program</param>
         /// <returns>Returns the string with the correct command</returns>
-        string GetEmlToPdfCommand(string inputFilePath, string workingDirectory)
+        private string GetEmlToPdfCommand(string inputFilePath, string workingDirectory)
         {
             Version = "'EML to PDF - 2.6.0'";
 
@@ -226,7 +231,7 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="inputFilePath">Full patht o the input path</param>
         /// <returns>Returns the string with the correct command </returns>
-        string GetMsgToEmlCommandUnix(string inputFilePath)
+        private string GetMsgToEmlCommandUnix(string inputFilePath)
         {
             Version = "'MSG to EML(Linux) - 0.921'";
             return $@"-c msgconvert ""{inputFilePath}"" ";
@@ -239,7 +244,7 @@ namespace ConversionTools.Converters
         /// <param name="workingDirectory">Current working directoy</param>
         /// <param name="destinationDir">Destination directory for the output file</param>
         /// <returns>returns the string with the correct command</returns>
-        string GetMsgToEmlCommandWindows(string inputFilePath, string workingDirectory, string destinationDir)
+        private string GetMsgToEmlCommandWindows(string inputFilePath, string workingDirectory, string destinationDir)
         {
             Version = "'MSG to EML(Windows) - 1.1.0'";
             // Get the correct path to the exe file for the mailcovnerter
@@ -263,9 +268,8 @@ namespace ConversionTools.Converters
         /// <summary>
         /// Adds the attachement files to the current working set for conversion
         /// </summary>
-        /// <param name="inputFilePath"></param>
-        /// <returns></returns>
-        public async Task addAttachementFilesToWorkingSet(string folderWithAttachments)
+        /// <param name="folderWithAttachments"> the folder containing the attachments </param>
+        public async Task AddAttachementFilesToWorkingSet(string folderWithAttachments)
         {
             List<FileInfo2>? attachementFiles = await SF.Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments)!;
             foreach (FileInfo2 newFile in attachementFiles)
@@ -300,7 +304,11 @@ namespace ConversionTools.Converters
             }
         }
 
-        bool checkDependencies()
+        /// <summary>
+        /// Checks if the dependencies for the converter exists
+        /// </summary>
+        /// <returns> true if it found them </returns>
+        private bool CheckDependencies()
         {
             string wkhtmltopdfExecutable = currentOS.Platform == PlatformID.Unix ? "wkhtmltopdf" : "wkhtmltopdf.exe";
             string javaExecutable = currentOS.Platform == PlatformID.Unix ? "java" : "java.exe";
