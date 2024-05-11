@@ -28,6 +28,10 @@ namespace FileConverter
     {
         private static ConversionSettings? instance;
         private static readonly object lockObject = new object();
+
+        /// <summary>
+        /// Make sure that only one instance of ConversionSettings is created
+        /// </summary>
         public static ConversionSettings Instance
         {
             get

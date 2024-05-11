@@ -18,6 +18,10 @@ namespace FileConverter.Managers
 		public bool addedDuringRun { get; set; } = false; //True if the file has been added while the conversion was running
 		public Guid Id { get; set; }   //Unique identifier for the file
 
+		/// <summary>
+		/// Sets up a new file to be converted
+		/// </summary>
+		/// <param name="file"> the file to be converted </param>
 		public FileToConvert(FileInfo2 file)
 		{
 			FilePath = file.FilePath;
@@ -26,6 +30,13 @@ namespace FileConverter.Managers
 			Route = new List<string>();
 			Id = file.Id;
 		}
+
+		/// <summary>
+		/// Sets up a copy of the file to be converted
+		/// </summary>
+		/// <param name="path"> path to the file </param>
+		/// <param name="id"> id of the file </param>
+		/// <param name="target">target PRONOM</param>
 		public FileToConvert(string path, Guid id, string target)
 		{
 			FilePath = path;
@@ -82,6 +93,9 @@ namespace FileConverter.Managers
 			}
 		}
 
+		/// <summary>
+		/// Initializes the FileInfoMap with all files in the FileManager
+		/// </summary>
 		public void InitFileMap()
 		{
 			foreach (FileInfo2 file in FileManager.Instance.Files.Values)
@@ -93,7 +107,7 @@ namespace FileConverter.Managers
 		/// <summary>
 		/// Removes the entries in the ConversionMap where a part of the route is not supported by any converter present.
 		/// </summary>
-		void FilterConversionMap()
+		private void FilterConversionMap()
 		{
 			var toDelete = new List<KeyValuePair<string, string>>();
 			Parallel.ForEach(ConversionMap, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.MaxThreads }, entry =>
@@ -121,7 +135,7 @@ namespace FileConverter.Managers
 		}
 
 		/// <summary>
-		/// 
+		/// Constructor for ConversionManager
 		/// </summary>
 		public ConversionManager()
 		{
@@ -144,6 +158,9 @@ namespace FileConverter.Managers
 			FilterConversionMap();
 		}
 
+		/// <summary>
+		/// Makes sure that only one instance of ConversionManager is created
+		/// </summary>
 		public static ConversionManager Instance
 		{
 			get
@@ -159,14 +176,6 @@ namespace FileConverter.Managers
 			}
 		}
 
-		public bool SupportsConversion(string currentPronom, string targetPronom)
-		{
-			return ConversionMap.ContainsKey(new KeyValuePair<string, string>(currentPronom, targetPronom));
-		}
-
-		/// <summary>
-		/// Updates the FileInfo list with new data after conversion
-		/// </summary>
 		/// <summary>
 		/// Updates the FileInfo list with new data after conversion
 		/// </summary>
@@ -275,7 +284,7 @@ namespace FileConverter.Managers
 		/// </summary>
 		/// <param name="ws">Working set to add files to</param>
 		/// <param name="mf">Files that should be combined</param>
-		void SetupWorkingSet(ConcurrentDictionary<Guid, FileToConvert> ws, Dictionary<string, List<FileInfo2>> mf)
+		private void SetupWorkingSet(ConcurrentDictionary<Guid, FileToConvert> ws, Dictionary<string, List<FileInfo2>> mf)
 		{
 			foreach (FileInfo2 file in Managers.FileManager.Instance.Files.Values)
 			{
@@ -320,7 +329,7 @@ namespace FileConverter.Managers
 		/// Updates the data in the working set and removes files that are done or failed conversion after 3 attempts
 		/// </summary>
 		/// <param name="ws">Workingset to be updated</param>
-		static void UpdateWorkingSet(ConcurrentDictionary<Guid, FileToConvert> ws)
+		private static void UpdateWorkingSet(ConcurrentDictionary<Guid, FileToConvert> ws)
 		{
 			ConcurrentBag<Guid> filesToRemove = new ConcurrentBag<Guid>();
 
@@ -369,7 +378,7 @@ namespace FileConverter.Managers
 		/// <param name="c">Converter that will do the conversion</param>
 		/// <param name="threads">Where the ThreadInfo will be added</param>
 		/// <returns>True if the conversion succeeded, False if not</returns>
-		void SendToConverter(FileToConvert f, Converter c, ConcurrentDictionary<Guid, CountdownEvent> countdownEvents)
+		private void SendToConverter(FileToConvert f, Converter c, ConcurrentDictionary<Guid, CountdownEvent> countdownEvents)
 		{
 			var countdownEvent = new CountdownEvent(1);
 			//Try to add a new CountdownEvent to the dictionary with the file path as key
@@ -423,7 +432,7 @@ namespace FileConverter.Managers
 		/// </summary>
 		/// <param name="threads">The dictionary of ThreadInfos that should be waited for</param>
 		/// <param name="total">The total number of thread jobs queued</param>
-		static void AwaitConversion(ConcurrentDictionary<Guid, CountdownEvent> countdownEvents)
+		private static void AwaitConversion(ConcurrentDictionary<Guid, CountdownEvent> countdownEvents)
 		{
 			int total = countdownEvents.Count;
 			var startTime = DateTime.Now;
@@ -444,7 +453,7 @@ namespace FileConverter.Managers
 		/// Sends files to be combined
 		/// </summary>
 		/// <param name="mergingFiles">Dictionary with a List of all files that should be combined</param>
-		static Task SendToCombineFiles(Dictionary<string, List<FileInfo2>> mergingFiles)
+		private static Task SendToCombineFiles(Dictionary<string, List<FileInfo2>> mergingFiles)
 		{
 			try
 			{
@@ -469,12 +478,11 @@ namespace FileConverter.Managers
 		/// <summary>
 		/// Checks if a file should be overridden by a folder override
 		/// </summary>
-		/// <param name="parentDirName"></param>
-		/// <param name="file"></param>
-		/// <param name="newFile"></param>
-		/// <param name="mergingFiles"></param>
+		/// <param name="file">File to check</param>
+		/// <param name="newFile">The FileToConvert for the file</param>
+		/// <param name="mergingFiles">List containing files to merge</param>
 		/// <returns>True if the file should be converted, False if it should be merged</returns>
-		static bool CheckInOverride(FileInfo2 file, FileToConvert newFile, Dictionary<string, List<FileInfo2>> mergingFiles)
+		private static bool CheckInOverride(FileInfo2 file, FileToConvert newFile, Dictionary<string, List<FileInfo2>> mergingFiles)
 		{
 			//Check if the file is in a folder that should be overridden
 			string? parentDirName = Path.GetDirectoryName(Path.GetRelativePath(GlobalVariables.ParsedOptions.Output, file.FilePath));

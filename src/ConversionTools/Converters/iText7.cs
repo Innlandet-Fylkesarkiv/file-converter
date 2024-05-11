@@ -32,7 +32,11 @@ namespace ConversionTools.Converters
     public class IText7 : Converter
     {
         private static readonly object pdfalock = new object();     //PDF-A uses a .icc file when converting, which can not be accessed by multiple threads at the same time
-        private static string ICCFilePath = GetICCFilePath();       //Path to the .icc file needed for PDF-A conversion
+        private static readonly string ICCFilePath = GetICCFilePath();       //Path to the .icc file needed for PDF-A conversion
+
+        /// <summary>
+        /// Constructor for the iText7 class
+        /// </summary>
         public IText7()
         {
             Name = "iText7";
@@ -122,15 +126,15 @@ namespace ConversionTools.Converters
 
                 if (HTMLPronoms.Contains(file.CurrentPronom))
                 {
-                    convertFromHTMLToPDF(file, pdfVersion, conformanceLevel);
+                    ConvertFromHTMLToPDF(file, pdfVersion, conformanceLevel);
                 }
                 else if (PDFPronoms.Contains(file.CurrentPronom))
                 {
-                    convertFromPDFToPDF(file);
+                    ConvertFromPDFToPDF(file);
                 }
                 else if (ImagePronoms.Contains(file.CurrentPronom))
                 {
-                    convertFromImageToPDF(file, pdfVersion, conformanceLevel);
+                    ConvertFromImageToPDF(file, pdfVersion, conformanceLevel);
                 }
             }
             catch (Exception e)
@@ -165,7 +169,7 @@ namespace ConversionTools.Converters
         /// <param name="file">The file being converted</param>
         /// <param name="pdfVersion">What pdf version it is being converted to</param>
         /// <param name="conformanceLevel"></param>
-        void convertFromImageToPDF(FileToConvert file, PdfVersion pdfVersion, PdfAConformanceLevel? conformanceLevel = null)
+        void ConvertFromImageToPDF(FileToConvert file, PdfVersion pdfVersion, PdfAConformanceLevel? conformanceLevel = null)
         {
             string dir = Path.GetDirectoryName(file.FilePath)?.ToString() ?? "";
             string filePathWithoutExtension = Path.Combine(dir, Path.GetFileNameWithoutExtension(file.FilePath));
@@ -190,7 +194,7 @@ namespace ConversionTools.Converters
                     }
                     if (conformanceLevel != null)
                     {
-                        convertFromPDFToPDFA(new FileToConvert(output, file.Id, file.Route.First()), conformanceLevel);
+                        ConvertFromPDFToPDFA(new FileToConvert(output, file.Id, file.Route.First()), conformanceLevel);
                     }
 
                     converted = CheckConversionStatus(output, file.TargetPronom, file);
@@ -208,7 +212,7 @@ namespace ConversionTools.Converters
         /// <param name="file">Name of the file to be converted</param>
         /// <param name="pdfVersion">Specific pdf version to be converted to</param>
         /// <param name="conformanceLevel">The type of PDF-A to convert to</param>
-        void convertFromHTMLToPDF(FileToConvert file, PdfVersion pdfVersion, PdfAConformanceLevel? conformanceLevel = null)
+        private void ConvertFromHTMLToPDF(FileToConvert file, PdfVersion pdfVersion, PdfAConformanceLevel? conformanceLevel = null)
         {
             string dir = Path.GetDirectoryName(file.FilePath)?.ToString() ?? "";
             string filePathWithoutExtension = Path.Combine(dir, Path.GetFileNameWithoutExtension(file.FilePath));
@@ -240,7 +244,7 @@ namespace ConversionTools.Converters
 
                     if (conformanceLevel != null)
                     {
-                        convertFromPDFToPDFA(new FileToConvert(output, file.Id, file.Route.First()), conformanceLevel);
+                        ConvertFromPDFToPDFA(new FileToConvert(output, file.Id, file.Route.First()), conformanceLevel);
                     }
                     converted = CheckConversionStatus(output, file.Route.First(), file);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
@@ -260,7 +264,7 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="file">The file to convert</param>
         /// <param name="conformanceLevel">The type of PDF-A to convert to</param>
-        void convertFromPDFToPDFA(FileToConvert file, PdfAConformanceLevel conformanceLevel)
+        void ConvertFromPDFToPDFA(FileToConvert file, PdfAConformanceLevel conformanceLevel)
         {
             //var debugFile = File.OpenWrite("logs/iText7StartStop.txt");
             //debugFile.Write(System.Text.Encoding.ASCII.GetBytes("Start: " + file.FilePath + "\n"));
@@ -333,7 +337,12 @@ namespace ConversionTools.Converters
             //debugFile.Close();
         }
 
-        static public string RemoveInterpolation(string filename)
+        /// <summary>
+        /// Remove interpolation from PDF to comply with PDF/A standards
+        /// </summary>
+        /// <param name="filename"> the filename of the file where interpolation needs to be removed </param>
+        /// <returns> new file name </returns>
+        public static string RemoveInterpolation(string filename)
         {
             int dotindex = filename.LastIndexOf('.');
             if (dotindex == -1)
@@ -394,7 +403,7 @@ namespace ConversionTools.Converters
         /// Convert from any pdf format to another pdf format. This includes PDF to PDF-A, but not PDF-A to PDF.
         /// </summary>
         /// <param name="file">The file to convert</param>
-        public void convertFromPDFToPDF(FileToConvert file)
+        public void ConvertFromPDFToPDF(FileToConvert file)
         {
             try
             {
@@ -402,7 +411,7 @@ namespace ConversionTools.Converters
                 PdfAConformanceLevel? conformanceLevel = GetPdfAConformanceLevel(file.Route.First());
                 if (conformanceLevel != null)
                 {
-                    convertFromPDFToPDFA(file, conformanceLevel);
+                    ConvertFromPDFToPDFA(file, conformanceLevel);
                     return;
                 }
 
@@ -507,9 +516,10 @@ namespace ConversionTools.Converters
         /// <summary>
         /// Merge several image files into one pdf
         /// </summary>
-        /// <param name="files"></param>
-        /// <param name="outputFileName"></param>
-        Task MergeFilesToPDF(List<FileInfo2> files, string outputFileName, string pronom)
+        /// <param name="files">the images </param>
+        /// <param name="outputFileName">output pdf name </param>
+        /// <param name="pronom"> target PDF pronom </param>
+        private Task MergeFilesToPDF(List<FileInfo2> files, string outputFileName, string pronom)
         {
             try
             {
@@ -555,7 +565,7 @@ namespace ConversionTools.Converters
 
                 if (conformanceLevel != null)
                 {
-                    convertFromPDFToPDFA(ftc, conformanceLevel);
+                    ConvertFromPDFToPDFA(ftc, conformanceLevel);
                 }
 
                 var result = Siegfried.Instance.IdentifyFile(outputFileName, false);

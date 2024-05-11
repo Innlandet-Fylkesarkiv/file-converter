@@ -26,10 +26,15 @@ namespace FileConverter.HelperClasses
 		private bool disposed = false;
 		private int animationIndex = 0;
 		private readonly int totalJobs = 0;
+
+		/// <summary>
+		/// Creates a new progress bar with the total number of items to process.
+		/// </summary>
+		/// <param name="totalItems"> total number of items </param>
 		public ProgressBar(int totalItems)
 		{
 			timer = new Timer(TimerHandler!);
-			this.totalJobs = totalItems;
+            totalJobs = totalItems;
 			// A progress bar is only for temporary display in a console window.
 			// If the console output is redirected to a file, draw nothing.
 			// Otherwise, we'll end up with a lot of garbage in the target file.
@@ -39,16 +44,26 @@ namespace FileConverter.HelperClasses
 			}
 		}
 
+		/// <summary>
+		/// Reports the progress
+		/// </summary>
+		/// <param name="value"> percenteage done in decimals (0.75 = 75% done)</param>
+		/// <param name="currentJob"> the task number it is on</param>
+		/// <param name="ts"> how much time has passed since start </param>
         public void Report(double value, int currentJob, TimeSpan ts)
 		{
-			// Make sure value is in [0..1] range
+			// Makes sure value is in [0..1] range
 			value = Math.Max(0, Math.Min(1, value));
 			Interlocked.Exchange(ref currentProgress, value); // atomic operation
 			Interlocked.Exchange(ref currentDone, currentJob); // atomic operation
 			elapsed = ts;
 		}
 
-		private void TimerHandler(object state)
+        /// <summary>
+        /// Used as a callback for the timer
+        /// </summary>
+        /// <param name="state"> unused, but necessary to be used as callback </param>
+        private void TimerHandler(object state)
 		{
 			lock (lockObject)
 			{
@@ -81,6 +96,10 @@ namespace FileConverter.HelperClasses
 			}
 		}
 
+		/// <summary>
+		/// Updates the text in the console
+		/// </summary>
+		/// <param name="text"> the new text </param>
 		private void UpdateText(string text)
 		{
 			// Get length of common portion
@@ -110,11 +129,17 @@ namespace FileConverter.HelperClasses
 			currentText = text;
 		}
 
+		/// <summary>
+		/// Resets the timer
+		/// </summary>
 		private void ResetTimer()
 		{
 			timer.Change(animationInterval, TimeSpan.FromMilliseconds(-1));
 		}
 
+		/// <summary>
+		/// Disposes the progress bar
+		/// </summary>
         public void Dispose()
         {
             lock (disposeLock) // Use a separate object for locking

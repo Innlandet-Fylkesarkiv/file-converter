@@ -8,15 +8,21 @@ namespace ConversionTools
         private static AddConverters? instance;
         private static readonly object lockObject = new object();
 
+        /// <summary>
+        /// Get all available converters
+        /// </summary>
+        /// <returns>a list of the converters </returns>
         public List<Converter> GetConverters()
         {
             if (Converters == null)
             {
-                Converters = new List<Converter>();
-                Converters.Add(new IText7());
-                Converters.Add(new GhostscriptConverter());
-                Converters.Add(new LibreOfficeConverter());
-                Converters.Add(new EmailConverter());
+                Converters =
+                [
+                    new IText7(),
+                    new GhostscriptConverter(),
+                    new LibreOfficeConverter(),
+                    new EmailConverter(),
+                ];
                 //Remove converters that are not supported on the current operating system
                 var currentOS = Environment.OSVersion.Platform.ToString();
                 Converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
@@ -27,6 +33,9 @@ namespace ConversionTools
             return Converters;
         }
     
+        /// <summary>
+        /// makes sure that only one instance of the class is created
+        /// </summary>
         public static AddConverters Instance
         {
             get

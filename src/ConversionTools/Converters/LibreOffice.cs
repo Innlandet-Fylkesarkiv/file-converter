@@ -46,6 +46,9 @@ namespace ConversionTools.Converters
 			BlockingConversions = GetListOfBlockingConversions();
 		}
 
+		/// <summary>
+		/// Gets the version of LibreOffice
+		/// </summary>
 		public override void GetVersion()
 		{
 			Version = "Unable to fetch version"; // Default version in case retrieval fails
@@ -87,7 +90,7 @@ namespace ConversionTools.Converters
 		/// <summary>
 		/// Convert a file to a new format
 		/// </summary>
-		/// <param name="filePath">The file to be converted</param>
+		/// <param name="file">The file to convert</param>
 		/// <param name="pronom">The file format to convert to</param>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 		async public override Task ConvertFile(FileToConvert file, string pronom)
@@ -144,6 +147,9 @@ namespace ConversionTools.Converters
             return supportedConversions;
         }
 
+		/// <summary>
+		/// Removes PDF/A PRONOMs from the list if iText7 is not found
+		/// </summary>
         private void CheckAndRemovePDFAPronoms()
         {
             var converters = AddConverters.Instance.GetConverters();
@@ -158,6 +164,10 @@ namespace ConversionTools.Converters
             }
         }
 
+		/// <summary>
+		/// Sets the supported conversions for multiple formats
+		/// </summary>
+		/// <param name="supportedConversions"> The dictionary where the supported conversions are saved to </param>
         private static void AddConversionsForMultipleFormats(Dictionary<string, List<string>> supportedConversions)
         {
             List<string> emptyList = [];
@@ -185,6 +195,15 @@ namespace ConversionTools.Converters
 			// CSV
 			AddConversions(CSVPronoms, PDFPronoms, emptyList, emptyList, supportedConversions);
         }
+
+        /// <summary>
+        /// Adds the conversions to the supported conversions list
+        /// </summary>
+        /// <param name="sourceFormats"> the format that is upporting the conversions to the targets </param>
+        /// <param name="targetFormats1"> target format 1 </param>
+        /// <param name="targetFormats2"> target format 2 (send empty list here if the sourceFormat only supports one conversion) </param>
+        /// <param name="targetFormats3">target format 3 (send empty list here if the sourceFormat only supports two conversions) </param>
+        /// <param name="supportedConversions"> The dictionary where the supported conversions are saved to </param>
         static private void AddConversions(List<string> sourceFormats, List<string> targetFormats1, List<string> targetFormats2, List<string> targetFormats3, Dictionary<string, List<string>> supportedConversions)
         {
             foreach (string sourceFormat in sourceFormats)
@@ -210,26 +229,33 @@ namespace ConversionTools.Converters
             }
         }
 
+        /// <summary>
+        /// Get a dictionary of all conversions that blocks multithreading
+        /// </summary>
+        /// <returns> the list </returns>
         public override Dictionary<string, List<string>> GetListOfBlockingConversions()
 		{
+			// LibreOffice blocks all conversions
 			return SupportedConversions;
 		}
 
-		/// <summary>
-		/// Converts and office file to PDF
-		/// </summary>
-		/// <param name="sourceDoc"></param>
-		/// <param name="destinationPdf"></param>
-		/// <param name="pronom"></param>
-		/// <param name="sofficePath"></param>
-		void RunOfficeToPdfConversion(string sourceDoc, string destinationPdf, string pronom,
-										  bool sofficePath, string targetFormat, FileToConvert file)
+        /// <summary>
+        /// Converts and office file to PDF
+        /// </summary>
+        /// <param name="sourceDoc"> office file </param>
+        /// <param name="destinationPdfFolder"> the folder of where the PDF ends up </param>
+        /// <param name="pronom"> target PRONOM for the office file </param>
+        /// <param name="sofficePath"> </param>
+		/// <param name="extention"> The extention after conversion (ex. pdf)</param>
+		/// <param name="file"> The file to be converted </param>
+        void RunOfficeToPdfConversion(string sourceDoc, string destinationPdfFolder, string pronom,
+										  bool sofficePath, string extention, FileToConvert file)
 		{
 			try
 			{
 				bool converted = false;
 				int count = 0;
-				string newFileName = Path.Combine(destinationPdf, Path.GetFileNameWithoutExtension(sourceDoc) + "." + targetFormat);
+				string newFileName = Path.Combine(destinationPdfFolder, Path.GetFileNameWithoutExtension(sourceDoc) + "." + extention);
 				do
 				{
 					using (Process process = new Process())
@@ -239,7 +265,7 @@ namespace ConversionTools.Converters
 						process.StartInfo.WorkingDirectory = Directory.GetCurrentDirectory();
 
 						string sofficeCommand = GetSofficePath(sofficePath);
-						string arguments = GetLibreOfficeCommand(destinationPdf, sourceDoc, sofficeCommand, targetFormat);
+						string arguments = GetLibreOfficeCommand(destinationPdfFolder, sourceDoc, sofficeCommand, extention);
 						process.StartInfo.Arguments = arguments;
 						process.StartInfo.RedirectStandardOutput = true;
 						process.StartInfo.RedirectStandardError = true;
@@ -296,8 +322,8 @@ namespace ConversionTools.Converters
         /// then it just returns "soffice" which the name of the executable
         /// </summary>
         /// <param name="sofficePath"> Bool - Indicating if is in the PATH of the environment</param>
-        /// <returns></returns>
-        string GetSofficePath(bool sofficePath)
+        /// <returns> see summary </returns>
+        private string GetSofficePath(bool sofficePath)
 		{
 			string sofficePathString;
 			if (sofficePath)
@@ -322,12 +348,18 @@ namespace ConversionTools.Converters
 		/// <param name="destinationPDF"> Output folder for the PDF</param>
 		/// <param name="sourceDoc"> Path to the original document</param>
 		/// <param name="sofficeCommand"> Either path to the executable or just 'soffice'</param>
-		/// <returns></returns>
+		/// <param name="targetFormat"> The format to convert to</param>
+		/// <returns> see summary </returns>
 		static string GetLibreOfficeCommand(string destinationPDF, string sourceDoc, string sofficeCommand, string targetFormat)
 		{
 			return Environment.OSVersion.Platform == PlatformID.Unix ? $@"-c ""soffice --headless --convert-to {targetFormat} --outdir '{destinationPDF}' '{sourceDoc}'""" : $@"/C {sofficeCommand} --headless --convert-to {targetFormat} --outdir ""{destinationPDF}"" ""{sourceDoc}""";
 		}
 
+		/// <summary>
+		/// Gets the correct extension for PRONOMs supported by LibreOffice
+		/// </summary>
+		/// <param name="targetPronom"> the PRONOM </param>
+		/// <returns> see summary </returns>
 		static string GetConversionExtension(string targetPronom)
 		{
 			string extensionNameForConversion;

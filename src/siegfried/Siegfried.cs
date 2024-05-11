@@ -66,6 +66,10 @@ namespace FileConverter.Siegfried
 		private static readonly object lockObject = new object();
 		public List<List<string>> CompressedFolders { get; set; }
 		public ConcurrentBag<FileInfo2> Files { get; set; } = new ConcurrentBag<FileInfo2>();
+
+		/// <summary>
+		/// Makes sure that only one instance of Siegfried is created
+		/// </summary>
 		public static Siegfried Instance
 		{
 			get
@@ -84,6 +88,10 @@ namespace FileConverter.Siegfried
 			}
 		}
 
+		/// <summary>
+		/// Constructor for Siegfried
+		/// </summary>
+		/// <exception cref="FileNotFoundException">Siegfried process not found</exception>
 		private Siegfried()
 		{
 			Logger logger = Logger.Instance;
@@ -134,7 +142,10 @@ namespace FileConverter.Siegfried
 			}
 		}
 
-		void GetExecutable()
+		/// <summary>
+		/// Gets the Siegfried executable and the home folder
+		/// </summary>
+		private void GetExecutable()
 		{
 			if (!OperatingSystem.IsWindows())
 			{
@@ -161,6 +172,7 @@ namespace FileConverter.Siegfried
                 }
 			}
 		}
+
 		public void AskReadFiles()
 		{
 			//Check if json files exist
@@ -180,6 +192,9 @@ namespace FileConverter.Siegfried
 			}
 		}
 
+		/// <summary>
+		/// Clears the Siegfried output folder
+		/// </summary>
 		public void ClearOutputFolder()
 		{
 			if (Directory.Exists(OutputFolder))
@@ -196,6 +211,11 @@ namespace FileConverter.Siegfried
 			}
 		}
 
+		/// <summary>
+		/// Converts the hash enum to a string
+		/// </summary>
+		/// <param name="hash">the hash to be converted</param>
+		/// <returns>the hash as a string</returns>
 		public static string HashEnumToString(HashAlgorithms hash)
 		{
 			switch (hash)
@@ -207,9 +227,11 @@ namespace FileConverter.Siegfried
 			}
 		}
 
+		/// <summary>
+		/// Reads the JSON output files and adds the data to the Siegfried object
+		/// </summary>
 		private void ReadFromFiles()
-		{
-						
+		{				
 			var paths = Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories);
 			using (ProgressBar progressBar = new ProgressBar(paths.Length))
 			{
@@ -531,6 +553,11 @@ namespace FileConverter.Siegfried
 			return Task.FromResult(files.ToList());
 		}
 
+		/// <summary>
+		/// Groups paths into groups of a specified size (groupSize)
+		/// </summary>
+		/// <param name="paths">list of filepaths that need to be grouped</param>
+		/// <returns>list of grouped paths</returns>
 		public List<string[]> GroupPaths(List<string> paths)
 		{
 			var filePathGroups = new List<string[]>();
@@ -557,7 +584,11 @@ namespace FileConverter.Siegfried
 			return filePathGroups;
 		}
 
-		public List<FileInfo2> IdentifyCompressedFilesJSON(string input)
+		/// <summary>
+		/// Identifies compressed files, unpacks them and identifies all files in them
+		/// </summary>
+		/// <returns>All files inside the compressed files</returns>
+		public List<FileInfo2> IdentifyCompressedFiles()
 		{
 			Logger logger = Logger.Instance;
 			UnpackCompressedFolders();
@@ -593,6 +624,12 @@ namespace FileConverter.Siegfried
 			return fileBag.ToList();
 		}
 
+		/// <summary>
+		/// Parses the JSON output from Siegfried
+		/// </summary>
+		/// <param name="json">path to JSON file or contents of the JSON file</param>
+		/// <param name="readFromFile">if it is a JSON file or contents of a JSON file being sent as input</param>
+		/// <returns>The parsed JSON as a siegfried JSON</returns>
 		public static SiegfriedJSON? ParseJSONOutput(string json, bool readFromFile)
 		{
 			try
@@ -639,6 +676,11 @@ namespace FileConverter.Siegfried
 			}
 		}
 
+		/// <summary>
+		/// Parses the JSONElement file to a Siegfried file
+		/// </summary>
+		/// <param name="fileElement">JSONElement file</param>
+		/// <returns>parsed file as a SiegfriedFile</returns>
 		public static SiegfriedFile ParseSiegfriedFile(JsonElement fileElement)
 		{
 			string hashMethod = HashEnumToString(GlobalVariables.ChecksumHash);
@@ -657,6 +699,11 @@ namespace FileConverter.Siegfried
 			};
 		}
 
+		/// <summary>
+		/// Parses the JSONElement match to a Siegfried match
+		/// </summary>
+		/// <param name="matchElement">The JSONElement match</param>
+		/// <returns>parsed file as a SiegfriedMatches</returns>
 		public static SiegfriedMatches ParseSiegfriedMatches(JsonElement matchElement)
 		{
 			return new SiegfriedMatches
@@ -817,6 +864,11 @@ namespace FileConverter.Siegfried
 			}
 		}
 
+		/// <summary>
+		/// Unpacks a compressed folder recursively
+		/// </summary>
+		/// <param name="root">the compressed folder</param>
+		/// <returns>list of paths to the unpacked directories</returns>
 		private static List<string> UnpackRecursively(string root)
 		{
 			List<string> unpackedFolders = new List<string>();
@@ -834,6 +886,11 @@ namespace FileConverter.Siegfried
 			return unpackedFolders;
 		}
 
+		/// <summary>
+		/// Gets all compressed folders in a directory
+		/// </summary>
+		/// <param name="dir">the parent directory</param>
+		/// <returns>list of paths to all compressed folders</returns>
 		private static List<string> GetCompressedFolders(string dir)
 		{
 			if (!Directory.Exists(dir))
