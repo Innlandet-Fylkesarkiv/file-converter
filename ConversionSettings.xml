@@ -1,7 +1,7 @@
 <root>
 	<Requester>Larsarn</Requester>
 	<Converter>Larsern</Converter>
-	<InputFolder>input</InputFolder>
+	<InputFolder>testfiles/mixed</InputFolder>
 	<OutputFolder>output</OutputFolder>
 	<MaxThreads>
 		20

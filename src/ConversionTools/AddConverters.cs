@@ -1,4 +1,5 @@
 using ConversionTools.Converters;
+using System.Collections.Generic;
 
 namespace ConversionTools
 {
@@ -16,13 +17,16 @@ namespace ConversionTools
         {
             if (Converters == null)
             {
-                Converters =
-                [
-                    new IText7(),
+                Converters = new List<Converter>();
+                // Add the IText7 converter first, since it is used in the constructor of other converters
+                Converters.Add(new IText7()); 
+                Converters.AddRange(new List<Converter>
+                {
                     new GhostscriptConverter(),
                     new LibreOfficeConverter(),
-                    new EmailConverter(),
-                ];
+                    new EmailConverter()
+                });
+
                 //Remove converters that are not supported on the current operating system
                 var currentOS = Environment.OSVersion.Platform.ToString();
                 Converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
