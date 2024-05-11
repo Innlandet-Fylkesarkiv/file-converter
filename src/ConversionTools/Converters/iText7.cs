@@ -11,6 +11,7 @@ using FileConverter.Managers;
 using FileConverter.HelperClasses;
 using FileConverter.Siegfried;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -261,7 +262,8 @@ namespace ConversionTools.Converters
         /// <param name="conformanceLevel">The type of PDF-A to convert to</param>
         void convertFromPDFToPDFA(FileToConvert file, PdfAConformanceLevel conformanceLevel)
         {
-            
+            //var debugFile = File.OpenWrite("logs/iText7StartStop.txt");
+            //debugFile.Write(System.Text.Encoding.ASCII.GetBytes("Start: " + file.FilePath + "\n"));
             try
             {
                 string pdfaFileName = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_PDFA.pdf");
@@ -327,6 +329,8 @@ namespace ConversionTools.Converters
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Error converting PDF to PDF-A. File is not converted: " + e.Message, true, filename: file.FilePath);
             }
+            //debugFile.Write(System.Text.Encoding.ASCII.GetBytes("Stop: " + file.FilePath + "\n"));
+            //debugFile.Close();
         }
 
         static public string RemoveInterpolation(string filename)

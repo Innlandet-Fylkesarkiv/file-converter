@@ -96,13 +96,13 @@ namespace FileConverter.Siegfried
 				logger.SetUpRunTimeLogMessage("SF Siegfried executable " + (found ? "" : "not ") + "found", !found);
 				if (!found)
 				{
-					Console.WriteLine("Cannot find Siegfried executable");
+					PrintHelper.PrintLn("Cannot find Siegfried executable", GlobalVariables.ERROR_COL);
 				}
-				found = Path.Exists(HomeFolder + PronomSignatureFile);
+				found = Path.Exists(Path.Combine(HomeFolder,PronomSignatureFile));
 				logger.SetUpRunTimeLogMessage($"SF Pronom signature file '{PronomSignatureFile}' " + (found ? "" : "not ") + "found", !found);
 				if (!found)
 				{
-					Console.WriteLine("Cannot find Pronom signature file");
+					PrintHelper.PrintLn("Cannot find Pronom signature file", GlobalVariables.ERROR_COL);
 				}
 			}
 			else if (OperatingSystem.IsLinux())
@@ -153,7 +153,7 @@ namespace FileConverter.Siegfried
 						if (Path.GetDirectoryName(exeFile) == Path.GetDirectoryName(sigFile))
 						{
                             ExecutableName = exeFile;
-                            HomeFolder = Path.GetDirectoryName(ExecutableName) + Path.DirectorySeparatorChar;
+							HomeFolder = Path.GetDirectoryName(ExecutableName);// + Path.DirectorySeparatorChar;
                             return;
                         }
 					}
@@ -244,7 +244,23 @@ namespace FileConverter.Siegfried
 			string wrappedPath = "\"" + path + "\"";
 			string options;
 
-			if (OperatingSystem.IsWindows())
+            StackTrace stackTrace = new StackTrace();
+
+            // Get the frame of the method that called MethodA
+            StackFrame? callerFrame = stackTrace.GetFrame(1); // Index 1 represents the caller frame
+
+			// Get the method name from the caller frame
+			string? callerMethodName = null;
+            if (callerFrame != null)
+			{
+				var method = callerFrame.GetMethod();
+				if (method != null)
+				{
+					callerMethodName = method.Name;
+				}
+            }
+
+            if (OperatingSystem.IsWindows())
 			{
 				options = String.Format("-coe -home {0} -json {1} -sig {2} ", HomeFolder, hash ? "-hash " + HashEnumToString(GlobalVariables.ChecksumHash) : "", PronomSignatureFile);
 			}
@@ -283,14 +299,14 @@ namespace FileConverter.Siegfried
 			}
             catch (Exception e)
 			{
-                Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyFile: " + e.Message, true);
+                Logger.Instance.SetUpRunTimeLogMessage(String.Format("SF IdentifyFile: {0}" + e.Message,callerMethodName != null ? "(Called by " + callerMethodName +")" : ""), true);
 				exception = true;
             }
 			
 			if (error.Length > 0 && !exception)
 			{
-				Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyFile: " + error, true);
-			}
+                Logger.Instance.SetUpRunTimeLogMessage(String.Format("SF IdentifyFile: {0}" + error, callerMethodName != null ? "(Called by " + callerMethodName + ")" : ""), true);
+            }
 
 			var parsedData = ParseJSONOutput(output, false);
 			if (parsedData == null || parsedData.files == null)
@@ -323,7 +339,7 @@ namespace FileConverter.Siegfried
             string options;
 			if (OperatingSystem.IsWindows())
 			{
-				options = String.Format("-home \"{0}\" -json {1} -sig {2} -multi {3} ", HomeFolder, "" /*"-hash " + HashEnumToString(GlobalVariables.checksumHash)*/, PronomSignatureFile, Multi);
+				options = String.Format("-home \"{0}\" -json {1} -sig {2} -multi {3} ", HomeFolder, "-hash " + HashEnumToString(GlobalVariables.ChecksumHash), PronomSignatureFile, Multi);
 			}
 			else
 			{
