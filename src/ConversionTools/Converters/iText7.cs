@@ -12,6 +12,8 @@ using FileConverter.HelperClasses;
 using FileConverter.Siegfried;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using System.Collections.Concurrent;
+using System.Runtime.ConstrainedExecution;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -29,10 +31,13 @@ using System.Runtime.CompilerServices;
 /// 
 namespace ConversionTools.Converters
 {
-    public class IText7 : Converter
+    public class IText7 : Converter, IDisposable
     {
         private static readonly object pdfalock = new object();     //PDF-A uses a .icc file when converting, which can not be accessed by multiple threads at the same time
-        private static string ICCFilePath = GetICCFilePath();       //Path to the .icc file needed for PDF-A conversion
+        private static string ICCFilePath = GetOriginalICCFilePath();       //Path to the .icc file needed for PDF-A conversion
+        ConcurrentQueue<string> AvailableICCFiles = new ConcurrentQueue<string>();
+        ConcurrentBag<string> AllICCFiles = new ConcurrentBag<string>();
+
         public IText7()
         {
             Name = "iText7";
@@ -44,6 +49,67 @@ namespace ConversionTools.Converters
             DependenciesExists = true;   // Bundled with program 
                                          //Acknowledge AGPL usage warning
             EventManager.AcknowledgeAgplUsageDisableWarningMessage();
+            CreateICCFiles();
+        }
+
+        private void CreateICCFiles()
+        {
+            var ICCOriginal = GetOriginalICCFilePath();
+            for (int i = 0; i < GlobalVariables.MaxThreads; i++)
+            {
+                var newPath = String.Format("{0}_{1}_{2}{3}", Path.GetFileNameWithoutExtension(ICCOriginal), "TEMP", Guid.NewGuid(),Path.GetExtension(ICCOriginal));
+                File.Copy(ICCOriginal, newPath);
+                AvailableICCFiles.Enqueue(newPath);
+                AllICCFiles.Add(newPath);
+            }
+        }
+        /// <summary>
+        /// Get the filepath of the ICC file needed for PDF-A conversion
+        /// </summary>
+        /// <returns>A string with the full path</returns>
+        static string GetOriginalICCFilePath()
+        {
+            string fileName = "sRGB2014.icc";
+            string path = "";
+            string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), fileName, SearchOption.AllDirectories);
+            if (files.Length > 0)
+            {
+                path = files[0];
+            }
+            else
+            {
+                Logger.Instance.SetUpRunTimeLogMessage("ICC file not found: " + fileName, true);
+            }
+            return path;
+        }
+
+        private string GetICCFile()
+        {
+            string? path;
+            while (!AvailableICCFiles.TryDequeue(out path))
+            {
+                Thread.Sleep(100);
+            }
+
+            return path;
+        }
+
+        private void ReturnICCFile(string path)
+        {
+            AvailableICCFiles.Enqueue(path);
+        }
+
+        public void Finalize() => Dispose();
+
+        public void Dispose()
+        {
+            foreach (var file in AllICCFiles)
+            {
+                if (File.Exists(file)) 
+                {
+                    File.Delete(file);
+                }
+            }
         }
 
         /// <summary>
@@ -86,10 +152,10 @@ namespace ConversionTools.Converters
         public override Dictionary<string, List<string>> GetListOfBlockingConversions()
         {
             var blockingConversions = new Dictionary<string, List<string>>();
-            foreach (string pronom in ImagePronoms.Concat(HTMLPronoms).Concat(PDFPronoms))
+            /*foreach (string pronom in ImagePronoms.Concat(HTMLPronoms).Concat(PDFPronoms))
             {
                 blockingConversions.Add(pronom, PDFAPronoms);
-            }
+            }*/
             return blockingConversions;
         }
 
@@ -140,26 +206,6 @@ namespace ConversionTools.Converters
         }
 
         /// <summary>
-        /// Get the filepath of the ICC file needed for PDF-A conversion
-        /// </summary>
-        /// <returns>A string with the full path</returns>
-        static string GetICCFilePath()
-        {
-            string fileName = "sRGB2014.icc";
-            string path = "";
-            string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), fileName, SearchOption.AllDirectories);
-            if (files.Length > 0)
-            {
-                path = files[0];
-            }
-            else
-            {
-                Logger.Instance.SetUpRunTimeLogMessage("ICC file not found: " + fileName, true);
-            }
-            return path;
-        }
-
-        /// <summary>
         /// Convert from any image file to pdf version 1.0-2.0
         /// </summary>
         /// <param name="file">The file being converted</param>
@@ -171,11 +217,11 @@ namespace ConversionTools.Converters
             string filePathWithoutExtension = Path.Combine(dir, Path.GetFileNameWithoutExtension(file.FilePath));
             string output = Path.Combine(filePathWithoutExtension + ".pdf");
             string filename = Path.Combine(file.FilePath);
-            var filestream = File.ReadAllBytes(filename);
             try
             {
                 int count = 0;
                 bool converted = false;
+                var filestream = File.ReadAllBytes(filename);
                 do
                 {
                     using (var pdfWriter = new PdfWriter(output, new WriterProperties().SetPdfVersion(pdfVersion)))
@@ -273,14 +319,15 @@ namespace ConversionTools.Converters
                 string pronom = file.Route.First();
                 PdfOutputIntent outputIntent;
                 string tmpFileName = RemoveInterpolation(filename);
+                string ICCFile = GetICCFile();
                 // Initialize PdfOutputIntent object
-                lock (pdfalock)
+                
+                using (FileStream iccFileStream = new FileStream(ICCFile, FileMode.Open))
                 {
-                    using (FileStream iccFileStream = new FileStream(ICCFilePath, FileMode.Open))
-                    {
-                        outputIntent = new PdfOutputIntent("Custom", "", "https://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
-                    }
+                    outputIntent = new PdfOutputIntent("Custom", "", "https://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
                 }
+                ReturnICCFile(ICCFile);
+                
                 do
                 {
                     PdfVersion pdfVersion = GetPDFVersion(pronom);

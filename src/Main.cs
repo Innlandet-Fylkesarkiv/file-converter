@@ -99,6 +99,7 @@ namespace FileConverter
 			{
 				PrintHelper.PrintLn("No errors happened during runtime. See documentation.json file in output dir.", GlobalVariables.SUCCESS_COL);
 			}
+			Logger.Instance.SetUpRunTimeLogMessage($"Main: Program finished successfully after: {sw.Elapsed}", false);
 			ExitProgram(0);
 		}
 

@@ -179,7 +179,7 @@ namespace FileConverter.Managers
 			//If siegfried fails, log error message and return
 			if (f == null)
 			{
-				Console.WriteLine("Could not identify files after conversion");
+				PrintHelper.PrintLn("Could not identify files after conversion", GlobalVariables.ERROR_COL);
 				Logger.Instance.SetUpRunTimeLogMessage("CM CheckConversion: Could not identify files", true);
 				return;
 			}
@@ -435,7 +435,7 @@ namespace FileConverter.Managers
 					numFinished = countdownEvents.Values.Count(c => c.IsSet);
 					var elapsed = DateTime.Now - startTime;
 					pb.Report((float)(numFinished) / (float)total, numFinished, elapsed);
-					Thread.Sleep(1000);
+					Thread.Sleep(100);
 				}
 			}
 		}
