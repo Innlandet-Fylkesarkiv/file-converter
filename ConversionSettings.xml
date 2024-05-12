@@ -1,7 +1,7 @@
 <root>
   <Requester>Larsarn</Requester>
   <Converter>Larsern</Converter>
-  <InputFolder>testfiles/OfficeTestData</InputFolder>
+  <InputFolder>testfiles</InputFolder>
   <OutputFolder>output</OutputFolder>
   <MaxThreads></MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
@@ -296,16 +296,20 @@
   <FolderOverride>
     <FolderPath>MergeFiles/bonsai</FolderPath>
     <Pronoms>
+		fmt/11, fmt/12, fmt/13
     </Pronoms>
     <ConvertTo>
+		fmt/477
     </ConvertTo>
     <MergeImages>YES</MergeImages>
   </FolderOverride>
   <FolderOverride>
     <FolderPath>MergeFiles/Norwegian_Flag</FolderPath>
     <Pronoms>
+		fmt/41, fmt/42, fmt/43, fmt/44
     </Pronoms>
     <ConvertTo>
+		fmt/477
     </ConvertTo>
     <MergeImages>YES</MergeImages>
   </FolderOverride>

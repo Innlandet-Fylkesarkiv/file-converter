@@ -189,10 +189,6 @@ namespace FileConverter.HelperClasses
 		public void SetUpDocumentation(List<FileInfo2> files)
 		{
             string docPath = GlobalVariables.ParsedOptions.Output + Path.DirectorySeparatorChar + "documentation.json";
-			using (StreamWriter outputFile = new StreamWriter(docPath))
-			{
-				outputFile.WriteAsync("\n");
-			}
 			foreach (FileInfo2 file in files)
 			{
 				if (file.ShouldMerge)
