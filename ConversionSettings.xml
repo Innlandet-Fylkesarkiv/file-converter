@@ -1,7 +1,7 @@
 <root>
   <Requester>Larsarn</Requester>
   <Converter>Larsern</Converter>
-  <InputFolder>testfiles</InputFolder>
+  <InputFolder>testfiles/OfficeTestData</InputFolder>
   <OutputFolder>output</OutputFolder>
   <MaxThreads></MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
