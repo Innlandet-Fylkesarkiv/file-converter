@@ -4,19 +4,7 @@ using Avalonia;
 using ChangeConverterSettings;
 using Avalonia.Interactivity;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Avalonia.Threading;
-using Avalonia.Media;
-using Avalonia.VisualTree;
-using Avalonia.Platform;
-using System.Windows;
-using Avalonia.Controls.Primitives;
-using Avalonia.LogicalTree;
-using System.Globalization;
-using Avalonia.Input;
 using FileConverter.HelperClasses;
 public class CreateElements
 {
@@ -124,7 +112,7 @@ public class CreateElements
     /// </summary>
     /// <param name="grid"> main grid </param>
     /// <returns> the last row </returns>
-    private int FindLastRow(Grid grid)
+    private static int FindLastRow(Grid grid)
     {
         int lastRow = -1; 
 

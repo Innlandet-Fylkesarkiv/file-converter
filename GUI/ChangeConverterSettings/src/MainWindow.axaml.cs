@@ -2,19 +2,8 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System;
 using System.Collections.Generic;
-using Avalonia;
 using Avalonia.Markup.Xaml;
 using System.IO;
-using Avalonia.Media;
-using System.Globalization;
-using System.Reflection;
-using Avalonia.Layout;
-using Avalonia.Input;
-using Tmds.DBus.Protocol;
-using System.Diagnostics;
-using Avalonia.Platform.Storage;
-using Avalonia.Threading;
-using System.Linq;
 using Avalonia.Controls.Shapes;
 
 namespace ChangeConverterSettings
@@ -68,7 +57,7 @@ namespace ChangeConverterSettings
             GlobalVariables.defaultSettingsPath = Directory.GetCurrentDirectory() + "/ConversionSettings.xml";
             InitializeComponent();
             Settings settings = Settings.Instance;
-            settings.ReadAllSettings(GlobalVariables.defaultSettingsPath);
+            Settings.ReadAllSettings(GlobalVariables.defaultSettingsPath);
             WriteSettingsToScreen();
             Console.WriteLine(GlobalVariables.FileSettings);
             FolderOverride folderOverride = new FolderOverride(this);
@@ -84,6 +73,11 @@ namespace ChangeConverterSettings
             AvaloniaXamlLoader.Load(this);
         }
 
+        /// <summary>
+        /// When Input loses focus, settings is checked at the new input path
+        /// </summary>
+        /// <param name="sender">Unused</param>
+        /// <param name="args">Unused</param>
         public void InputLostFocus(object sender, RoutedEventArgs args)
         {
             GlobalVariables.FolderOverride.Clear();
@@ -92,8 +86,7 @@ namespace ChangeConverterSettings
             {
                 GlobalVariables.Input = inputTextBox.Text;
             }
-            Settings settings = Settings.Instance;
-            settings.SetUpFolderOverride(GlobalVariables.defaultSettingsPath);
+            Settings.SetUpFolderOverride(GlobalVariables.defaultSettingsPath);
             FolderOverride folderOverride = new FolderOverride(this);
             var FolderOverrideGrid = this.FindControl<Grid>("FolderOverrideGrid");
             if (FolderOverrideGrid != null)
@@ -121,8 +114,12 @@ namespace ChangeConverterSettings
             FolderOverride folderOverride = new FolderOverride(this);
             folderOverride.SaveFolderOverride();
             SaveMainSettings();
+            Settings.WriteSettings(GlobalVariables.defaultSettingsPath);
         }
 
+        /// <summary>
+        /// Saves the main settings to the settings file
+        /// </summary>
         private void SaveMainSettings()
         {
             CreateElements createElements = new CreateElements(this);
@@ -199,8 +196,6 @@ namespace ChangeConverterSettings
                     ComponentLists.formatDropDowns[i].SelectedIndex = prevSelecIndex;
                 }
             }
-            Settings settings = Settings.Instance;
-            settings.WriteSettings(GlobalVariables.defaultSettingsPath);
         }
 
         /// <summary>

@@ -64,7 +64,7 @@ public class Logger
     /// </summary>
     /// <param name="message"> The message to be logged </param>
     /// <param name="filepath"> The filepath to the logfile </param>
-    private void WriteLog(string message, string filepath)
+    private static void WriteLog(string message, string filepath)
     {
         lock (lockObject)
         {

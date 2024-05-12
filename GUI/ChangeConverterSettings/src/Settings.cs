@@ -59,7 +59,7 @@ class Settings
     /// Run all the methods to read the settings from the settings file
     /// </summary>
     /// <param name="pathToSettings"> both full-path and dynamic-path from the working directory works </param>
-    public void ReadAllSettings(string pathToSettings)
+    public static void ReadAllSettings(string pathToSettings)
     {
         ReadSettings(pathToSettings);
         SetUpFolderOverride(pathToSettings);
@@ -69,7 +69,7 @@ class Settings
     /// Reads settings from file
     /// </summary>
     /// <param name="pathToSettings"> the path to the settings file from working directory </param>
-    private void ReadSettings(string pathToSettings)
+    private static void ReadSettings(string pathToSettings)
     {
         Logger logger = Logger.Instance;
         try
@@ -231,7 +231,7 @@ class Settings
     /// Sets up the FolderOverride Dictionary
     /// </summary>
     /// <param name="pathToSettings"> relative path to settings file from working directory </param>
-    public void SetUpFolderOverride(string pathToSettings)
+    public static void SetUpFolderOverride(string pathToSettings)
     {
         Logger logger = Logger.Instance;
         try
@@ -344,7 +344,7 @@ class Settings
     /// Sets up and writes the xml file with the settings
     /// </summary>
     /// <param name="path"></param>
-    public void WriteSettings(string path)
+    public static void WriteSettings(string path)
     {
         // Create an XML document
         XmlDocument xmlDoc = new XmlDocument();
@@ -426,7 +426,7 @@ class Settings
     /// <param name="parentElement"> the parent of this element </param>
     /// <param name="elementName"> the name of this element </param>
     /// <param name="value"> the value of this element</param>
-    private void AddXmlElement(XmlDocument xmlDoc, XmlElement parentElement, string elementName, string? value)
+    private static void AddXmlElement(XmlDocument xmlDoc, XmlElement parentElement, string elementName, string? value)
     {
         XmlElement element = xmlDoc.CreateElement(elementName);
         if (!String.IsNullOrEmpty(value))
