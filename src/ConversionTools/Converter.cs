@@ -201,7 +201,7 @@ namespace ConversionTools
         }
 
         /// <summary>
-        /// Check if a file has been converted and update the file list
+        /// Check if a file has been converted and update the file list and delete original file from ouput folder
         /// </summary>
         /// <param name="file">File that has been converted</param>
         /// <param name="newFilepath">Filepath to new file</param>
@@ -211,9 +211,11 @@ namespace ConversionTools
         {
             try
             {
+                // Identify the new file using Siegfried and compare new identified pronom to the target pronom
                 var result = SF.Siegfried.Instance.IdentifyFile(newFilepath, false);
                 if (result != null && result.matches[0].id == newFormat)
                 {
+                    // Conversion succeeded delete original file
                     DeleteOriginalFileFromOutputDirectory(file.FilePath);
                     ReplaceFileInList(newFilepath, file);
                     return true;
@@ -255,6 +257,7 @@ namespace ConversionTools
         {
             try
             {
+                // Use SiegFried to identify file and retrieve pronom code
                 var result = SF.Siegfried.Instance.IdentifyFile(filepath, false);
                 if (result != null && result.matches.Length > 0)
                 {
@@ -287,7 +290,7 @@ namespace ConversionTools
             string pathVariable = Environment.GetEnvironmentVariable("PATH") ?? ""; // Get the environment variables as a string
             string[] paths = pathVariable.Split(Path.PathSeparator);          // Split them into individual entries
 
-            foreach (string path in paths)                                    // Go through and check if found  
+            foreach (string path in paths)                                    // Go through and check if executable for LibreOffice is found  
             {
                 string fullPath = Path.Combine(path, executableName);
                 if (File.Exists(fullPath))
@@ -317,6 +320,7 @@ namespace ConversionTools
 
             string[] paths = pathVariable.Split(pathSeparator);
 
+            // Go through PATH variables and search for executable name 
             foreach (string path in paths)
             {
                 string fullPath = Path.Combine(path, executableName);
