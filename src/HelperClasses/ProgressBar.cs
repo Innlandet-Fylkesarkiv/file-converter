@@ -9,11 +9,14 @@ using System.Threading;
 /// 
 namespace FileConverter.HelperClasses
 {
+	/// <summary>
+	/// Progressbar to show the Progress of the conversion for the current working set 
+	/// </summary>
 	public class ProgressBar : IDisposable
 	{
-		private const int blockCount = 10;
+		private const int blockCount = 10; // Number of # representing Conversion progress
 		private readonly TimeSpan animationInterval = TimeSpan.FromSeconds(1.0 / 4);
-		private const string animation = @"|/-\";
+		private const string animation = @"|/-\";			// Animation for spinning bar 
 
 		private readonly Timer timer;
         private readonly object lockObject = new object();
@@ -86,16 +89,19 @@ namespace FileConverter.HelperClasses
                     logger.SetUpRunTimeLogMessage("Conversion progress: " + percentTenth + "% done.", false);
                 }
 
+				// Format the string that represents the interface for the progress bar 
                 string progressBar = string.Format("[{0}{1}] {2,3}% {3} {4}/{5} jobs",
 				new string('#', progressBlockCount), new string('-', blockCount - progressBlockCount),
 				percent,
 				animation[animationIndex++ % animation.Length],
 				currentDone, totalJobs);
+
 				string elapsedTime = elapsed.ToString(@"hh\:mm\:ss");
 				bool showEstimatedTime = currentDone < totalJobs && percent >= 25;
 				string estimatedTimeLeft;
 				string displayText;
 
+				// Simple calculation for estimated remaining time, not super accurate
 				if (showEstimatedTime)
 				{
 					estimatedTimeLeft = TimeSpan.FromSeconds((elapsed.TotalSeconds / currentDone) * (totalJobs - currentDone)).ToString(@"hh\:mm\:ss");
