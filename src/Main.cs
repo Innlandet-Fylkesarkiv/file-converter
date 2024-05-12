@@ -114,8 +114,11 @@ namespace FileConverter
 			{
 				Directory.Delete("ICCFiles", true);
 			}
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadKey();  //Keep console open
+			if (!GlobalVariables.ParsedOptions.AcceptAll)
+			{
+				Console.WriteLine("Press any key to exit...");
+				Console.ReadKey();  //Keep console open
+			}
 			Environment.Exit(exitCode);
         }
 
