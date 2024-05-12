@@ -93,7 +93,11 @@ class Settings
             {
                 string? className = classNode?.SelectSingleNode("ClassName")?.InnerText; 
                 string? defaultType = classNode?.SelectSingleNode("Default")?.InnerText;
-
+                if(String.IsNullOrEmpty(className))
+                {
+                    logger.SetUpRunTimeLogMessage("Could not find one of the classNames", true);
+                    continue;
+                }
                 if (defaultType == null)
                 {
                     defaultType = "fmt/477"; // Default to PDF/A-2b
