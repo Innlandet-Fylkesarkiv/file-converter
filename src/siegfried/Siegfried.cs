@@ -367,7 +367,7 @@ namespace FileConverter.Siegfried
         /// <returns>Pronom id or null</returns>
         public List<FileInfo2>? IdentifyList(string[] paths)
         {
-            var files = new List<FileInfo2>();
+            
 
             if (paths.Length < 1)
             {
@@ -439,8 +439,7 @@ namespace FileConverter.Siegfried
                 Logger.Instance.SetUpRunTimeLogMessage("SF IdentifyList: " + error, true);
             }
             var parsedData = ParseJSONOutput(outputFile, true);
-            files = AddFilesAndSetProperties(parsedData, paths);
-            return files;
+            return AddFilesAndSetProperties(parsedData, paths);
         }
 
         /// <summary>

@@ -31,8 +31,8 @@ namespace ConversionTools.Converters
 {
     public class IText7 : Converter
     {
-        ConcurrentQueue<string> AvailableICCFiles = new ConcurrentQueue<string>();
-        ConcurrentBag<string> AllICCFiles = new ConcurrentBag<string>();
+        readonly ConcurrentQueue<string> AvailableICCFiles = new ConcurrentQueue<string>();
+        readonly ConcurrentBag<string> AllICCFiles = new ConcurrentBag<string>();
 
         public IText7()
         {
