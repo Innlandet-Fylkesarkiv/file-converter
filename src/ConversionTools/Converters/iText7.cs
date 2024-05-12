@@ -795,20 +795,6 @@ namespace ConversionTools.Converters
             "fmt/1129"      // PDF 2.0
         ];
 
-        readonly List<string> PDFAPronoms = [
-             "fmt/95",       // PDF/A 1A
-            "fmt/354",      // PDF/A 1B
-            "fmt/476",      // PDF/A 2A
-            "fmt/477",      // PDF/A 2B
-            "fmt/478",      // PDF/A 2U
-            "fmt/479",      // PDF/A 3A
-            "fmt/480",      // PDF/A 3B
-            "fmt/481",      // PDF/A 3U
-                            //"fmt/1910",     // PDF/A 4
-                            //"fmt/1911",     // PDF/A 4E
-                            //"fmt/1912",     // PDF/A 4F
-        ];
-
         readonly List<string> PDFAAPronoms = [
             "fmt/95",       // PDF/A 1A
             "fmt/476",      // PDF/A 2A
