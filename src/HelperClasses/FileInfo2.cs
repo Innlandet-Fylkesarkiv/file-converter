@@ -15,7 +15,6 @@ namespace FileConverter.HelperClasses
     {
         public string FilePath { get; set; } = "";                  // Filepath relative to input directory
         public string OriginalFilePath { get; set; } = "";          // Filename with extension
-        public string ShortFilePath { get; set; } = "";             // Filepath without input/output directory
         public string OriginalPronom { get; set; } = "";            // Original Pronom ID
         public string NewPronom { get; set; } = "";                 // New Pronom ID
         public string OriginalMime { get; set; } = "";              // Original Mime Type

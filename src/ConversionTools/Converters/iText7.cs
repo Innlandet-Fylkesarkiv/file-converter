@@ -43,7 +43,8 @@ namespace ConversionTools.Converters
             BlockingConversions = GetListOfBlockingConversions();
 
             DependenciesExists = true;   // Bundled with program 
-                                         //Acknowledge AGPL usage warning
+            
+            //Acknowledge AGPL usage warning
             EventManager.AcknowledgeAgplUsageDisableWarningMessage();
             CreateICCFiles();
         }
@@ -53,11 +54,14 @@ namespace ConversionTools.Converters
         /// </summary>
         private void CreateICCFiles()
         {
+            // Get the original ICC file
             var ICCOriginal = GetOriginalICCFilePath();
+            // Create a directory for the ICC files
             if (!Directory.Exists("ICCFiles"))
             {
                 Directory.CreateDirectory("ICCFiles");
             }
+            // Create copies of the ICC file with unique names
             for (int i = 0; i < GlobalVariables.MaxThreads; i++)
             {
                 var newPath = String.Format("{0}/{1}_{2}_{3}{4}","ICCFiles", Path.GetFileNameWithoutExtension(ICCOriginal), "TEMP", Guid.NewGuid(),Path.GetExtension(ICCOriginal));
@@ -74,7 +78,9 @@ namespace ConversionTools.Converters
         {
             string fileName = "sRGB2014.icc";
             string path = "";
+            // Search for the file in the current directory and all subdirectories
             string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), fileName, SearchOption.AllDirectories);
+            // If the file is found, set the path to the first file found
             if (files.Length > 0)
             {
                 path = files[0];
@@ -93,9 +99,10 @@ namespace ConversionTools.Converters
         private string GetICCFile()
         {
             string? path;
+            //Wait until a file is available
             while (!AvailableICCFiles.TryDequeue(out path))
             {
-                Thread.Sleep(100);
+                Thread.Sleep(50);
             }
 
             return path;
@@ -107,6 +114,7 @@ namespace ConversionTools.Converters
         /// <param name="path">path to file that is freed</param>
         private void FreeICCFile(string path)
         {
+            //Add the file back to the available list
             AvailableICCFiles.Enqueue(path);
         }
 
@@ -123,7 +131,7 @@ namespace ConversionTools.Converters
         /// </summary>
         protected void DeleteCopies()
         {
-            // Dispose unmanaged resources (always)
+            // Delete all copies of the ICC file
             foreach (var file in AllICCFiles)
             {
                 if (File.Exists(file))
@@ -230,6 +238,7 @@ namespace ConversionTools.Converters
         /// <param name="conformanceLevel"></param>
         void ConvertFromImageToPDF(FileToConvert file, PdfVersion pdfVersion, PdfAConformanceLevel? conformanceLevel = null)
         {
+            // Get the file path and the directory of the file
             string dir = Path.GetDirectoryName(file.FilePath)?.ToString() ?? "";
             string filePathWithoutExtension = Path.Combine(dir, Path.GetFileNameWithoutExtension(file.FilePath));
             string output = Path.Combine(filePathWithoutExtension + ".pdf");
@@ -239,8 +248,10 @@ namespace ConversionTools.Converters
                 int count = 0;
                 bool converted = false;
                 var filestream = File.ReadAllBytes(filename);
+                // Try to convert the file to PDF
                 do
                 {
+                    // Create a new PDF file
                     using (var pdfWriter = new PdfWriter(output, new WriterProperties().SetPdfVersion(pdfVersion)))
                     using (var pdfDocument = new PdfDocument(pdfWriter))
                     using (var document = new iText.Layout.Document(pdfDocument))
@@ -251,11 +262,12 @@ namespace ConversionTools.Converters
                         iText.Layout.Element.Image image = new iText.Layout.Element.Image(imageData);
                         document.Add(image);
                     }
+                    // If the file should be converted to PDF/A, convert it
                     if (conformanceLevel != null)
                     {
                         ConvertFromPDFToPDFA(new FileToConvert(output, file.Id, file.Route.First()), conformanceLevel);
                     }
-
+                    //Check if the file was converted
                     converted = CheckConversionStatus(output, file.TargetPronom, file);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
             }
@@ -273,6 +285,7 @@ namespace ConversionTools.Converters
         /// <param name="conformanceLevel">The type of PDF-A to convert to</param>
         private void ConvertFromHTMLToPDF(FileToConvert file, PdfVersion pdfVersion, PdfAConformanceLevel? conformanceLevel = null)
         {
+            // Get the file path and the directory of the file
             string dir = Path.GetDirectoryName(file.FilePath)?.ToString() ?? "";
             string filePathWithoutExtension = Path.Combine(dir, Path.GetFileNameWithoutExtension(file.FilePath));
             string output = Path.Combine(filePathWithoutExtension + ".pdf");
@@ -281,6 +294,7 @@ namespace ConversionTools.Converters
             {
                 int count = 0;
                 bool converted = false;
+                // Try to convert the file to PDF
                 do
                 {
                     using (var pdfWriter = new PdfWriter(output, new WriterProperties().SetPdfVersion(pdfVersion)))
@@ -300,11 +314,12 @@ namespace ConversionTools.Converters
                         pdfWriter.Close();
                         pdfWriter.Dispose();
                     }
-
+                    // If the file should be converted to PDF/A, convert it
                     if (conformanceLevel != null)
                     {
                         ConvertFromPDFToPDFA(new FileToConvert(output, file.Id, file.Route.First()), conformanceLevel);
                     }
+                    // Check if the file was converted
                     converted = CheckConversionStatus(output, file.Route.First(), file);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 if (!converted)
@@ -325,8 +340,6 @@ namespace ConversionTools.Converters
         /// <param name="conformanceLevel">The type of PDF-A to convert to</param>
         void ConvertFromPDFToPDFA(FileToConvert file, PdfAConformanceLevel conformanceLevel)
         {
-            //var debugFile = File.OpenWrite("logs/iText7StartStop.txt");
-            //debugFile.Write(System.Text.Encoding.ASCII.GetBytes("Start: " + file.FilePath + "\n"));
             try
             {
                 string pdfaFileName = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_PDFA.pdf");
@@ -335,7 +348,9 @@ namespace ConversionTools.Converters
                 bool converted = false;
                 string pronom = file.Route.First();
                 PdfOutputIntent outputIntent;
+                // Remove interpolation from the PDF file
                 string tmpFileName = RemoveInterpolation(filename);
+                // Get an available ICC file
                 string ICCFile = GetICCFile();
                 // Initialize PdfOutputIntent object
                 
@@ -343,11 +358,13 @@ namespace ConversionTools.Converters
                 {
                     outputIntent = new PdfOutputIntent("Custom", "", "https://www.color.org", "sRGB IEC61966-2.1", iccFileStream);
                 }
+                // Free the ICC file
                 FreeICCFile(ICCFile);
-                
+                // Set the PDF version based on the PRONOM
+                PdfVersion pdfVersion = GetPDFVersion(pronom);
+                // Try to convert the file to PDF/A
                 do
                 {
-                    PdfVersion pdfVersion = GetPDFVersion(pronom);
                     //If the conversion failed with PDF/A Accessible, try PDF/A Basic/F depending on the pronom
                     if (PDFAAPronoms.Contains(pronom) && count > 0)
                     {
@@ -362,7 +379,7 @@ namespace ConversionTools.Converters
                     {
                         PdfDocument pdfDocument = new PdfDocument(reader);
                         pdfADocument.SetTagged();
-
+                        // Copy each page from the original PDF to the PDF/A document
                         for (int pageNum = 1; pageNum <= pdfDocument.GetNumberOfPages(); pageNum++)
                         {
                             PdfPage sourcePage = pdfDocument.GetPage(pageNum);
@@ -375,12 +392,14 @@ namespace ConversionTools.Converters
                     }
                     converted = CheckConversionStatus(pdfaFileName, pronom);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
+                // If the file was not converted, delete the temporary file
                 if (!converted)
                 {
                     file.Failed = true;
                     File.Delete(pdfaFileName);
                     File.Delete(tmpFileName);
                 }
+                // If the file was converted, replace the old file with the new one
                 else
                 {
                     File.Delete(tmpFileName);
@@ -393,8 +412,6 @@ namespace ConversionTools.Converters
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Error converting PDF to PDF-A. File is not converted: " + e.Message, true, filename: file.FilePath);
             }
-            //debugFile.Write(System.Text.Encoding.ASCII.GetBytes("Stop: " + file.FilePath + "\n"));
-            //debugFile.Close();
         }
 
         /// <summary>
@@ -404,13 +421,8 @@ namespace ConversionTools.Converters
         /// <returns> new file name </returns>
         public static string RemoveInterpolation(string filename)
         {
-            int dotindex = filename.LastIndexOf('.');
-            if (dotindex == -1)
-            {
-                dotindex = filename.Length - 3;
-            }
             List<int> editedPages = new List<int>();
-            string name = filename.Substring(0, dotindex);
+            string name = Path.GetFileNameWithoutExtension(filename);
             string newfilename = String.Format("{0}_{1}.pdf", name, "TEMP");
             try
             {
@@ -430,13 +442,16 @@ namespace ConversionTools.Converters
                     {
                         continue;
                     }
+                    // Iterate through each object on the page.
                     foreach (PdfObject item in asDictionary.Values())
                     {
                         if (item.IsStream())
                         {
+                            // Check if the object is a PdfStream and contains the key "Interpolate".
                             PdfStream pdfStream = (PdfStream)item;
                             if (pdfStream.ContainsKey(PdfName.Interpolate))
                             {
+                                // Remove the "Interpolate" key from the object.
                                 pdfStream.Remove(PdfName.Interpolate);
                                 editedPages.Add(pageNum);
                             }
@@ -451,6 +466,7 @@ namespace ConversionTools.Converters
                 // Handle any exceptions during processing.
                 Console.WriteLine($"Unable to process file: {filename}. Exception: {e}");
             }
+            // Log the pages where interpolation was removed.
             if(editedPages.Count > 0)
             { 
                 string pageList = string.Join(", ", editedPages.Distinct().ToList());
@@ -467,26 +483,30 @@ namespace ConversionTools.Converters
         {
             try
             {
+                // Get the pdf version and the pdf-a conformance level
                 PdfVersion pdfVersion = GetPDFVersion(file.Route.First());
                 PdfAConformanceLevel? conformanceLevel = GetPdfAConformanceLevel(file.Route.First());
+                // If the file should be converted to PDF/A, convert it
                 if (conformanceLevel != null)
                 {
                     ConvertFromPDFToPDFA(file, conformanceLevel);
                     return;
                 }
-
+                // Create a temporary file name
                 string tmpFilename = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_TEMP.pdf");
                 string filename = Path.Combine(file.FilePath);
                 int count = 0;
                 bool converted = false;
                 do
                 {
+                    // Create a new PDF file
                     using (PdfWriter writer = new PdfWriter(tmpFilename, new WriterProperties().SetPdfVersion(pdfVersion))) // Create PdfWriter instance
                     using (PdfDocument pdfDocument = new PdfDocument(writer))
                     using (PdfReader reader = new PdfReader(filename))
                     {
                         PdfDocument sourceDoc = new PdfDocument(reader);
                         pdfDocument.SetTagged();
+                        // Copy each page from the original PDF to the new PDF
                         for (int pageNum = 1; pageNum <= sourceDoc.GetNumberOfPages(); pageNum++)
                         {
                             PdfPage sourcePage = sourceDoc.GetPage(pageNum);
@@ -496,12 +516,15 @@ namespace ConversionTools.Converters
                             canvas.AddXObject(pageCopy);
                         }
                     }
+                    // Check if the file was converted
                     converted = CheckConversionStatus(tmpFilename, file.TargetPronom);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
+                // If the file was not converted, set the file as failed
                 if (!converted)
                 {
                     file.Failed = true;
                 }
+                // If the file was converted, replace the old file with the new one
                 else
                 {
                     //Remove old file and replace with new
@@ -524,6 +547,7 @@ namespace ConversionTools.Converters
         /// <param name="pronom">The file format to convert to</param>
         public override void CombineFiles(List<FileInfo2> files, string pronom)
         {
+            // Check if there are any files to merge
             if (files == null || files.Count == 0)
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Files sent to iText7 to be combined, but no files found.", true);

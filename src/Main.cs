@@ -110,10 +110,12 @@ namespace FileConverter
 		/// <param name="exitCode">Exit code to return</param>
 		private static void ExitProgram(int exitCode)
 		{
+			//Delete temporary colour files if they exist
 			if (Directory.Exists("ICCFiles"))
 			{
 				Directory.Delete("ICCFiles", true);
 			}
+			//Skip waiting for key press if AcceptAll is set
 			if (!GlobalVariables.ParsedOptions.AcceptAll)
 			{
 				Console.WriteLine("Press any key to exit...");
