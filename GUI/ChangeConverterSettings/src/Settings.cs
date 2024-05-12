@@ -227,7 +227,7 @@ class Settings
             DoNotConvert = doNotConvert == "YES",
             FormatName = formatName,
         };
-        // Add the beginning and end of routes for the file type
+
         GlobalVariables.FileSettings.Add(ConversionSettings);
     }
 
