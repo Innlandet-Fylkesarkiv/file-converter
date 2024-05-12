@@ -24,18 +24,18 @@ namespace ChangeConverterSettings
     /// </summary>
     public static class GlobalVariables
     {
-        public static string? Input = null;
-        public static string? Output = null;
+        public static string Input = "";
+        public static string Output = "";
         //List of all settingsdata
         public static List <SettingsData> FileSettings = new List<SettingsData>();
         // Map with info about what folders have overrides for specific formats
         public static Dictionary<string, SettingsData> FolderOverride = new Dictionary<string, SettingsData>(); // the key is a foldername
-        public static int? maxThreads = null;
-        public static string? checksumHash = null;
-        public static string? requester = null;
-        public static string? converter = null;
-        public static string? timeout = null;
-        public static string? maxFileSize = (1 * 1024).ToString();
+        public static int maxThreads = Environment.ProcessorCount * 2;
+        public static string checksumHash = "SHA256";
+        public static string requester = "";
+        public static string converter = "";
+        public static int timeout = 5;
+        public static long maxFileSize = (1 * 1024);
 
         public static string defaultText = "Default";
         public static List<string> supportedHashes = new List<string> { "MD5", "SHA256" };
@@ -144,23 +144,23 @@ namespace ChangeConverterSettings
             if (threadsTextBox != null && int.TryParse(threadsTextBox.Text, out _))
                 GlobalVariables.maxThreads = int.Parse(threadsTextBox.Text);
             else if (threadsTextBox != null && String.IsNullOrEmpty(threadsTextBox.Text))
-                GlobalVariables.maxThreads = null;
+                GlobalVariables.maxThreads = Environment.ProcessorCount * 2;
             ComboBox? checksumComboBox = this.FindControl<ComboBox>("Checksum");
             if (checksumComboBox != null && checksumComboBox.SelectedItem != null)
                 GlobalVariables.checksumHash = checksumComboBox.SelectedItem.ToString();
             TextBox? timeoutTextBox = this.FindControl<TextBox>("Timeout");
-            if (timeoutTextBox != null)
-                GlobalVariables.timeout = timeoutTextBox.Text;
+            if (timeoutTextBox != null && timeoutTextBox.Text != null)
+                if (!int.TryParse(timeoutTextBox.Text, out GlobalVariables.timeout)) { GlobalVariables.timeout = 5; }
             TextBox? maxFileSizeTextBox = this.FindControl<TextBox>("MaxFileSize");
             if (maxFileSizeTextBox != null)
             {
                 if (long.TryParse(maxFileSizeTextBox.Text, out long fileSize))
                 {
                     fileSize = fileSize * 1024 * 1024;
-                    GlobalVariables.maxFileSize = fileSize.ToString();
+                    GlobalVariables.maxFileSize = fileSize;
                 } else
                 {
-                    GlobalVariables.maxFileSize = "";
+                    GlobalVariables.maxFileSize = 1024 * 1024;
                 }
             }
 
@@ -226,11 +226,11 @@ namespace ChangeConverterSettings
                 threadsTextBox.Text = GlobalVariables.maxThreads.ToString();
             TextBox? timeoutTextBox = this.FindControl<TextBox>("Timeout");
             if (timeoutTextBox != null)
-                timeoutTextBox.Text = GlobalVariables.timeout;
+                timeoutTextBox.Text = GlobalVariables.timeout.ToString();
             TextBox? maxFileSizeTextBox = this.FindControl<TextBox>("MaxFileSize");
             if (maxFileSizeTextBox != null)
             {
-                maxFileSizeTextBox.Text = GlobalVariables.maxFileSize;
+                maxFileSizeTextBox.Text = GlobalVariables.maxFileSize.ToString();
             }
 
             // Fills the checksum ComboBox with values from the settings file

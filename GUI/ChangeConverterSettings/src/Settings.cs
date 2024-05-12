@@ -6,6 +6,7 @@ using System;
 using System.Xml;
 using ChangeConverterSettings;
 using System.Linq;
+using Avalonia.Controls;
 
 /// <summary>
 /// Class to hold information about the settings of one file type
@@ -31,6 +32,8 @@ class Settings
 {
     private static Settings? instance;
     private static readonly object lockObject = new object();
+    internal static readonly char[] separator = [','];
+
     /// <summary>
     /// Makes sure that only one instance of the settings is created
     /// </summary>
@@ -50,7 +53,7 @@ class Settings
             }
             return instance;
         }
-    }
+    }    
 
     /// <summary>
     /// Run all the methods to read the settings from the settings file
@@ -80,64 +83,8 @@ class Settings
             // Access the root element
             XmlNode? root = xmlDoc.SelectSingleNode("/root");
             if (root == null) { logger.SetUpRunTimeLogMessage("Could not find root", true, filename: pathToSettings); return; }
-            // Access the Meta elements
-            XmlNode? requesterNode = root?.SelectSingleNode("Requester");
-            XmlNode? converterNode = root?.SelectSingleNode("Converter");
-            XmlNode? inputNode = root?.SelectSingleNode("InputFolder");
-            XmlNode? outputNode = root?.SelectSingleNode("OutputFolder");
-            XmlNode? maxThreadsNode = root?.SelectSingleNode("MaxThreads");
-            XmlNode? timeout = root?.SelectSingleNode("Timeout");
-            XmlNode? maxFileSize = root?.SelectSingleNode("MaxFileSize");
-
-            string? requester = requesterNode?.InnerText.Trim();
-            string? converter = converterNode?.InnerText.Trim();
-            if (!String.IsNullOrEmpty(requester))
-            {
-                GlobalVariables.requester = requester;
-            }
-            if (!String.IsNullOrEmpty(converter))
-            {
-                GlobalVariables.converter = converter;
-            }
-            string? input = inputNode?.InnerText.Trim();
-            string? output = outputNode?.InnerText.Trim();
-            if (!String.IsNullOrEmpty(input))
-            {
-                GlobalVariables.Input = input;
-            }
-            if (!String.IsNullOrEmpty(output))
-            {
-                GlobalVariables.Output = output;
-            }
-            string? inputMaxThreads = maxThreadsNode?.InnerText;
-            if (!String.IsNullOrEmpty(inputMaxThreads) && int.TryParse(inputMaxThreads, out int maxThreads))
-            {
-                GlobalVariables.maxThreads = maxThreads;
-            }
-            string? checksumHashing = root?.SelectSingleNode("ChecksumHashing")?.InnerText;
-            if (checksumHashing != null)
-            {
-                checksumHashing = checksumHashing.ToUpper().Trim();
-                switch (checksumHashing)
-                {
-                    case "MD5": GlobalVariables.checksumHash = "MD5"; break;
-                    default: GlobalVariables.checksumHash = "SHA256"; break;
-                }
-            }
-            string? timeoutString = timeout?.InnerText;
-            if (!String.IsNullOrEmpty(timeoutString))
-            {
-                GlobalVariables.timeout = timeoutString;
-            }
-            string? maxFileSizeString = maxFileSize?.InnerText;
-            if (!String.IsNullOrEmpty(maxFileSizeString))
-            {
-                if (long.TryParse(maxFileSizeString, out long fileSize))
-                {
-                    fileSize = fileSize / 1024 / 1024;
-                    GlobalVariables.maxFileSize = fileSize.ToString();
-                }
-            }
+            
+            SetUpMetadata(root);
 
             // Access elements and attributes
             XmlNodeList? classNodes = root?.SelectNodes("FileClass");
@@ -149,53 +96,18 @@ class Settings
 
                 if (defaultType == null)
                 {
-                    //TODO: This should not be thrown, but rather ask the user for a default type
-                    throw new Exception("No default type found in settings");
+                    defaultType = "fmt/477"; // Default to PDF/A-2b
                 }
                 XmlNodeList? fileTypeNodes = classNode?.SelectNodes("FileTypes");
-                if (fileTypeNodes != null)
+                if (fileTypeNodes == null)
                 {
-                    foreach (XmlNode fileTypeNode in fileTypeNodes)
-                    {
-                        string? extension = fileTypeNode.SelectSingleNode("Filename")?.InnerText;
-                        string? pronoms = fileTypeNode.SelectSingleNode("Pronoms")?.InnerText;
-                        string? innerDefault = fileTypeNode.SelectSingleNode("Default")?.InnerText;
-                        string? doNotConvert = fileTypeNode.SelectSingleNode("DoNotConvert")?.InnerText.ToUpper().Trim();
-                        //string outerdefault = defaultType;
-                        if (String.IsNullOrEmpty(innerDefault))
-                        {
-                            innerDefault = defaultType;
-                        }
-                        if(String.IsNullOrEmpty(extension))
-                        {
-                            logger.SetUpRunTimeLogMessage("Could not find fileName in settings", true);
-                            extension = "unknown";
-                        }
-                        // Remove whitespace and split pronoms string by commas into a list of strings
-                        List<string> pronomsList = new List<string>();
-                        if (!string.IsNullOrEmpty(pronoms))
-                        {
-                            pronomsList.AddRange(pronoms.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                                         .Select(pronom => pronom.Trim()));
-                        }
-                        SettingsData settings = new SettingsData
-                        {
-                            PronomsList = pronomsList,
-                            DefaultType = innerDefault,
-                            FormatName = extension,
-                            ClassName = className ?? "unknown",
-                            ClassDefault = defaultType,
-                            DoNotConvert = doNotConvert == "YES",
-                        };
-                        if (settings.PronomsList.Count > 0)
-                        {
-                            GlobalVariables.FileSettings.Add(settings);
-                        }
-                        else
-                        {
-                            logger.SetUpRunTimeLogMessage("Could not find any pronoms to convert to " + extension, true);
-                        }
-                    }
+                    logger.SetUpRunTimeLogMessage("Could not find any fileTypeNodes", true);
+                    continue;
+                }
+
+                foreach (XmlNode fileTypeNode in fileTypeNodes)
+                {
+                    HandleFileTypeNode(fileTypeNode, defaultType, className);
                 }
             }
         }
@@ -203,6 +115,116 @@ class Settings
         {
             logger.SetUpRunTimeLogMessage(ex.Message, true);
         }
+    }
+
+    /// <summary>
+    /// Sets up global variables from the ConversionSettings file
+    /// </summary>
+    /// <param name="root">Root node in settings file</param>
+    private static void SetUpMetadata(XmlNode root)
+    {
+        XmlNode? requesterNode = root.SelectSingleNode("Requester");
+        XmlNode? converterNode = root.SelectSingleNode("Converter");
+        XmlNode? inputNode = root.SelectSingleNode("InputFolder");
+        XmlNode? outputNode = root.SelectSingleNode("OutputFolder");
+        XmlNode? maxThreadsNode = root.SelectSingleNode("MaxThreads");
+        XmlNode? timeoutNode = root.SelectSingleNode("Timeout");
+        XmlNode? maxFileSizeNode = root.SelectSingleNode("MaxFileSize");
+
+        string? requester = requesterNode?.InnerText.Trim();
+        string? converter = converterNode?.InnerText.Trim();
+        if (!String.IsNullOrEmpty(requester))
+        {
+            GlobalVariables.requester = requester;
+        }
+        if (!String.IsNullOrEmpty(converter))
+        {
+            GlobalVariables.converter = converter;
+        }
+        string? input = inputNode?.InnerText.Trim();
+        string? output = outputNode?.InnerText.Trim();
+        if (!String.IsNullOrEmpty(input))
+        {
+            GlobalVariables.Input = input;
+        }
+        if (!String.IsNullOrEmpty(output))
+        {
+            GlobalVariables.Output = output;
+        }
+
+        string? inputMaxThreads = maxThreadsNode?.InnerText;
+        if (!String.IsNullOrEmpty(inputMaxThreads) && int.TryParse(inputMaxThreads, out int maxThreads))
+        {
+            GlobalVariables.maxThreads = maxThreads;
+        }
+
+        string? inputTimeout = timeoutNode?.InnerText;
+        if (!String.IsNullOrEmpty(inputTimeout) && int.TryParse(inputTimeout, out int timeout))
+        {
+            GlobalVariables.timeout = timeout;
+        }
+
+        string? maxFileSizeString = maxFileSizeNode?.InnerText;
+        if (!String.IsNullOrEmpty(maxFileSizeString))
+        {
+            if (long.TryParse(maxFileSizeString, out long fileSize))
+            {
+                fileSize = fileSize / 1024 / 1024;
+                GlobalVariables.maxFileSize = fileSize;
+            }
+        }
+
+        string? checksumHashing = root?.SelectSingleNode("ChecksumHashing")?.InnerText;
+        if (checksumHashing != null)
+        {
+            checksumHashing = checksumHashing.ToUpper().Trim();
+            GlobalVariables.checksumHash = checksumHashing switch
+            {
+                "MD5" => "MD5",
+                _ => "SHA256",
+            };
+        }
+    }
+
+    /// <summary>
+    /// Handles a FileType node from the ConversionSettings file
+    /// </summary>
+    /// <param name="fileTypeNode">Node that should be parsed</param>
+    /// <param name="defaultType">default type for FileClass</param>
+    /// <param name="className">name of the FileClass</param>
+    static void HandleFileTypeNode(XmlNode fileTypeNode, string defaultType, string className)
+    {
+        string? pronoms = fileTypeNode.SelectSingleNode("Pronoms")?.InnerText;
+        string? innerDefault = fileTypeNode.SelectSingleNode("Default")?.InnerText;
+        string? doNotConvert = fileTypeNode.SelectSingleNode("DoNotConvert")?.InnerText.ToUpper().Trim();
+        string? formatName = fileTypeNode.SelectSingleNode("Filename")?.InnerText;
+        if (String.IsNullOrEmpty(innerDefault))
+        {
+            innerDefault = defaultType;
+        }
+        if (String.IsNullOrEmpty(formatName))
+        {
+            return;
+        }
+
+        // Remove whitespace and split pronoms string by commas into a list of strings
+        List<string> pronomsList = [];
+        if (!string.IsNullOrEmpty(pronoms))
+        {
+            pronomsList.AddRange(pronoms.Split(separator, StringSplitOptions.RemoveEmptyEntries)
+                                         .Select(pronom => pronom.Trim()));
+        }
+        SettingsData ConversionSettings = new SettingsData
+        {
+            PronomsList = pronomsList,
+            DefaultType = innerDefault,
+            ClassDefault = defaultType,
+            ClassName = className,
+            DoNotConvert = doNotConvert == "YES",
+            FormatName = formatName,
+        };
+        // Add the beginning and end of routes for the file type
+        GlobalVariables.FileSettings.Add(ConversionSettings);
     }
 
     /// <summary>
@@ -226,47 +248,7 @@ class Settings
             {
                 foreach (XmlNode folderOverrideNode in folderOverrideNodes)
                 {
-                    string? folderPath = folderOverrideNode.SelectSingleNode("FolderPath")?.InnerText;
-                    string? pronoms = folderOverrideNode.SelectSingleNode("Pronoms")?.InnerText;
-                    string? merge = folderOverrideNode.SelectSingleNode("MergeImages")?.InnerText.ToUpper().Trim();
-
-                    List<string> pronomsList = new List<string>();
-                    if (!string.IsNullOrEmpty(pronoms))
-                    {
-                        pronomsList.AddRange(pronoms.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                                     .Select(pronom => pronom.Trim()));
-                    }
-
-                    string? convertTo = folderOverrideNode.SelectSingleNode("ConvertTo")?.InnerText;
-                    if (string.IsNullOrEmpty(convertTo))
-                    {
-                        logger.SetUpRunTimeLogMessage("Could not find convertTo in settings", true);
-                        convertTo = "unknown";
-                    }
-
-                    SettingsData settings = new SettingsData
-                    {
-                        PronomsList = pronomsList,
-                        DefaultType = convertTo,
-                        Merge = merge == "YES",
-                    };
-
-                    bool folderPathEmpty = String.IsNullOrEmpty(folderPath);
-                    bool pronomsEmpty = String.IsNullOrEmpty(pronoms);
-                    bool convertToEmpty = String.IsNullOrEmpty(settings.DefaultType);
-
-                    if (folderPathEmpty || pronomsEmpty || convertToEmpty)
-                    {
-                        logger.SetUpRunTimeLogMessage("something wrong with a folderOverride in settings", true);
-                    }
-                    else
-                    {
-                        string path = Path.Combine(GlobalVariables.Input,folderPath);
-                        if (Directory.Exists(GlobalVariables.Input+"/"+folderPath))
-                        {
-                            GlobalVariables.FolderOverride[folderPath] = settings;
-                        }
-                    }
+                    HandleFolderOverrideNode(folderOverrideNode);
                 }
             }
         }
@@ -275,7 +257,89 @@ class Settings
             logger.SetUpRunTimeLogMessage(ex.Message, true);
         }
     }
-    
+
+    /// <summary>
+    /// Tries to parse a FolderOverride node and add it to the FolderOverride dictionary
+    /// </summary>
+    /// <param name="folderOverrideNode">The node that should be parsed</param>
+    private static void HandleFolderOverrideNode(XmlNode folderOverrideNode)
+    {
+        string? folderPath = folderOverrideNode.SelectSingleNode("FolderPath")?.InnerText;
+        string? pronoms = folderOverrideNode.SelectSingleNode("Pronoms")?.InnerText;
+        string? merge = folderOverrideNode.SelectSingleNode("MergeImages")?.InnerText.ToUpper().Trim();
+        string inputFolder = GlobalVariables.Input;
+
+        List<string> pronomsList = new List<string>();
+        if (!string.IsNullOrEmpty(pronoms))
+        {
+            pronomsList.AddRange(pronoms.Split(separator, StringSplitOptions.RemoveEmptyEntries)
+                                            .Select(pronom => pronom.Trim()));
+        }
+
+        SettingsData ConversionSettings = new SettingsData
+        {
+            PronomsList = pronomsList,
+            DefaultType = folderOverrideNode.SelectSingleNode("ConvertTo")?.InnerText ?? "",
+            Merge = merge == "YES",
+        };
+
+        if (String.IsNullOrEmpty(folderPath) || String.IsNullOrEmpty(pronoms) || String.IsNullOrEmpty(ConversionSettings.DefaultType)
+            || !Directory.Exists(Path.Combine(inputFolder, folderPath)))
+        {
+            Logger.Instance.SetUpRunTimeLogMessage("something went wrong with parsing a folderOverride in ConversionSettings", true);
+            return;
+        }
+
+        // Ensure that the folder path is valid on all operating systems
+        folderPath = folderPath.Replace('\\', Path.DirectorySeparatorChar);
+        folderPath = folderPath.Replace('/', Path.DirectorySeparatorChar);
+        GlobalVariables.FolderOverride.Add(folderPath, ConversionSettings);
+        List<string> subfolders = GetSubfolderPaths(folderPath);
+
+        foreach (string subfolder in subfolders)
+        {
+            GlobalVariables.FolderOverride.TryAdd(subfolder, ConversionSettings);
+        }
+    }
+
+    /// <summary>
+    /// Recursively retrieves all subfolders of a given parent folder.
+    /// </summary>
+    /// <param name="folderName">the name of the parent folder</param>
+    /// <returns>list with paths to all subfolders</returns>
+    private static List<string> GetSubfolderPaths(string folderName)
+    {
+        string outputPath = GlobalVariables.Output;
+        List<string> subfolders = [];
+
+        try
+        {
+            string targetFolderPath = Path.Combine(outputPath, folderName);
+
+            if (Directory.Exists(targetFolderPath))
+            {
+                // Add immediate subfolders
+                foreach (string subfolder in Directory.GetDirectories(targetFolderPath))
+                {
+                    // Recursively get subfolders of each subfolder
+                    subfolders.AddRange(GetSubfolderPaths(Path.Combine(folderName, Path.GetFileName(subfolder))));
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Folder '{folderName}' does not exist in '{outputPath}'");
+                Logger.Instance.SetUpRunTimeLogMessage($"Folder '{folderName}' does not exist in '{outputPath}'", true, filename: folderName);
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Logger.Instance.SetUpRunTimeLogMessage("You do not have permission to access this folder", true, filename: outputPath);
+        }
+
+        return subfolders;
+    }
+
+
     /// <summary>
     /// Sets up and writes the xml file with the settings
     /// </summary>
@@ -296,8 +360,8 @@ class Settings
         AddXmlElement(xmlDoc, root, "OutputFolder", GlobalVariables.Output);
         AddXmlElement(xmlDoc, root, "MaxThreads", GlobalVariables.maxThreads.ToString());
         AddXmlElement(xmlDoc, root, "ChecksumHashing", GlobalVariables.checksumHash);
-        AddXmlElement(xmlDoc, root, "Timeout", GlobalVariables.timeout);
-        AddXmlElement(xmlDoc, root, "MaxFileSize", GlobalVariables.maxFileSize);
+        AddXmlElement(xmlDoc, root, "Timeout", GlobalVariables.timeout.ToString());
+        AddXmlElement(xmlDoc, root, "MaxFileSize", GlobalVariables.maxFileSize.ToString());
 
         GlobalVariables.FileSettings = GlobalVariables.FileSettings
             .OrderBy(x => x.ClassName)  // Sort by ClassName first
