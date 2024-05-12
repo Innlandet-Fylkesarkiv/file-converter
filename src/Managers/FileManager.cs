@@ -333,37 +333,6 @@ namespace FileConverter.Managers
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public void TestDuplicateFilenames()
-        {
-            var dict = new Dictionary<string, List<FileInfo2>>();
-            foreach (var file in Files.Values)
-            {
-                var key = Path.GetFileName(file.FilePath);
-                if (dict.TryGetValue(key, out var fileList))
-                {
-                    fileList.Add(file);
-                }
-                else
-                {
-                    dict[key] = new List<FileInfo2> { file };
-                }
-            }
-            foreach (var entry in dict)
-            {
-                if (entry.Value.Count > 1)
-                {
-                    foreach (var file in entry.Value)
-                    {
-                        Console.WriteLine("{0,50} | {1,80}", entry.Key, file.FilePath);
-                    }
-                    Console.WriteLine();
-                }
-            }
-        }
-
-        /// <summary>
         /// Displays a list of all identified input file formats and target file formats with pronom codes and full name.
         /// </summary>
         public void DisplayFileList()

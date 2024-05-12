@@ -177,25 +177,6 @@ namespace FileConverter.Siegfried
             }
         }
 
-        public void AskReadFiles()
-        {
-            //Check if json files exist
-            if (Directory.Exists(OutputFolder) && Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories).Length > 0)
-            {
-                char input;
-                do
-                {
-                    Console.Write("Siegfried data found, do you want to parse it? (Y/N): ");
-                    input = char.ToUpper(Console.ReadKey().KeyChar);
-                } while (input != 'Y' && input != 'N');
-                Console.WriteLine();
-                if (input == 'Y')
-                {
-                    ReadFromFiles();
-                }
-            }
-        }
-
         /// <summary>
         /// Clears the Siegfried output folder
         /// </summary>
@@ -232,33 +213,11 @@ namespace FileConverter.Siegfried
         }
 
         /// <summary>
-        /// Reads the JSON output files and adds the data to the Siegfried object
+        /// Retrieves the third element in the call stack for the method that called this method
         /// </summary>
-        private void ReadFromFiles()
-        {
-            var paths = Directory.GetFiles(OutputFolder, "*.*", SearchOption.AllDirectories);
-            using (ProgressBar progressBar = new ProgressBar(paths.Length))
-            {
-                for (int i = 0; i < paths.Length; i++)
-                {
-                    var parsedData = ParseJSONOutput(paths[i], true);
-                    if (parsedData == null)
-                        return;
-
-                    if (Version == null || ScanDate == null)
-                    {
-                        Version = parsedData.siegfriedVersion;
-                        ScanDate = parsedData.scandate;
-                    }
-
-                    foreach (var f in parsedData.files)
-                    {
-                        Files.Add(new FileInfo2(f));
-                    }
-                }
-            }
-        }
-        private static String? RetrieveCallerMethod(StackTrace stackTrace)
+        /// <param name="stackTrace">Stack trace from the method that calls this method</param>
+        /// <returns>String containing third element in call stack or null</returns>
+        private static string? RetrieveCallerMethod(StackTrace stackTrace)
         {
             // Get the frame of the method that called MethodA
             StackFrame? callerFrame = stackTrace.GetFrame(2); // Index 2 represents 2 steps up in the callstack frame
