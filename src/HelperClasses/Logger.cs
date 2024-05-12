@@ -108,12 +108,14 @@ namespace FileConverter.HelperClasses
 					break;
 			}
 
+			// Create directory for log files if not present
 			if (!Directory.Exists(path))
 			{
 				Directory.CreateDirectory(path);
 			}
 			DateTime currentDateTime = DateTime.Now;
 			string formattedDateTime = currentDateTime.ToString("yyyy-MM-dd HHmmss");
+			// Set path to logfile with current date and time
 			path += "/";
 			LogPath = path + "log " + formattedDateTime + ".txt";
 			// Write the specified text asynchronously to a new file.
@@ -124,7 +126,7 @@ namespace FileConverter.HelperClasses
 		}
 
 		/// <summary>
-		/// Makes sure that only one instance of the logger is created
+		/// Makes sure that only one instance of the logger is created using the singleton pattern
 		/// </summary>
 		public static Logger Instance
 		{
@@ -151,6 +153,7 @@ namespace FileConverter.HelperClasses
 		/// <param name="filepath"> The filepath to the logfile </param>
 		static private void WriteLog(string message, string filepath)
 		{
+			// Make sure not two threads try to write to the logfile concurrently
 			lock (LockObject)
 			{
 				// https://learn.microsoft.com/en-us/dotnet/standard/io/how-to-write-text-to-a-file    
@@ -322,6 +325,7 @@ namespace FileConverter.HelperClasses
 			string person = Requester ? "requester" : "converter";
 			string requesterOrConverter;
             string user = Environment.UserName;
+
             if (OperatingSystem.IsWindows())
             {
                 user = UserPrincipal.Current.DisplayName;

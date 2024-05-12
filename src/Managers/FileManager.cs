@@ -6,6 +6,10 @@ using SF = FileConverter.Siegfried;
 
 namespace FileConverter.Managers
 {
+    /// <summary>
+    /// FileManager is the class responsible for all the main operations related to working with the files. 
+    /// For example identify files, import files, checking for naming conflicts, removing duplicates etc...
+    /// </summary>
     public class FileManager
     {
         private static FileManager? instance;
@@ -74,7 +78,7 @@ namespace FileConverter.Managers
 
                 //Identifying all compressed files
                 List<FileInfo2>? compressedFiles = sf2.IdentifyCompressedFiles();
-
+                // Loop through compressed files and add them to the main list of files
                 foreach (var file in compressedFiles)
                 {
                     Guid id = Guid.NewGuid();
@@ -131,9 +135,9 @@ namespace FileConverter.Managers
         }
 
         /// <summary>
-        /// 
+        /// Adds the sent as parameter to the list of files in FileManager
         /// </summary>
-        /// <param name="files"></param>
+        /// <param name="files">List of identifed fils to be added to the list of files </param>
         public void ImportCompressedFiles(List<FileInfo2> files)
         {
             try
@@ -299,7 +303,6 @@ namespace FileConverter.Managers
             Guid id = Guid.NewGuid();
             file.Id = id;
             Files.TryAdd(id, file);
-            
         }
 
         /// <summary>

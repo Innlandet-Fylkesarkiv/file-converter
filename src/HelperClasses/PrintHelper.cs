@@ -1,5 +1,8 @@
 ﻿namespace FileConverter.HelperClasses
 {
+    /// <summary>
+    /// Functions that make printing out text to the console better formatted 
+    /// </summary>
     static class PrintHelper
     {
         public static ConsoleColor OldCol { get; set; }

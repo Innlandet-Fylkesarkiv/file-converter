@@ -37,7 +37,7 @@
         {
             FileConversionSettings.Clear();
             FolderOverride.Clear();
-            //Set to default values (will be overwritten in ConversionSettings.cs if specified by user)
+            // Set to default values (will be overwritten in ConversionSettings.cs if specified by user)
             ChecksumHash = HashAlgorithms.SHA256;
             MaxThreads = Environment.ProcessorCount * 2;
             Timeout = 5;

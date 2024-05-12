@@ -179,6 +179,7 @@ namespace ConversionTools.Converters
                 // pronomList becomes a reference to the list with the emlpronom key if found
                 if (!supportedConversions.TryGetValue(emlPronom, out var pronomList))
                 {
+                    // Otherwise create a new entry in the dictionary
                     pronomList = new List<string>();
                     supportedConversions[emlPronom] = pronomList;
                 }
@@ -217,7 +218,7 @@ namespace ConversionTools.Converters
         {
             Version = "'EML to PDF - 2.6.0'";
 
-            // Get correct path to email converter relative to the workign directory
+            // Get correct path to email converter relative to the working directory
             string relativeJarPathWindows = ".\\src\\ConversionTools\\emailconverter-2.6.0-all.jar";
             string relativeJarPathLinux = "./src/ConversionTools/emailconverter-2.6.0-all.jar";
             string jarFile = Environment.OSVersion.Platform == PlatformID.Unix ? Path.Combine(workingDirectory + relativeJarPathLinux)
@@ -271,23 +272,26 @@ namespace ConversionTools.Converters
         /// <param name="folderWithAttachments"> the folder containing the attachments </param>
         public async Task AddAttachementFilesToWorkingSet(string folderWithAttachments)
         {
+            // Identify files in the new attachement folder
             List<FileInfo2>? attachementFiles = await SF.Siegfried.Instance.IdentifyFilesIndividually(folderWithAttachments)!;
+
             foreach (FileInfo2 newFile in attachementFiles)
             {
+
                 Guid id = Guid.NewGuid();
                 newFile.Id = id;
                 var newFileToConvert = new FileToConvert(newFile);
                 newFileToConvert.TargetPronom = FileConverter.ConversionSettings.GetTargetPronom(newFile)!;
                 newFile.AddConversionTool(NameAndVersion);
 
-                //Use current and target pronom to create a key for the conversion map
+                // Use current and target pronom to create a key for the conversion map
                 var key = new KeyValuePair<string, string>(newFileToConvert.CurrentPronom, newFileToConvert.TargetPronom);
-                //If the conversion map contains the key, set the route to the value of the key
+                // If the conversion map contains the key, set the route to the value of the key
                 if (ConversionManager.Instance.ConversionMap.TryGetValue(key, out var route))
                 {
                     newFileToConvert.Route = new List<string>(route);
                 }
-                //If the conversion map does not contain the key, set the route to the target pronom
+                // If the conversion map does not contain the key, set the route to the target pronom
                 else if (newFileToConvert.CurrentPronom != newFileToConvert.TargetPronom)
                 {
                     newFileToConvert.Route.Add(newFileToConvert.TargetPronom);
@@ -296,6 +300,7 @@ namespace ConversionTools.Converters
                 {
                     continue;
                 }
+                // set the remaining necessary properties for the files and ad them to the working set, FileInfoMap and Files
                 newFile.Route = newFileToConvert.Route;
                 newFileToConvert.addedDuringRun = true;
                 ConversionManager.Instance.WorkingSet.TryAdd(id, newFileToConvert);
@@ -305,7 +310,7 @@ namespace ConversionTools.Converters
         }
 
         /// <summary>
-        /// Checks if the dependencies for the converter exists
+        /// Checks if the necessary dependencies for the email converter exists
         /// </summary>
         /// <returns> true if it found them </returns>
         private bool CheckDependencies()

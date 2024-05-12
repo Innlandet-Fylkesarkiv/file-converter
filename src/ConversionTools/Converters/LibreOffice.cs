@@ -22,12 +22,16 @@ using FileConverter.HelperClasses;
 /// 
 namespace ConversionTools.Converters
 {
+	/// <summary>
+	/// Converter responsible for converting all Office Documents 
+	/// </summary>
     public class LibreOfficeConverter : Converter
 	{
 		readonly Logger log = Logger.Instance;
 		private static readonly object locker = new object();
 		readonly OperatingSystem currentOS;
 		bool iTextFound = false;
+		// Paths to LibreOffice program
 		readonly string sofficePathLinux = "/usr/lib/libreoffice/program/soffice";
 		readonly string sofficePathWindows = "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
 
@@ -55,9 +59,11 @@ namespace ConversionTools.Converters
 
 			try
 			{
+				// Get path to executable depending on OS
 				string sofficePath = Environment.OSVersion.Platform == PlatformID.Unix ? sofficePathLinux : sofficePathWindows;
 				if (!string.IsNullOrEmpty(sofficePath))
 				{
+					// Executable existed, get the version
 					FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(sofficePath);
 					if (fileVersionInfo != null)
 					{
@@ -140,8 +146,10 @@ namespace ConversionTools.Converters
         {
             var supportedConversions = new Dictionary<string, List<string>>();
 
+			// Removes PDFA pronoms if IText7 converter is not present 
             CheckAndRemovePDFAPronoms();
 
+			// Adds the supportd conversions for the converter
             AddConversionsForMultipleFormats(supportedConversions);
 
             return supportedConversions;
@@ -152,6 +160,7 @@ namespace ConversionTools.Converters
 		/// </summary>
         private void CheckAndRemovePDFAPronoms()
         {
+			// Check if IText7 converter exists
             var converters = AddConverters.Instance.GetConverters();
             iTextFound = converters.Any(converter => converter.Name == new IText7().Name);
 
@@ -197,7 +206,8 @@ namespace ConversionTools.Converters
         }
 
         /// <summary>
-        /// Adds the conversions to the supported conversions list
+        /// Adds the conversions to the supported conversions list. 
+		/// Add additional target formats as parameters if you want to add more conversion options, but check allowed Conversion in readme file first.
         /// </summary>
         /// <param name="sourceFormats"> the format that is upporting the conversions to the targets </param>
         /// <param name="targetFormats1"> target format 1 </param>
@@ -206,14 +216,17 @@ namespace ConversionTools.Converters
         /// <param name="supportedConversions"> The dictionary where the supported conversions are saved to </param>
         static private void AddConversions(List<string> sourceFormats, List<string> targetFormats1, List<string> targetFormats2, List<string> targetFormats3, Dictionary<string, List<string>> supportedConversions)
         {
+			// Loop through every pronom code in the sourceFormats and add the targetForats 
             foreach (string sourceFormat in sourceFormats)
             {
+				// If sourceFormat is not already a key in the dictionary create a new key with empty list as value
                 if (!supportedConversions.TryGetValue(sourceFormat, out var pronomList))
                 {
                     pronomList = new List<string>();
                     supportedConversions[sourceFormat] = pronomList;
                 }
 
+				// Add all targetFormats for the specified source format
                 if (targetFormats1.Count > 0)
                 {
                     pronomList.AddRange(targetFormats1);
@@ -232,7 +245,7 @@ namespace ConversionTools.Converters
         /// <summary>
         /// Get a dictionary of all conversions that blocks multithreading
         /// </summary>
-        /// <returns> the list </returns>
+        /// <returns> the list of covnersions that can not run in parallell </returns>
         public override Dictionary<string, List<string>> GetListOfBlockingConversions()
 		{
 			// LibreOffice blocks all conversions
@@ -258,9 +271,10 @@ namespace ConversionTools.Converters
 				string newFileName = Path.Combine(destinationPdfFolder, Path.GetFileNameWithoutExtension(sourceDoc) + "." + extention);
 				do
 				{
+					// create process to run LibreOffice conversion
 					using (Process process = new Process())
 					{
-						// Set the correct properties for the process thta will run libreoffice
+						// Set the correct properties for the process that will run libreoffice
 						process.StartInfo.FileName = GetPlatformExecutionFile();
 						process.StartInfo.WorkingDirectory = Directory.GetCurrentDirectory();
 
@@ -274,39 +288,22 @@ namespace ConversionTools.Converters
 
 						process.Start();
 
-						// Get output and potential error
-						string standardOutput = process.StandardOutput.ReadToEnd();
-						string standardError = process.StandardError.ReadToEnd();
-
 						process.WaitForExit();
-						int exitCode = process.ExitCode;
-
-						if (exitCode != 0)      // Something went wrong, warn the user
-						{
-							Console.WriteLine($"\n Filepath: {sourceDoc} :  Exit Code: {exitCode}\n");
-							Console.WriteLine("Standard Output:\n" + standardOutput);
-							Console.WriteLine("Standard Error:\n" + standardError);
-						}
 					}
 
 					// Set the new filename and check if the document was converted correctly
 					file.FilePath = newFileName;
 					string? currPronom = GetPronom(newFileName);
-					//Convert to another PDF format if LibreOffice's standard output format is not the desired one
+
+					// Convert to another PDF format if LibreOffice's standard output format is not the desired one
 					if (currPronom != null && currPronom != pronom && PDFPronoms.Contains(pronom) && iTextFound)
 					{
 						file.Route.Add(pronom);
-						pronom = currPronom;    //Override target pronom since the final PDF conversion will be done in iText7
+						pronom = currPronom;    // Override target pronom since the final PDF conversion will be done in iText7
 					}
-					converted = CheckConversionStatus(newFileName, pronom);
+					converted = CheckConversionStatus(newFileName, pronom, file);
 				} while (!converted && ++count < GlobalVariables.MAX_RETRIES);
-				if (converted)
-				{
-					// Delete copy in ouputfolder if converted successfully
-					DeleteOriginalFileFromOutputDirectory(sourceDoc);
-					ReplaceFileInList(newFileName, file);
-				}
-				else
+				if (!converted)
 				{
 					file.Failed = true;
 				}
@@ -326,6 +323,7 @@ namespace ConversionTools.Converters
         private string GetSofficePath(bool sofficePath)
 		{
 			string sofficePathString;
+			// Soffice is added as PATH variable
 			if (sofficePath)
 			{
 				sofficePathString = "soffice";

@@ -15,7 +15,6 @@ namespace FileConverter.HelperClasses
     {
         public string FilePath { get; set; } = "";                  // Filepath relative to input directory
         public string OriginalFilePath { get; set; } = "";          // Filename with extension
-        public string ShortFilePath { get; set; } = "";             // Filepath without input/output directory
         public string OriginalPronom { get; set; } = "";            // Original Pronom ID
         public string NewPronom { get; set; } = "";                 // New Pronom ID
         public string OriginalMime { get; set; } = "";              // Original Mime Type
@@ -62,7 +61,7 @@ namespace FileConverter.HelperClasses
         }
 
         /// <summary>
-        /// Standard constructor for FileInfo
+        /// Standard constructor for FileInfo setting the properties based on information identified by SiegFried
         /// </summary>
         /// <param name="siegfriedFile"> struct containg data found by siegfried </param>
         public FileInfo2(SF.SiegfriedFile siegfriedFile)
@@ -78,7 +77,10 @@ namespace FileConverter.HelperClasses
             FilePath = siegfriedFile.filename;
             OriginalChecksum = siegfriedFile.hash;
         }
-
+        /// <summary>
+        /// Identifies the file sent as parameter with SiegFried and then sets the properties
+        /// </summary>
+        /// <param name="f">File to identify with Siegfried</param>
         public FileInfo2(FileToConvert f)
         {
             var result = Siegfried.Siegfried.Instance.IdentifyFile(f.FilePath, true);
@@ -130,6 +132,7 @@ namespace FileConverter.HelperClasses
         {
             try
             {
+                // Avoid naming conflicts
                 if (File.Exists(newName))
                 {
                     File.Delete(newName);

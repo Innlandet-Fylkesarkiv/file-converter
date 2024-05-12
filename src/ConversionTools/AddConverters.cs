@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace ConversionTools
 {
+    /// <summary>
+    /// Class that is responsible for fetching the converters
+    /// </summary>
     class AddConverters
     {
         List<Converter>? Converters = null;
@@ -38,7 +41,7 @@ namespace ConversionTools
         }
     
         /// <summary>
-        /// makes sure that only one instance of the class is created
+        /// makes sure that only one instance of the class is created, following the singleton pattern
         /// </summary>
         public static AddConverters Instance
         {
