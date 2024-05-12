@@ -104,10 +104,15 @@ namespace FileConverter.Managers
 			}
 		}
 
-		/// <summary>
-		/// Removes the entries in the ConversionMap where a part of the route is not supported by any converter present.
-		/// </summary>
-		private void FilterConversionMap()
+        public bool SupportsConversion(string currentPronom, string targetPronom)
+        {
+            return ConversionMap.ContainsKey(new KeyValuePair<string, string>(currentPronom, targetPronom));
+        }
+
+        /// <summary>
+        /// Removes the entries in the ConversionMap where a part of the route is not supported by any converter present.
+        /// </summary>
+        private void FilterConversionMap()
 		{
 			var toDelete = new List<KeyValuePair<string, string>>();
 			Parallel.ForEach(ConversionMap, new ParallelOptions { MaxDegreeOfParallelism = GlobalVariables.MaxThreads }, entry =>
@@ -231,6 +236,8 @@ namespace FileConverter.Managers
 			//Repeat until all files have been converted/checked or there was no change during last run
 			while (!WorkingSet.IsEmpty)
 			{
+				Logger.Instance.SetUpRunTimeLogMessage("Starting new conversion", false);
+
 				ConcurrentDictionary<Guid, CountdownEvent> countdownEvents = new ConcurrentDictionary<Guid, CountdownEvent>();
 				//Reset the working set map for the next run
 				WorkingSetMap.Clear();

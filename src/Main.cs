@@ -50,8 +50,6 @@ namespace FileConverter
 
 			Console.Title = "FileConverter";
 
-			Logger logger = Logger.Instance;
-
 			FileManager fileManager = FileManager.Instance;
 			SF.Siegfried sf = SF.Siegfried.Instance;
 			ReloadPreviousRunOrInitNewFiles();
@@ -90,7 +88,6 @@ namespace FileConverter
 				GetUserInputAndAct(ref input, ref prevInputFolder, conversionSettingsPath);
 			} while (input != 'Y' || fileManager.Files.IsEmpty);
 
-			ConversionManager cm = ConversionManager.Instance;
 			RunConversion();
 			Console.WriteLine("Compressing folders...");
 			sf.CompressFolders();

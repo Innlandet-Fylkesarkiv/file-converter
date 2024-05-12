@@ -27,6 +27,7 @@ namespace FileConverter.HelperClasses
 		private bool disposed = false;
 		private int animationIndex = 0;
 		private readonly int totalJobs = 0;
+		private int percentTenth = 0;
 
 		/// <summary>
 		/// Creates a new progress bar with the total number of items to process.
@@ -74,10 +75,18 @@ namespace FileConverter.HelperClasses
 			lock (lockObject)
 			{
 				if (disposed) return;
-
+				
 				int progressBlockCount = (int)(currentProgress * blockCount);
 				int percent = (int)(currentProgress * 100);
-				string progressBar = string.Format("[{0}{1}] {2,3}% {3} {4}/{5} jobs",
+                Logger logger = Logger.Instance;
+                if (percent / 10 != percentTenth/10)
+				{
+					// Only logs every 10%. This works because of integer division.
+					percentTenth = percent / 10 * 10;
+                    logger.SetUpRunTimeLogMessage("Conversion progress: " + percentTenth + "% done.", false);
+                }
+
+                string progressBar = string.Format("[{0}{1}] {2,3}% {3} {4}/{5} jobs",
 				new string('#', progressBlockCount), new string('-', blockCount - progressBlockCount),
 				percent,
 				animation[animationIndex++ % animation.Length],
