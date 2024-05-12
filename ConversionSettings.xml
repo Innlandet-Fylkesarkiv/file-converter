@@ -1,9 +1,9 @@
 <root>
   <Requester>Larsarn</Requester>
   <Converter>Larsern</Converter>
-  <InputFolder>testfiles/mixed</InputFolder>
+  <InputFolder>testfiles</InputFolder>
   <OutputFolder>output</OutputFolder>
-  <MaxThreads>20</MaxThreads>
+  <MaxThreads></MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
   <Timeout>
   </Timeout>
