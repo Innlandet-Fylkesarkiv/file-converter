@@ -251,7 +251,7 @@ namespace ConversionTools.Converters
 			// LibreOffice blocks all conversions
 			return SupportedConversions;
 		}
-
+        /*
         /// <summary>
         /// Converts and office file to PDF
         /// </summary>
@@ -312,7 +312,85 @@ namespace ConversionTools.Converters
 			{
 				Logger.Instance.SetUpRunTimeLogMessage("LibreOffice Error converting file to PDF. File is not converted: " + e.Message, true, filename: sourceDoc);
 			}
-		}
+		}*/
+
+        /// <summary>
+        /// Converts and office file to PDF
+        /// </summary>
+        /// <param name="sourceDoc"> office file </param>
+        /// <param name="destinationPdfFolder"> the folder of where the PDF ends up </param>
+        /// <param name="pronom"> target PRONOM for the office file </param>
+        /// <param name="sofficePath"> </param>
+        /// <param name="extention"> The extention after conversion (ex. pdf)</param>
+        /// <param name="file"> The file to be converted </param>
+        void RunOfficeToPdfConversion(string sourceDoc, string destinationPdfFolder, string pronom,
+                                          bool sofficePath, string extention, FileToConvert file)
+        {
+            try
+            {
+                bool converted = false;
+                int count = 0;
+                string newFileName = Path.Combine(destinationPdfFolder, Path.GetFileNameWithoutExtension(sourceDoc) + "." + extention);
+                do
+                {
+                    using (Process process = new Process())
+                    {
+                        // Set the correct properties for the process thta will run libreoffice
+                        process.StartInfo.FileName = GetPlatformExecutionFile();
+                        process.StartInfo.WorkingDirectory = Directory.GetCurrentDirectory();
+
+                        string sofficeCommand = GetSofficePath(sofficePath);
+                        string arguments = GetLibreOfficeCommand(destinationPdfFolder, sourceDoc, sofficeCommand, extention);
+                        process.StartInfo.Arguments = arguments;
+                        process.StartInfo.RedirectStandardOutput = true;
+                        process.StartInfo.RedirectStandardError = true;
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.CreateNoWindow = true;
+
+                        process.Start();
+
+                        // Get output and potential error
+                        string standardOutput = process.StandardOutput.ReadToEnd();
+                        string standardError = process.StandardError.ReadToEnd();
+
+                        process.WaitForExit();
+                        int exitCode = process.ExitCode;
+
+                        if (exitCode != 0)      // Something went wrong, warn the user
+                        {
+                            Console.WriteLine($"\n Filepath: {sourceDoc} :  Exit Code: {exitCode}\n");
+                            Console.WriteLine("Standard Output:\n" + standardOutput);
+                            Console.WriteLine("Standard Error:\n" + standardError);
+                        }
+                    }
+
+                    // Set the new filename and check if the document was converted correctly
+                    file.FilePath = newFileName;
+                    string? currPronom = GetPronom(newFileName);
+                    //Convert to another PDF format if LibreOffice's standard output format is not the desired one
+                    if (currPronom != null && currPronom != pronom && PDFPronoms.Contains(pronom) && iTextFound)
+                    {
+                        file.Route.Add(pronom);
+                        pronom = currPronom;    //Override target pronom since the final PDF conversion will be done in iText7
+                    }
+                    converted = CheckConversionStatus(newFileName, pronom);
+                } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
+                if (converted)
+                {
+                    // Delete copy in ouputfolder if converted successfully
+                    DeleteOriginalFileFromOutputDirectory(sourceDoc);
+                    ReplaceFileInList(newFileName, file);
+                }
+                else
+                {
+                    file.Failed = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Instance.SetUpRunTimeLogMessage("LibreOffice Error converting file to PDF. File is not converted: " + e.Message, true, filename: sourceDoc);
+            }
+        }
 
         /// <summary>
         /// Gets the path to the soffice executable unless it is added to the systems PATH
