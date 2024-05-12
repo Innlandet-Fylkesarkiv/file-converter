@@ -11,10 +11,7 @@ using FileConverter.Managers;
 using FileConverter.HelperClasses;
 using FileConverter.Siegfried;
 using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
 using System.Collections.Concurrent;
-using System.Runtime.ConstrainedExecution;
-using SharpCompress.Archives.GZip;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -34,8 +31,6 @@ namespace ConversionTools.Converters
 {
     public class IText7 : Converter
     {
-        private static readonly object pdfalock = new object();     //PDF-A uses a .icc file when converting, which can not be accessed by multiple threads at the same time
-        private static readonly string ICCFilePath = GetOriginalICCFilePath();       //Path to the .icc file needed for PDF-A conversion
         ConcurrentQueue<string> AvailableICCFiles = new ConcurrentQueue<string>();
         ConcurrentBag<string> AllICCFiles = new ConcurrentBag<string>();
 
@@ -178,10 +173,6 @@ namespace ConversionTools.Converters
         public override Dictionary<string, List<string>> GetListOfBlockingConversions()
         {
             var blockingConversions = new Dictionary<string, List<string>>();
-            /*foreach (string pronom in ImagePronoms.Concat(HTMLPronoms).Concat(PDFPronoms))
-            {
-                blockingConversions.Add(pronom, PDFAPronoms);
-            }*/
             return blockingConversions;
         }
 

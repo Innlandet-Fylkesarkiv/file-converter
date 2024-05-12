@@ -112,6 +112,7 @@ namespace FileConverter.Siegfried
 				{
 					PrintHelper.PrintLn("Cannot find Pronom signature file", GlobalVariables.ERROR_COL);
 				}
+				logger.SetUpRunTimeLogMessage("SF Home folder: " + HomeFolder, false);
 			}
 			else if (OperatingSystem.IsLinux())
 			{
@@ -165,7 +166,7 @@ namespace FileConverter.Siegfried
 						if (exeDir != null && exeDir == Path.GetDirectoryName(sigFile))
 						{
                             ExecutableName = exeFile;
-                            HomeFolder = exeDir;
+							HomeFolder = Path.Combine(exeDir);
                             return;
                         }
 					}
@@ -285,7 +286,7 @@ namespace FileConverter.Siegfried
 
             if (OperatingSystem.IsWindows())
 			{
-				options = String.Format("-coe -home {0} -json {1} -sig {2} ", HomeFolder, hash ? "-hash " + HashEnumToString(GlobalVariables.ChecksumHash) : "", PronomSignatureFile);
+				options = String.Format("-coe -home {0} -json {1} -sig {2} ", Path.Combine(HomeFolder), hash ? "-hash " + HashEnumToString(GlobalVariables.ChecksumHash) : "", PronomSignatureFile);
 			}
 			else
 			{
@@ -362,7 +363,7 @@ namespace FileConverter.Siegfried
             string options;
 			if (OperatingSystem.IsWindows())
 			{
-				options = String.Format("-home \"{0}\" -json {1} -sig {2} -multi {3} ", HomeFolder, "-hash " + HashEnumToString(GlobalVariables.ChecksumHash), PronomSignatureFile, Multi);
+				options = String.Format("-home \"{0}\" -json {1} -sig {2} -multi {3} ", Path.Combine(HomeFolder), "-hash " + HashEnumToString(GlobalVariables.ChecksumHash), PronomSignatureFile, Multi);
 			}
 			else
 			{
