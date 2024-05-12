@@ -421,8 +421,13 @@ namespace ConversionTools.Converters
         /// <returns> new file name </returns>
         public static string RemoveInterpolation(string filename)
         {
+            int dotindex = filename.LastIndexOf('.');
+            if (dotindex == -1)
+            {
+                dotindex = filename.Length - 3;
+            }
             List<int> editedPages = new List<int>();
-            string name = Path.GetFileNameWithoutExtension(filename);
+            string name = filename.Substring(0, dotindex);
             string newfilename = String.Format("{0}_{1}.pdf", name, "TEMP");
             try
             {
