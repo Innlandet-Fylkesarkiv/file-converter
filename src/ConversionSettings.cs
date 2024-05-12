@@ -147,7 +147,7 @@ namespace FileConverter
             string? inputMaxThreads = maxThreadsNode?.InnerText;
             if (!String.IsNullOrEmpty(inputMaxThreads) && int.TryParse(inputMaxThreads, out int maxThreads))
             {
-                GlobalVariables.MaxThreads = maxThreads;
+                GlobalVariables.MaxThreads = maxThreads > 0 ? maxThreads : Environment.ProcessorCount * 2;
             }
 
             string? inputTimeout = timeoutNode?.InnerText;
