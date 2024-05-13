@@ -65,7 +65,7 @@ namespace ConversionTools
         /// Wrapper for the ConvertFile method that also handles the timeout
         /// </summary>
         /// <param name="file">File that should be converted</param>
-        public async virtual Task ConvertFile(FileToConvert file)
+        public async Task ConvertFile(FileToConvert file)
         {            
             var timeout = TimeSpan.FromMinutes(GlobalVariables.Timeout);
             try
@@ -145,7 +145,7 @@ namespace ConversionTools
         /// </summary>
         /// <param name="file">Conversion that should be checked</param>
         /// <returns>True if it contains a locked section</returns>
-        bool ConversionContainsLock(FileToConvert file)
+        private bool ConversionContainsLock(FileToConvert file)
         {
             if (BlockingConversions.TryGetValue(file.CurrentPronom, out var conversionLocks))
             {

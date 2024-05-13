@@ -312,7 +312,7 @@ namespace FileConverter.Converters.Tests
             string folderWithAttachments = "src//testFiles";
             GlobalVariables.ParsedOptions.Input = "testFiles";
             GlobalVariables.ParsedOptions.Output = "output";
-            List<FileInfo2>? attachmentFiles = new List<FileInfo2?>();
+            List<FileInfo2>? attachmentFiles = new List<FileInfo2>();
             string targetDirectory = "";
             if (Directory.Exists(parentDirectory))
             {
@@ -330,7 +330,7 @@ namespace FileConverter.Converters.Tests
             }
             
             // Act
-            await emailConverter.addAttachementFilesToWorkingSet(targetDirectory);
+            await emailConverter.AddAttachementFilesToWorkingSet(targetDirectory);
 
             // Assert
             if (attachmentFiles.Any())
