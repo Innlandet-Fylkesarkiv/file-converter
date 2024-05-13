@@ -1,8 +1,6 @@
-> [!NOTE]
->  **This README is currently being updated, information found here might not reflect the current application.**
 <div align="center">
 	
-# file-converter (W.I.P.) 
+# file-converter
 
 <img src="https://github.com/larsmhaugland/file-converter/assets/117298604/e3965308-bfe4-4850-86c9-06dae7b493b3">
 
@@ -26,7 +24,6 @@ This application provides a framework for different conversion libraries/softwar
   - [External libraries and software](#external-libraries-and-software)
   - [Installation for Windows](#-installation-for-windows)
   - [Installation for Linux](#-installation-for-linux)
-  	-  [Installing Siegfried on Linux](#installing-siegfried-on-linux)
 - [Usage](#-usage)
   - [Beta notes](#-beta)	 
   - [CLI](#cli)
@@ -44,17 +41,25 @@ This application provides a framework for different conversion libraries/softwar
 
 
 # 📖 Background
-This project is part of a collaboration with **[Innlandet County Archive](https://www.visarkiv.no/)** and is a Bachelor's thesis project for a [Bachelor's in Programming](https://www.ntnu.edu/studies/bprog) at the **[Norwegian University of Technology and Science (NTNU)](https://www.ntnu.edu/)**.
+This project is part of a collaboration with **[the Innlandet County Archive](https://www.visarkiv.no/)** and is a Bachelor's thesis project for a [Bachelor's in Programming](https://www.ntnu.edu/studies/bprog) at the **[Norwegian University of Technology and Science (NTNU)](https://www.ntnu.edu/)**.
 
-In Norway, the act of archiving is regulated by the Archives Act, which states that public bodies have a duty to register and preserve documents that are created as part of their activity [^1]. As society is becoming more digitized so is information, and the documents that were previously physical and stored physically are now digital and stored digitally. Innlandet County Archive is an inter-municipal archive cooperation, that registers and preserves documents from 48 municipalities. However, not all file types they receive are suitable for archiving as they run a risk of becoming obsolete. (For further reading see: [Obsolescence: File Formats and Software](https://dpworkshop.org/dpm-eng/oldmedia/obsolescence1.html)) Innlandet County Archive wished to streamline its conversion process into one application that could deal with a vast array of file formats. Furthermore, archiving is based on the principles of accessibility, accountability and integrity, which is why this application also provides documentation of all changes made to files.
+In Norway, the act of archiving is regulated by the Archives Act, which states that public bodies have a duty to register and preserve documents that are created as part of their activity [^1]. As society is becoming more digitized so is information, and the documents that were previously physical and stored physically are now digital and stored digitally. The Innlandet County Archive is an inter-municipal archive cooperation, that registers and preserves documents from 48 municipalities. However, not all file types they receive are suitable for archiving as they run a risk of becoming obsolete. (For further reading see: [Obsolescence: File Formats and Software](https://dpworkshop.org/dpm-eng/oldmedia/obsolescence1.html)) The Innlandet County Archive wished to streamline its conversion process into one application that could deal with a vast array of file formats. Furthermore, archiving is based on the principles of accessibility, accountability and integrity, which is why this application also provides documentation of all changes made to files.
 
-Much like programmers and software developers, archivists believe in an open-source world. Therefore it would only be right for this program to be open source. 
+Much like programmers and software developers, archivists believe in an open-source world. Therefore it would only be right for this program to be open-source. 
 
 [^1]: Kultur- og likestillingsdepartementet. *Lov om arkiv [arkivlova].* URL: https://lovdata.no/dokument/NL/lov/1992-12-04-126?q=arkivloven (visited on 17th Jan. 2024).
 
 # ⏬ Install
 
 ## Install from source
+> [!NOTE]
+> Cloning **with** the Git submodules is required for the application to work.
+>If you did not clone the repository recursively or do not see the git submodules in your local repository we would suggest:
+> ```sh
+>   git submodule init
+>   git submodule update
+>```
+
 To download the application source code run:
  ```sh
   git clone --recursive https://github.com/larsmhaugland/file-converter.git
@@ -70,32 +75,23 @@ The resulting binaries will be located in a new "Windows" or "Linux" directory.
 > [!WARNING]
 > If you want to build using ```dotnet build``` or an IDE you need to build **both** ```file-converter-prog2900.csproj``` and ```GUI/ChangeConverterSettings/ChangeConverterSettings.csproj```.
 
-
-> [!NOTE]
-> Cloning **with** the Git submodules is required for the application to work.
->If you did not clone the repository recursively or do not see the git submodules in your local repository we would suggest:
-> ```sh
->   git submodule init
->   git submodule update
->```
-
 ## 👪 Dependencies
 |OS| Dependencies | Needed for? |
 |---|---|---|
 |Windows and Linux| **[dotnet version 8.0](https://dotnet.microsoft.com/en-us/download)** | Needed to build and run the program. |
-| Windows and Linux| **[Java JDK](https://www.oracle.com/java/technologies/downloads/)** (Only JRE also works)| Dependency for using the e-mail converter. |
-| Windows| **[LibreOffice](https://www.libreoffice.org/download/download-libreoffice/?type=win-x86_64&version=7.6.6&lang=nb)** ( download version 7.6.6)| Required for converting office documents (Word, PowerPoint, Excel and OpenOffice). |
-| Linux| Libreoffice should be already present on Linux. This can be checked with ```Soffice --version```. Otherwise, download from the link above.||
+| Windows and Linux| **[Java JDK](https://www.oracle.com/java/technologies/downloads/)** (Only JRE also works)| Needed for converting emails. |
+| Windows| **[LibreOffice](https://www.libreoffice.org/download/download-libreoffice/?type=win-x86_64&version=7.6.6&lang=nb)** ( download version 7.6.6)| Required for converting Office documents. |
+| Linux| Libreoffice should be already present on Linux. This can be checked with ```Soffice --version```. Otherwise, download from the link above.| Required for converting Office documents.|
 | Linux | **[GhostScript.](https://ghostscript.com/docs/9.55.0/Install.htm)** Should be installed on most distros, which can be checked by running ```gs -version```. | Required for PostScript and PDF to image conversion. |
 | Windows and Linux| **[wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)** | Needed for converting emails. |
 | Linux | **[Siegfried](https://github.com/richardlehane/siegfried)** | To identify files and keep track of the conversion process. |
-| Linux | **sudo apt-get install libemail-outlook-message-perl** | Needed to convert msg files on Linux |
+| Linux | **[email-outlook-message-perl](https://github.com/mvz/email-outlook-message-perl)** Can be installed with ```sudo apt-get install libemail-outlook-message-perl``` | Needed to convert msg files on Linux |
 > [!NOTE]
 > If you are on Linux see [Installation for Linux](#-installation-for-linux) for more info on Siegfried installation.
 
 <br>
 
-### Further download instructions for LibreOffice 
+### Further download instructions for LibreOffice and wkhtmltopdf
 #### :window: Windows
 Libreoffice must be manually added to ```PATH``` on Windows for the program to convert office files. The deafult installation path to Libreoffice is ```"C:\Program Files\LibreOffice"```, but the entry needs to be ```"C:\Program Files\LibreOffice\program"```.
 
@@ -108,6 +104,7 @@ Libreoffice must be manually added to ```PATH``` on Windows for the program to c
 **[wkhtmltopdf](https://wkhtmltopdf.org/downloads.html)** must also be manually added to ```PATH```. For windows, it can be done as described above, just swap ```"C:\Program Files\LibreOffice\program"``` with ```"C:\Program Files\wkhtmltopdf\bin"```. 
 
 #### 🐧 Linux
+LibreOffice should already be installed on Linux, but wkhtmltopdf needs to be added. 
 For Linux the default installation directory is ```...``` <br>
 To add it as an environment variable:
 1. Open the file ```.bashrc``` using ```nano ~/.bashrc```.
@@ -134,10 +131,10 @@ To add it as an environment variable:
 - **[Siegfried](https://www.itforarchivists.com/siegfried/)** under the Apache License 2.0.
 
 ## 🪟 Installation for Windows 
-Download a pre-built binary from the [Releases](https://github.com/larsmhaugland/file-converter/releases) page and unzip to a location in your system. It is also possible to build your own binaries, (see [Install](#-install))
+Download a pre-built binary from the [Releases](https://github.com/larsmhaugland/file-converter/releases) page and unzip it to a location in your system.
 
 ## 🐧 Installation for Linux 
-Download a pre-built binary from the [Releases](https://github.com/larsmhaugland/file-converter/releases) page and unzip to a location in your system. It is also possible to build your own binaries, (see [Install](#-install))
+Download a pre-built binary from the [Releases](https://github.com/larsmhaugland/file-converter/releases) page and unzip it to a location in your system.
 
 The application has been tested on the following Linux images:
 - Debian "bookworm" 12
@@ -179,12 +176,12 @@ If you are **not** using one of these distros please see the **[Siegfried GitHub
 </div>
 
 ## 🔨 Beta
-Since the program is still in beta, there are some **limitations** or **bugs** in the software. This section will be updated throughout the development process as we fix or find problems.
-The program is mostly tested in Windows, so Linux specific issues may not appear in list. 
-- Parsing siegfried data from incomplete run
-  	- The current version of the program cannot successfully recover siegfried data from an incomplete run 
+Since the program is still in beta, the software contains some **limitations** or **bugs**. 
+The program is mostly tested in Windows, so Linux-specific issues may not appear in the list. 
+
+### Known bugs
 - GUI
-  	- Starting GUI from main program will crash the program on Linux
+  	- Starting GUI from the main program will crash the program on Linux
 - Office conversion (Linux)
   	- Office conversion using LibreOffice does not work correctly
 - Merging files
@@ -238,6 +235,12 @@ $ .\example --yes
 The GUI provides a more user-friendly way of editing the settings of the application (see [Settings](#settings) for further information). Here one can set all the metadata for running the program and what PRONOM files should be converted to. A formats ```Default``` PRONOM is a list of all the PRONOM's belonging to that file format (i.e all PRONOM's associated with the PDF file format).
 
 ## Settings
+> [!WARNING]
+> The program copies files from the input to the output directory. <br>
+> The output directory is not cleared between runs and if a file ***already exists*** in the output directory, it will not be replaced. <br>
+> Therefore, if you have ***updated a file*** that exists in both directories you will need to ***manually delete*** the file from the output directory.
+
+
 Settings can be manually set in an ```xml``` file.
 
 ### Setting run time arguments
@@ -249,7 +252,8 @@ Settings can be manually set in an ```xml``` file.
 	<OutputFolder></OutputFolder>          <!-- Specify output folder, default is "output" -->
 	<MaxThreads></MaxThreads>	       <!-- Write a number, deafult is cores*2 -->
 	<Timeout></Timeout>       	       <!-- Timeout in minutes, default is 30min -->
-	<MaxFileSize></MaxFileSize>	       <!-- Max total input bytes per file for merged files, default is 1GB. Note: output file size may differ from total of input files -->
+	<MaxFileSize></MaxFileSize>	       <!-- Max total input bytes per file for merged files, default is 1GB.-->
+<!--Note: output file size of a merged file may differ from the total filesize of the individual files that are merged -->
 ```
 
 The first part of the XML file concerns arguments needed to run the program. The second part allows you to set up two things:
@@ -280,9 +284,6 @@ The first part of the XML file concerns arguments needed to run the program. The
 	<MergeImages></MergeImages>             <!-- Yes, No -->
 </FolderOverride>
 ```
-
-> [!WARNING]
-> If a file from the input directory exists in the output directory it will not be copied and the output directory file is converted. If you have updated the file in the input folder you need to delete it from the output directory.
 
 
 ## Currently supported file formats 
@@ -330,17 +331,22 @@ Additionally, a ```documentation.json``` file is created which lists all files a
 ## Adding a new converter
 All source code for external converters is based on the same parent ```Converter``` class, located in ```\ConversionTools\Converter.cs```.
 
-**Converter class**
+### Converter class
 ```csharp
-	public string? Name { get; set; } // Name of the converter
-	public string? Version { get; set; } // Version of the converter
-	public string? NameAndVersion { get; set;}
-	public bool DependenciesExists { get; set;}
-	public Dictionary<string, List<string>>? SupportedConversions { get; set; }
-	public List<string> SupportedOperatingSystems { get; set; } = new List<string>();
+    public string Name;
+    public string Version;  
+    public string NameAndVersion;  
+    public Dictionary<string, List<string>>? SupportedConversions;  
+    public List<string> SupportedOperatingSystems;  
+    public bool DependenciesExists;  
+    public Dictionary<string, List<string>> BlockingConversions;  
 
-	public virtual void ConvertFile(string fileinfo, string pronom){ }
-	public virtual void CombineFiles(string []files, string pronom){ }
+    public virtual Dictionary<string, List<string>>? getListOfSupportedConversions(){ } 
+    public virtual Dictionary<string, List<string>> GetListOfBlockingConversions(){ }  
+    public virtual void SetNameAndVersion(){ }  
+    public virtual void GetVersion(){ }  
+    async public virtual Task ConvertFile(FileToConvert file, string pronom){ }  
+    public virtual void CombineFiles(List<FileInfo2> files, string pronom){ }    
 ```
 
 All fields shown in the code block above **must** be included in the subclass for the new external converter to work properly. If you are adding a *library-based* converter we would suggest having a look at ```iText7.cs``` for examples on how to structure the subclass.
@@ -357,9 +363,25 @@ For external converters where you want to *parse arguments and use an executable
 >```
 >This will make the executable file available at the path ```file-converter\bin\Debug\net8.0\PathToExecutableFile```.
 
+To add the converter to the list of converters, add the line ```converters.Add(new NameOfConverter());``` in the ```AddConverter``` class. Assuming that the source code written for the converter is correct, and the settings are set correctly, the application should now use the new converter for the conversions it supports. 
+```csharp
+    public List<Converter> GetConverters(){
+	if (Converters == null){
+	        Converters = new List<Converter>();
+	        converters.Add(new iText7());
+	        converters.Add(new GhostscriptConverter());
+		/*Add a new converter here!*/
+                var currentOS = Environment.OSVersion.Platform.ToString();
+                Converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
+                                          !c.SupportedOperatingSystems.Contains(currentOS) ||
+                                          !c.DependenciesExists);
+	}return converters;
+}
+```
+
+### Commenting scheme
 All subclasses of ```Converter``` follow the same commenting scheme for consistency and ease when maintaining/debugging the application. It should state that it is a subclass of the ```Converter```class and which conversions it supports. Other functionalities of the converter, such as combining images, can be added after.
 
-**Commenting scheme**
 ```csharp
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -376,36 +398,27 @@ All subclasses of ```Converter``` follow the same commenting scheme for consiste
 /// </summary>
 ```
 
-To add the converter to the list of converters, add the line ```converters.Add(new NameOfConverter());``` in the ```AddConverter``` class. Assuming that the source code written for the converter is correct, and the settings are set correctly, the application should now use the new converter for the conversions it supports. 
-```csharp
-    public List<Converter> GetConverters()
-    {
-        List<Converter> converters = new List<Converter>();
-        converters.Add(new iText7());
-        converters.Add(new GhostscriptConverter());
-        converters.Add(new LibreOfficeConverter());
-	/*Add a new converter here!*/
-        var currentOS = Environment.OSVersion.Platform.ToString();
-        converters.RemoveAll(c => c.SupportedOperatingSystems == null ||
-                                  !c.SupportedOperatingSystems.Contains(currentOS));
-        return converters;
-    }
-```
 ## Adding a new conversion path (Multistep conversion)
 Multistep conversion means that one can combine the functionality of several converters to convert a file to a file type that would not have been possible if you were using only one of the converters. For example, LibreOffice can convert Word documents to PDF and iText7 can convert PDF documents to PDF-A. Multistep conversion means that the functionalities can be combined so that a Word document can be converted to a PDF-A document. 
 
 To add a new multistep conversion you need to add a route in the ```initMap``` function in ```ConversionManager.cs``` following this convention:
 
 ```csharp
-foreach (string pronom in ListOfPronoms)
-{
-	foreach (string otherpronom in ListOfPronoms)
-	{
-		if (pronom != otherpronom){
-			ConversionMap.Add(new KeyValuePair<string, string>(pronom, otherpronom), [pronom, helppronom , otherpronom]); 
+private void initMap(){
+	Converter1 converter1 = new Converter1();
+	List<string> supportedConversionsConverter1 = new List<string>(converter1.SupportedConversions?.Keys);
+
+	string firstPronom = "fmt-code1";
+	string secondPronom = "fmt-code2";	
+	string targetPronom = "fmt-code";
+
+	foreach (FileInfo file in Managers.FileManager.Instance.files.Values){
+	if(ConversionSettings.GetTargetPronom(file) == targetPronom && converter1.PRONOMList.Contains(file.OriginalPronom) && supportedConversionsConverter1.Contains(file.OriginalPronom)){
+		ConversionMap.TryAdd(new KeyValuePair<string, string>(file.OriginalPronom, targetPronom), [firstPronom, secondPronom, targetPronom]);
 	}}
+}
 ```
-```pronom``` is the pronom you want to convert from, while ```otherpronom``` is the pronom you want to convert to. ```ConversionMap``` works as a route so any ```helppronom``` is a stepping stone in that route from ```pronom``` to ```otherpronom```. You can add as many stepping stones as you want but they have to be added in the correct order from left to right.
+The first converter in the path needs a new instance and a list of supported conversions. Then a new if-sentence can be added to the foreach loop. The second ```string``` in the ```ConversionMap``` list works as a route so all pronoms except work as stepping stones for the file from its ```originalPronom``` to ```targetPronom```. You can add as many stepping stones as you want but they have to be added in the correct order from left to right.
 
 # Further Development
 The ```PronomHelper.cs``` class has a static method ```string PronomToFullName(string pronom)``` to retrieve the full name of file formats based on data in the [British National Archives PRONOM lookup tool](https://www.nationalarchives.gov.uk/PRONOM/Format/proFormatSearch.aspx?status=new). The method was created using a small C++ program. As the British National Archives publishes more PRONOM PUIDs the method must be updated. The program is located [here](https://github.com/larsmhaugland/PRONOM-helper-creator), see the README in the repo for usage.
