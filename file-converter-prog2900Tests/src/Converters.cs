@@ -2,6 +2,8 @@
 using FileConverter.HelperClasses;
 using FileConverter.Managers;
 using iText.Kernel.Pdf;
+using Org.BouncyCastle.Asn1.Cms;
+using System.Collections.Concurrent;
 using SF = FileConverter.Siegfried;
 
 
@@ -12,6 +14,16 @@ namespace FileConverter.Converters.Tests
     public class LibreOfficeTests
     {
         LibreOfficeConverter libreOffice = new LibreOfficeConverter();
+
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            string executableDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            Directory.SetCurrentDirectory(executableDirectory);
+            Directory.SetCurrentDirectory("../../../");
+            string newDirectory = Directory.GetCurrentDirectory();
+            string currentDirectory = Directory.GetCurrentDirectory();
+        }
         [TestMethod()]
         public void TestGetListOfSupportedConversions()
         {
@@ -69,7 +81,7 @@ namespace FileConverter.Converters.Tests
             // Arrange
             var targetPronom = "fmt/276";
             var expectedExtension = "pdf";
-
+            string currentDirectory= Directory.GetCurrentDirectory();
             // Act
             var actualExtension = GetConversionExtensionTest(targetPronom);
 
@@ -309,26 +321,32 @@ namespace FileConverter.Converters.Tests
         public async Task TestAddAttachmentFilesToWorkingSet()
         {
             // Arrange
-            string folderWithAttachments = "src//testFiles";
+            string folderWithAttachments = "src\\testFiles";
             GlobalVariables.ParsedOptions.Input = "testFiles";
             GlobalVariables.ParsedOptions.Output = "output";
-            List<FileInfo2>? attachmentFiles = new List<FileInfo2>();
+            Console.WriteLine(parentDirectory);
+            List<FileInfo2>? attachmentFiles = new List<FileInfo2?>();
+            var key = new KeyValuePair<string, string>("fmt/412", "fmt/456");
+            var value = new List<string> { "fmt/412", "fmt/212", "fmt/313" };
+            ConversionManager cm = ConversionManager.Instance;
+            cm.ConversionMap = new ConcurrentDictionary<KeyValuePair<string, string>, List<string>>();
+            cm.ConversionMap.TryAdd(key, value);
             string targetDirectory = "";
             if (Directory.Exists(parentDirectory))
             {
                 // Combine with folderWithAttachments to get the target directory
                 targetDirectory = Path.Combine(parentDirectory, folderWithAttachments);
                 if (Directory.Exists(targetDirectory))
-                { 
+                {
                     // Get the list of attachement files so they can later be added to the working set
                     attachmentFiles = await SF.Siegfried.Instance.IdentifyFilesIndividually(targetDirectory)!;
                 }
-            } 
+            }
             else
             {
                 Assert.Fail("Can not find testFiles directory");
             }
-            
+
             // Act
             await emailConverter.AddAttachementFilesToWorkingSet(targetDirectory);
 
@@ -353,11 +371,13 @@ namespace FileConverter.Converters.Tests
                     // Assert that a match was found
                     Assert.IsTrue(foundMatch, $"No match found in WorkingSet for file with FilePath: {attachmentFile.FilePath}");
                 }
-            } else
+            }
+            else
             {
                 Assert.Fail("Could not find attachemnet files");
             }
         }
+
        
 
         string GetMsgToEmlCommandUnixTest(string inputFilePath)
@@ -392,19 +412,24 @@ namespace FileConverter.Converters.Tests
     [TestClass()]
     public class IText7Tests
     {
-        private IText7 itext7;
+        private static IText7 iText7;
         private Helper helper = new Helper();
-
         
-        public  IText7Tests()
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
         {
-            // Initialize the IText7Converter instance
-            itext7 = new IText7();
+            string executableDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            Directory.SetCurrentDirectory(executableDirectory);
+            Directory.SetCurrentDirectory("../../../");
+            string newDirectory = Directory.GetCurrentDirectory();
+            iText7 = new IText7();
+            string currentDirectory = Directory.GetCurrentDirectory();
         }
 
         [TestMethod]
         public void TestGetListOfSupportedConversions()
         {
+            string currentDirecroty = Directory.GetCurrentDirectory();
             // Arrange
             var expectedConversions = new Dictionary<string, List<string>>();
 
@@ -427,7 +452,7 @@ namespace FileConverter.Converters.Tests
             }
 
             // Act
-            var actualConversions = itext7.GetListOfSupportedConvesions();
+            var actualConversions = iText7.GetListOfSupportedConvesions();
 
             // Assert
             Helper.AreDictionariesEquivalent(expectedConversions, actualConversions);
@@ -436,17 +461,11 @@ namespace FileConverter.Converters.Tests
         [TestMethod]
         public void TestGetListOfBlockingConversions()
         {
-            // Arrange
+            // Arrange. No Conversion are blocking in IText7
             var expectedBlockingConversions = new Dictionary<string, List<string>>();
 
-            // Add blocking conversions for image, HTML, and PDF
-            foreach (var pronom in helper.ImagePronoms.Concat(helper.HTMLPronoms).Concat(helper.PDFPronoms))
-            {
-                expectedBlockingConversions.Add(pronom, helper.PDFAPronoms);
-            }
-
             // Act
-            var actualBlockingConversions = itext7.GetListOfBlockingConversions();
+            var actualBlockingConversions = iText7.GetListOfBlockingConversions();
 
             // Assert
             Helper.AreDictionariesEquivalent(expectedBlockingConversions, actualBlockingConversions);
@@ -458,7 +477,7 @@ namespace FileConverter.Converters.Tests
             var expectedOS = new List<string> { PlatformID.Win32NT.ToString(), PlatformID.Unix.ToString() };
 
             // Act
-            var actualOS = itext7.GetSupportedOS();
+            var actualOS = iText7.GetSupportedOS();
 
             // Assert
             CollectionAssert.AreEquivalent(expectedOS, actualOS);
@@ -476,6 +495,7 @@ namespace FileConverter.Converters.Tests
             // Assert
             Assert.AreEqual(expectedVersion, actualVersion);
         }
+
         /*
         [TestMethod]
         public void TestGetPdfAConformanceLevel()
@@ -531,6 +551,20 @@ namespace FileConverter.Converters.Tests
                 return null;
             }
         }*/
+        [ClassCleanup]
+        public static void ClassCleanup()
+        {
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "ICCFiles");
+
+            // Delete all files within the folder
+            foreach (string filePath in Directory.GetFiles(folderPath))
+            {
+                File.Delete(filePath);
+            }
+
+            // Delete the folder itself
+            Directory.Delete(folderPath);
+        }
     }
 
     [TestClass()]
@@ -539,7 +573,6 @@ namespace FileConverter.Converters.Tests
 
     }
 
-    // Created by ChatGPT
     public class Helper
     {
         public static void AreDictionariesEquivalent<TKey, TValue>(Dictionary<TKey, List<TValue>> expected, Dictionary<TKey, List<TValue>> actual)
