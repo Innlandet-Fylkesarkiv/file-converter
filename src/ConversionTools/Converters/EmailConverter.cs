@@ -101,6 +101,10 @@ namespace ConversionTools.Converters
             {
                 bool converted = false;
                 int count = 0;
+                string newFileName = Path.Combine(destinationDir, Path.GetFileNameWithoutExtension(inputFilePath) + "." + targetFormat);
+                int docIndex = inputFilePath.LastIndexOf('.');
+                string relativeNameWithoutExtension = docIndex != -1 ? inputFilePath.Substring(0, docIndex) : inputFilePath;
+                string newRelativeFileName = Path.GetRelativePath(Directory.GetCurrentDirectory(), relativeNameWithoutExtension + "." + targetFormat);
                 do
                 {
                     // Create the new process for the conversion
@@ -134,9 +138,8 @@ namespace ConversionTools.Converters
                         }
 
                         // Get the new filename and check if the document was converted correctly
-                        string newFileName = Path.Combine(destinationDir, Path.GetFileNameWithoutExtension(inputFilePath) + "." + targetFormat);
-                        file.FilePath = inputFilePath;
-                        converted = CheckConversionStatus(newFileName, pronom, file);
+                        string newFileNameNotRelative = Path.Combine(destinationDir, Path.GetFileNameWithoutExtension(inputFilePath) + "." + targetFormat);
+                        converted = CheckConversionStatus(newFileNameNotRelative, pronom, file);
                         if (!converted)
                         {
                             file.Failed = true;
