@@ -283,7 +283,6 @@ namespace ConversionTools.Converters
                 var newFileToConvert = new FileToConvert(newFile);
                 newFileToConvert.TargetPronom = FileConverter.ConversionSettings.GetTargetPronom(newFile)!;
                 newFile.AddConversionTool(NameAndVersion);
-                // var newConversionMap = ConversionManager.Instance.ConversionMap;
                 // Use current and target pronom to create a key for the conversion map
                 var key = new KeyValuePair<string, string>(newFileToConvert.CurrentPronom, newFileToConvert.TargetPronom);
                 // If the conversion map contains the key, set the route to the value of the key

@@ -28,12 +28,12 @@ namespace FileConverter.HelperClasses.Tests
             FileInfo2 fileInfo;
             SF.Siegfried sf = SF.Siegfried.Instance;
             string currentDirectory = Directory.GetCurrentDirectory();
-            string originalFilePath = Path.Combine(currentDirectory, "src\\testFiles\\" + originalFileName);
-            string newFilePath = Path.Combine(currentDirectory, "src\\testFiles\\" +newFileName);
-            string testFiles = Path.Combine(currentDirectory, "src\\testFiles\\");
+            string originalFilePath = Path.Combine(currentDirectory, "src", "testFiles", originalFileName);
+            string newFilePath = Path.Combine(currentDirectory, "src", "testFiles", newFileName);
+            string testFilesDirectory = Path.Combine(currentDirectory, "src", "testFiles");
             File.Create(originalFilePath).Close(); // Create a dummy 
             List<FileInfo2>? siegfriedFiles = new List<FileInfo2?>();
-            siegfriedFiles = await sf.IdentifyFilesIndividually(testFiles);
+            siegfriedFiles = await sf.IdentifyFilesIndividually(testFilesDirectory);
 
             if (siegfriedFiles != null)
             {

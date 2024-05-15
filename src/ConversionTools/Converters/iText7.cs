@@ -79,7 +79,6 @@ namespace ConversionTools.Converters
             string fileName = "sRGB2014.icc";
             string path = "";
             // Search for the file in the current directory and all subdirectories
-            string currentDirectory= Directory.GetCurrentDirectory();
             string[] files = Directory.GetFiles(Directory.GetCurrentDirectory(), fileName, SearchOption.AllDirectories);
             // If the file is found, set the path to the first file found
             if (files.Length > 0)
