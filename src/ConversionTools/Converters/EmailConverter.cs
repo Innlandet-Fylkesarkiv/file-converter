@@ -101,6 +101,10 @@ namespace ConversionTools.Converters
             {
                 bool converted = false;
                 int count = 0;
+                string newFileName = Path.Combine(destinationDir, Path.GetFileNameWithoutExtension(inputFilePath) + "." + targetFormat);
+                int docIndex = inputFilePath.LastIndexOf('.');
+                string relativeNameWithoutExtension = docIndex != -1 ? inputFilePath.Substring(0, docIndex) : inputFilePath;
+                string newRelativeFileName = Path.GetRelativePath(Directory.GetCurrentDirectory(), relativeNameWithoutExtension + "." + targetFormat);
                 do
                 {
                     // Create the new process for the conversion
@@ -134,9 +138,8 @@ namespace ConversionTools.Converters
                         }
 
                         // Get the new filename and check if the document was converted correctly
-                        string newFileName = Path.Combine(destinationDir, Path.GetFileNameWithoutExtension(inputFilePath) + "." + targetFormat);
-                        file.FilePath = inputFilePath;
-                        converted = CheckConversionStatus(newFileName, file);
+                        string newFileNameNotRelative = Path.Combine(destinationDir, Path.GetFileNameWithoutExtension(inputFilePath) + "." + targetFormat);
+                        converted = CheckConversionStatus(newFileNameNotRelative, file);
                         if (!converted)
                         {
                             file.Failed = true;
@@ -283,7 +286,6 @@ namespace ConversionTools.Converters
                 var newFileToConvert = new FileToConvert(newFile);
                 newFileToConvert.TargetPronom = FileConverter.ConversionSettings.GetTargetPronom(newFile)!;
                 newFile.AddConversionTool(NameAndVersion);
-
                 // Use current and target pronom to create a key for the conversion map
                 var key = new KeyValuePair<string, string>(newFileToConvert.CurrentPronom, newFileToConvert.TargetPronom);
                 // If the conversion map contains the key, set the route to the value of the key

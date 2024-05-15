@@ -150,7 +150,7 @@ namespace ConversionTools.Converters
             CheckAndRemovePDFAPronoms();
 
 			// Adds the supportd conversions for the converter
-            AddConversionsForMultipleFormats(supportedConversions);
+            AddSupportedConversions(supportedConversions);
 
             return supportedConversions;
         }
@@ -177,44 +177,42 @@ namespace ConversionTools.Converters
 		/// Sets the supported conversions for multiple formats
 		/// </summary>
 		/// <param name="supportedConversions"> The dictionary where the supported conversions are saved to </param>
-        private static void AddConversionsForMultipleFormats(Dictionary<string, List<string>> supportedConversions)
-        {
-            List<string> emptyList = [];
+		private static void AddSupportedConversions(Dictionary<string, List<string>> supportedConversions)
+		{
+			List<string> emptyList = [];
 			// EXCEL 
-            AddConversions(XLSXPronoms, PDFPronoms, ODSPronoms, emptyList, supportedConversions);
-            AddConversions(XLSPronoms,  PDFPronoms, XLSXPronoms, ODSPronoms, supportedConversions);
-            AddConversions(XLSMPronoms, PDFPronoms, XLSXPronoms, ODSPronoms, supportedConversions);
-            AddConversions(XLTXPronoms, PDFPronoms, XLSXPronoms, ODSPronoms, supportedConversions);
+			AddConversions(XLSXPronoms, [PDFPronoms, ODSPronoms], supportedConversions);
+            AddConversions(XLSPronoms,  [PDFPronoms, XLSXPronoms, ODSPronoms], supportedConversions);
+            AddConversions(XLSMPronoms, [PDFPronoms, XLSXPronoms, ODSPronoms], supportedConversions);
+            AddConversions(XLTXPronoms, [PDFPronoms, XLSXPronoms, ODSPronoms], supportedConversions);
             // WORD
-            AddConversions(DOCXPronoms, PDFPronoms, ODTPronoms, emptyList, supportedConversions);
-			AddConversions(DOCPronoms,  PDFPronoms, DOCXPronoms, ODTPronoms, supportedConversions);
-            AddConversions(DOCMPronoms, PDFPronoms, DOCXPronoms, ODTPronoms, supportedConversions);
-            AddConversions(DOTXPronoms, PDFPronoms, DOCXPronoms, ODTPronoms, supportedConversions);
+            AddConversions(DOCXPronoms, [PDFPronoms, ODTPronoms], supportedConversions);
+			AddConversions(DOCPronoms,  [PDFPronoms, DOCXPronoms, ODTPronoms], supportedConversions);
+            AddConversions(DOCMPronoms, [PDFPronoms, DOCXPronoms, ODTPronoms], supportedConversions);
+            AddConversions(DOTXPronoms, [PDFPronoms, DOCXPronoms, ODTPronoms], supportedConversions);
             // PowerPoint
-            AddConversions(PPTXPronoms, PDFPronoms, ODPPronoms, emptyList, supportedConversions);
-            AddConversions(PPTPronoms,  PDFPronoms, PPTXPronoms, ODPPronoms, supportedConversions);
-            AddConversions(PPTMPronoms, PDFPronoms, PPTXPronoms, ODPPronoms, supportedConversions);
-            AddConversions(POTXPronoms, PDFPronoms, PPTXPronoms, ODPPronoms, supportedConversions);
+            AddConversions(PPTXPronoms, [PDFPronoms, ODPPronoms], supportedConversions);
+            AddConversions(PPTPronoms,  [PDFPronoms, PPTXPronoms, ODPPronoms], supportedConversions);
+            AddConversions(PPTMPronoms, [PDFPronoms, PPTXPronoms, ODPPronoms], supportedConversions);
+            AddConversions(POTXPronoms, [PDFPronoms, PPTXPronoms, ODPPronoms], supportedConversions);
             // Open Document 
-            AddConversions(ODPPronoms, PDFPronoms, PPTXPronoms, emptyList, supportedConversions);
-            AddConversions(ODTPronoms, PDFPronoms, DOCXPronoms, emptyList, supportedConversions);
-            AddConversions(ODSPronoms, PDFPronoms, XLSXPronoms, emptyList, supportedConversions);
+            AddConversions(ODPPronoms, [PDFPronoms, PPTXPronoms], supportedConversions);
+            AddConversions(ODTPronoms, [PDFPronoms, DOCXPronoms], supportedConversions);
+            AddConversions(ODSPronoms, [PDFPronoms, XLSXPronoms], supportedConversions);
             // RTF
-            AddConversions(RTFPronoms, PDFPronoms, DOCXPronoms, ODTPronoms, supportedConversions);
+            AddConversions(RTFPronoms, [PDFPronoms, DOCXPronoms, ODTPronoms], supportedConversions);
 			// CSV
-			AddConversions(CSVPronoms, PDFPronoms, emptyList, emptyList, supportedConversions);
+			AddConversions(CSVPronoms, [PDFPronoms], supportedConversions);
         }
 
         /// <summary>
         /// Adds the conversions to the supported conversions list. 
 		/// Add additional target formats as parameters if you want to add more conversion options, but check allowed Conversion in readme file first.
         /// </summary>
-        /// <param name="sourceFormats"> the format that is upporting the conversions to the targets </param>
-        /// <param name="targetFormats1"> target format 1 </param>
-        /// <param name="targetFormats2"> target format 2 (send empty list here if the sourceFormat only supports one conversion) </param>
-        /// <param name="targetFormats3">target format 3 (send empty list here if the sourceFormat only supports two conversions) </param>
+        /// <param name="sourceFormats"> the format that is supporting the conversions to the targets </param>
+        /// <param name="targetFormats"> Nested list with a list of the targetformats to be added for the sourceformat </param>
         /// <param name="supportedConversions"> The dictionary where the supported conversions are saved to </param>
-        static private void AddConversions(List<string> sourceFormats, List<string> targetFormats1, List<string> targetFormats2, List<string> targetFormats3, Dictionary<string, List<string>> supportedConversions)
+        static private void AddConversions(List<string> sourceFormats, List<List<string>> targetFormats, Dictionary<string, List<string>> supportedConversions)
         {
 			// Loop through every pronom code in the sourceFormats and add the targetForats 
             foreach (string sourceFormat in sourceFormats)
@@ -226,19 +224,10 @@ namespace ConversionTools.Converters
                     supportedConversions[sourceFormat] = pronomList;
                 }
 
-				// Add all targetFormats for the specified source format
-                if (targetFormats1.Count > 0)
-                {
-                    pronomList.AddRange(targetFormats1);
-                }
-                if (targetFormats2.Count > 0)
-                {
-                    pronomList.AddRange(targetFormats2);
-                }
-                if (targetFormats3.Count > 0)
-                {
-                    pronomList.AddRange(targetFormats3);
-                }
+				foreach(List<string> targetFormatList in targetFormats)
+				{
+					pronomList.AddRange(targetFormatList);
+				}
             }
         }
 
@@ -251,68 +240,6 @@ namespace ConversionTools.Converters
 			// LibreOffice blocks all conversions
 			return SupportedConversions;
 		}
-        /*
-        /// <summary>
-        /// Converts and office file to PDF
-        /// </summary>
-        /// <param name="sourceDoc"> office file </param>
-        /// <param name="destinationPdfFolder"> the folder of where the PDF ends up </param>
-        /// <param name="pronom"> target PRONOM for the office file </param>
-        /// <param name="sofficePath"> </param>
-		/// <param name="extention"> The extention after conversion (ex. pdf)</param>
-		/// <param name="file"> The file to be converted </param>
-        void RunOfficeToPdfConversion(string sourceDoc, string destinationPdfFolder, string pronom,
-										  bool sofficePath, string extention, FileToConvert file)
-		{
-			try
-			{
-				bool converted = false;
-				int count = 0;
-				string newFileName = Path.Combine(destinationPdfFolder, Path.GetFileNameWithoutExtension(sourceDoc) + "." + extention);
-				do
-				{
-					// create process to run LibreOffice conversion
-					using (Process process = new Process())
-					{
-						// Set the correct properties for the process that will run libreoffice
-						process.StartInfo.FileName = GetPlatformExecutionFile();
-						process.StartInfo.WorkingDirectory = Directory.GetCurrentDirectory();
-
-						string sofficeCommand = GetSofficePath(sofficePath);
-						string arguments = GetLibreOfficeCommand(destinationPdfFolder, sourceDoc, sofficeCommand, extention);
-						process.StartInfo.Arguments = arguments;
-						process.StartInfo.RedirectStandardOutput = true;
-						process.StartInfo.RedirectStandardError = true;
-						process.StartInfo.UseShellExecute = false;
-						process.StartInfo.CreateNoWindow = true;
-
-						process.Start();
-
-						process.WaitForExit();
-					}
-
-					// Set the new filename and check if the document was converted correctly
-					file.FilePath = newFileName;
-					string? currPronom = GetPronom(newFileName);
-
-					// Convert to another PDF format if LibreOffice's standard output format is not the desired one
-					if (currPronom != null && currPronom != pronom && PDFPronoms.Contains(pronom) && iTextFound)
-					{
-						file.Route.Add(pronom);
-						pronom = currPronom;    // Override target pronom since the final PDF conversion will be done in iText7
-					}
-					converted = CheckConversionStatus(newFileName, pronom, file);
-				} while (!converted && ++count < GlobalVariables.MAX_RETRIES);
-				if (!converted)
-				{
-					file.Failed = true;
-				}
-			}
-			catch (Exception e)
-			{
-				Logger.Instance.SetUpRunTimeLogMessage("LibreOffice Error converting file to PDF. File is not converted: " + e.Message, true, filename: sourceDoc);
-			}
-		}*/
 
         /// <summary>
         /// Converts and office file to PDF
@@ -331,11 +258,14 @@ namespace ConversionTools.Converters
                 bool converted = false;
                 int count = 0;
                 string newFileName = Path.Combine(destinationPdfFolder, Path.GetFileNameWithoutExtension(sourceDoc) + "." + extention);
+				int docIndex = sourceDoc.LastIndexOf('.');
+                string relativeNameWithoutExtension = docIndex != -1 ? sourceDoc.Substring(0, docIndex) : sourceDoc;
+                string newRelativeFileName = Path.GetRelativePath(Directory.GetCurrentDirectory(), relativeNameWithoutExtension + "." + extention);
                 do
                 {
                     using (Process process = new Process())
                     {
-                        // Set the correct properties for the process thta will run libreoffice
+                        // Set the correct properties for the process that will run libreoffice
                         process.StartInfo.FileName = GetPlatformExecutionFile();
                         process.StartInfo.WorkingDirectory = Directory.GetCurrentDirectory();
 
@@ -364,23 +294,20 @@ namespace ConversionTools.Converters
                         }
                     }
 
-                    // Set the new filename and check if the document was converted correctly
+                    file.FilePath = newFileName;
+                    file.FilePath = newFileName;
+                    file.FilePath = newFileName;
+                    file.FilePath = newFileName;
                     string? currPronom = GetPronom(newFileName);
-                    //Convert to another PDF format if LibreOffice's standard output format is not the desired one
-                    if (currPronom != null && currPronom != pronom && PDFPronoms.Contains(pronom) && iTextFound)
-                    {
-                        file.Route.Add(pronom);
-                        pronom = currPronom;    //Override target pronom since the final PDF conversion will be done in iText7
-                    }
-                    converted = CheckConversionStatus(newFileName, file);
+					//Convert to another PDF format if LibreOffice's standard output format is not the desired one
+					if (currPronom != null && currPronom != pronom && PDFPronoms.Contains(pronom) && iTextFound)
+					{
+						file.Route.Add(pronom);
+						pronom = currPronom;    //Override target pronom since the final PDF conversion will be done in iText7
+					}
+                    converted = CheckConversionStatus(newRelativeFileName, file);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
-                if (converted)
-                {
-                    // Delete copy in ouputfolder if converted successfully
-                    DeleteOriginalFileFromOutputDirectory(sourceDoc);
-                    ReplaceFileInList(newFileName, file);
-                }
-                else
+                if (!converted)
                 {
                     file.Failed = true;
                 }
