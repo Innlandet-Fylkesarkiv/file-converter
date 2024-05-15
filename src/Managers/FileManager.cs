@@ -436,7 +436,7 @@ namespace FileConverter.Managers
             {
                 foreach (var converter in converters)
                 {
-                    if (converter.SupportsConversion(currentPronom, targetPronom) || ConversionManager.Instance.ConversionMap.ContainsKey(new KeyValuePair<string, string>(currentPronom, targetPronom)))
+                    if (converter.SupportsConversion(currentPronom, targetPronom) || ConversionManager.Instance.SupportsConversion(currentPronom,targetPronom))
                     {
                         supported = true;
                         break;
@@ -710,13 +710,7 @@ namespace FileConverter.Managers
         /// </summary>
         public void DocumentFiles()
         {
-            Logger logger = Logger.Instance;
-            List<FileInfo2> files = new List<FileInfo2>();
-            foreach (var file in Files)
-            {
-                files.Add(file.Value);
-            }
-            logger.SetUpDocumentation(files);
+            Logger.Instance.SetUpDocumentation(Files.Values.ToList());
         }
 
         //******************************************************      Helper functions for formatting output      ***************************************************************//

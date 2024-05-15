@@ -15,6 +15,7 @@ namespace FileConverter.HelperClasses
     {
         public string FilePath { get; set; } = "";                  // Filepath relative to input directory
         public string OriginalFilePath { get; set; } = "";          // Filename with extension
+        public string NewFilePath { get; set; } = "";               // New filename with extension
         public string OriginalPronom { get; set; } = "";            // Original Pronom ID
         public string NewPronom { get; set; } = "";                 // New Pronom ID
         public string OriginalMime { get; set; } = "";              // Original Mime Type
@@ -64,10 +65,11 @@ namespace FileConverter.HelperClasses
         /// Standard constructor for FileInfo setting the properties based on information identified by SiegFried
         /// </summary>
         /// <param name="siegfriedFile"> struct containg data found by siegfried </param>
-        public FileInfo2(SF.SiegfriedFile siegfriedFile)
+        /// <param name="originalFP"> the original file path </param>
+        public FileInfo2(SF.SiegfriedFile siegfriedFile, string originalFP)
         {
             OriginalSize = siegfriedFile.filesize;
-            OriginalFilePath = Path.GetFileName(siegfriedFile.filename);
+            OriginalFilePath = originalFP;
             if (siegfriedFile.matches.Length > 0)
             {
                 OriginalPronom = siegfriedFile.matches[0].id;
@@ -88,7 +90,7 @@ namespace FileConverter.HelperClasses
             {
                 OriginalChecksum = NewChecksum = result.hash;
                 OriginalSize = NewSize = result.filesize;
-                OriginalFilePath = Path.GetFileName(f.FilePath);
+                OriginalFilePath = f.FilePath;
                 if (result.matches.Length > 0)
                 {
                     OriginalPronom = NewChecksum = result.matches[0].id;
@@ -139,7 +141,6 @@ namespace FileConverter.HelperClasses
                 }
                 File.Move(FilePath, newName);
                 FilePath = newName;
-                OriginalFilePath = Path.GetFileName(newName);
             }
             catch (Exception e)
             {

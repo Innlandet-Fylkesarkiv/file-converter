@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.DirectoryServices.AccountManagement;
 using Org.BouncyCastle.Asn1.Ocsp;
+using iText.StyledXmlParser.Css.Selector.Item;
 
 namespace FileConverter.HelperClasses
 {
@@ -37,7 +38,8 @@ namespace FileConverter.HelperClasses
 		/// </summary>
 		public class JsonData
 		{
-			public string? Filename { get; set; }
+			public string? OriginalFilePath { get; set; }
+			public string? NewFilePath { get; set; }
 			public string? OriginalPronom { get; set; }
 			public string? OriginalChecksum { get; set; }
 			public long OriginalSize { get; set; }
@@ -88,8 +90,6 @@ namespace FileConverter.HelperClasses
 			public bool IsMerged { get; set; }
 			public string? MergedTo { get; set; }
 		}
-
-
 
 		/// <summary>
 		/// When logger is created, it sets the correct hashing algorithm and creates the log file
@@ -196,37 +196,7 @@ namespace FileConverter.HelperClasses
 			{
 				if (file.ShouldMerge)
 				{
-					var jsonData = new JsonDataMerge
-					{
-						Filename = file.FilePath,
-						Pronom = file.OriginalPronom,
-						Checksum = file.OriginalChecksum,
-						Size = file.OriginalSize,
-						Tool = file.ConversionTools,
-						ShouldMerge = file.ShouldMerge,
-						IsMerged = file.IsMerged,
-						MergedTo = file.NewFileName
-					};
-					var parentDir = Path.GetDirectoryName(file.FilePath) ?? "";
-
-                    if (JsonMergedFiles.TryGetValue(parentDir, out var mergedFiles))
-                    {
-                        if (mergedFiles.TryGetValue(jsonData.MergedTo, out var dataList))
-                        {
-                            dataList.Add(jsonData);
-                        }
-                        else
-                        {
-                            mergedFiles.Add(jsonData.MergedTo, new List<JsonDataMerge>());
-                            mergedFiles[jsonData.MergedTo].Add(jsonData);
-                        }
-                    }
-                    else
-					{
-						JsonMergedFiles.Add(parentDir, new Dictionary<string, List<JsonDataMerge>>());
-						JsonMergedFiles[parentDir].Add(jsonData.MergedTo, new List<JsonDataMerge>());
-						JsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
-					}
+					AddToMergeJSON(file);
 				}
 				else if (file.NotSupported)
 				{
@@ -255,7 +225,8 @@ namespace FileConverter.HelperClasses
 				{
 					var jsonData = new JsonData
 					{
-						Filename = file.FilePath,
+						OriginalFilePath = file.OriginalFilePath,
+						NewFilePath = file.FilePath,
 						OriginalPronom = file.OriginalPronom,
 						OriginalChecksum = file.OriginalChecksum,
 						OriginalSize = file.OriginalSize,
@@ -301,6 +272,55 @@ namespace FileConverter.HelperClasses
 			WriteLog(json, docPath);
 		}
 
+		/// <summary>
+		/// Adds a file to the JSON structure that holds information about merged files
+		/// </summary>
+		/// <param name="file">The file that should be</param>
+		private void AddToMergeJSON(FileInfo2 file)
+		{
+            var jsonData = new JsonDataMerge
+            {
+                Filename = file.FilePath,
+                Pronom = file.OriginalPronom,
+                Checksum = file.OriginalChecksum,
+                Size = file.OriginalSize,
+                Tool = file.ConversionTools,
+                ShouldMerge = file.ShouldMerge,
+                IsMerged = file.IsMerged,
+                MergedTo = file.NewFileName
+            };
+            var parentDir = Path.GetDirectoryName(file.FilePath) ?? "";
+
+            if (JsonMergedFiles.TryGetValue(parentDir, out var mergedFiles))
+            {
+                if (mergedFiles.TryGetValue(jsonData.MergedTo, out var dataList))
+                {
+                    dataList.Add(jsonData);
+                }
+				else if (mergedFiles.TryGetValue(jsonData.Filename, out var dataList2))
+				{
+                    //Add the result of the merge to the beginning of the list
+                    dataList2.Insert(0,jsonData);
+				}
+				else if (jsonData.MergedTo == "")
+				{
+					//If the file is result of a merge, but the entry is not set, create the entry
+					mergedFiles.Add(jsonData.Filename, new List<JsonDataMerge>());
+					mergedFiles[jsonData.Filename].Add(jsonData);
+				}
+                else
+                {
+                    mergedFiles.Add(jsonData.MergedTo, new List<JsonDataMerge>());
+                    mergedFiles[jsonData.MergedTo].Add(jsonData);
+                }
+            }
+            else
+            {
+                JsonMergedFiles.Add(parentDir, new Dictionary<string, List<JsonDataMerge>>());
+                JsonMergedFiles[parentDir].Add(jsonData.MergedTo, new List<JsonDataMerge>());
+                JsonMergedFiles[parentDir][jsonData.MergedTo].Add(jsonData);
+            }
+        }
 		/// <summary>
 		/// Sets the requester and converter if they are not set in the ConversionSettings
 		/// </summary>

@@ -12,6 +12,7 @@ using FileConverter.HelperClasses;
 using FileConverter.Siegfried;
 using System.Collections.Immutable;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -65,6 +66,10 @@ namespace ConversionTools.Converters
             for (int i = 0; i < GlobalVariables.MaxThreads; i++)
             {
                 var newPath = String.Format("{0}/{1}_{2}_{3}{4}","ICCFiles", Path.GetFileNameWithoutExtension(ICCOriginal), "TEMP", Guid.NewGuid(),Path.GetExtension(ICCOriginal));
+                while (File.Exists(newPath))
+                {
+                    newPath = String.Format("{0}/{1}_{2}_{3}{4}", "ICCFiles", Path.GetFileNameWithoutExtension(ICCOriginal), "TEMP", Guid.NewGuid(), Path.GetExtension(ICCOriginal));
+                }
                 File.Copy(ICCOriginal, newPath);
                 AvailableICCFiles.Enqueue(newPath);
                 AllICCFiles.Add(newPath);
@@ -104,7 +109,6 @@ namespace ConversionTools.Converters
             {
                 Thread.Sleep(50);
             }
-
             return path;
         }
 
@@ -116,29 +120,6 @@ namespace ConversionTools.Converters
         {
             //Add the file back to the available list
             AvailableICCFiles.Enqueue(path);
-        }
-
-        /// <summary>
-        /// Destructor for the iText7 class
-        /// </summary>
-        ~IText7()
-        {
-            DeleteCopies();
-        }
-
-        /// <summary>
-        /// Deletes created copies of the ICC file
-        /// </summary>
-        protected void DeleteCopies()
-        {
-            // Delete all copies of the ICC file
-            foreach (var file in AllICCFiles)
-            {
-                if (File.Exists(file))
-                {
-                    File.Delete(file);
-                } 
-            }
         }
 
         /// <summary>
@@ -268,7 +249,7 @@ namespace ConversionTools.Converters
                         ConvertFromPDFToPDFA(new FileToConvert(output, file.Id, file.Route.First()), conformanceLevel);
                     }
                     //Check if the file was converted
-                    converted = CheckConversionStatus(output, file.TargetPronom, file);
+                    converted = CheckConversionStatus(output, file);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
             }
             catch (Exception e)
@@ -320,7 +301,7 @@ namespace ConversionTools.Converters
                         ConvertFromPDFToPDFA(new FileToConvert(output, file.Id, file.Route.First()), conformanceLevel);
                     }
                     // Check if the file was converted
-                    converted = CheckConversionStatus(output, file.Route.First(), file);
+                    converted = CheckConversionStatus(output, file);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 if (!converted)
                 {
@@ -341,7 +322,7 @@ namespace ConversionTools.Converters
         void ConvertFromPDFToPDFA(FileToConvert file, PdfAConformanceLevel conformanceLevel)
         {
             try
-            {
+            { 
                 string pdfaFileName = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_PDFA.pdf");
                 string filename = Path.Combine(file.FilePath);
                 int count = 0;
@@ -349,7 +330,13 @@ namespace ConversionTools.Converters
                 string pronom = file.Route.First();
                 PdfOutputIntent outputIntent;
                 // Remove interpolation from the PDF file
-                string tmpFileName = RemoveInterpolation(filename);
+                string? tmpFileName = RemoveInterpolation(filename);
+                if(tmpFileName == null)
+                {
+                    Logger.Instance.SetUpRunTimeLogMessage("Error removing interpolation from PDF. File is not converted.", true, filename: file.FilePath);
+                    file.Failed = true;
+                    return;
+                }
                 // Get an available ICC file
                 string ICCFile = GetICCFile();
                 // Initialize PdfOutputIntent object
@@ -390,7 +377,7 @@ namespace ConversionTools.Converters
                             canvas.AddXObject(pageCopy);
                         }
                     }
-                    converted = CheckConversionStatus(pdfaFileName, pronom);
+                    converted = CheckConversionStatus(pdfaFileName, file);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 // If the file was not converted, delete the temporary file
                 if (!converted)
@@ -404,6 +391,10 @@ namespace ConversionTools.Converters
                 {
                     File.Delete(tmpFileName);
                     File.Delete(filename);
+                    if(Path.GetExtension(filename) != ".pdf")
+                    {
+                        filename = Path.ChangeExtension(filename, ".pdf");
+                    }
                     File.Move(pdfaFileName, filename);
                     ReplaceFileInList(filename, file);
                 }
@@ -419,7 +410,7 @@ namespace ConversionTools.Converters
         /// </summary>
         /// <param name="filename"> the filename of the file where interpolation needs to be removed </param>
         /// <returns> new file name </returns>
-        public static string RemoveInterpolation(string filename)
+        public static string? RemoveInterpolation(string filename)
         {
             int dotindex = filename.LastIndexOf('.');
             if (dotindex == -1)
@@ -469,7 +460,8 @@ namespace ConversionTools.Converters
             catch (Exception e)
             {
                 // Handle any exceptions during processing.
-                Console.WriteLine($"Unable to process file: {filename}. Exception: {e}");
+                Logger.Instance.SetUpRunTimeLogMessage($"Unable to process file: {filename}. Exception: {e}",true);
+                return null;
             }
             // Log the pages where interpolation was removed.
             if(editedPages.Count > 0)
@@ -522,7 +514,7 @@ namespace ConversionTools.Converters
                         }
                     }
                     // Check if the file was converted
-                    converted = CheckConversionStatus(tmpFilename, file.TargetPronom);
+                    converted = CheckConversionStatus(tmpFilename, file);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 // If the file was not converted, set the file as failed
                 if (!converted)
@@ -584,7 +576,7 @@ namespace ConversionTools.Converters
                     groupSize += file.OriginalSize;
                     if (groupSize > GlobalVariables.MaxFileSize)
                     {
-                        Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom).Wait());
+                        MergeFilesToPDF(group, outputFileName, pronom);
                         group.Clear();
                         groupSize = 0;
                         groupCount++;
@@ -593,7 +585,7 @@ namespace ConversionTools.Converters
                 if (group.Count > 0)
                 {
                     string outputFileName = $@"{filename}_{groupCount}.pdf";
-                    Task.Run(() => MergeFilesToPDF(group, outputFileName, pronom).Wait());
+                    MergeFilesToPDF(group, outputFileName, pronom);
                 }
             }
             catch (Exception e)
@@ -622,10 +614,10 @@ namespace ConversionTools.Converters
                 {
                     int filesNotFound = 0;
                     pdfDocument.SetTagged();
-                    foreach (var file in files)
+                    var filesCopy = new List<FileInfo2>(files);
+                    foreach (var file in filesCopy)
                     {
-                        bool isWrapped = file.FilePath.StartsWith('"') && file.FilePath.EndsWith('"');
-                        string filename = isWrapped ? file.FilePath : String.Format("\"{0}\"",file.FilePath);
+                        string filename = file.FilePath;
                         if (!File.Exists(filename))
                         {
                             filesNotFound++;
@@ -660,7 +652,7 @@ namespace ConversionTools.Converters
                 var result = Siegfried.Instance.IdentifyFile(outputFileName, false);
                 if (result != null)
                 {
-                    FileInfo2 newFileInfo = new FileInfo2(result);
+                    FileInfo2 newFileInfo = new FileInfo2(result,result.filename);
                     newFileInfo.Id = Guid.NewGuid();
                     newFileInfo.IsMerged = pronom == result.matches[0].id;
                     newFileInfo.ShouldMerge = true;
@@ -752,6 +744,11 @@ namespace ConversionTools.Converters
                     break;
             }
             return pronom;
+        }
+
+        public List<string> GetImagePronoms()
+        {
+            return ImagePronoms;
         }
 
         readonly List<string> ImagePronoms = [

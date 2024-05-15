@@ -6,6 +6,9 @@ using System.Text.RegularExpressions;
 using FileConverter.HelperClasses;
 using FileConverter.Managers;
 using SF = FileConverter.Siegfried;
+using ZstdSharp.Unsafe;
+using FileConverter.Siegfried;
+using System.IO;
 
 /// <summary>
 /// GhostScript is a subclass of the Converter class.   <br></br>
@@ -102,6 +105,11 @@ namespace ConversionTools.Converters
             }
         }
 
+        public List<string> GetImagePronoms()
+        {
+            return new List<string> { BMPPronom, TIFFPronom, JPGPronom, PNGPronom };
+        }
+
         /// <summary>
         /// Get the path to the Ghostscript executable depending on the operating system
         /// </summary>
@@ -158,7 +166,7 @@ namespace ConversionTools.Converters
         /// <returns> the list </returns>
         public override Dictionary<string, List<string>> GetListOfBlockingConversions()
         {
-            // Ghostcipt blocks all conversions
+            // Ghostscript blocks all conversions
             return SupportedConversions;
         }
 
@@ -224,7 +232,7 @@ namespace ConversionTools.Converters
                 Logger.Instance.SetUpRunTimeLogMessage(file.Route.First() + " is not supported by GhostScript. File is not converted.", true, file.FilePath);
             }
         }
-
+        /*
         /// <summary>
         /// Convert a file using GhostScript command line
         /// </summary>
@@ -262,25 +270,27 @@ namespace ConversionTools.Converters
 
                     using (var rasterizer = new GhostscriptRasterizer())
                     {
-                        GhostscriptVersionInfo versionInfo = new GhostscriptVersionInfo(new Version(), gsWindowsLibrary, string.Empty, GhostscriptLicense.GPL);
-                        using var stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read);
-                        rasterizer.Open(stream, versionInfo, false);
-                        ImageFormat? imageFormat = GetImageFormat(extension);
-                        if (imageFormat != null)
+                        //GhostscriptVersionInfo versionInfo = new GhostscriptVersionInfo(new Version(), gsWindowsLibrary, string.Empty, GhostscriptLicense.GPL);
+                        GhostscriptVersionInfo versionInfo = new GhostscriptVersionInfo(gsWindowsLibrary);
+                        using (var stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read))
                         {
-                            for (int pageNumber = 1; pageNumber <= rasterizer.PageCount; pageNumber++)
+                            rasterizer.Open(stream, versionInfo, false);
+                            ImageFormat? imageFormat = GetImageFormat(extension);
+                            if (imageFormat != null)
                             {
-                                string pageOutputFileName = String.Format("{0}{1}{2}_{3}{4}", folderPath, Path.DirectorySeparatorChar, outputFileName, pageNumber.ToString(), extension);
-                                using (var image = rasterizer.GetPage(300, pageNumber))
+                                for (int pageNumber = 1; pageNumber <= rasterizer.PageCount; pageNumber++)
                                 {
-                                    image.Save(pageOutputFileName, imageFormat);
+                                    string pageOutputFileName = String.Format("{0}{1}{2}_{3}{4}", folderPath, Path.DirectorySeparatorChar, outputFileName, pageNumber.ToString(), extension);
+                                    using (var image = rasterizer.GetPage(300, pageNumber))
+                                    {
+                                        image.Save(pageOutputFileName, imageFormat);
+                                    }
+                                    var newFile = new FileInfo2(pageOutputFileName, originalFileInfo);
+                                    newFile.IsPartOfSplit = true;
+                                    newFile.AddConversionTool(NameAndVersion);
+                                    newFile.UpdateSelf(new FileInfo2(SF.Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!));
+                                    files.Add(newFile);
                                 }
-
-                                var newFile = new FileInfo2(pageOutputFileName, originalFileInfo);
-                                newFile.IsPartOfSplit = true;
-                                newFile.AddConversionTool(NameAndVersion);
-                                newFile.UpdateSelf(new FileInfo2(SF.Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!));
-                                files.Add(newFile);
                             }
                         }
                     }
@@ -293,6 +303,101 @@ namespace ConversionTools.Converters
                     originalFileInfo.Display = false;
                     originalFileInfo.IsDeleted = true;
                     originalFileInfo.UpdateSelf(files.First());
+                    originalFileInfo.IsConverted = true;
+                }
+                file.Failed = !converted;
+            }
+            catch (Exception e)
+            {
+                log.SetUpRunTimeLogMessage("Error when converting file with GhostScript. Error message: " + e.Message, true, filename: file.FilePath);
+            }
+        }*/
+
+        /// <summary>
+        /// Convert a file using GhostScript command line
+        /// </summary>
+        /// <param name="file"> FileToConvert object with the specific file </param>
+        /// <param name="outputFileName">The name of the new file</param>
+        /// <param name="sDevice">What format GhostScript will convert to</param>
+        /// <param name="extension">Extension type for after the conversion</param>
+        void ConvertToImagesWindows(FileToConvert file, string outputFileName, string extension)
+        {
+            Logger log = Logger.Instance;
+            if (!System.OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+            {
+                log.SetUpRunTimeLogMessage("GhostScript is not supported on this version of Windows (minimum 6.1 required). File is not converted.", true, filename: file.FilePath);
+                return;
+            }
+            try
+            {
+                int count = 0;
+                bool converted = true;
+                List<FileInfo2> files;
+                var originalFileInfo = FileManager.Instance.GetFile(file.Id);
+                if (originalFileInfo == null)
+                {
+                    file.Failed = true;
+                    return;
+                }
+                do
+                {
+                    files = new List<FileInfo2>(); //Clear list of files
+
+                    //Create folder for images with original name
+                    string filename = Path.GetFileNameWithoutExtension(file.FilePath);
+                    string relPath = Path.GetRelativePath(Directory.GetCurrentDirectory(), file.FilePath);
+
+                    string folderPath = relPath.Substring(0, relPath.LastIndexOf('.'));
+                    if (Directory.Exists(folderPath))
+                    {
+                        //Clear folder if it already exists
+                        Directory.Delete(folderPath, true);
+                    }
+                    Directory.CreateDirectory(folderPath);
+
+                    using (var rasterizer = new GhostscriptRasterizer())
+                    {
+                        GhostscriptVersionInfo versionInfo = new GhostscriptVersionInfo(new Version(), gsWindowsLibrary, string.Empty, GhostscriptLicense.GPL);
+                        using (var stream = new FileStream(file.FilePath, FileMode.Open, FileAccess.Read))
+                        {
+                            rasterizer.Open(file.FilePath);
+                            ImageFormat? imageFormat = GetImageFormat(extension);
+                            if (imageFormat != null)
+                            {
+                                for (int pageNumber = 1; pageNumber <= rasterizer.PageCount; pageNumber++)
+                                {
+                                    string pageOutputFileName = String.Format("{0}{1}{2}_{3}{4}", folderPath, Path.DirectorySeparatorChar, outputFileName, pageNumber.ToString(), extension);
+                                    using (var image = rasterizer.GetPage(300, pageNumber))
+                                    {
+                                        image.Save(pageOutputFileName, imageFormat);
+                                    }
+
+                                    var newFile = new FileInfo2(pageOutputFileName, originalFileInfo);
+                                    newFile.IsPartOfSplit = true;
+                                    newFile.AddConversionTool(NameAndVersion);
+                                    newFile.UpdateSelf(new FileInfo2(SF.Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!, newFile.OriginalFilePath));
+                                    files.Add(newFile);
+                                }
+                            }
+                        }
+                    }
+                    foreach (var newFile in files)
+                    {
+                        converted = CheckConversionStatus(newFile.FilePath, new FileToConvert(newFile));
+                        //It is only relevant to check if at least one file is not converted, rest will be checked at the end of conversion
+                        if (!converted)
+                        {
+                            break;
+                        }
+                    }
+                } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
+                FileManager.Instance.AddFiles(files);
+                if (converted)
+                {
+                    DeleteOriginalFileFromOutputDirectory(file.FilePath);
+                    originalFileInfo.Display = false;
+                    originalFileInfo.IsDeleted = true;
+                    originalFileInfo.UpdateSelf(files.First()); //TODO: Ask County Archive how they want the original file to be documented if it is split into different files
                     originalFileInfo.IsConverted = true;
                 }
                 file.Failed = !converted;
@@ -314,7 +419,7 @@ namespace ConversionTools.Converters
             //It is only relevant to check if at least one file is not converted, rest will be checked at the end of conversion
             foreach (var newFile in files)
             {
-                if (!CheckConversionStatus(newFile.FilePath, targetPronom))
+                if (!CheckConversionStatus(newFile.FilePath, new FileToConvert(newFile)))
                 {
                     return false;
                 }
@@ -420,10 +525,10 @@ namespace ConversionTools.Converters
                     {
                         var newFile = new FileInfo2(filePath, originalFileInfo);
                         newFile.IsPartOfSplit = true;
-                        newFile.UpdateSelf(new FileInfo2(SF.Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!));
+                        newFile.UpdateSelf(new FileInfo2(SF.Siegfried.Instance.IdentifyFile(newFile.FilePath, true)!,originalFileInfo.OriginalFilePath));
                         newFile.AddConversionTool(NameAndVersion);
                         files.Add(newFile);
-                        converted = converted && CheckConversionStatus(newFile.FilePath, file.Route.First());
+                        converted = converted && CheckConversionStatus(newFile.FilePath, file);
                     }
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 FileManager.Instance.AddFiles(files);
@@ -485,9 +590,9 @@ namespace ConversionTools.Converters
 
                     string? currPronom = GetPronom(outputFilePath) ?? throw new Exception("Could not get pronom for file");
                     ConvertToNonStandardPDF(file, currPronom, outputFilePath);
-                    converted = CheckConversionStatus(outputFilePath, file.Route.First());
+                    converted = CheckConversionStatus(outputFilePath, file);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
-                file.Failed = !CheckConversionStatus(outputFilePath, file.Route.First(), file);
+                file.Failed = !converted;
             }
             catch (Exception e)
             {

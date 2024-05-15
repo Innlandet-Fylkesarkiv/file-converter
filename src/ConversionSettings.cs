@@ -266,10 +266,12 @@ namespace FileConverter
                                                 .Select(pronom => pronom.Trim()));
             }
 
+            var defaultType = folderOverrideNode.SelectSingleNode("ConvertTo")?.InnerText ?? "";
+            defaultType = defaultType.Replace("\n", "").Replace("\r","").Replace("\t","").Replace(" ","");
             ConversionSettingsData ConversionSettings = new ConversionSettingsData
             {
                 PronomsList = pronomsList,
-                DefaultType = folderOverrideNode.SelectSingleNode("ConvertTo")?.InnerText ?? "",
+                DefaultType = defaultType,
                 Merge = merge == "YES",
             };
 

@@ -110,8 +110,10 @@ namespace FileConverter
 		/// <param name="exitCode">Exit code to return</param>
 		private static void ExitProgram(int exitCode)
 		{
-			//Delete temporary colour files if they exist
-			if (Directory.Exists("ICCFiles"))
+            Console.WriteLine("Documenting conversion...");
+            FileManager.Instance.DocumentFiles();
+            //Delete temporary colour files if they exist
+            if (Directory.Exists("ICCFiles"))
 			{
 				Directory.Delete("ICCFiles", true);
 			}
@@ -317,22 +319,7 @@ namespace FileConverter
             Logger logger = Logger.Instance;
             try
             {
-                //Check if user wants to use files from previous run
-                //sf.AskReadFiles(); Removed for stability
-
-                //Check if files were added from previous run
-                if (!sf.Files.IsEmpty)
-                {
-                    //Import files from previous run
-                    Console.WriteLine("Checking files from previous run...");
-                    fileManager.ImportFiles(sf.Files.ToList());
-                    var compressedFiles = sf.IdentifyCompressedFiles();
-                    fileManager.ImportCompressedFiles(compressedFiles);
-                }
-                else
-                {
-                    InitFiles();
-                }
+				InitFiles();
             }
             catch (Exception e)
             {
@@ -370,8 +357,7 @@ namespace FileConverter
                 Console.WriteLine("Conversion finished:");
                 fileManager.ConversionFinished = true;
                 fileManager.DisplayFileList();
-                Console.WriteLine("Documenting conversion...");
-                fileManager.DocumentFiles();
+                
             }
         }
 

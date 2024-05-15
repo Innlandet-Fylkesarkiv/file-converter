@@ -38,7 +38,7 @@ namespace ConversionTools
         /// Get a list of supported conversions for the converter
         /// </summary>
         /// <returns> A dictionary with string originalPRONOM and a list of PRONOMS it can be converted to </returns>
-        public virtual Dictionary<string, List<string>>? GetListOfSupportedConvesions()
+        public virtual Dictionary<string, List<string>> GetListOfSupportedConvesions()
         {
             return new Dictionary<string, List<string>>();
         }
@@ -50,7 +50,7 @@ namespace ConversionTools
         /// <summary>
         /// Set the name and version of the converter
         /// </summary>
-        public virtual void SetNameAndVersion()
+        public void SetNameAndVersion()
         {
             GetVersion();
             NameAndVersion = Name + " " + Version;
@@ -192,7 +192,6 @@ namespace ConversionTools
             if (file != null)
             {
                 file.FilePath = newPath;
-                file.OriginalFilePath = Path.GetFileName(newPath);
             }
             else
             {
@@ -205,41 +204,34 @@ namespace ConversionTools
         /// </summary>
         /// <param name="file">File that has been converted</param>
         /// <param name="newFilepath">Filepath to new file</param>
-        /// <param name="newFormat">Target pronom code</param>
         /// <returns>True if the conversion succeeded, otherwise false</returns>
-        public static bool CheckConversionStatus(string newFilepath, string newFormat, FileToConvert file)
+        public static bool CheckConversionStatus(string newFilepath, FileToConvert file)
         {
             try
             {
                 // Identify the new file using Siegfried and compare new identified pronom to the target pronom
-                var result = SF.Siegfried.Instance.IdentifyFile(newFilepath, false);
-                if (result != null && result.matches[0].id == newFormat)
+                var result = SF.Siegfried.Instance.IdentifyFile(newFilepath, true);
+                if (result != null && result.matches[0].id == file.Route.First())
                 {
-                    // Conversion succeeded delete original file
+                    // Conversion succeeded - delete original file and update entry
                     DeleteOriginalFileFromOutputDirectory(file.FilePath);
                     ReplaceFileInList(newFilepath, file);
+                    //If file is at target format, update the file info
+                    if (result.matches[0].id == file.TargetPronom)
+                    {
+                        var fileInfo = FileManager.Instance.GetFile(file.Id);
+                        if (fileInfo != null)
+                        {
+                            fileInfo.UpdateSelf(new FileInfo2(result, fileInfo.OriginalFilePath));
+                            fileInfo.IsConverted = true;
+                        }
+                        else
+                        {
+                            Logger.Instance.SetUpRunTimeLogMessage("CheckConversionStatus: File not found in FileManager", true, filename: file.FilePath);
+                        }
+                    }
                     return true;
                 }
-            }
-            catch (Exception e)
-            {
-                Logger.Instance.SetUpRunTimeLogMessage("CheckConversionStatus: " + e.Message, true);
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Check the status of the conversion
-        /// </summary>
-        /// <param name="filePath"> Full path of the file </param>
-        /// <param name="pronom"> The specific PRONOM code of the file </param>
-        /// <returns> True or false depending on if conversion is done </returns>
-        public static bool CheckConversionStatus(string filePath, string pronom)
-        {
-            try
-            {
-                var result = SF.Siegfried.Instance.IdentifyFile(filePath, false);
-                return result != null && result.matches[0].id == pronom;
             }
             catch (Exception e)
             {

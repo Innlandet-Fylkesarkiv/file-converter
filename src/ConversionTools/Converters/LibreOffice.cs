@@ -365,7 +365,6 @@ namespace ConversionTools.Converters
                     }
 
                     // Set the new filename and check if the document was converted correctly
-                    file.FilePath = newFileName;
                     string? currPronom = GetPronom(newFileName);
                     //Convert to another PDF format if LibreOffice's standard output format is not the desired one
                     if (currPronom != null && currPronom != pronom && PDFPronoms.Contains(pronom) && iTextFound)
@@ -373,7 +372,7 @@ namespace ConversionTools.Converters
                         file.Route.Add(pronom);
                         pronom = currPronom;    //Override target pronom since the final PDF conversion will be done in iText7
                     }
-                    converted = CheckConversionStatus(newFileName, pronom);
+                    converted = CheckConversionStatus(newFileName, file);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 if (converted)
                 {

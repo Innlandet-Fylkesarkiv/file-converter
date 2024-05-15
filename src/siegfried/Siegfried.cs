@@ -428,10 +428,9 @@ namespace FileConverter.Siegfried
             //Create new FileInfo2 objects and set their properties
             for (int i = 0; i < parsedData.files.Length; i++)
             {
-                var file = new FileInfo2(parsedData.files[i]);
+                var file = new FileInfo2(parsedData.files[i], paths[i]);
                 //Filepath is overridden to allow special characters in the path
                 file.FilePath = paths[i];
-                file.OriginalFilePath = Path.GetFileName(file.FilePath);
                 newFiles.Add(file);
             }
             return newFiles;
@@ -540,7 +539,7 @@ namespace FileConverter.Siegfried
                     return; //Skip current file
                 }
                 //Create a new FileInfo2 object with the identified data
-                var newFile = new FileInfo2(result);
+                var newFile = new FileInfo2(result,file.OriginalFilePath);
                 newFile.Id = file.Id;
                 files.Add(newFile);
             });

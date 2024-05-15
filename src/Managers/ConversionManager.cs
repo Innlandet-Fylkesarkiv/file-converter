@@ -4,6 +4,8 @@ using ConversionTools.Converters;
 using ConversionTools;
 using FileConverter.HelperClasses;
 using SF = FileConverter.Siegfried;
+using Org.BouncyCastle.Asn1;
+using System.Collections.Generic;
 
 namespace FileConverter.Managers
 {
@@ -18,18 +20,18 @@ namespace FileConverter.Managers
 		public bool addedDuringRun { get; set; } = false; //True if the file has been added while the conversion was running
 		public Guid Id { get; set; }   //Unique identifier for the file
 
-		/// <summary>
-		/// Sets up a new file to be converted
-		/// </summary>
-		/// <param name="file"> the file to be converted </param>
-		public FileToConvert(FileInfo2 file)
-		{
-			FilePath = file.FilePath;
-			CurrentPronom = file.OriginalPronom;
-			TargetPronom = ConversionSettings.GetTargetPronom(file) ?? CurrentPronom;
-			Route = new List<string>();
-			Id = file.Id;
-		}
+        /// <summary>
+        /// Sets up a new file to be converted
+        /// </summary>
+        /// <param name="file"> the file to be converted </param>
+        public FileToConvert(FileInfo2 file)
+        {
+            FilePath = file.FilePath;
+            CurrentPronom = file.OriginalPronom;
+            TargetPronom = ConversionSettings.GetTargetPronom(file) ?? CurrentPronom;
+            Route = new List<string> { TargetPronom }; 
+            Id = file.Id;
+        }
 
 		/// <summary>
 		/// Sets up a copy of the file to be converted
@@ -74,6 +76,23 @@ namespace FileConverter.Managers
 			string pdfPronomForEmail = "fmt/18";
 			string emlConversionPronom = "fmt/950";
 
+			var iText = new IText7();
+			var ghostScript = new GhostscriptConverter();
+			var imageToPDFPronoms = iText.GetImagePronoms();
+			var pdfPronom = "fmt/276";	//PDF 1.7
+            var pdfToImagePronoms = ghostScript.GetImagePronoms();
+
+			//Add image to image via PDF 1.7 to the map
+			foreach(string imageToPdfPronom in imageToPDFPronoms)
+			{
+				foreach(string pdfToImagePronom in pdfToImagePronoms)
+				{
+					var key = new KeyValuePair<string, string>(imageToPdfPronom, pdfToImagePronom);
+					ConversionMap.TryAdd(key, [pdfPronom, pdfToImagePronom]);
+                }
+			}
+
+			//TODO: Trenger bare legge til i Map 1 gang
 			foreach (FileInfo2 file in FileManager.Instance.Files.Values)
 			{
 				// MSG to PDFA-2B via eml and PDF 1.4
@@ -96,6 +115,18 @@ namespace FileConverter.Managers
 				}
 			}
 		}
+
+		/// <summary>
+		/// Checks if a conversion is supported in the ConversionMap. The ConversionMap contains all possible routes for a conversion, not just within a single converter.
+		/// </summary>
+		/// <param name="from">current pronom</param>
+		/// <param name="to">target pronom</param>
+		/// <returns>True if supported, otherwise False</returns>
+		public bool SupportsConversion(string from, string to)
+		{
+            return ConversionMap.ContainsKey(new KeyValuePair<string, string>(from, to));
+        }
+
 
 		/// <summary>
 		/// Initializes the FileInfoMap with all files in the FileManager
@@ -188,40 +219,40 @@ namespace FileConverter.Managers
 			}
 		}
 
-		/// <summary>
-		/// Updates the FileInfo list with new data after conversion
-		/// </summary>
-		static void CheckConversion()
-		{
+        /// <summary>
+        /// Updates the FileInfo list with new data after conversion
+        /// </summary>
+        static void CheckConversion()
+        {
             // Run siegfried on all files
-            var files = FileManager.Instance.Files.Values.ToList();
-			var f = SF.Siegfried.Instance.IdentifyFilesIndividually(files)?.Result;
+            var files = FileManager.Instance.Files.Values.Where(f => !f.IsConverted).ToList();
+            var f = SF.Siegfried.Instance.IdentifyFilesIndividually(files)?.Result;
 
-			// If siegfried fails, log error message and return
-			if (f == null)
-			{
-				PrintHelper.PrintLn("Could not identify files after conversion", GlobalVariables.ERROR_COL);
-				Logger.Instance.SetUpRunTimeLogMessage("CM CheckConversion: Could not identify files", true);
-				return;
-			}
-			Dictionary<Guid, FileInfo2> fDict = f.ToDictionary(x => x.Id, x => x);
+            // If siegfried fails, log error message and return
+            if (f == null)
+            {
+                PrintHelper.PrintLn("Could not identify files after conversion", GlobalVariables.ERROR_COL);
+                Logger.Instance.SetUpRunTimeLogMessage("CM CheckConversion: Could not identify files", true);
+                return;
+            }
+            Dictionary<Guid, FileInfo2> fDict = f.ToDictionary(x => x.Id, x => x);
 
-			// Update FileInfoMap with new data
-			files.ForEach(file =>
-			{
+            // Update FileInfoMap with new data
+            files.ForEach(file =>
+            {
                 if (fDict.TryGetValue(file.Id, out var dictValue))
                 {
                     file.UpdateSelf(dictValue);
                     file.IsConverted = ConversionSettings.GetTargetPronom(file) == file.NewPronom;
                 }
             });
-		}
+        }
 
-		/// <summary>
-		/// Responsible for managing the conversion and combining of all files
-		/// </summary>
+        /// <summary>
+        /// Responsible for managing the conversion and combining of all files
+        /// </summary>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-		public async Task ConvertFiles()
+        public async Task ConvertFiles()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 		{
 			int maxThreads = GlobalVariables.MaxThreads;
@@ -285,7 +316,7 @@ namespace FileConverter.Managers
 				combineTask.Wait();
 			}
 
-			Console.WriteLine("Checking conversion status...");
+		Console.WriteLine("Checking conversion status...");
 
 			//TODO: Not timplemented due to time constraints, but could look into checking
 			// file when they are removed from WorkingSet, not just all files at the end.

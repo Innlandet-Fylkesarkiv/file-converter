@@ -136,7 +136,7 @@ namespace ConversionTools.Converters
                         // Get the new filename and check if the document was converted correctly
                         string newFileName = Path.Combine(destinationDir, Path.GetFileNameWithoutExtension(inputFilePath) + "." + targetFormat);
                         file.FilePath = inputFilePath;
-                        converted = CheckConversionStatus(newFileName, pronom, file);
+                        converted = CheckConversionStatus(newFileName, file);
                         if (!converted)
                         {
                             file.Failed = true;
