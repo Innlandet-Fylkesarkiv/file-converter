@@ -1,7 +1,7 @@
 <root>
   <Requester>Larsarn</Requester>
   <Converter>Larsern</Converter>
-  <InputFolder>testfiles</InputFolder>
+  <InputFolder>testfiles/bintest</InputFolder>
   <OutputFolder>output</OutputFolder>
   <MaxThreads></MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
@@ -59,13 +59,13 @@
       <Filename>jpg</Filename>
       <Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398, x-fmt/390, x-fmt/391, fmt/645, fmt/1507, fmt/112, fmt/367</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default />
+	  <Default></Default>
     </FileTypes>
     <FileTypes>
       <Filename>png</Filename>
       <Pronoms>fmt/11, fmt/12, fmt/13, fmt/935</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default />
+	  <Default></Default>
     </FileTypes>
   </FileClass>
   <FileClass>
@@ -294,7 +294,7 @@
     </FileTypes>
   </FileClass>
   <FolderOverride>
-    <FolderPath>MergeFiles/bonsai</FolderPath>
+    <FolderPath>bonsai</FolderPath>
     <Pronoms>
 		fmt/11, fmt/12, fmt/13
     </Pronoms>
@@ -304,10 +304,8 @@
     <MergeImages>YES</MergeImages>
   </FolderOverride>
   <FolderOverride>
-    <FolderPath>MergeFiles/Norwegian_Flag</FolderPath>
-    <Pronoms>
-		fmt/41, fmt/42, fmt/43, fmt/44
-    </Pronoms>
+    <FolderPath>Norwegian_Flag</FolderPath>
+    <Pronoms>fmt/41, fmt/42, fmt/43, fmt/44</Pronoms>
     <ConvertTo>
 		fmt/477
     </ConvertTo>
