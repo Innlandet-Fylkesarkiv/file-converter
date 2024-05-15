@@ -218,13 +218,7 @@ namespace FileConverter.Converters.Tests
         static EmailConverter emailConverter;
         static string parentDirectory;
         static Siegfried.Siegfried siegfried;
-        /*public EmailConverterTests()
-        {
-            emailConverter = new EmailConverter();
-            Directory.SetCurrentDirectory("../../../");
-            parentDirectory = Directory.GetCurrentDirectory();
-            siegfried = Siegfried.Siegfried.Instance; 
-        }*/
+
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
@@ -343,12 +337,15 @@ namespace FileConverter.Converters.Tests
             cm.ConversionMap = new ConcurrentDictionary<KeyValuePair<string, string>, List<string>>();
             cm.ConversionMap.TryAdd(key, value);
             string targetDirectory = "";
+            Console.WriteLine("Parent irectory is: {0}", parentDirectory);
             if (Directory.Exists(parentDirectory))
             {
                 // Combine with folderWithAttachments to get the target directory
                 targetDirectory = Path.Combine(parentDirectory, folderWithAttachments);
+                Console.WriteLine($"Target Directory: {targetDirectory}");
                 if (Directory.Exists(targetDirectory))
                 {
+                    Console.WriteLine("Target directory existed");
                     // Get the list of attachement files so they can later be added to the working set
                     attachmentFiles = await SF.Siegfried.Instance.IdentifyFilesIndividually(targetDirectory)!;
                 }
