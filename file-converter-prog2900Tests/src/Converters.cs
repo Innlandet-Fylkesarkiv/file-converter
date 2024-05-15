@@ -215,15 +215,26 @@ namespace FileConverter.Converters.Tests
     [TestClass()]
     public class EmailConverterTests
     {
-        EmailConverter emailConverter;
-        string parentDirectory;
-        Siegfried.Siegfried siegfried;
-        public EmailConverterTests()
+        static EmailConverter emailConverter;
+        static string parentDirectory;
+        static Siegfried.Siegfried siegfried;
+        /*public EmailConverterTests()
         {
             emailConverter = new EmailConverter();
             Directory.SetCurrentDirectory("../../../");
             parentDirectory = Directory.GetCurrentDirectory();
             siegfried = Siegfried.Siegfried.Instance; 
+        }*/
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            string executableDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            Directory.SetCurrentDirectory(executableDirectory);
+            Directory.SetCurrentDirectory("../../../");
+            emailConverter = new EmailConverter();
+            parentDirectory = Directory.GetCurrentDirectory();
+            siegfried = Siegfried.Siegfried.Instance;
+            
         }
 
 
