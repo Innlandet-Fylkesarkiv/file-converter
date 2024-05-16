@@ -307,10 +307,11 @@ namespace FileConverter
                 PrintHelper.PrintLn("Output folder '{0}' not found! Creating...", GlobalVariables.WARNING_COL, GlobalVariables.ParsedOptions.Output);
                 Directory.CreateDirectory(GlobalVariables.ParsedOptions.Output);
             } 
-			// If output folder contains files 
+			// If output folder contains files
 			else if (Directory.GetFiles(GlobalVariables.ParsedOptions.Output).Length > 0)
 			{
 				if (!GlobalVariables.ParsedOptions.AcceptAll) {
+					//Ask user if they want to clear the output folder
                     PrintHelper.PrintLn("Output folder '{0}' is not empty! Files may be overwritten! Do you want to clear it? (Y/N)", GlobalVariables.WARNING_COL, GlobalVariables.ParsedOptions.Output);
                     char input = ' ';
 					do
@@ -321,6 +322,7 @@ namespace FileConverter
 					Console.WriteLine();
 					if(input == 'Y')
 					{
+						//Confirm that user wants to delete files
 						PrintHelper.PrintLn("Are you sure? (Y/N)", GlobalVariables.WARNING_COL);
 						do
 						{
