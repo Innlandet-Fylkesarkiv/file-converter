@@ -101,10 +101,6 @@ namespace ConversionTools.Converters
             {
                 bool converted = false;
                 int count = 0;
-                string newFileName = Path.Combine(destinationDir, Path.GetFileNameWithoutExtension(inputFilePath) + "." + targetFormat);
-                int docIndex = inputFilePath.LastIndexOf('.');
-                string relativeNameWithoutExtension = docIndex != -1 ? inputFilePath.Substring(0, docIndex) : inputFilePath;
-                string newRelativeFileName = Path.GetRelativePath(Directory.GetCurrentDirectory(), relativeNameWithoutExtension + "." + targetFormat);
                 do
                 {
                     // Create the new process for the conversion
@@ -305,6 +301,8 @@ namespace ConversionTools.Converters
                 // set the remaining necessary properties for the files and ad them to the working set, FileInfoMap and Files
                 newFile.Route = newFileToConvert.Route;
                 newFileToConvert.addedDuringRun = true;
+                newFile.FilePath = Path.GetRelativePath(Directory.GetCurrentDirectory(),  newFile.FilePath);
+               
                 ConversionManager.Instance.WorkingSet.TryAdd(id, newFileToConvert);
                 ConversionManager.Instance.FileInfoMap.TryAdd(id, newFile);
                 FileManager.Instance.Files.TryAdd(newFile.Id, newFile);

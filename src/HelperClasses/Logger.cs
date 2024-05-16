@@ -191,10 +191,14 @@ namespace FileConverter.HelperClasses
 		/// <param name="files"> list containing fileinfo about all files </param>
 		public void SetUpDocumentation(List<FileInfo2> files)
 		{
-            string docPath = GlobalVariables.ParsedOptions.Output + Path.DirectorySeparatorChar + "documentation.json";
+			string docPath = GlobalVariables.ParsedOptions.Output + Path.DirectorySeparatorChar + "documentation.json";
 			foreach (FileInfo2 file in files)
 			{
-				if (file.ShouldMerge)
+				// Comment out or remove these 2 lines if absolute path is desired over relative path
+				file.FilePath = Path.GetRelativePath(Directory.GetCurrentDirectory(), file.FilePath);
+				file.OriginalFilePath = Path.GetRelativePath(Directory.GetCurrentDirectory(), file.OriginalFilePath);
+
+                if (file.ShouldMerge)
 				{
 					AddToMergeJSON(file);
 				}
