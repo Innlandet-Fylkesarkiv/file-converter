@@ -21,6 +21,7 @@ namespace FileConverter.HelperClasses
 		readonly JsonSerializerOptions Options = new JsonSerializerOptions
 		{
 			WriteIndented = true,
+			Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
 		};
 
 		/// <summary>

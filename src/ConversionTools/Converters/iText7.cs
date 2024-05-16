@@ -13,6 +13,7 @@ using FileConverter.Siegfried;
 using System.Collections.Immutable;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Transactions;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -255,6 +256,7 @@ namespace ConversionTools.Converters
             catch (Exception e)
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Error converting Image to PDF. File is not converted: " + e.Message, true, filename: file.FilePath);
+                file.Failed = true; 
             }
         }
 
@@ -311,6 +313,7 @@ namespace ConversionTools.Converters
             catch (Exception e)
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Error converting HTML to PDF. File is not converted: " + e.Message, true, filename: file.FilePath);
+                file.Failed = true;
             }
         }
 
@@ -402,6 +405,7 @@ namespace ConversionTools.Converters
             catch (Exception e)
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Error converting PDF to PDF-A. File is not converted: " + e.Message, true, filename: file.FilePath);
+                file.Failed = true;
             }
         }
 
@@ -460,7 +464,7 @@ namespace ConversionTools.Converters
             catch (Exception e)
             {
                 // Handle any exceptions during processing.
-                Logger.Instance.SetUpRunTimeLogMessage($"Unable to process file: {filename}. Exception: {e}",true);
+                Logger.Instance.SetUpRunTimeLogMessage($"Unable to process file: {filename}. Exception: {e.Message}",true);
                 return null;
             }
             // Log the pages where interpolation was removed.
@@ -534,6 +538,7 @@ namespace ConversionTools.Converters
             catch (Exception e)
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Error converting PDF to PDF/A or PDF. File is not converted: " + e.Message, true, filename: file.FilePath);
+                file.Failed = true;
             }
         }
 
@@ -752,7 +757,7 @@ namespace ConversionTools.Converters
         }
 
         readonly List<string> ImagePronoms = [
-           "fmt/3",
+            "fmt/3",
             "fmt/4",
             "fmt/11",
             "fmt/12",
@@ -784,7 +789,7 @@ namespace ConversionTools.Converters
             "fmt/119",
             "fmt/114",
             "fmt/116",
-            "fmt/117"
+            "fmt/117",  
         ];
         readonly List<string> HTMLPronoms = [
             "fmt/103",

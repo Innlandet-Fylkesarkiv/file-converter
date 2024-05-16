@@ -332,43 +332,45 @@ namespace FileConverter.Managers
 		/// <param name="mf">Files that should be combined</param>
 		private void SetupWorkingSet(ConcurrentDictionary<Guid, FileToConvert> ws, Dictionary<string, List<FileInfo2>> mf)
 		{
-			foreach (FileInfo2 file in Managers.FileManager.Instance.Files.Values)
+			try
 			{
-				//Create a new FileToConvert object
-				var newFile = new FileToConvert(file);
-
-				//Check if the file should be overridden by a folder override
-				bool addToWorkingSet = CheckInOverride(file, newFile, mf);
-
-				//Use current and target pronom to create a key for the conversion map
-				var key = new KeyValuePair<string, string>(newFile.CurrentPronom, newFile.TargetPronom);
-
-                //If the conversion map contains the key, set the route to the value of the key
-                if (ConversionMap.TryGetValue(key, out var value))
-                {
-                    newFile.Route = new List<string>(value);
-                }
-                //If the conversion map does not contain the key, set the route to the target pronom
-                else if (newFile.CurrentPronom != newFile.TargetPronom)
+				foreach (FileInfo2 file in Managers.FileManager.Instance.Files.Values)
 				{
-					newFile.Route.Add(newFile.TargetPronom);
-				}
-				else
-				{
-					continue;
-				}
-				file.Route = newFile.Route;
-				//Add the file to the working set if it was not set to be merged
-				if (addToWorkingSet)
-				{
-					//Try to add the file to the working set
-					bool added = ws.TryAdd(file.Id, newFile);
-					if (!added)
+					//Create a new FileToConvert object
+					var newFile = new FileToConvert(file);
+
+					//Check if the file should be overridden by a folder override
+					bool addToWorkingSet = CheckInOverride(file, newFile, mf);
+
+					//Use current and target pronom to create a key for the conversion map
+					var key = new KeyValuePair<string, string>(newFile.CurrentPronom, newFile.TargetPronom);
+
+					//If the conversion map contains the key, set the route to the value of the key
+					if (ConversionMap.TryGetValue(key, out var value))
 					{
-						Logger.Instance.SetUpRunTimeLogMessage("CM ConvertFiles: Could not add file to working set: " + file.FilePath, true);
+						newFile.Route = new List<string>(value);
+					}
+					else if (newFile.CurrentPronom == newFile.TargetPronom)
+					{
+						continue;
+					}
+					file.Route = newFile.Route;
+					//Add the file to the working set if it was not set to be merged
+					if (addToWorkingSet)
+					{
+						//Try to add the file to the working set
+						bool added = ws.TryAdd(file.Id, newFile);
+						if (!added)
+						{
+							Logger.Instance.SetUpRunTimeLogMessage("CM ConvertFiles: Could not add file to working set: " + file.FilePath, true);
+						}
 					}
 				}
 			}
+            catch (Exception e)
+			{
+                Logger.Instance.SetUpRunTimeLogMessage("CM SetupWorkingSet: " + e.Message, true);
+            }
 		}
 
 		/// <summary>

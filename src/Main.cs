@@ -306,6 +306,38 @@ namespace FileConverter
             {
                 PrintHelper.PrintLn("Output folder '{0}' not found! Creating...", GlobalVariables.WARNING_COL, GlobalVariables.ParsedOptions.Output);
                 Directory.CreateDirectory(GlobalVariables.ParsedOptions.Output);
+            } 
+			// If output folder contains files 
+			else if (Directory.GetFiles(GlobalVariables.ParsedOptions.Output).Length > 0)
+			{
+				if (!GlobalVariables.ParsedOptions.AcceptAll) {
+                    PrintHelper.PrintLn("Output folder '{0}' is not empty! Files may be overwritten! Do you want to clear it? (Y/N)", GlobalVariables.WARNING_COL, GlobalVariables.ParsedOptions.Output);
+                    char input = ' ';
+					do
+					{
+						input = Console.ReadKey().KeyChar;
+						input = char.ToUpper(input);
+					} while (input != 'Y' && input != 'N');
+					Console.WriteLine();
+					if(input == 'Y')
+					{
+						PrintHelper.PrintLn("Are you sure? (Y/N)", GlobalVariables.WARNING_COL);
+						do
+						{
+                            input = Console.ReadKey().KeyChar;
+                            input = char.ToUpper(input);
+                        } while (input != 'Y' && input != 'N');
+						Console.WriteLine();
+						if (input == 'Y')
+						{
+							Directory.Delete(GlobalVariables.ParsedOptions.Output, true);
+							Directory.CreateDirectory(GlobalVariables.ParsedOptions.Output);
+						}
+					}
+				} else
+				{
+					Logger.Instance.SetUpRunTimeLogMessage("Output folder contained files before program start!", false);
+				}
             }
         }
 
