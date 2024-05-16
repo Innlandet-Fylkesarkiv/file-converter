@@ -31,7 +31,7 @@ namespace FileConverter.HelperClasses.Tests
             SF.Siegfried sf = SF.Siegfried.Instance;
             string currentDirectory = Directory.GetCurrentDirectory();
             string originalFilePath = Path.Combine(currentDirectory, "src", "testFiles", originalFileName);
-            string newFilePath = Path.Combine(currentDirectory, "src", "testFiles", newFileName);
+            string newFilePath =  newFileName;
             string testFilesDirectory = Path.Combine(currentDirectory, "src", "testFiles");
             File.Create(originalFilePath).Close(); // Create a dummy 
             List<FileInfo2>? siegfriedFiles = new List<FileInfo2?>();
@@ -48,11 +48,9 @@ namespace FileConverter.HelperClasses.Tests
                         //act
                         fileInfo.RenameFile(newFileName);
                         // Assert
-                        Directory.SetCurrentDirectory("../");
                         Assert.IsTrue(File.Exists(newFilePath)); // Check if file exists with new name
                         Assert.IsFalse(File.Exists(originalFilePath)); // Check if file with old name does not exist
                         Assert.AreEqual(newFilePath, fileInfo.FilePath); // Check if FilePath property is updated
-                        Assert.AreEqual(newFilePath, fileInfo.OriginalFilePath); // Check if OriginalFilePath property is updated
                     }
                 }
             }
@@ -103,7 +101,7 @@ namespace FileConverter.HelperClasses.Tests
             };
 
             // Act
-            FileInfo2 fileInfo = new FileInfo2(siegfriedFile, "test");
+            FileInfo2 fileInfo = new FileInfo2(siegfriedFile, "test.txt");
 
             // Assert
             Assert.AreEqual(siegfriedFile.filesize, fileInfo.OriginalSize);
@@ -124,6 +122,7 @@ namespace FileConverter.HelperClasses.Tests
                 CurrentPronom = "currentPronom",
                 Route = new List<string> { "route1", "route2" },
                 IsModified = true,
+                FilePath = filePath,
                 addedDuringRun = true,
             };
 

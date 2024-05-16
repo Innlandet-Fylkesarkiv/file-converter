@@ -258,9 +258,6 @@ namespace ConversionTools.Converters
                 bool converted = false;
                 int count = 0;
                 string newFileName = Path.Combine(destinationPdfFolder, Path.GetFileNameWithoutExtension(sourceDoc) + "." + extention);
-				int docIndex = sourceDoc.LastIndexOf('.');
-                string relativeNameWithoutExtension = docIndex != -1 ? sourceDoc.Substring(0, docIndex) : sourceDoc;
-                string newRelativeFileName = Path.GetRelativePath(Directory.GetCurrentDirectory(), relativeNameWithoutExtension + "." + extention);
                 do
                 {
                     using (Process process = new Process())
@@ -301,7 +298,7 @@ namespace ConversionTools.Converters
 						file.Route.Add(pronom);
 						pronom = currPronom;    //Override target pronom since the final PDF conversion will be done in iText7
 					}
-                    converted = CheckConversionStatus(newRelativeFileName, file, pronom);
+                    converted = CheckConversionStatus(newFileName, file, pronom);
                 } while (!converted && ++count < GlobalVariables.MAX_RETRIES);
                 if (!converted)
                 {
