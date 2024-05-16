@@ -205,13 +205,13 @@ namespace ConversionTools
         /// <param name="file">File that has been converted</param>
         /// <param name="newFilepath">Filepath to new file</param>
         /// <returns>True if the conversion succeeded, otherwise false</returns>
-        public static bool CheckConversionStatus(string newFilepath, FileToConvert file)
+        public static bool CheckConversionStatus(string newFilepath, FileToConvert file, string? targetPronom = "")
         {
             try
             {
                 // Identify the new file using Siegfried and compare new identified pronom to the target pronom
                 var result = SF.Siegfried.Instance.IdentifyFile(newFilepath, true);
-                if (result != null && result.matches[0].id == file.Route.First())
+                if (result != null && (result.matches[0].id == file.Route.First() || result.matches[0].id == targetPronom))
                 {
                     // Conversion succeeded - delete original file and update entry
                     DeleteOriginalFileFromOutputDirectory(file.FilePath);
