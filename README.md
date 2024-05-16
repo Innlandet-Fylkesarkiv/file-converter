@@ -184,8 +184,9 @@ The program is mostly tested in Windows, so Linux-specific issues may not appear
   	- Starting GUI from the main program will crash the program on Linux
 - Office conversion (Linux)
   	- Office conversion using LibreOffice does not work correctly
-- Merging files
-  	- Can maybe work sometimes, very unstable
+- PDF to Image
+  	- Some files get an "IO security problem" error
+  	- Signed documents get an "A generic error occurred in GDI+." error
   
 ## CLI
 To run in CLI navigate to the path of the executable in the terminal and run:
