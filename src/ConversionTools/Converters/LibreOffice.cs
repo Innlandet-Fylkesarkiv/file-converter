@@ -179,7 +179,6 @@ namespace ConversionTools.Converters
 		/// <param name="supportedConversions"> The dictionary where the supported conversions are saved to </param>
 		private static void AddSupportedConversions(Dictionary<string, List<string>> supportedConversions)
 		{
-			List<string> emptyList = [];
 			// EXCEL 
 			AddConversions(XLSXPronoms, [PDFPronoms, ODSPronoms], supportedConversions);
             AddConversions(XLSPronoms,  [PDFPronoms, XLSXPronoms, ODSPronoms], supportedConversions);
