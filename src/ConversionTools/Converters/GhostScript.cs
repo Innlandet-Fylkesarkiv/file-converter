@@ -324,10 +324,6 @@ namespace ConversionTools.Converters
                 {
                     return false;
                 }
-                /*if (!CheckConversionStatus(newFile.FilePath, new FileToConvert(newFile)))
-                {
-                    return false;
-                }*/
             }
             return true;
         }
@@ -516,10 +512,6 @@ namespace ConversionTools.Converters
             if (currPronom != file.Route.First() &&
                     (PDFPronoms.Contains(file.Route.First()) || PDFAPronoms.Contains(file.Route.First())))
             {
-                //file.Route.Add(pronom);
-                //pronom = currPronom;    //Override target pronom since the final PDF conversion will be done in iText7
-
-                /*
                 // Set the new filename
                 ReplaceFileInList(outputFilePath, file);
                 var converter = new IText7();
@@ -529,7 +521,7 @@ namespace ConversionTools.Converters
                 {
                     fileInfo.ConversionTools.Add(converter.NameAndVersion);
                 }
-                converter.ConvertFromPDFToPDF(file);*/
+                converter.ConvertFromPDFToPDF(file);
             }
         }
 

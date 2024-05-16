@@ -1,9 +1,10 @@
 <root>
   <Requester>Larsarn</Requester>
   <Converter>Larsern</Converter>
-  <InputFolder>input</InputFolder>
+  <InputFolder>testfiles/mixed</InputFolder>
   <OutputFolder>output</OutputFolder>
-  <MaxThreads></MaxThreads>
+  <MaxThreads>
+  </MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
   <Timeout>
   </Timeout>
@@ -38,12 +39,12 @@
   </FileClass>
   <FileClass>
     <ClassName>Hypertext Markup Language</ClassName>
-    <Default>fmt/15</Default>
+    <Default>fmt/477</Default>
     <FileTypes>
       <Filename>HTML</Filename>
       <Pronoms>fmt/103, fmt/102, fmt/96, fmt/97, fmt/98, fmt/99, fmt/100, fmt/471</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default />
+      <Default></Default>
     </FileTypes>
   </FileClass>
   <FileClass>
@@ -59,13 +60,19 @@
       <Filename>jpg</Filename>
       <Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398, x-fmt/390, x-fmt/391, fmt/645, fmt/1507, fmt/112, fmt/367</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-	  <Default></Default>
+      <Default />
     </FileTypes>
     <FileTypes>
       <Filename>png</Filename>
       <Pronoms>fmt/11, fmt/12, fmt/13, fmt/935</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-	  <Default></Default>
+      <Default />
+    </FileTypes>
+    <FileTypes>
+      <Filename>tif</Filename>
+      <Pronoms>fmt/353</Pronoms>
+      <DoNotConvert>NO</DoNotConvert>
+      <Default />
     </FileTypes>
   </FileClass>
   <FileClass>
@@ -166,54 +173,53 @@
   </FileClass>
   <FileClass>
     <ClassName>pdf/A</ClassName>
-    <Default>
-    </Default>
+    <Default>fmt/477</Default>
     <FileTypes>
       <Filename>pdf/A-1a</Filename>
       <Pronoms>fmt/95</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default>fmt/477</Default>
+      <Default />
     </FileTypes>
     <FileTypes>
       <Filename>pdf/A-1b</Filename>
       <Pronoms>fmt/354</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default>fmt/477</Default>
+      <Default />
     </FileTypes>
     <FileTypes>
       <Filename>pdf/A-2a</Filename>
       <Pronoms>fmt/476</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default>fmt/477</Default>
+      <Default />
     </FileTypes>
     <FileTypes>
       <Filename>pdf/A-2b</Filename>
       <Pronoms>fmt/477</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default>fmt/477</Default>
+      <Default />
     </FileTypes>
     <FileTypes>
       <Filename>pdf/A-2u</Filename>
       <Pronoms>fmt/478</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default>fmt/477</Default>
+      <Default />
     </FileTypes>
     <FileTypes>
       <Filename>pdf/A-3a</Filename>
       <Pronoms>fmt/479</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default>fmt/477</Default>
+      <Default />
     </FileTypes>
     <FileTypes>
       <Filename>pdf/A-3b</Filename>
       <Pronoms>fmt/480</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default>fmt/477</Default>
+      <Default />
     </FileTypes>
   </FileClass>
   <FileClass>
     <ClassName>PostScript</ClassName>
-    <Default>fmt/15</Default>
+    <Default>fmt/477</Default>
     <FileTypes>
       <Filename>ps</Filename>
       <Pronoms>fmt/124, x-fmt/91, x-fmt/406, x-fmt/407, x-fmt/408, fmt/501</Pronoms>
@@ -293,22 +299,4 @@
       <Default />
     </FileTypes>
   </FileClass>
-  <FolderOverride>
-    <FolderPath>bonsai</FolderPath>
-    <Pronoms>
-		fmt/11, fmt/12, fmt/13
-    </Pronoms>
-    <ConvertTo>
-		fmt/477
-    </ConvertTo>
-    <MergeImages>YES</MergeImages>
-  </FolderOverride>
-  <FolderOverride>
-    <FolderPath>Norwegian_Flag</FolderPath>
-    <Pronoms>fmt/41, fmt/42, fmt/43, fmt/44</Pronoms>
-    <ConvertTo>
-		fmt/477
-    </ConvertTo>
-    <MergeImages>YES</MergeImages>
-  </FolderOverride>
 </root>
