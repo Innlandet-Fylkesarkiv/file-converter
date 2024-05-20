@@ -80,8 +80,9 @@ The resulting binaries will be located in a new "Windows" or "Linux" directory.
 |---|---|---|
 |Windows and Linux| **[dotnet version 8.0](https://dotnet.microsoft.com/en-us/download)** | Needed to build and run the program. |
 | Windows and Linux| **[Java JDK](https://www.oracle.com/java/technologies/downloads/)** (Only JRE also works)| Needed for converting emails. |
+| Windows| **[Ghostscript](https://ghostscript.com/releases/gsdnld.html)** (download newest and follow installer instructions)| Needed for converting PostScript to PDF and PDF to image. |
 | Windows| **[LibreOffice](https://www.libreoffice.org/download/download-libreoffice/?type=win-x86_64&version=7.6.6&lang=nb)** ( download version 7.6.6)| Required for converting Office documents. |
-| Linux| Libreoffice should be already present on Linux. This can be checked with ```Soffice --version```. Otherwise, download from the link above.| Required for converting Office documents.|
+| Linux| Libreoffice should be already present on Linux. This can be checked with ```soffice --version```. Otherwise, download from the link above.| Required for converting Office documents.|
 | Linux | **[GhostScript.](https://ghostscript.com/docs/9.55.0/Install.htm)** Should be installed on most distros, which can be checked by running ```gs -version```. | Required for PostScript and PDF to image conversion. |
 | Windows and Linux| **[wkhtmltopdf version 0.12.6](https://wkhtmltopdf.org/downloads.html)** | Needed for converting emails. |
 | Linux | **[Siegfried](https://github.com/richardlehane/siegfried)** | To identify files and keep track of the conversion process. |
