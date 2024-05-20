@@ -65,12 +65,14 @@ namespace FileConverter.LinuxSpecifics
         /// </summary>
         private static void checkInstallSiegfried()
         {
+            //Try to start Siegfried
             string output = RunProcess(startInfo =>
             {
                 startInfo.FileName = PathRunningProgram;
                 startInfo.Arguments = "-c \" " + "sf -version" + " \"";
             });
 
+            // If output does not contain Siegfried, ask user if they want to install it
             if (!output.Contains("siegfried"))
             {
                 Console.WriteLine("Siegfried is not installed. In order to install Siegfried your user must have sudo privileges.");

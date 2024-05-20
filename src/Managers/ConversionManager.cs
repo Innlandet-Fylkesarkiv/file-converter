@@ -60,7 +60,6 @@ namespace FileConverter.Managers
 		public ConcurrentDictionary<KeyValuePair<string, string>, List<string>> ConversionMap { get; set; } = new ConcurrentDictionary<KeyValuePair<string, string>, List<string>>();
 		public ConcurrentDictionary<Guid, FileInfo2> FileInfoMap { get; set; } = new ConcurrentDictionary<Guid, FileInfo2>();
 		public ConcurrentDictionary<Guid, FileToConvert> WorkingSet { get; set; } = new ConcurrentDictionary<Guid, FileToConvert>();
-		public Dictionary<string, string> WorkingSetMap { get; set; } = new Dictionary<string, string>();
 		private static ConversionManager? instance;
 		private static readonly object lockObject = new object();
 		readonly List<Converter> Converters;
@@ -278,8 +277,6 @@ namespace FileConverter.Managers
 				Logger.Instance.SetUpRunTimeLogMessage("Starting new conversion", false);
 
 				ConcurrentDictionary<Guid, CountdownEvent> countdownEvents = new ConcurrentDictionary<Guid, CountdownEvent>();
-				//Reset the working set map for the next run
-				WorkingSetMap.Clear();
 				//Loop through working set
 				WorkingSet.Values.ForEach(file =>
 				{
