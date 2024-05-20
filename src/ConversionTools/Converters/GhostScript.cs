@@ -19,6 +19,9 @@ using SF = FileConverter.Siegfried;
 /// 
 namespace ConversionTools.Converters
 {
+    /// <summary>
+    /// Class with the functions required to convert the formats specified above
+    /// </summary>
     public class GhostscriptConverter : Converter
     {
         private static readonly object lockobject = new object();

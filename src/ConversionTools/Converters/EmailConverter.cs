@@ -18,6 +18,9 @@ using SF = FileConverter.Siegfried;
 /// 
 namespace ConversionTools.Converters
 {
+    /// <summary>
+    /// Class with functions required to convert the email formats mentioned above
+    /// </summary>
     public class EmailConverter : Converter
     {
         public readonly OperatingSystem currentOS;

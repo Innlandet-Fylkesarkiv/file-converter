@@ -7,6 +7,9 @@ using SF = FileConverter.Siegfried;
 
 namespace FileConverter
 {
+	/// <summary>
+	/// Class with the command line options available when running the executable
+	/// </summary>
 	public class Options
 	{
 		[Option('i', "input", Required = false, HelpText = "Specify input directory", Default = "input")]
@@ -19,7 +22,10 @@ namespace FileConverter
 		[Option('y', "yes", Required = false, HelpText = "Accept all queries", Default = false)]
 		public bool AcceptAll { get; set; } = false;
 	}
-    static class Program
+	/// <summary>
+	/// Class with the entry point for the program
+	/// </summary>
+    public static class Program
 	{
 		/// <summary>
 		/// Main function of the program

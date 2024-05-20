@@ -29,6 +29,9 @@ using System.Collections.Concurrent;
 /// 
 namespace ConversionTools.Converters
 {
+    /// <summary>
+    /// Class with the functions reqwuired to convert the formats specified abvoe
+    /// </summary>
     public class IText7 : Converter
     {
         readonly ConcurrentQueue<string> AvailableICCFiles = new ConcurrentQueue<string>();

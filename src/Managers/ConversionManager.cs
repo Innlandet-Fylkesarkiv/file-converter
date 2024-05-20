@@ -7,6 +7,9 @@ using SF = FileConverter.Siegfried;
 
 namespace FileConverter.Managers
 {
+	/// <summary>
+	/// Class with functions and properties required for the files to be converted
+	/// </summary>
 	public class FileToConvert
 	{
 		public string FilePath { get; set; }            //From FileInfo

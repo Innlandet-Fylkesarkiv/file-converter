@@ -3,6 +3,9 @@ using System.DirectoryServices.AccountManagement;
 
 namespace FileConverter.HelperClasses
 {
+	/// <summary>
+	/// Class used for logging information to the log file created. 
+	/// </summary>
     public class Logger
 	{
 		private static Logger? instance;

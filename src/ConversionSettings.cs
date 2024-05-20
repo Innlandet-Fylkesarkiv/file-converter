@@ -4,6 +4,9 @@ using FileConverter.Managers;
 
 namespace FileConverter
 {
+    /// <summary>
+    /// Class with variables necessary for correct settings for the conversion
+    /// </summary>
     public class ConversionSettingsData
     {
         // List of input pronom codes
@@ -22,6 +25,9 @@ namespace FileConverter
         // do not convert when set to true
         public bool DoNotConvert { get; set; } = false;
     }
+    /// <summary>
+    /// Class that handles parsing and setting data from the conversionSettings.xml file
+    /// </summary>
     class ConversionSettings
     {
         private static ConversionSettings? instance;

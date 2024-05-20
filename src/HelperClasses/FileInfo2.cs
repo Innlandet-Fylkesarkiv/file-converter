@@ -9,6 +9,9 @@ namespace FileConverter.HelperClasses
         SHA256
     }
 
+    /// <summary>
+    /// All the relevant information properties for a file
+    /// </summary>
     public class FileInfo2
     {
         public string FilePath { get; set; } = "";                  // Filepath relative to input directory

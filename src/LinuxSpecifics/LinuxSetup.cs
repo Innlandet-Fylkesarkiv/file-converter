@@ -2,6 +2,9 @@ using System.Diagnostics;
 
 namespace FileConverter.LinuxSpecifics
 {
+    /// <summary>
+    /// Manages the setup for linux users, guiding installation
+    /// </summary>
     static class LinuxSetup
     {
         //Specific Linux distro

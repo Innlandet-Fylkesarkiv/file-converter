@@ -8,6 +8,10 @@ using SF = FileConverter.Siegfried;
 /// 
 namespace ConversionTools
 {
+    /// <summary>
+    /// The class that every converter derives from with functions and variables
+    /// relevant for conversion
+    /// </summary>
     public class Converter
     {
         public string Name { get; set; } = ""; // Name of the converter
