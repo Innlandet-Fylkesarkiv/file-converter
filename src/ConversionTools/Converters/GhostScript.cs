@@ -104,16 +104,21 @@ namespace ConversionTools.Converters
             }
         }
 
+        /// <summary>
+        /// Returns the supported output image PRONOMs for Ghostscript
+        /// </summary>
+        /// <returns>A List of the supported PRONOMs</returns>
         public List<string> GetImagePronoms()
         {
             return new List<string> { BMPPronom, TIFFPronom, JPGPronom, PNGPronom };
         }
 
         /// <summary>
-        /// Get the path to the Ghostscript executable depending on the operating system
+        /// Get the path to the Ghostscript executable
         /// </summary>
         private void GetExecutablePath()
         {
+            // Locate the Ghostscript executable
             string fileName = "gswin64c.exe";
             var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, fileName, SearchOption.AllDirectories);
             if (files.Length > 0)
@@ -124,7 +129,7 @@ namespace ConversionTools.Converters
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Ghostscript executable not found", true);
             }
-
+            // Locate the Ghostscript library
             fileName = "gsdll64.dll";
             files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, fileName, SearchOption.AllDirectories);
             if (files.Length > 0)
@@ -296,7 +301,6 @@ namespace ConversionTools.Converters
                     DeleteOriginalFileFromOutputDirectory(file.FilePath);
                     originalFileInfo.Display = false;
                     originalFileInfo.IsDeleted = true;
-                    //originalFileInfo.UpdateSelf(files.First());
                     originalFileInfo.IsConverted = true;
                 }
                 file.Failed = !converted;
@@ -408,11 +412,6 @@ namespace ConversionTools.Converters
 
                     using (Process? process = Process.Start(startInfo))
                     {
-                        /* Not currently used. Maybe should be?
-                        string? output = process?.StandardOutput.ReadToEnd();
-                        string? error = process?.StandardError.ReadToEnd();
-                        */
-
                         process?.WaitForExit();
                     }
 

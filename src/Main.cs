@@ -33,7 +33,8 @@ namespace FileConverter
 		/// <param name="args">console arguments</param>
 		private static void Main(string[] args)
 		{
-			Stopwatch sw = new Stopwatch();
+            Console.Title = "FileConverter";
+            Stopwatch sw = new Stopwatch();
 			sw.Start();
 			PrintHelper.OldCol = Console.ForegroundColor;
 			if (GlobalVariables.Debug)
@@ -50,12 +51,9 @@ namespace FileConverter
 			CheckConversionSettingsFile(conversionSettingsPath);
 			CheckInputOutputFolders(conversionSettingsPath);
 
-			Console.Title = "FileConverter";
-
 			FileManager fileManager = FileManager.Instance;
 			SF.Siegfried sf = SF.Siegfried.Instance;
-			ReloadPreviousRunOrInitNewFiles();
-			
+			TryInitializeFiles();
 
 			//Set up folder override after files have been copied over
 			ConversionSettings.SetUpFolderOverride(conversionSettingsPath);
@@ -345,20 +343,22 @@ namespace FileConverter
             }
         }
 
-		/// <summary>
-		/// initialize new files (tries to reload files from previous run, but does not work at this time)
-		/// </summary>
-        private static void ReloadPreviousRunOrInitNewFiles()
+        /// <summary>
+        /// initialize new files and exits program if it fails
+        /// </summary>
+        private static void TryInitializeFiles()
 		{
             SF.Siegfried sf = SF.Siegfried.Instance;
             FileManager fileManager = FileManager.Instance;
             Logger logger = Logger.Instance;
+            // Tries to initialize files
             try
             {
 				InitFiles();
             }
             catch (Exception e)
             {
+                // If it fails, print error message and exit program
                 PrintHelper.PrintLn("[FATAL] Could not identify files: " + e.Message, GlobalVariables.ERROR_COL);
                 logger.SetUpRunTimeLogMessage("Main: Error when copying/unpacking/identifying files: " + e.Message, true);
                 ExitProgram(1);

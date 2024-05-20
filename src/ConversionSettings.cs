@@ -119,6 +119,7 @@ namespace FileConverter
         /// <param name="root">Root node in settings file</param>
         private static void SetUpMetadata(XmlNode root)
         {
+            // Get nodes from the root
             XmlNode? requesterNode = root.SelectSingleNode("Requester");
             XmlNode? converterNode = root.SelectSingleNode("Converter");
             XmlNode? inputNode = root.SelectSingleNode("InputFolder");
@@ -127,6 +128,7 @@ namespace FileConverter
             XmlNode? timeoutNode = root.SelectSingleNode("Timeout");
             XmlNode? maxFileSizeNode = root.SelectSingleNode("MaxFileSize");
 
+            // Check if the nodes are not null and set the global variables
             string? requester = requesterNode?.InnerText.Trim();
             string? converter = converterNode?.InnerText.Trim();
             if (!String.IsNullOrEmpty(requester))
@@ -185,6 +187,7 @@ namespace FileConverter
         /// <param name="defaultType">default type for FileClass</param>
         static void HandleFileTypeNode(XmlNode fileTypeNode, string defaultType)
         {
+            // Get the values from the nodes
             string? pronoms = fileTypeNode.SelectSingleNode("Pronoms")?.InnerText;
             string? innerDefault = fileTypeNode.SelectSingleNode("Default")?.InnerText;
             string? doNotConvert = fileTypeNode.SelectSingleNode("DoNotConvert")?.InnerText.ToUpper().Trim();
@@ -258,6 +261,7 @@ namespace FileConverter
         /// <param name="folderOverrideNode">The node that should be parsed</param>
         private static void HandleFolderOverrideNode(XmlNode folderOverrideNode)
         {
+            // Get the values from the nodes
             string? folderPath = folderOverrideNode.SelectSingleNode("FolderPath")?.InnerText;
             string? pronoms = folderOverrideNode.SelectSingleNode("Pronoms")?.InnerText;
             string? merge = folderOverrideNode.SelectSingleNode("MergeImages")?.InnerText.ToUpper().Trim();
@@ -290,6 +294,7 @@ namespace FileConverter
             folderPath = folderPath.Replace('\\', Path.DirectorySeparatorChar);
             folderPath = folderPath.Replace('/', Path.DirectorySeparatorChar);
             GlobalVariables.FolderOverride.Add(folderPath, ConversionSettings);
+            // Get all subfolders of the folder and add them to the FolderOverride dictionary
             List<string> subfolders = GetSubfolderPaths(Path.Combine(GlobalVariables.ParsedOptions.Output,folderPath));
 
             foreach (string subfolder in subfolders)
@@ -307,13 +312,12 @@ namespace FileConverter
         private static List<string> GetSubfolderPaths(string folderName)
         {
             //Remove output path from folderName
-            string relativePath = folderName;//folderName.Replace(GlobalVariables.ParsedOptions.Output, "");
+            string relativePath = folderName;
             List<string> subfolders = [];
-            //subfolders.Add(folderName);
             try
             {
                 subfolders.Add(folderName);
-                string targetFolderPath = relativePath;//Path.Combine(GlobalVariables.ParsedOptions.Output, relativePath);
+                string targetFolderPath = relativePath;
                 var subfolderpaths = Directory.GetDirectories(targetFolderPath);
 
                 // Recursively get subfolders of each subfolder

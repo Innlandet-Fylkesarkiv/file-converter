@@ -199,12 +199,13 @@ namespace FileConverter.HelperClasses
 				// Comment out or remove these 2 lines if absolute path is desired over relative path
 				file.FilePath = Path.GetRelativePath(Directory.GetCurrentDirectory(), file.FilePath);
 				file.OriginalFilePath = Path.GetRelativePath(Directory.GetCurrentDirectory(), file.OriginalFilePath);
-
+                // If file was merged, add it to the merged files
                 if (file.ShouldMerge)
 				{
 					AddToMergeJSON(file);
 				}
-				else if (file.NotSupported)
+                // If file is not supported, add it to the not supported files
+                else if (file.NotSupported)
 				{
 					var jsonData = new JsonDataOutputNotSupported
 					{
@@ -216,7 +217,8 @@ namespace FileConverter.HelperClasses
 					};
 					JsonNotSupportedFiles.Add(jsonData);
 				}
-				else if (file.OutputNotSet)
+                // If file is not set in ConversionSettings, add it to the output not set files
+                else if (file.OutputNotSet)
 				{
 					var jsonData = new JsonDataOutputNotSet
 					{
@@ -227,8 +229,9 @@ namespace FileConverter.HelperClasses
 					};
 					JsonOutputNotSetFiles.Add(jsonData);
 				}
-				else
-				{
+                // Otherwise file is normal and should be added to the ConvertedFiles JSON structure
+                else
+                {
 					var jsonData = new JsonData
 					{
 						OriginalFilePath = file.OriginalFilePath,
@@ -284,6 +287,7 @@ namespace FileConverter.HelperClasses
 		/// <param name="file">The file that should be</param>
 		private void AddToMergeJSON(FileInfo2 file)
 		{
+            // Create a new JSON object with the file information
             var jsonData = new JsonDataMerge
             {
                 Filename = file.FilePath,
@@ -295,31 +299,38 @@ namespace FileConverter.HelperClasses
                 IsMerged = file.IsMerged,
                 MergedTo = file.NewFileName
             };
+            // Get the parent directory of the file
             var parentDir = Path.GetDirectoryName(file.FilePath) ?? "";
 
+            // If the parent directory is already in the dictionary
             if (JsonMergedFiles.TryGetValue(parentDir, out var mergedFiles))
             {
+                // If the the result of the merge is already in the dictionary, add the file to the list
                 if (mergedFiles.TryGetValue(jsonData.MergedTo, out var dataList))
                 {
                     dataList.Add(jsonData);
                 }
+				// If the file is the result of a merge, add it to the front of the list
 				else if (mergedFiles.TryGetValue(jsonData.Filename, out var dataList2))
 				{
                     //Add the result of the merge to the beginning of the list
                     dataList2.Insert(0,jsonData);
 				}
-				else if (jsonData.MergedTo == "")
+                //If the file is the result of a merge, but the entry is not set, create the entry
+                else if (jsonData.MergedTo == "")
 				{
 					//If the file is result of a merge, but the entry is not set, create the entry
 					mergedFiles.Add(jsonData.Filename, new List<JsonDataMerge>());
 					mergedFiles[jsonData.Filename].Add(jsonData);
 				}
+                // If the file is not the result of a merge, but the result is not added to the dictionary yet, add it
                 else
                 {
                     mergedFiles.Add(jsonData.MergedTo, new List<JsonDataMerge>());
                     mergedFiles[jsonData.MergedTo].Add(jsonData);
                 }
             }
+            // If the parent directory is not in the dictionary, create the entry
             else
             {
                 JsonMergedFiles.Add(parentDir, new Dictionary<string, List<JsonDataMerge>>());

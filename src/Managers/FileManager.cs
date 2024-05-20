@@ -97,106 +97,6 @@ namespace FileConverter.Managers
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="files"></param>
-        public void ImportFiles(List<FileInfo2> files)
-        {
-            try
-            {
-                //Remove files that no longer exist
-                files.RemoveAll(file => !File.Exists(file.FilePath));
-                //Remove files that are not in the input directory
-                files.RemoveAll(file => !FileExistsInDirectory(GlobalVariables.ParsedOptions.Input, file.FilePath));
-                //Remove all duplicates in file list
-                files = files.Distinct().ToList();
-
-                files.ForEach(file =>
-                {
-                    if (!FileExistsInDirectory(GlobalVariables.ParsedOptions.Output, file.FilePath))
-                    {
-                        var newPath = Path.Combine(GlobalVariables.ParsedOptions.Output, Path.GetFileName(file.FilePath));
-                        File.Copy(file.FilePath, newPath);
-                    }
-                    Guid id = Guid.NewGuid();
-                    file.Id = id;
-                    // Check for duplicate OriginalChecksum
-                    if (!Files.Values.Any(f => f.OriginalChecksum == file.OriginalChecksum))
-                    {
-                        Files.TryAdd(id, file);
-                    }
-                });
-            }
-            catch (Exception e)
-            {
-                Logger logger = Logger.Instance;
-                logger.SetUpRunTimeLogMessage("Error when copying files: " + e.Message, true);
-            }
-        }
-
-        /// <summary>
-        /// Adds the sent as parameter to the list of files in FileManager
-        /// </summary>
-        /// <param name="files">List of identifed fils to be added to the list of files </param>
-        public void ImportCompressedFiles(List<FileInfo2> files)
-        {
-            try
-            {
-                //Remove files that no longer exist
-                files.RemoveAll(file => !File.Exists(file.FilePath));
-            }
-            catch (Exception e)
-            {
-                Logger logger = Logger.Instance;
-                logger.SetUpRunTimeLogMessage("Error when copying files: " + e.Message, true);
-            }
-            files.ForEach(file =>
-            {
-                Guid id = Guid.NewGuid();
-                file.Id = id;
-                Files.TryAdd(id, file);
-            });
-        }
-
-        /// <summary>
-        /// Checks if a file exists in a directory
-        /// </summary>
-        /// <param name="directoryPath"> path to the directory </param>
-        /// <param name="fileName"> name of the file </param>
-        /// <returns></returns>
-        private static bool FileExistsInDirectory(string directoryPath, string fileName)
-        {
-            // Get the relative path of the file
-            int index = fileName.Contains(GlobalVariables.ParsedOptions.Input) ? fileName.IndexOf(GlobalVariables.ParsedOptions.Input) : fileName.IndexOf(GlobalVariables.ParsedOptions.Output);
-            string path = fileName.Substring(index);
-            try
-            {
-                // Check if the directory exists
-                if (Directory.Exists(directoryPath))
-                {
-                    // Check if parent directory exists
-                    if (!Directory.Exists(Directory.GetParent(path)!.FullName))
-                    {
-                        return false;
-                    }
-                    // Search for the file with the specified pattern in the directory and its subdirectories
-                    string[] files = Directory.GetFiles(directoryPath, Path.GetFileName(path), SearchOption.AllDirectories);
-
-                    // If any matching file is found, return true
-                    return files.Length > 0;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Checks for potential conflicts in file naming after conversion. <br></br>
         /// Will resolve conflicts by renaming files in this order: <br></br>
         /// 1. Add the original extension to the file name <br></br>
@@ -213,12 +113,12 @@ namespace FileConverter.Managers
 
             var filteredList = FilterNonDuplicates(directoriesWithFiles);
 
-            //If no filenames are duplicates, no need to check more
+            // If no filenames are duplicates, no need to check more
             if (filteredList.Count == 0)
             {
                 return;
             }
-
+            // Resolve naming conflicts by adding the original extension to the file name
             foreach (var fileGroup in filteredList.Values)
             {
                 foreach (var file in fileGroup)
@@ -343,11 +243,12 @@ namespace FileConverter.Managers
                 return;
             }
 
-            string notSupportedString = " (Not supported)"; //Needs to have a space in front to extract the pronom code from the string
-            string notSetString = "Not set";
-            
-            var fileCount = MakeConversionCountDict(notSupportedString, notSetString);
+            string notSupportedString = " (Not supported)"; // String that is appended if the conversion is not supported
+            string notSetString = "Not set";                // String that is appended if the target format is not set in settings
 
+            //Create a dictionary with the count of files for each conversion from the original pronom to the target pronom
+            var fileCount = MakeConversionCountDict(notSupportedString, notSetString);
+            //Create a list of FileInfoGroups to be printed
             var formatList = FormatFileInfoGroups(fileCount, notSupportedString, notSetString, out int currentMax, out int targetMax);
 
             var oldColor = Console.ForegroundColor;
@@ -357,12 +258,14 @@ namespace FileConverter.Managers
             int total = formatList.Where(x => x.TargetPronom != notSetString && !x.TargetFormatName.Contains(notSupportedString)).Sum(x => x.Count);
             //Sum total from all entries in fileCount where the input pronom is the same as the output pronom
             int totalFinished = formatList.Where(x => x.CurrentPronom == x.TargetPronom).Sum(x => x.Count);
+
             //Print totals to user
             Console.ForegroundColor = GlobalVariables.INFO_COL;
             Console.WriteLine("\n{0, 6} file{1}", Files.Count, Files.Count > 1 ? "s" : "");
             Console.WriteLine("{0, 6} file{1} with supported output format specified", total, total > 1 ? "s" : "");
             Console.WriteLine("{0, 6} file{1} not at target format", total - totalFinished, total - totalFinished > 1 ? "s" : "");
 
+            // Print information about files that will be merged
             PrintMergeFiles();
             Console.ForegroundColor = oldColor;
         }
@@ -713,7 +616,7 @@ namespace FileConverter.Managers
             Logger.Instance.SetUpDocumentation(Files.Values.ToList());
         }
 
-        //******************************************************      Helper functions for formatting output      ***************************************************************//
+
         /// <summary>
         /// Creates a strikethrough string with the specified length <br></br>
         /// The padding for length is spaces on the left (negative length) or right (positive length) side of the text

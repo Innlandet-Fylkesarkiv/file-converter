@@ -61,7 +61,8 @@ namespace FileConverter.HelperClasses
 			Interlocked.Exchange(ref currentDone, currentJob); // atomic operation
 			elapsed = ts;
 			var timeSinceLastTick = DateTime.Now - lastTickTime;
-			if(timeSinceLastTick.TotalSeconds > 1)
+            // Restart the timer if it has been more than 1 second since the last update
+            if (timeSinceLastTick.TotalSeconds > 1)
 			{
 				timer.Change(0, -1);
 			}
@@ -95,11 +96,11 @@ namespace FileConverter.HelperClasses
 				currentDone, totalJobs);
 
 				string elapsedTime = elapsed.ToString(@"hh\:mm\:ss");
-				bool showEstimatedTime = currentDone < totalJobs && percent >= 25;
-				string estimatedTimeLeft;
+				bool showEstimatedTime = currentDone < totalJobs && percent >= 25;  // Only show estimated time after 25% done
+                string estimatedTimeLeft;
 				string displayText;
 
-				// Simple calculation for estimated remaining time, not super accurate
+				// Simple calculation for estimated remaining time
 				if (showEstimatedTime)
 				{
 					estimatedTimeLeft = TimeSpan.FromSeconds((elapsed.TotalSeconds / currentDone) * (totalJobs - currentDone)).ToString(@"hh\:mm\:ss");

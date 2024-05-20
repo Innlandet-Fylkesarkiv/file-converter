@@ -410,6 +410,7 @@ namespace ConversionTools.Converters
                 file.Failed = true;
                 try
                 {
+                    // Delete the temporary files
                     if (File.Exists(pdfaFileName))
                     {
                         File.Delete(pdfaFileName);
@@ -484,6 +485,7 @@ namespace ConversionTools.Converters
                 Logger.Instance.SetUpRunTimeLogMessage($"Unable to process file: {filename}. Exception: {e.Message}",true);
                 try
                 {
+                    // Delete the temporary file if it exists.
                     if (File.Exists(newfilename))
                     {
                         File.Delete(newfilename);
@@ -569,6 +571,7 @@ namespace ConversionTools.Converters
                 file.Failed = true;
                 try
                 {
+                    // Delete the temporary file if it exists.
                     if (File.Exists(tmpFilename))
                     {
                         File.Delete(tmpFilename);
@@ -607,17 +610,22 @@ namespace ConversionTools.Converters
                 List<string> sentPaths = new List<string>();
                 long groupSize = 0;
                 int groupCount = 1;
+                // Loop through all files and merge them into groups
                 foreach (var file in files)
                 {
+                    // Set the output file name
                     string outputFileName = $@"{filename}_{groupCount}.pdf";
                     file.NewFileName = outputFileName;
+                    // Check if the file has already been sent
                     if (sentPaths.Contains(file.FilePath))
                     {
                         continue;
                     }
+                    // Add file to current group
                     group.Add(file);
                     sentPaths.Add(file.FilePath);
                     groupSize += file.OriginalSize;
+                    // If the group size is larger than the max file size, merge the group and reset
                     if (groupSize > GlobalVariables.MaxFileSize)
                     {
                         MergeFilesToPDF(group, outputFileName, pronom);
@@ -626,6 +634,7 @@ namespace ConversionTools.Converters
                         groupCount++;
                     }
                 }
+                // Merge the last group
                 if (group.Count > 0)
                 {
                     string outputFileName = $@"{filename}_{groupCount}.pdf";
@@ -648,10 +657,11 @@ namespace ConversionTools.Converters
         {
             try
             {
+                // Get the PDF version and PDF-A conformance level
                 PdfVersion pdfVersion = GetPDFVersion(pronom);
-
                 PdfAConformanceLevel? conformanceLevel = GetPdfAConformanceLevel(pronom);
 
+                // Create a new PDF file
                 using (var pdfWriter = new PdfWriter(outputFileName, new WriterProperties().SetPdfVersion(pdfVersion)))
                 using (var pdfDocument = new PdfDocument(pdfWriter))
                 using (var document = new iText.Layout.Document(pdfDocument))
@@ -659,6 +669,7 @@ namespace ConversionTools.Converters
                     int filesNotFound = 0;
                     pdfDocument.SetTagged();
                     var filesCopy = new List<FileInfo2>(files);
+                    // Loop through all files and add them to the PDF
                     foreach (var file in filesCopy)
                     {
                         string filename = file.FilePath;
@@ -672,12 +683,14 @@ namespace ConversionTools.Converters
                         iText.Layout.Element.Image image = new iText.Layout.Element.Image(imageData);
                         document.Add(image);
                     }
+                    // Log if any files were not found
                     if (filesNotFound > 0)
                     {
                         Logger.Instance.SetUpRunTimeLogMessage($"MergeFiles - {filesNotFound} files not found", true);
                     }
                 }
 
+                // Remove the original files from the output directory and update the entry in File Manager
                 foreach (var file in files)
                 {
                     string filename = Path.Combine(file.FilePath);
@@ -685,14 +698,13 @@ namespace ConversionTools.Converters
                     file.IsMerged = true;
                     file.NewFileName = outputFileName;
                 }
-
+                // Create a new FileToConvert object and convert the file to PDF/A if needed
                 FileToConvert ftc = new FileToConvert(outputFileName, Guid.NewGuid(), pronom);
-
                 if (conformanceLevel != null)
                 {
                     ConvertFromPDFToPDFA(ftc, conformanceLevel);
                 }
-
+                // Document the new file in the File Manager
                 var result = Siegfried.Instance.IdentifyFile(outputFileName, false);
                 if (result != null)
                 {
@@ -790,6 +802,10 @@ namespace ConversionTools.Converters
             return pronom;
         }
 
+        /// <summary>
+        /// Gets the list of supported image pronoms
+        /// </summary>
+        /// <returns>A List of all supported image pronoms</returns>
         public List<string> GetImagePronoms()
         {
             return ImagePronoms;
