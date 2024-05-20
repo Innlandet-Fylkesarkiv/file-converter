@@ -1,15 +1,10 @@
 ﻿using System.Diagnostics;
 using Ghostscript.NET.Rasterizer;
 using System.Drawing.Imaging;
-using Ghostscript.NET;
 using System.Text.RegularExpressions;
 using FileConverter.HelperClasses;
 using FileConverter.Managers;
 using SF = FileConverter.Siegfried;
-using ZstdSharp.Unsafe;
-using FileConverter.Siegfried;
-using System.IO;
-using System.Threading;
 
 /// <summary>
 /// GhostScript is a subclass of the Converter class.   <br></br>
@@ -24,6 +19,9 @@ using System.Threading;
 /// 
 namespace ConversionTools.Converters
 {
+    /// <summary>
+    /// Class with the functions required to convert the formats specified above
+    /// </summary>
     public class GhostscriptConverter : Converter
     {
         private static readonly object lockobject = new object();

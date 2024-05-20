@@ -1,10 +1,11 @@
 ﻿using System.Text.Json;
 using System.DirectoryServices.AccountManagement;
-using Org.BouncyCastle.Asn1.Ocsp;
-using iText.StyledXmlParser.Css.Selector.Item;
 
 namespace FileConverter.HelperClasses
 {
+	/// <summary>
+	/// Class used for logging information to the log file created. 
+	/// </summary>
     public class Logger
 	{
 		private static Logger? instance;

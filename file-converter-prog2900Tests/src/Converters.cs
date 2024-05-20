@@ -1,20 +1,22 @@
 ﻿using ConversionTools.Converters;
-using FileConverter.HelperClasses;
-using FileConverter.Managers;
 using iText.Kernel.Pdf;
-using Org.BouncyCastle.Asn1.Cms;
-using System.Collections.Concurrent;
-using SF = FileConverter.Siegfried;
 
 
 namespace FileConverter.Converters.Tests
 {
 
+    /// <summary>
+    /// Unit tests for LibreOfficeConverter class.
+    /// </summary>
     [TestClass()]
     public class LibreOfficeTests
     {
         LibreOfficeConverter libreOffice = new LibreOfficeConverter();
 
+        /// <summary>
+        /// Class-level initialization for LibreOffice tests
+        /// </summary>
+        /// <param name="testContext">The context for the test</param>
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
@@ -24,6 +26,10 @@ namespace FileConverter.Converters.Tests
             string newDirectory = Directory.GetCurrentDirectory();
             string currentDirectory = Directory.GetCurrentDirectory();
         }
+
+        /// <summary>
+        /// Tests the GetListOfSupportedConversions method of LibreOfficeConverter
+        /// </summary>
         [TestMethod()]
         public void TestGetListOfSupportedConversions()
         {
@@ -36,6 +42,10 @@ namespace FileConverter.Converters.Tests
             // Assert
             Helper.AreDictionariesEquivalent(expectedConversions, actualConversions);
         }
+
+        /// <summary>
+        /// Tests GetSofficePath method for Unix platform
+        /// </summary>
         [TestMethod()]
         public void TestGetSofficePath_Unix()
         {
@@ -49,6 +59,9 @@ namespace FileConverter.Converters.Tests
             Assert.AreEqual(expectedPath, actualPath);
         }
 
+        /// <summary>
+        /// Tests GetSofficePath method for Windows platform
+        /// </summary>
         [TestMethod()]
         public void TestGetSofficePath_Windows()
         {
@@ -62,6 +75,9 @@ namespace FileConverter.Converters.Tests
             Assert.AreEqual(expectedPath, actualPath);
         }
 
+        /// <summary>
+        /// Tests GetSofficePath method for Linux platform with sofficePath
+        /// </summary>
         [TestMethod()]
         public void TestGetSofficePath_Linux()
         {
@@ -75,13 +91,16 @@ namespace FileConverter.Converters.Tests
             Assert.AreEqual(expectedPath, actualPath);
         }
 
+        /// <summary>
+        /// Tests GetConversionExtension method for PDF format
+        /// </summary>
         [TestMethod()]
         public void TestGetConversionExtension_PDF()
         {
             // Arrange
             var targetPronom = "fmt/276";
             var expectedExtension = "pdf";
-            string currentDirectory= Directory.GetCurrentDirectory();
+
             // Act
             var actualExtension = GetConversionExtensionTest(targetPronom);
 
@@ -89,6 +108,9 @@ namespace FileConverter.Converters.Tests
             Assert.AreEqual(expectedExtension, actualExtension);
         }
 
+        /// <summary>
+        /// Tests GetConversionExtension method for XLSX format
+        /// </summary>
         [TestMethod()]
         public void TestGetConversionExtension_XLSX()
         {
@@ -106,6 +128,9 @@ namespace FileConverter.Converters.Tests
             }
         }
 
+        /// <summary>
+        /// Tests GetConversionExtension method for unknown formats, expecting PDF as default
+        /// </summary>
         [TestMethod()]
         public void TestGetConversionExtension_PDFDefault()
         {
@@ -123,6 +148,9 @@ namespace FileConverter.Converters.Tests
             }
         }
 
+        /// <summary>
+        /// Tests GetLibreOfficeCommand method for Unix platform
+        /// </summary>
         [TestMethod()]
         public void TestGetLibreOfficeCommand_Unix()
         {
@@ -140,6 +168,9 @@ namespace FileConverter.Converters.Tests
             Assert.AreEqual(expectedCommand, actualCommand);
         }
 
+        /// <summary>
+        /// Tests GetLibreOfficeCommand method for Windows platform
+        /// </summary>
         [TestMethod()]
         public void TestGetLibreOfficeCommand_Windows()
         {
@@ -157,18 +188,35 @@ namespace FileConverter.Converters.Tests
             Assert.AreEqual(expectedCommand, actualCommand);
         }
 
-
-
+        /// <summary>
+        /// Helper method to generate LibreOffice command for testing
+        /// </summary>
+        /// <param name="destinationPDF">The destination PDF file path</param>
+        /// <param name="sourceDoc">The source document file path</param>
+        /// <param name="sofficeCommand">The soffice command</param>
+        /// <param name="targetFormat">The target format</param>
+        /// <param name="os">The platform identifier</param>
+        /// <returns>The generated LibreOffice command string</returns>
         string GetLibreOfficeCommandTest(string destinationPDF, string sourceDoc, string sofficeCommand, string targetFormat, PlatformID os)
         {
             return os == PlatformID.Unix ? $@"-c ""soffice --headless --convert-to {targetFormat} --outdir '{destinationPDF}' '{sourceDoc}'""" : $@"/C {sofficeCommand} --headless --convert-to {targetFormat} --outdir ""{destinationPDF}"" ""{sourceDoc}""";
         }
 
+        /// <summary>
+        /// Helper method to get expected conversions for testing
+        /// </summary>
+        /// <returns>A dictionary of expected conversions</returns>
         private Dictionary<string, List<string>> GetExpectedConversions()
         {
             return libreOffice.GetListOfSupportedConvesions();
         }
 
+        /// <summary>
+        /// Helper method to get soffice path for testing.
+        /// </summary>
+        /// <param name="sofficePath">Boolean indicating if soffice path is required</param>
+        /// <param name="os">The platform identifier</param>
+        /// <returns>The soffice path string.</returns>
         string GetSofficePathTest(bool sofficePath, PlatformID os)
         {
             string sofficePathString;
@@ -188,6 +236,11 @@ namespace FileConverter.Converters.Tests
             return sofficePathString;
         }
 
+        /// <summary>
+        /// Helper method to get conversion extension for testing
+        /// </summary>
+        /// <param name="targetPronom">The target pronom identifier</param>
+        /// <returns>The conversion extension string</returns>
         string GetConversionExtensionTest(string targetPronom)
         {
             string extensionNameForConversion;
@@ -200,7 +253,6 @@ namespace FileConverter.Converters.Tests
                 case "fmt/1828":
                     extensionNameForConversion = "xlsx";
                     break;
-
                 default:
                     extensionNameForConversion = "pdf";
                     break;
@@ -208,10 +260,11 @@ namespace FileConverter.Converters.Tests
 
             return extensionNameForConversion;
         }
-
-
     }
 
+    /// <summary>
+    /// Unit tests for EmailConverter class
+    /// </summary>
     [TestClass()]
     public class EmailConverterTests
     {
@@ -219,6 +272,10 @@ namespace FileConverter.Converters.Tests
         static string parentDirectory;
         static Siegfried.Siegfried siegfried;
 
+        /// <summary>
+        /// Class-level initialization for EmailConverter tests
+        /// </summary>
+        /// <param name="testContext">The context for the test</param>
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
@@ -228,10 +285,11 @@ namespace FileConverter.Converters.Tests
             emailConverter = new EmailConverter();
             parentDirectory = Directory.GetCurrentDirectory();
             siegfried = Siegfried.Siegfried.Instance;
-            
         }
 
-
+        /// <summary>
+        /// Tests the GetListOfSupportedConversions method of EmailConverter class
+        /// </summary>
         [TestMethod()]
         public void TestGetListOfSupportedConversions()
         {
@@ -245,6 +303,9 @@ namespace FileConverter.Converters.Tests
             Helper.AreDictionariesEquivalent(expectedConversions, actualConversions);
         }
 
+        /// <summary>
+        /// Tests the GetSupportedOS method of EmailConverter class
+        /// </summary>
         [TestMethod()]
         public void TestGetSupportedOS()
         {
@@ -258,6 +319,9 @@ namespace FileConverter.Converters.Tests
             CollectionAssert.AreEquivalent(expectedOS, actualOS);
         }
 
+        /// <summary>
+        /// Tests GetEmlToPdfCommand method for Linux platform
+        /// </summary>
         [TestMethod()]
         public void TestGetEmlToPdfCommand_Linux()
         {
@@ -274,6 +338,9 @@ namespace FileConverter.Converters.Tests
             Assert.AreEqual(expectedCommand, actualCommand);
         }
 
+        /// <summary>
+        /// Tests GetEmlToPdfCommand method for Windows platform
+        /// </summary>
         [TestMethod()]
         public void TestGetEmlToPdfCommand_Windows()
         {
@@ -290,6 +357,9 @@ namespace FileConverter.Converters.Tests
             Assert.AreEqual(expectedCommand, actualCommand);
         }
 
+        /// <summary>
+        /// Tests GetMsgToEmlCommandUnix method for Unix platform
+        /// </summary>
         [TestMethod()]
         public void TestGetMsgToEmlCommandUnix()
         {
@@ -304,6 +374,9 @@ namespace FileConverter.Converters.Tests
             Assert.AreEqual(expectedCommand, actualCommand);
         }
 
+        /// <summary>
+        /// Tests GetMsgToEmlCommandWindows method for Windows platform
+        /// </summary>
         [TestMethod()]
         public void TestGetMsgToEmlCommandWindows()
         {
@@ -321,9 +394,12 @@ namespace FileConverter.Converters.Tests
             // Assert
             Assert.AreEqual(expectedCommand, actualCommand);
         }
+
         /*
          * This test fails on Github actions and I do not understand why. Works fine on my computer and I dont have windows specific 
          * fucntionality. Checked on Github to make sure all files and folders are identical too. 
+         */
+        /*
         [TestMethod()]
         public async Task TestAddAttachmentFilesToWorkingSet()
         {
@@ -389,25 +465,47 @@ namespace FileConverter.Converters.Tests
         }
         */
 
-       
-
+        /// <summary>
+        /// Helper method to generate MsgToEml command for Unix platform for testing
+        /// </summary>
+        /// <param name="inputFilePath">The input file path.</param>
+        /// <returns>The generated MsgToEml command string.</returns>
         string GetMsgToEmlCommandUnixTest(string inputFilePath)
         {
             return $@"-c msgconvert ""{inputFilePath}"" ";
         }
+
+        /// <summary>
+        /// Helper method to generate MsgToEml command for Windows platform for testing
+        /// </summary>
+        /// <param name="inputFilePath">The input file path</param>
+        /// <param name="workingDirectory">The working directory</param>
+        /// <param name="destinationDir">The destination directory</param>
+        /// <returns>The generated MsgToEml command string</returns>
         string GetMsgToEmlCommandWindowsTest(string inputFilePath, string workingDirectory, string destinationDir)
         {
-            // Get the correct path to the exe file for the mailcovnerter
+            // Get the correct path to the exe file for the mail converter
             string relativeRebexFilePath = "src\\ConversionTools\\MailConverter.exe";
             string rebexConverterFile = Path.Combine(workingDirectory, relativeRebexFilePath);
             return $@" /C {rebexConverterFile} to-mime --ignore ""{inputFilePath}"" ""{destinationDir}"" ";
         }
 
+        /// <summary>
+        /// Helper method to get expected conversions for testing
+        /// </summary>
+        /// <returns>A dictionary of expected conversions.</returns>
         private Dictionary<string, List<string>> GetExpectedConversions()
         {
             return emailConverter.GetListOfSupportedConvesions();
         }
 
+        /// <summary>
+        /// Helper method to generate EmlToPdf command for testing
+        /// </summary>
+        /// <param name="inputFilePath">The input file pathj</param>
+        /// <param name="workingDirectory">The working directory</param>
+        /// <param name="os"> The platofrmID to indicate operating system </param>
+        /// <returns>String with the correct command for Eml to Pdf conversion</returns>
         string GetEmlToPdfCommandTest(string inputFilePath, string workingDirectory, PlatformID os)
         {
             // Get correct path to email converter relative to the workign directory
@@ -420,12 +518,19 @@ namespace FileConverter.Converters.Tests
         }
     }
 
+    /// <summary>
+    /// Unit tests for the IText7 class
+    /// </summary>
     [TestClass()]
     public class IText7Tests
     {
         private static IText7 iText7;
         private Helper helper = new Helper();
-        
+
+        /// <summary>
+        /// Class-level initialization for IText7 tests
+        /// </summary>
+        /// <param name="testContext">The context for the test</param>
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
@@ -437,10 +542,13 @@ namespace FileConverter.Converters.Tests
             string currentDirectory = Directory.GetCurrentDirectory();
         }
 
+        /// <summary>
+        /// Tests the GetListOfSupportedConversions method of IText7 class
+        /// </summary>
         [TestMethod]
         public void TestGetListOfSupportedConversions()
         {
-            string currentDirecroty = Directory.GetCurrentDirectory();
+            string currentDirectory = Directory.GetCurrentDirectory();
             // Arrange
             var expectedConversions = new Dictionary<string, List<string>>();
 
@@ -469,10 +577,13 @@ namespace FileConverter.Converters.Tests
             Helper.AreDictionariesEquivalent(expectedConversions, actualConversions);
         }
 
+        /// <summary>
+        /// Tests the GetListOfBlockingConversions method of IText7 class
+        /// </summary>
         [TestMethod]
         public void TestGetListOfBlockingConversions()
         {
-            // Arrange. No Conversion are blocking in IText7
+            // Arrange. No conversions are blocking in IText7
             var expectedBlockingConversions = new Dictionary<string, List<string>>();
 
             // Act
@@ -481,6 +592,10 @@ namespace FileConverter.Converters.Tests
             // Assert
             Helper.AreDictionariesEquivalent(expectedBlockingConversions, actualBlockingConversions);
         }
+
+        /// <summary>
+        /// Tests the GetSupportedOS method of IText7 class
+        /// </summary>
         [TestMethod]
         public void TestGetSupportedOS()
         {
@@ -493,6 +608,10 @@ namespace FileConverter.Converters.Tests
             // Assert
             CollectionAssert.AreEquivalent(expectedOS, actualOS);
         }
+
+        /// <summary>
+        /// Tests the GetPDFVersion method for a known PRONOM identifier
+        /// </summary>
         [TestMethod]
         public void TestGetPDFVersion()
         {
@@ -508,6 +627,9 @@ namespace FileConverter.Converters.Tests
         }
 
         /*
+        /// <summary>
+        /// Tests the GetPdfAConformanceLevel method for a known PRONOM identifier
+        /// </summary>
         [TestMethod]
         public void TestGetPdfAConformanceLevel()
         {
@@ -516,12 +638,17 @@ namespace FileConverter.Converters.Tests
             PdfAConformanceLevel? expectedConformanceLevel = PdfAConformanceLevel.PDF_A_3B;
 
             // Act
-            PdfAConformanceLevel? actualConformanceLevel = itext7.GetPdfAConformanceLevel(knownPronom);
+            PdfAConformanceLevel? actualConformanceLevel = iText7.GetPdfAConformanceLevel(knownPronom);
 
             // Assert
             Assert.AreEqual(expectedConformanceLevel, actualConformanceLevel);
-        }*/
+        }
+        */
+
         /*
+        /// <summary>
+        /// Tests the SetToPDFABasic method for a known PRONOM identifier
+        /// </summary>
         [TestMethod]
         public void TestSetToPDFABasic()
         {
@@ -532,13 +659,20 @@ namespace FileConverter.Converters.Tests
             string expectedPronom = "fmt/354";
 
             // Act
-            string actualPronom = itext7.SetToPDFABasic(knownPronom, out expectedConformanceLevel, out expectedVersion);
+            string actualPronom = iText7.SetToPDFABasic(knownPronom, out expectedConformanceLevel, out expectedVersion);
 
             // Assert
             Assert.AreEqual(expectedPronom, actualPronom);
             Assert.AreEqual(PdfAConformanceLevel.PDF_A_1B, expectedConformanceLevel);
             Assert.AreEqual(PdfVersion.PDF_1_4, expectedVersion);
-        }*/
+        }
+        */
+
+        /// <summary>
+        /// Helper method to get PDF version for a given PRONOM identifier
+        /// </summary>
+        /// <param name="pronom">The PRONOM identifier</param>
+        /// <returns>The corresponding PDF version</returns>
         PdfVersion GetPDFVersion(string pronom)
         {
             if (helper.PronomToPdfVersion.TryGetValue(pronom, out var pdfVersion))
@@ -550,10 +684,16 @@ namespace FileConverter.Converters.Tests
                 return PdfVersion.PDF_1_7;
             }
         }
+
         /*
+        /// <summary>
+        /// Helper method to get PDF/A conformance level for a given PRONOM identifier
+        /// </summary>
+        /// <param name="pronom">The PRONOM identifier</param>
+        /// <returns>The corresponding PDF/A conformance level, or null if not found</returns>
         PdfAConformanceLevel? GetPdfAConformanceLevel(string pronom)
         {
-            if (    .TryGetValue(pronom, out var pdfAConformanceLevel))
+            if (helper.PronomToPdfAConformanceLevel.TryGetValue(pronom, out var pdfAConformanceLevel))
             {
                 return pdfAConformanceLevel;
             }
@@ -561,7 +701,12 @@ namespace FileConverter.Converters.Tests
             {
                 return null;
             }
-        }*/
+        }
+        */
+
+        /// <summary>
+        /// Class-level cleanup for IText7 tests
+        /// </summary>
         [ClassCleanup]
         public static void ClassCleanup()
         {
@@ -578,14 +723,18 @@ namespace FileConverter.Converters.Tests
         }
     }
 
-    [TestClass()]
-    public class GhostScriptTests
-    {
-
-    }
-
+    /// <summary>
+    /// A helper class containing utility methods for dictionary comparison
+    /// </summary>
     public class Helper
     {
+        /// <summary>
+        /// Compares two dictionaries of lists to determine if they are equivalent
+        /// </summary>
+        /// <typeparam name="TKey">The type of keys in the dictionaries</typeparam>
+        /// <typeparam name="TValue">The type of values in the lists within the dictionaries</typeparam>
+        /// <param name="expected">The expected dictionary to compare against</param>
+        /// <param name="actual">The actual dictionary to compare</param>
         public static void AreDictionariesEquivalent<TKey, TValue>(Dictionary<TKey, List<TValue>> expected, Dictionary<TKey, List<TValue>> actual)
         {
             // Check if the dictionaries have the same number of key-value pairs
@@ -611,7 +760,8 @@ namespace FileConverter.Converters.Tests
                 }
             }
         }
-        public readonly List<string> ImagePronoms = [
+
+    public readonly List<string> ImagePronoms = [
           "fmt/3",
             "fmt/4",
             "fmt/11",

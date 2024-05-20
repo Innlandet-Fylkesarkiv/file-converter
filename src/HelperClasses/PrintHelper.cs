@@ -1,7 +1,7 @@
 ﻿namespace FileConverter.HelperClasses
 {
     /// <summary>
-    /// Functions that make printing out text to the console better formatted 
+    /// Class contains functions that make printing out text to the console better formatted 
     /// </summary>
     static class PrintHelper
     {

@@ -1,5 +1,8 @@
 ﻿namespace FileConverter.HelperClasses
 {
+    /// <summary>
+    /// Helper class for retrieving the correct name for the file format based on pronom code
+    /// </summary>
     static class PronomHelper
     {
         /// <summary>

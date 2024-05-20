@@ -4,11 +4,12 @@ using ConversionTools.Converters;
 using ConversionTools;
 using FileConverter.HelperClasses;
 using SF = FileConverter.Siegfried;
-using Org.BouncyCastle.Asn1;
-using System.Collections.Generic;
 
 namespace FileConverter.Managers
 {
+	/// <summary>
+	/// Class with functions and properties required for the files to be converted
+	/// </summary>
 	public class FileToConvert
 	{
 		public string FilePath { get; set; }            //From FileInfo

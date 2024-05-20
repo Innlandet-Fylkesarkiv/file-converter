@@ -1,5 +1,4 @@
 using ConversionTools.Converters;
-using System.Collections.Generic;
 
 namespace ConversionTools
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Threading;
+﻿using System.Text;
 	
 /// <summary>
 /// An ASCII progress bar for the console.

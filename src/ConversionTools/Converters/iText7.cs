@@ -12,8 +12,6 @@ using FileConverter.HelperClasses;
 using FileConverter.Siegfried;
 using System.Collections.Immutable;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Transactions;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
@@ -31,6 +29,9 @@ using System.Transactions;
 /// 
 namespace ConversionTools.Converters
 {
+    /// <summary>
+    /// Class with the functions reqwuired to convert the formats specified abvoe
+    /// </summary>
     public class IText7 : Converter
     {
         readonly ConcurrentQueue<string> AvailableICCFiles = new ConcurrentQueue<string>();

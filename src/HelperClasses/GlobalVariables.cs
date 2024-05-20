@@ -6,6 +6,9 @@
         TargetPronom,
         CurrentPronom,
     }
+    /// <summary>
+    /// Class with all globally accessible variables in the program
+    /// </summary>
     public static class GlobalVariables
     {
         public static Options ParsedOptions { get; set; } = new Options();

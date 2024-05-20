@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using System.Security.Cryptography;
-using FileConverter.Managers;
+﻿using FileConverter.Managers;
 using SF = FileConverter.Siegfried;
 
 namespace FileConverter.HelperClasses
@@ -11,6 +9,9 @@ namespace FileConverter.HelperClasses
         SHA256
     }
 
+    /// <summary>
+    /// All the relevant information properties for a file
+    /// </summary>
     public class FileInfo2
     {
         public string FilePath { get; set; } = "";                  // Filepath relative to input directory
