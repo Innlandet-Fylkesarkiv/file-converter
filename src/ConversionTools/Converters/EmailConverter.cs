@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.Metrics;
 using FileConverter.HelperClasses;
 using FileConverter.Managers;
 using SF = FileConverter.Siegfried;

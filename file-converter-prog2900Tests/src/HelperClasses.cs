@@ -1,5 +1,4 @@
-﻿using FileConverter.HelperClasses;
-using FileConverter.Managers;
+﻿using FileConverter.Managers;
 using FileConverter.Siegfried;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement;
@@ -8,10 +7,16 @@ using SF = FileConverter.Siegfried;
 
 namespace FileConverter.HelperClasses.Tests
 {
+    /// <summary>
+    /// Contains unit tests for the FileInfo2 class
+    /// </summary>
     [TestClass()]
     public class FileInfo2Tests
     {
-
+        /// <summary>
+        /// Initializes the test class by setting the current directory
+        /// </summary>
+        /// <param name="testContext">The test context</param>
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
@@ -21,6 +26,11 @@ namespace FileConverter.HelperClasses.Tests
             string newDirectory = Directory.GetCurrentDirectory();
             string currentDirectory = Directory.GetCurrentDirectory();
         }
+
+        /// <summary>
+        /// Tests the RenameFile method to ensure it renames the file correctly
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation</returns>
         [TestMethod]
         public async Task RenameFile_ShouldRenameFile()
         {
@@ -31,7 +41,7 @@ namespace FileConverter.HelperClasses.Tests
             SF.Siegfried sf = SF.Siegfried.Instance;
             string currentDirectory = Directory.GetCurrentDirectory();
             string originalFilePath = Path.Combine(currentDirectory, "src", "testFiles", originalFileName);
-            string newFilePath =  newFileName;
+            string newFilePath = newFileName;
             string testFilesDirectory = Path.Combine(currentDirectory, "src", "testFiles");
             File.Create(originalFilePath).Close(); // Create a dummy 
             List<FileInfo2>? siegfriedFiles = new List<FileInfo2?>();
@@ -39,7 +49,6 @@ namespace FileConverter.HelperClasses.Tests
 
             if (siegfriedFiles != null)
             {
-
                 foreach (FileInfo2 file in siegfriedFiles)
                 {
                     if (file.OriginalFilePath.Equals(originalFilePath))
@@ -56,13 +65,16 @@ namespace FileConverter.HelperClasses.Tests
             }
             else
             {
-                Assert.Fail("Siegfried file was not identifed correctly!");
+                Assert.Fail("Siegfried file was not identified correctly!");
             }
 
             // Cleanup
             File.Delete(newFileName); // Delete the renamed file
         }
 
+        /// <summary>
+        /// Tests the constructor of FileInfo2 with path and file info parameters
+        /// </summary>
         [TestMethod]
         public void TestFileInfo2ConstructorWithPathAndFileInfo()
         {
@@ -88,6 +100,9 @@ namespace FileConverter.HelperClasses.Tests
             Assert.AreEqual(originalFileInfo.Parent, fileInfoToCopy.Parent);
         }
 
+        /// <summary>
+        /// Tests the constructor of FileInfo2 with a SiegfriedFile parameter
+        /// </summary>
         [TestMethod]
         public void TestFileInfo2ConstructorWithSiegfriedFile()
         {
@@ -112,6 +127,9 @@ namespace FileConverter.HelperClasses.Tests
             Assert.AreEqual(siegfriedFile.matches[0].mime, fileInfo.OriginalMime);
         }
 
+        /// <summary>
+        /// Tests the constructor of FileInfo2 with a FileToConvert parameter
+        /// </summary>
         [TestMethod]
         public void TestFileInfo2ConstructorWithFileToConvert()
         {
@@ -134,6 +152,9 @@ namespace FileConverter.HelperClasses.Tests
             Assert.AreEqual(fileInfo.OriginalFilePath, Path.GetFileName(fileToConvert.FilePath));
         }
 
+        /// <summary>
+        /// Tests the UpdateSelf method to ensure it updates the FileInfo2 instance correctly
+        /// </summary>
         [TestMethod]
         public void TestUpdateSelfWithNonNullFileInfo()
         {
@@ -168,20 +189,28 @@ namespace FileConverter.HelperClasses.Tests
         }
     }
 
-
+    /// <summary>
+    /// Contains unit tests for the Logger class
+    /// </summary>
     [TestClass()]
     public class LoggerTests
     {
         private readonly Logger logger = Logger.Instance;
+
+        /// <summary>
+        /// Tests the SetRequesterAndConverter method to ensure it sets the Requester and Converter properties correctly
+        /// </summary>
         [TestMethod()]
         public void TestSetRequesterAndConverter()
         {
             // Arrange
             var expectedRequesterAndConverter = GetExpectedRequesterAndConverter();
             Debug.WriteLine("Expected Requester and Converter: " + expectedRequesterAndConverter);
+
             // Act
             GlobalVariables.ParsedOptions.AcceptAll = true;
             Logger.SetRequesterAndConverter();
+
             // Assert
             Assert.AreEqual(expectedRequesterAndConverter, Logger.JsonRoot.Requester);
             Assert.AreEqual(expectedRequesterAndConverter, Logger.JsonRoot.Converter);
@@ -189,6 +218,10 @@ namespace FileConverter.HelperClasses.Tests
             Debug.WriteLine("Actual Converter: " + Logger.JsonRoot.Converter);
         }
 
+        /// <summary>
+        /// Retrieves the expected requester and converter based on the current user and operating system
+        /// </summary>
+        /// <returns>The expected requester and converter as a string</returns>
         private static string GetExpectedRequesterAndConverter()
         {
             string user = Environment.UserName;

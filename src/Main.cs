@@ -1,13 +1,9 @@
 ﻿using CommandLine;
-using Org.BouncyCastle.Asn1;
 using System.Diagnostics;
 using FileConverter.HelperClasses;
 using FileConverter.LinuxSpecifics;
 using FileConverter.Managers;
 using SF = FileConverter.Siegfried;
-using FileConverter.Siegfried;
-using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
 
 namespace FileConverter
 {

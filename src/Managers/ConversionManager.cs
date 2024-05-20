@@ -4,8 +4,6 @@ using ConversionTools.Converters;
 using ConversionTools;
 using FileConverter.HelperClasses;
 using SF = FileConverter.Siegfried;
-using Org.BouncyCastle.Asn1;
-using System.Collections.Generic;
 
 namespace FileConverter.Managers
 {

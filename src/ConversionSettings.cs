@@ -1,9 +1,6 @@
 ﻿using System.Xml;
 using FileConverter.HelperClasses;
 using FileConverter.Managers;
-using iText.Layout.Properties;
-using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Asn1;
 
 namespace FileConverter
 {

@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using System.Security.Cryptography;
-using FileConverter.Managers;
+﻿using FileConverter.Managers;
 using SF = FileConverter.Siegfried;
 
 namespace FileConverter.HelperClasses

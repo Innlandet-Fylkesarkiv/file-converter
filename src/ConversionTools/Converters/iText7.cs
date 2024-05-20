@@ -12,8 +12,6 @@ using FileConverter.HelperClasses;
 using FileConverter.Siegfried;
 using System.Collections.Immutable;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Transactions;
 
 /// <summary>
 /// iText7 is a subclass of the Converter class.                                                     <br></br>
