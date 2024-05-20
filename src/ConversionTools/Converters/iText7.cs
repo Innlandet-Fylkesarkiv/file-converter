@@ -324,22 +324,23 @@ namespace ConversionTools.Converters
         /// <param name="conformanceLevel">The type of PDF-A to convert to</param>
         void ConvertFromPDFToPDFA(FileToConvert file, PdfAConformanceLevel conformanceLevel)
         {
+            string pdfaFileName = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_PDFA.pdf");
+            string filename = Path.Combine(file.FilePath);
+            int count = 0;
+            bool converted = false;
+            string pronom = file.Route.First();
+            PdfOutputIntent outputIntent;
+            // Remove interpolation from the PDF file
+            string? tmpFileName = RemoveInterpolation(filename);
+            if (tmpFileName == null)
+            {
+
+                Logger.Instance.SetUpRunTimeLogMessage("Error removing interpolation from PDF. File is not converted.", true, filename: file.FilePath);
+                file.Failed = true;
+                return;
+            }
             try
-            { 
-                string pdfaFileName = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_PDFA.pdf");
-                string filename = Path.Combine(file.FilePath);
-                int count = 0;
-                bool converted = false;
-                string pronom = file.Route.First();
-                PdfOutputIntent outputIntent;
-                // Remove interpolation from the PDF file
-                string? tmpFileName = RemoveInterpolation(filename);
-                if(tmpFileName == null)
-                {
-                    Logger.Instance.SetUpRunTimeLogMessage("Error removing interpolation from PDF. File is not converted.", true, filename: file.FilePath);
-                    file.Failed = true;
-                    return;
-                }
+            {
                 // Get an available ICC file
                 string ICCFile = GetICCFile();
                 // Initialize PdfOutputIntent object
@@ -406,6 +407,21 @@ namespace ConversionTools.Converters
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Error converting PDF to PDF-A. File is not converted: " + e.Message, true, filename: file.FilePath);
                 file.Failed = true;
+                try
+                {
+                    if (File.Exists(pdfaFileName))
+                    {
+                        File.Delete(pdfaFileName);
+                    }
+                    if (File.Exists(tmpFileName))
+                    {
+                        File.Delete(tmpFileName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Instance.SetUpRunTimeLogMessage("Error deleting temporary files: " + ex.Message, true, filename: file.FilePath);
+                }
             }
         }
 
@@ -465,6 +481,17 @@ namespace ConversionTools.Converters
             {
                 // Handle any exceptions during processing.
                 Logger.Instance.SetUpRunTimeLogMessage($"Unable to process file: {filename}. Exception: {e.Message}",true);
+                try
+                {
+                    if (File.Exists(newfilename))
+                    {
+                        File.Delete(newfilename);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Instance.SetUpRunTimeLogMessage("Error deleting temporary files: " + ex.Message, true, filename: filename);
+                }
                 return null;
             }
             // Log the pages where interpolation was removed.
@@ -482,6 +509,8 @@ namespace ConversionTools.Converters
         /// <param name="file">The file to convert</param>
         public void ConvertFromPDFToPDF(FileToConvert file)
         {
+            // Create a temporary file name
+            string tmpFilename = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_TEMP.pdf");
             try
             {
                 // Get the pdf version and the pdf-a conformance level
@@ -492,9 +521,7 @@ namespace ConversionTools.Converters
                 {
                     ConvertFromPDFToPDFA(file, conformanceLevel);
                     return;
-                }
-                // Create a temporary file name
-                string tmpFilename = Path.Combine(Path.GetDirectoryName(file.FilePath) ?? "", Path.GetFileNameWithoutExtension(file.FilePath) + "_TEMP.pdf");
+                }                
                 string filename = Path.Combine(file.FilePath);
                 int count = 0;
                 bool converted = false;
@@ -539,6 +566,17 @@ namespace ConversionTools.Converters
             {
                 Logger.Instance.SetUpRunTimeLogMessage("Error converting PDF to PDF/A or PDF. File is not converted: " + e.Message, true, filename: file.FilePath);
                 file.Failed = true;
+                try
+                {
+                    if (File.Exists(tmpFilename))
+                    {
+                        File.Delete(tmpFilename);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Instance.SetUpRunTimeLogMessage("Error deleting temporary files: " + ex.Message, true, filename: file.FilePath);
+                }
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using System.Xml;
 using FileConverter.HelperClasses;
 using FileConverter.Managers;
+using iText.Layout.Properties;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Asn1;
 
@@ -286,11 +287,12 @@ namespace FileConverter
             folderPath = folderPath.Replace('\\', Path.DirectorySeparatorChar);
             folderPath = folderPath.Replace('/', Path.DirectorySeparatorChar);
             GlobalVariables.FolderOverride.Add(folderPath, ConversionSettings);
-            List<string> subfolders = GetSubfolderPaths(folderPath);
+            List<string> subfolders = GetSubfolderPaths(Path.Combine(GlobalVariables.ParsedOptions.Output,folderPath));
 
             foreach (string subfolder in subfolders)
             {
-                GlobalVariables.FolderOverride.TryAdd(subfolder, ConversionSettings);
+                var adjustedPath = Path.GetRelativePath(GlobalVariables.ParsedOptions.Output, subfolder);
+                GlobalVariables.FolderOverride.TryAdd(adjustedPath, ConversionSettings);
             }
         }
 
@@ -301,31 +303,25 @@ namespace FileConverter
         /// <returns>list with paths to all subfolders</returns>
         private static List<string> GetSubfolderPaths(string folderName)
         {
-            string outputPath = GlobalVariables.ParsedOptions.Output;
+            //Remove output path from folderName
+            string relativePath = folderName;//folderName.Replace(GlobalVariables.ParsedOptions.Output, "");
             List<string> subfolders = [];
-
+            //subfolders.Add(folderName);
             try
             {
-                string targetFolderPath = Path.Combine(outputPath, folderName);
+                subfolders.Add(folderName);
+                string targetFolderPath = relativePath;//Path.Combine(GlobalVariables.ParsedOptions.Output, relativePath);
+                var subfolderpaths = Directory.GetDirectories(targetFolderPath);
 
-                if (Directory.Exists(targetFolderPath))
+                // Recursively get subfolders of each subfolder
+                foreach (string subfolder in subfolderpaths)
                 {
-                    // Add immediate subfolders
-                    foreach (string subfolder in Directory.GetDirectories(targetFolderPath))
-                    {
-                        // Recursively get subfolders of each subfolder
-                        subfolders.AddRange(GetSubfolderPaths(Path.Combine(folderName, Path.GetFileName(subfolder))));
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"Folder '{folderName}' does not exist in '{outputPath}'");
-                    Logger.Instance.SetUpRunTimeLogMessage($"Folder '{folderName}' does not exist in '{outputPath}'", true, filename: folderName);
+                    subfolders.AddRange(GetSubfolderPaths(subfolder));
                 }
             }
             catch (UnauthorizedAccessException)
             {
-                Logger.Instance.SetUpRunTimeLogMessage("You do not have permission to access this folder", true, filename: outputPath);
+                Logger.Instance.SetUpRunTimeLogMessage("You do not have permission to access this folder", true, filename: folderName);
             }
 
             return subfolders;

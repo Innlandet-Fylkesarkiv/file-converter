@@ -483,17 +483,18 @@ namespace FileConverter.Managers
 		private static void AwaitConversion(ConcurrentDictionary<Guid, CountdownEvent> countdownEvents)
 		{
 			int total = countdownEvents.Count;
-			var startTime = DateTime.Now;
+            // Use a stopwatch to keep track of how long the conversion has been running
+            var sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
 
-			using (ProgressBar pb = new ProgressBar(total))
+            using (ProgressBar pb = new ProgressBar(total))
 			{
 				int numFinished = 0;
 				// Continously loop to check for new files to be marked as converted until every file in working set is converted
 				while (numFinished < countdownEvents.Count)
 				{
 					numFinished = countdownEvents.Values.Count(c => c.IsSet);
-					var elapsed = DateTime.Now - startTime;
-					pb.Report((float)(numFinished) / (float)total, numFinished, elapsed);
+					pb.Report((float)(numFinished) / (float)total, numFinished, sw.Elapsed);
 					Thread.Sleep(100);	// Sleep to not use unnecessary resources looping super fast
 				}
 			}

@@ -128,9 +128,7 @@ namespace ConversionTools.Converters
 
                         if (exitCode != 0)      // Something went wrong, warn the user
                         {
-                            Console.WriteLine($"\n Filepath: {file.FilePath} :  Exit Code: {exitCode}\n");
-                            Console.WriteLine("Standard Output:\n" + standardOutput);
-                            Console.WriteLine("Standard Error:\n" + standardError);
+                            Logger.Instance.SetUpRunTimeLogMessage("Error converting file to PDF. File is not converted: " + standardError, true, filename: inputFilePath);
                         }
 
                         // Get the new filename and check if the document was converted correctly
