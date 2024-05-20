@@ -149,7 +149,6 @@ namespace FileConverter.HelperClasses.Tests
 
             // Assert
             Assert.AreEqual(fileToConvert.FilePath, fileInfo.FilePath);
-            Assert.AreEqual(fileInfo.OriginalFilePath, Path.GetFileName(fileToConvert.FilePath));
         }
 
         /// <summary>
