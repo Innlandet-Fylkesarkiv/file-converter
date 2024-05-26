@@ -1,7 +1,7 @@
 <root>
   <Requester>Requester</Requester>
   <Converter>Converter</Converter>
-  <InputFolder>testfiles</InputFolder>
+  <InputFolder>testfiles/mixed</InputFolder>
   <OutputFolder>output</OutputFolder>
   <MaxThreads></MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
@@ -217,7 +217,7 @@
   </FileClass>
   <FileClass>
     <ClassName>PostScript</ClassName>
-    <Default>fmt/477</Default>
+    <Default>fmt/19</Default>
     <FileTypes>
       <Filename>ps</Filename>
       <Pronoms>fmt/124, x-fmt/91, x-fmt/406, x-fmt/407, x-fmt/408, fmt/501</Pronoms>

@@ -559,7 +559,7 @@ namespace ConversionTools.Converters
                     (PDFPronoms.Contains(file.Route.First()) || PDFAPronoms.Contains(file.Route.First())))
             {
                 // Set the new filename
-                ReplaceFileInList(outputFilePath, file);
+                //ReplaceFileInList(outputFilePath, file);
                 var converter = new IText7();
                 // Add iText7 to the list of conversion tools
                 var FileInfoMap = ConversionManager.Instance.FileInfoMap;
