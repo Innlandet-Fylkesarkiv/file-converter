@@ -1,12 +1,11 @@
 <root>
   <Requester>Requester</Requester>
   <Converter>Converter</Converter>
-  <InputFolder>testfiles/mixed</InputFolder>
+  <InputFolder>testfiles</InputFolder>
   <OutputFolder>output</OutputFolder>
   <MaxThreads></MaxThreads>
   <ChecksumHashing>SHA256</ChecksumHashing>
-  <Timeout>
-  </Timeout>
+  <Timeout>5</Timeout>
   <MaxFileSize>1073741824</MaxFileSize>
   <FileClass>
     <ClassName>EXCEL</ClassName>
@@ -43,7 +42,7 @@
       <Filename>HTML</Filename>
       <Pronoms>fmt/103, fmt/102, fmt/96, fmt/97, fmt/98, fmt/99, fmt/100, fmt/471</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default></Default>
+      <Default />
     </FileTypes>
   </FileClass>
   <FileClass>
@@ -59,7 +58,7 @@
       <Filename>jpg</Filename>
       <Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398, x-fmt/390, x-fmt/391, fmt/645, fmt/1507, fmt/112, fmt/367</Pronoms>
       <DoNotConvert>NO</DoNotConvert>
-      <Default />
+      <Default></Default>
     </FileTypes>
     <FileTypes>
       <Filename>png</Filename>
@@ -298,12 +297,12 @@
       <Default />
     </FileTypes>
   </FileClass>
-	<FolderOverride>
-		<FolderPath>apekatter</FolderPath>
-		<!-- Path after input folder example: /documents -->
-		<Pronoms>fmt/41, fmt/42, fmt/43, fmt/44, x-fmt/398</Pronoms>
-		<ConvertTo>fmt/14</ConvertTo>
-		<MergeImages>YES</MergeImages>
-		<!-- Yes, No -->
-	</FolderOverride>
+  <FolderOverride>
+    <FolderPath>apekatter</FolderPath>
+    <Pronoms>
+    </Pronoms>
+    <ConvertTo>
+    </ConvertTo>
+    <MergeImages>YES</MergeImages>
+  </FolderOverride>
 </root>

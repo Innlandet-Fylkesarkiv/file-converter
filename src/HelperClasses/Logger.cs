@@ -59,8 +59,9 @@ namespace FileConverter.HelperClasses
 		/// </summary>
 		public class JsonDataOutputNotSet
 		{
-			public string? Filename { get; set; }
-			public string? OriginalPronom { get; set; }
+            public string? OriginalFilePath { get; set; }
+            public string? NewFilePath { get; set; }
+            public string? OriginalPronom { get; set; }
 			public string? OriginalChecksum { get; set; }
 			public long OriginalSize { get; set; }
 		}
@@ -70,8 +71,9 @@ namespace FileConverter.HelperClasses
 		/// </summary>
 		public class JsonDataOutputNotSupported
 		{
-			public string? Filename { get; set; }
-			public string? OriginalPronom { get; set; }
+            public string? OriginalFilePath { get; set; }
+            public string? NewFilePath { get; set; }
+            public string? OriginalPronom { get; set; }
 			public string? OriginalChecksum { get; set; }
 			public long OriginalSize { get; set; }
 			public string? TargetPronom { get; set; }
@@ -197,8 +199,8 @@ namespace FileConverter.HelperClasses
 			foreach (FileInfo2 file in files)
 			{
 				// Comment out or remove these 2 lines if absolute path is desired over relative path
-				file.FilePath = Path.GetRelativePath(Directory.GetCurrentDirectory(), file.FilePath);
-				file.OriginalFilePath = Path.GetRelativePath(Directory.GetCurrentDirectory(), file.OriginalFilePath);
+				file.FilePath = Path.GetFullPath(file.FilePath);
+				file.OriginalFilePath = Path.GetFullPath(file.OriginalFilePath);
                 // If file was merged, add it to the merged files
                 if (file.ShouldMerge)
 				{
@@ -209,8 +211,9 @@ namespace FileConverter.HelperClasses
 				{
 					var jsonData = new JsonDataOutputNotSupported
 					{
-						Filename = file.FilePath,
-						OriginalPronom = file.OriginalPronom,
+						NewFilePath = file.FilePath,
+						OriginalFilePath = file.OriginalFilePath,
+                        OriginalPronom = file.OriginalPronom,
 						OriginalChecksum = file.OriginalChecksum,
 						OriginalSize = file.OriginalSize,
 						TargetPronom = ConversionSettings.GetTargetPronom(file)
@@ -222,8 +225,9 @@ namespace FileConverter.HelperClasses
 				{
 					var jsonData = new JsonDataOutputNotSet
 					{
-						Filename = file.FilePath,
-						OriginalPronom = file.OriginalPronom,
+                        NewFilePath = file.FilePath,
+                        OriginalFilePath = file.OriginalFilePath,
+                        OriginalPronom = file.OriginalPronom,
 						OriginalChecksum = file.OriginalChecksum,
 						OriginalSize = file.OriginalSize
 					};

@@ -335,7 +335,6 @@ namespace ConversionTools.Converters
             string? tmpFileName = RemoveInterpolation(filename);
             if (tmpFileName == null)
             {
-
                 Logger.Instance.SetUpRunTimeLogMessage("Error removing interpolation from PDF. File is not converted.", true, filename: file.FilePath);
                 file.Failed = true;
                 return;
@@ -396,7 +395,7 @@ namespace ConversionTools.Converters
                 {
                     File.Delete(tmpFileName);
                     File.Delete(filename);
-                    if(Path.GetExtension(filename) != ".pdf")
+                    if(Path.GetExtension(filename) != ".pdf" && !GlobalVariables.AllBin)
                     {
                         filename = Path.ChangeExtension(filename, ".pdf");
                     }
@@ -560,8 +559,12 @@ namespace ConversionTools.Converters
                 {
                     //Remove old file and replace with new
                     File.Delete(filename);
+                    if (Path.GetExtension(filename) != ".pdf" && !GlobalVariables.AllBin)
+                    {
+                        filename = Path.ChangeExtension(filename, ".pdf");
+                    }
                     File.Move(tmpFilename, filename);
-                    //Rename reference in filemanager
+                    // Rename reference in FileManager
                     ReplaceFileInList(filename, file);
                 }
             }

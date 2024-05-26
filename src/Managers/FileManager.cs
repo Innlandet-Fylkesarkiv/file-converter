@@ -94,6 +94,16 @@ namespace FileConverter.Managers
                     Files.TryRemove(kvp.Key, out _);
                 }
             }
+            //Check if all files are either .bin or .txt
+            foreach (var kvp in Files)
+            {
+                var ext = Path.GetExtension(kvp.Value.FilePath);
+                if (ext != ".bin" || ext != ".txt")
+                {
+                    GlobalVariables.AllBin = false;
+                    break;//Only need to check if one or more files are not .bin or .txt
+                }
+            }
         }
 
         /// <summary>

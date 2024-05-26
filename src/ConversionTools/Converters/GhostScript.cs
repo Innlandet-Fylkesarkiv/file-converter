@@ -270,11 +270,17 @@ namespace ConversionTools.Converters
                     string relPath = Path.GetRelativePath(Directory.GetCurrentDirectory(), file.FilePath);
 
                     string folderPath = relPath.Substring(0, relPath.LastIndexOf('.'));
-                    CreateFolder(folderPath);
 
                     using (var rasterizer = new GhostscriptRasterizer())
                     {
                         rasterizer.Open(file.FilePath);
+                        if(rasterizer.PageCount == 1)
+                        {
+                            rasterizer.Close();
+                            rasterizer.Dispose();
+                            ConvertPDFToSingleImage(file, extension);
+                            return;
+                        }
                         ImageFormat? imageFormat = GetImageFormat(extension);
                         if (imageFormat != null)
                         {
@@ -308,6 +314,49 @@ namespace ConversionTools.Converters
             catch (Exception e)
             {
                 log.SetUpRunTimeLogMessage("Error when converting file with GhostScript. Error message: " + e.Message, true, filename: file.FilePath);
+            }
+        }
+
+        /// <summary>
+        /// Convert a PDF with only one page to an image. This is mainly used for Image to Image conversions through iText7 and GhostScript
+        /// </summary>
+        /// <param name="file">File that is converted</param>
+        /// <param name="extension">The output extension with preceding '.'</param>
+        private static void ConvertPDFToSingleImage(FileToConvert file, string extension)
+        {
+            if (!OperatingSystem.IsWindowsVersionAtLeast(6,1))
+            {
+                return;
+            }
+            try
+            {
+                string outputFileName = Path.GetFileNameWithoutExtension(file.FilePath);
+                string folderPath = file.FilePath.Substring(0, file.FilePath.IndexOf(outputFileName));
+                string outputPath = String.Format("{0}{1}{2}", folderPath,outputFileName, extension);
+
+                // Start the rasterizer
+                using (var rasterizer = new GhostscriptRasterizer())
+                {
+                    rasterizer.Open(file.FilePath);
+                    ImageFormat? imageFormat = GetImageFormat(extension);
+                    // Handle the case of the image format being null
+                    if (imageFormat == null)
+                    {
+                        throw new Exception("ImageFormat was null");
+                    }
+                    // Create the output path and save the image
+                    
+                    using (var image = rasterizer.GetPage(300, 1))
+                    {
+                        image.Save(outputPath, imageFormat);
+                    }
+                }
+                //Check if the conversion was successful
+                file.Failed = CheckConversionStatus(outputPath, file);
+            }
+            catch (Exception e)
+            {
+                Logger.Instance.SetUpRunTimeLogMessage("Error when converting file with GhostScript. Error message: " + e.Message, true, filename: file.FilePath);
             }
         }
 

@@ -609,6 +609,7 @@ namespace FileConverter.Siegfried
                         {
                             foreach (FileInfo2 file in files)
                             {
+                                //TODO: File needs to get original file path from input, not output
                                 fileBag.Add(file);
                             }
                         }
